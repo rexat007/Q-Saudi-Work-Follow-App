@@ -1,3 +1,4 @@
+import {missingWorkspaceScopes, workspaceScopeDeniedCode} from '../utils/googleWorkspaceScopes';
 /** Workspace permission grant only. Never calls Firebase sign-in/reauth or creates an app identity. */
 const scopes=['openid','email','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/script.projects'];
 let loading: Promise<void> | undefined;
@@ -28,8 +29,8 @@ export async function requestWorkspaceGoogleToken(expectedSubject: string, still
       callback:(response:any)=>{
         if(response.error) return reject({code:response.error,error_description:response.error_description});
         if(!response.access_token) return reject(new Error('AUTHORIZATION_DENIED'));
-        const granted=new Set(String(response.scope||'').split(' '));
-        if(!scopes.slice(2).every(s=>granted.has(s))) return reject(new Error('SCOPE_DENIED'));
+        const missingScopes=missingWorkspaceScopes(response.scope);
+        if(missingScopes.length) return reject(new Error(typeof response.scope==='string' ? workspaceScopeDeniedCode(missingScopes) : 'SCOPE_DENIED'));
         resolve(response.access_token);
       },
       error_callback:(error:any)=>reject({code:error.type==='popup_closed'?'popup_closed_by_user':error.type==='popup_failed_to_open'?'popup_blocked':'network_error'}),

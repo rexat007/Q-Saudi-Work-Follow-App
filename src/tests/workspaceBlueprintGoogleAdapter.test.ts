@@ -6,6 +6,7 @@ vi.mock('../../server/workspace.service',()=>({serverWorkspaceService:{validateD
 vi.mock('../../server/workspace.isolation',()=>({WorkspaceStorageBoundary:class{eligibleDestination=f.eligible;assertCanonicalStorage=f.registry}}));
 import {projectGoogleBlueprintPort} from '../../server/projectGoogleBlueprint.adapter';
 import {workspaceOperation} from '../services/projectGoogleWorkspace.server';
+import {REQUIRED_WORKSPACE_SCOPES} from '../utils/googleWorkspaceScopes';
 beforeEach(()=>{
  vi.clearAllMocks();const b=blueprintFixture();
  f.token.mockResolvedValue({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects']});
@@ -17,6 +18,30 @@ beforeEach(()=>{
 describe('GWS1B Google native generation API boundary',()=>{
  it('creates a tagged native spreadsheet under the Project folder without files.copy',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.createProjectSpreadsheet('Project name','folder',workspaceOperation('P1'),'TEST-V1');expect(f.fileCreate).toHaveBeenCalledWith(expect.objectContaining({requestBody:expect.objectContaining({mimeType:'application/vnd.google-apps.spreadsheet',parents:['folder'],appProperties:expect.objectContaining({resourceRole:'SPREADSHEET',workspaceBlueprintVersion:'TEST-V1'})})}));expect(f.copy).not.toHaveBeenCalled()});
  it('requires script.projects for generation while preserving the narrow Drive scope',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.authorizeProvisioning();f.token.mockResolvedValueOnce({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});await expect(p.authorizeProvisioning()).rejects.toThrow('SCOPE_DENIED')});
+ it.each([
+  ['script.projects', ['https://www.googleapis.com/auth/script.projects']],
+  ['drive.file', ['https://www.googleapis.com/auth/drive.file']],
+  ['spreadsheets', ['https://www.googleapis.com/auth/spreadsheets']],
+  ['spreadsheets,drive.file,script.projects', [...REQUIRED_WORKSPACE_SCOPES]],
+ ])('returns the bounded missing-scope code %s from server token introspection',async(aliases,missing)=>{
+  f.token.mockResolvedValueOnce({scopes:REQUIRED_WORKSPACE_SCOPES.filter(scope=>!missing.includes(scope)),access_token:'sensitive-access-fixture',id_token:'sensitive-id-fixture',email:'sensitive-person-fixture'});
+  const error=await projectGoogleBlueprintPort('sensitive-access-fixture','P1').authorizeProvisioning().catch(error=>error);
+  expect(error).toMatchObject({code:`SCOPE_DENIED:${aliases}`,message:`SCOPE_DENIED:${aliases}`,status:403});
+  expect(JSON.stringify(error)).not.toMatch(/sensitive-/);expect(f.fileGet).not.toHaveBeenCalled();expect(f.fileCreate).not.toHaveBeenCalled();expect(f.scriptCreate).not.toHaveBeenCalled();
+ });
+ it('normalizes token-info formatting without accepting read-only or broader grants as replacements',async()=>{
+  f.token.mockResolvedValueOnce({scopes:REQUIRED_WORKSPACE_SCOPES.map(scope=>`  ${scope}\t`)});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).resolves.toBeUndefined();
+  f.token.mockResolvedValueOnce({scopes:['https://www.googleapis.com/auth/drive','https://www.googleapis.com/auth/spreadsheets.readonly','https://www.googleapis.com/auth/script.projects.readonly']});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED:spreadsheets,drive.file,script.projects',status:403});
+ });
+ it('does not invent missing scope names from a provider 403 without a granted-scope list',async()=>{
+  f.token.mockRejectedValueOnce({response:{status:403,data:{access_token:'sensitive-access-fixture'}}});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED',message:'SCOPE_DENIED',status:403});
+ });
+ it('fails closed without inventing names when token metadata has no scopes field',async()=>{
+  f.token.mockResolvedValueOnce({});await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED',status:403});
+ });
  it('reuses local destination registry checks without migration validation and rejects non-folders',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.validateDestination('root','P1');expect(f.eligible).toHaveBeenCalledWith('P1','root');expect(f.destination).not.toHaveBeenCalled();f.fileGet.mockResolvedValueOnce({data:{mimeType:'application/vnd.google-apps.spreadsheet'}});await expect(p.validateDestination('root','P1')).rejects.toThrow('DESTINATION_FOLDER_INVALID')});
  it('creates a container-bound script with the generated spreadsheet parent',async()=>{await projectGoogleBlueprintPort('fixture','P1').createBoundScript('file');expect(f.scriptCreate).toHaveBeenCalledWith({requestBody:{title:'Project P1 automation',parentId:'file'}})});
  it('installs exactly the versioned script files and manifest',async()=>{const b=blueprintFixture();await projectGoogleBlueprintPort('fixture','P1').installScript('script',b);expect(f.scriptInstall).toHaveBeenCalledWith({scriptId:'script',requestBody:{files:b.script!.files}})});

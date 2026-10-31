@@ -1,6 +1,7 @@
 import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint/expansion';
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} from '../src/services/projectGoogleSheetContract';
 import { google } from 'googleapis';
+import {missingWorkspaceScopes, workspaceScopeDeniedCode} from '../src/utils/googleWorkspaceScopes';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
@@ -78,7 +79,8 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     },
     async authorizeProvisioning(){await guarded('AUTHORIZATION_REQUIRED',async()=>{
       const info=await auth.getTokenInfo(token);
-      if(!['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects'].every(s=>info.scopes.includes(s)))return gwsFail('SCOPE_DENIED',403);
+      const missingScopes=missingWorkspaceScopes(info.scopes);
+      if(missingScopes.length)return gwsFail(Array.isArray(info.scopes) ? workspaceScopeDeniedCode(missingScopes) : 'SCOPE_DENIED',403);
     });},
     validateDestination:validateInitialWorkspaceDestination,
     async findResource(op,role){return guarded('WORKSPACE_RECOVERY_REQUIRED',async()=>{
