@@ -2,6 +2,7 @@ import {workspaceFailureCode,visiblePreviousWorkspaceError} from '../../utils/wo
 import { beginWorkspaceIntent, workspaceIntentCurrent, type WorkspaceAuthorizationIntent } from '../../utils/workspaceAuthorizationIntent';
 import { continuityStateLabel,workspaceDestinationMessageKey } from '../../utils/googleWorkspaceErrors';
 import {workspaceScopeDiagnosticCode} from '../../utils/googleWorkspaceScopes';
+import {workspaceGenerationDiagnosticCode} from '../../utils/workspaceGenerationDiagnostics';
 import type { ProjectGoogleStatus } from '../../types/projectGoogleWorkspace';
 import {canPresentProjectAction} from '../../utils/permissions';
 import {PricingCleanupAction} from './PricingCleanupAction';
@@ -4045,7 +4046,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   )}
 
-                  {syncNotice?.type === 'error' && /[A-Z][A-Z_]{3,}/.test(syncNotice.text) && <code role="status">{workspaceScopeDiagnosticCode(syncNotice.text) || syncNotice.text.match(/[A-Z][A-Z_]{3,}/)?.[0]}</code>}
+                  {syncNotice?.type === 'error' && /[A-Z][A-Z_]{3,}/.test(syncNotice.text) && <code role="status">{workspaceGenerationDiagnosticCode(syncNotice.text) || workspaceScopeDiagnosticCode(syncNotice.text) || syncNotice.text.match(/[A-Z][A-Z_]{3,}/)?.[0]}</code>}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-[11px] text-stone-400">
                     <div>

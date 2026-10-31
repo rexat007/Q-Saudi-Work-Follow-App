@@ -4,7 +4,7 @@ import { google } from 'googleapis';
 import {missingWorkspaceScopes, workspaceScopeDeniedCode} from '../src/utils/googleWorkspaceScopes';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
-import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
+import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
 import { blueprintRequests, blueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
 
 /** Human-user OAuth only. No hidden template access, service account, refresh token or files.copy. */
@@ -101,27 +101,32 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       const result=await drive.files.create({requestBody:{name,mimeType:'application/vnd.google-apps.spreadsheet',parents:[folderId],appProperties:tagged('SPREADSHEET',version)},fields:'id',supportsAllDrives:true});
       return result.data.id||gwsFail('SPREADSHEET_GENERATION_FAILED');
     });},
-    async applyBlueprint(fileId,blueprint){await guarded('SPREADSHEET_GENERATION_FAILED',async()=>{
+    async applyBlueprint(fileId,blueprint){await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',async()=>{
       await owned(fileId,blueprint.version);
       const snapshot=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
       const requests=blueprintRequests(blueprint,snapshot.data);
       for(const batch of blueprintRequestBatches(requests))await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:batch}});
       await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:[{updateSpreadsheetProperties:{properties:blueprint.properties,fields:Object.keys(blueprint.properties).join(',')}}]}});
     });},
-    async createBoundScript(fileId){return guarded('SCRIPT_PROJECT_CREATION_FAILED',async()=>{
+    async createBoundScript(fileId){return withWorkspaceGenerationDiagnostic('CREATE_BOUND_SCRIPT',async()=>{
       await owned(fileId);
       const result=await script.projects.create({requestBody:{title:`Project ${projectId} automation`,parentId:fileId}});
       return result.data.scriptId||gwsFail('SCRIPT_PROJECT_CREATION_FAILED');
     });},
-    async installScript(scriptId,blueprint){await guarded('SCRIPT_CONTENT_INSTALL_FAILED',async()=>{
+    async installScript(scriptId,blueprint){await withWorkspaceGenerationDiagnostic('INSTALL_SCRIPT_CONTENT',async()=>{
       await scriptParent(scriptId,blueprint.version);
       await script.projects.updateContent({scriptId,requestBody:{files:blueprint.script!.files}});
     });},
-    async verifyGenerated(fileId,scriptId,blueprint){await guarded('WORKSPACE_STRUCTURE_INVALID',async()=>{
-      await owned(fileId,blueprint.version);if(await scriptParent(scriptId,blueprint.version)!==fileId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
-      const workbook=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});verifyBlueprintWorkbook(blueprint,workbook.data);
-      const content=await script.projects.getContent({scriptId});
-      if(JSON.stringify(normalizedFiles(content.data.files||[]))!==JSON.stringify(normalizedFiles(blueprint.script!.files)))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
-    });},
+    async verifyGenerated(fileId,scriptId,blueprint){
+      await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',()=>owned(fileId,blueprint.version));
+      await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,blueprint.version)!==fileId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');});
+      await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
+        const workbook=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});verifyBlueprintWorkbook(blueprint,workbook.data);
+      });
+      await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{
+        const content=await script.projects.getContent({scriptId});
+        if(JSON.stringify(normalizedFiles(content.data.files||[]))!==JSON.stringify(normalizedFiles(blueprint.script!.files)))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
+      });
+    },
   };
 }
