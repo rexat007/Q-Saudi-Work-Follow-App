@@ -1,4 +1,4 @@
-import { authorizeTemplateSelection } from './googleTemplatePicker';
+import { selectWorkspaceDestinationFolder } from './googleTemplatePicker';
 import { classifyGoogleWorkspaceError } from '../utils/googleWorkspaceErrors';
 import type { ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { StorageProviderType } from '../types/workspace';
@@ -147,14 +147,17 @@ export class ClientWorkspaceService {
     }
   }
 
-  public async authorizeProjectTemplate(projectId: string): Promise<void> {
-    const headers = await this.getWorkspaceHeaders({}, true);
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/template`, { headers });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.code || 'TEMPLATE_CONFIGURATION_REQUIRED');
+  public async selectProjectWorkspaceDestination(projectId: string): Promise<string> {
     const token = this.getAccessToken();
     if (!token) throw new Error('AUTHORIZATION_DENIED');
-    await authorizeTemplateSelection(token, result.data.id);
+    const destinationRootFolderId = await selectWorkspaceDestinationFolder(token);
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
+    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/destination`, {
+      method:'POST',headers,body:JSON.stringify({destinationRootFolderId}),
+    });
+    const result=await response.json();
+    if(!response.ok)throw new Error(result.code||'DESTINATION_FOLDER_INVALID');
+    return result.data.destinationRootFolderId;
   }
 
   public async getGoogleWorkspaceStatus(projectId: string): Promise<ProjectGoogleStatus> {
@@ -205,23 +208,13 @@ export class ClientWorkspaceService {
   /**
    * Provisions Google Drive folders and Google Sheets for a project via server.
    */
-  public async provisionProjectDrive(project: ProjectEntity): Promise<GoogleDriveProjectStructure> {
+  public async provisionProjectDrive(project: ProjectEntity, destinationRootFolderId?: string): Promise<GoogleDriveProjectStructure> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
     const res = await fetch('/api/workspace/provision', {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        project: {
-          projectId: project.projectId,
-          projectCode: project.projectCode,
-          nameAr: project.nameAr,
-          nameEn: project.nameEn,
-          clientName: project.clientName,
-          googleSpreadsheetId: project.settings.googleSpreadsheetId,
-          googleDriveFolderId: project.settings.googleDriveFolderId,
-        },
-      }),
+      body: JSON.stringify({projectId:project.projectId,destinationRootFolderId}),
     });
 
     if (!res.ok) {

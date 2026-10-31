@@ -1,0 +1,176 @@
+{
+  "appsScriptBlueprintSha256": "8acc1aa9b435fb93b4eddfdfc7faec91133e606439a9f5c969cc44ff7340360f",
+  "functionInventory": [
+    {
+      "kind": "MENU_UI",
+      "name": "addTruckOperationsMenu"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "applyOffloadOperationalAudit"
+    },
+    {
+      "kind": "OTHER",
+      "name": "arrivalU2Check_"
+    },
+    {
+      "kind": "OTHER",
+      "name": "arrivalU2ExtendComputedFormulas_"
+    },
+    {
+      "kind": "OTHER",
+      "name": "arrivalU2FindFreeRow_"
+    },
+    {
+      "kind": "REPORT_REFRESH",
+      "name": "calculateCarrierViewerV2"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "carrierViewerSelectionEdited"
+    },
+    {
+      "kind": "OTHER",
+      "name": "event"
+    },
+    {
+      "kind": "OTHER",
+      "name": "inlineAuditIsComplete_"
+    },
+    {
+      "kind": "MENU_UI",
+      "name": "inspectArrivalTicket"
+    },
+    {
+      "kind": "OTHER",
+      "name": "inspectArrivalTicketByNumber_"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "installInlineOffloadAuditPanel"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "installOffloadDashboardSummary"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "installSabilReviewFlow"
+    },
+    {
+      "kind": "OTHER",
+      "name": "keyFor"
+    },
+    {
+      "kind": "OTHER",
+      "name": "offloadAuditOnEdit"
+    },
+    {
+      "kind": "OTHER",
+      "name": "offloadAuditRefresh_"
+    },
+    {
+      "kind": "SIMPLE_TRIGGER",
+      "name": "onEdit"
+    },
+    {
+      "kind": "SIMPLE_TRIGGER",
+      "name": "onOpen"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "reconcileSabilDashboardLogic"
+    },
+    {
+      "kind": "REPORT_REFRESH",
+      "name": "refreshCarrierDailyReport"
+    },
+    {
+      "kind": "REPORT_REFRESH",
+      "name": "refreshCarrierReportViewer"
+    },
+    {
+      "kind": "REPORT_REFRESH",
+      "name": "refreshOffloadDashboardSummary"
+    },
+    {
+      "kind": "MENU_UI",
+      "name": "registerTruckArrival"
+    },
+    {
+      "kind": "OTHER",
+      "name": "round"
+    },
+    {
+      "kind": "VALIDATION_AUTOMATION",
+      "name": "sabilReviewWorkflowEdited"
+    },
+    {
+      "kind": "OTHER",
+      "name": "testArrivalSpreadsheetAccess"
+    },
+    {
+      "kind": "OTHER",
+      "name": "tons"
+    },
+    {
+      "kind": "OTHER",
+      "name": "verifyArrivalHeadersFast"
+    },
+    {
+      "kind": "OTHER",
+      "name": "verifyArrivalIntakeReadOnly"
+    }
+  ],
+  "initialOperationalRowCapacity": 297,
+  "installableTriggers": 0,
+  "manifestProvenance": "SOURCE_RECONSTRUCTED_FROM_SCRIPT_REQUIREMENTS",
+  "normalizedFormulaCells": 8188,
+  "scriptFiles": [
+    {
+      "name": "ArrivalIntake",
+      "sha256": "1537b59d5131fb7d09804f37023275699fcd8b50d0560c6004aa5b89584f55d7"
+    },
+    {
+      "name": "ArrivalIntakeCommit",
+      "sha256": "f5518309896b28b3314e5b3348a437ce1c9dffd1df8e338e97b63743ec572c98"
+    },
+    {
+      "name": "CarrierReportViewer",
+      "sha256": "412d92c4b96300e6923459aaf876b5f776f99fad7327d808d3aecd03b755f5fc"
+    },
+    {
+      "name": "Code",
+      "sha256": "f4eda2a7f8f2cb69c0f7a0ea6bca5fa1d45a2fdad7bdba82958d98c32ba9d21b"
+    },
+    {
+      "name": "DashboardInlineAudit",
+      "sha256": "3376737060b829484a840662990f88eadcd91e3000d7f61cb01b298b63e5b708"
+    },
+    {
+      "name": "DashboardLogicReconciliation",
+      "sha256": "dfd0077efef3ec853f59d3f1bcbadb81127cf2e25fa1a41d89d2f22b7ab19b5c"
+    },
+    {
+      "name": "DashboardOffloadAudit",
+      "sha256": "f360b4773dd3cfb785ad7b3f001e07afd453e2ccfe26b8ba146c47b87b37a832"
+    },
+    {
+      "name": "OffloadOperationalAudit",
+      "sha256": "1059f1ad617504f1ed98d03f2c2eecfeb6cbc773f629555c72210e12a2b741b8"
+    },
+    {
+      "name": "ReviewWorkflow",
+      "sha256": "ac783ce652e1b333d8645012afe4bd3195956865cfa4e628ae2231f6504e01df"
+    }
+  ],
+  "simpleTriggers": [
+    "onOpen",
+    "onEdit"
+  ],
+  "source": "OWNER_PROVIDED_XLSX_PLUS_SCRIPT_SOURCE",
+  "sourceFormulaCells": 492,
+  "sourceXlsxSha256": "7cdcf333cf24cf835c7d146ec63e3c1150d5b4629d0a86d15b2fa0f3fc7eb643",
+  "version": "SABIL-HAIL-V1",
+  "workspaceBlueprintSha256": "036fb401b0dffa4b5755fac1d9acf1d5c2a7d0c01610ed23813d1f86b7bdeda8"
+}

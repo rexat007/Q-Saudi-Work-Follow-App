@@ -1,6 +1,6 @@
-## PFAG-GWS1 continuation
+## GWS1B current continuation
 
-Defer exact current state to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PFAG-RB2 merged at `093b75b6889ec2b592d9af022f38f15ad039da3e`; Foundation source assurance remains PASS_WITH_DEBT. Current bounded work extends Google Workspace continuity with canonical template copy, durable provisioning receipts and source-only projection outbox. Read [PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) before operating it. Live OAuth/Picker/template/script acceptance remains a distinct gate; no Phase 10 or dynamic-intake readiness change is implied.
+Supporting summary only; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Current merged baseline is `ca63d9f61fb4cac6ae0c6089ef8639691b1117b4`, including isolated Workspace OAuth correction. GWS1B replaces hidden template copying with destination-only selection and programmatic versioned native workbook/bound-script generation. The owner-local XLSX and nine Script files are now captured into sanitized SABIL-HAIL-V1. Simple onOpen/onEdit replace four installable/timer dependencies; static initialization is generated directly. Local source/controlled verification is separate from live acceptance. Read [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for capture, validation, recovery and remaining acceptance gates. No GWS2, autonomous refresh, dynamic intake or Phase 10 change.
 
 ### Foundation assurance maintenance checkpoint
 

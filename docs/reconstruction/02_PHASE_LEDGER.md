@@ -28,6 +28,10 @@ PFAG-RB2 merged at `093b75b6889ec2b592d9af022f38f15ad039da3e`; Project Foundatio
 
 Merged GWS1 baseline: `cfd4e96fe25a938a726e92356541233915c0e571`, containing `78a2869c8766b05c5c6dabd45bf1ff254e8e0b1c`. Workspace permission acquisition is isolated from Firebase application sign-in/reauthentication. Token-free intent/generation checks fence genuine Project/account/scope changes; durable Workspace status outranks stale compatibility IDs. Source and controlled verification are recorded in the sync contract. GWS-LIVE-01 is not passed; deployed configuration, real OAuth/Picker, template/formula/Apps Script and controlled live-row acceptance remain unverified. GWS-SYNC-AUTONOMY-01 and PFAG-OPS-01 remain OPEN; Phase 10 remains NOT_STARTED.
 
+### GWS1B blueprint correction — 2026-10-31
+
+The owner superseded hidden-template copying. New provisioning selects only a destination folder, then generates a native workbook and bound script from a versioned compiled asset using human-user OAuth. The owner supplied Projects_Tamplate.xlsx and nine real Script files. GWS1B-LOCAL-01 approves local-source capture instead of Google capture. GWS1B-TRIGGER-01 supersedes installable/timer dependencies: only onOpen/onEdit are automatic, report structures are born clean through the compiled blueprint, and routed edit refreshes require no remote installer execution. SABIL-HAIL-V1 is locally captured and sanitized; Google deployment/runtime acceptance remains separate. Prior GWS1/template descriptions are historical where superseded by [the current sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md). No publication, GWS2 or Phase 10 is authorized by this checkpoint.
+
 ### Current Active State
 ```yaml
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
@@ -35,9 +39,9 @@ ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GWS-LIVE-01A — OAuth Return Context Preservation & Provisioning Continuation
-ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-ACTIVE_UNIT_TYPE: BOUNDED_OAUTH_CONTEXT_AND_CONTINUATION_REMEDIATION
+ACTIVE_UNIT: GWS1B — Versioned Programmatic Project Workspace Blueprint
+ACTIVE_UNIT_STATUS: IMPLEMENTED / REAL_LOCAL_BLUEPRINT_CAPTURED / VERIFIED LOCALLY
+ACTIVE_UNIT_TYPE: BOUNDED_VERSIONED_BLUEPRINT_CORRECTION
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -58,8 +62,13 @@ PFAG_RB2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PFAG_RB2_VERIFIED_MERGE: 093b75b6889ec2b592d9af022f38f15ad039da3e
 PFAG_GWS1_STATUS: MERGED / SOURCE_VERIFIED
 PFAG_GWS1_VERIFIED_MERGE: cfd4e96fe25a938a726e92356541233915c0e571
-GWS_LIVE_01A_STATUS: IMPLEMENTED / VERIFIED LOCALLY
-GWS_LIVE_01_STATUS: RESUME_LIVE_ACCEPTANCE / NOT_YET_PASSED
+GWS_LIVE_01A_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
+GWS_LIVE_01A_VERIFIED_MERGE: ca63d9f61fb4cac6ae0c6089ef8639691b1117b4
+GWS1B_STATUS: IMPLEMENTED / REAL_LOCAL_BLUEPRINT_CAPTURED / VERIFIED LOCALLY
+GWS1B_PUBLICATION: AUTHORIZED / OWNER_MERGE_PENDING
+GWS1B_SOURCE_CAPTURE_METHOD: OWNER_PROVIDED_XLSX_PLUS_SCRIPT_SOURCE
+GWS1B_TRIGGER_MODEL: SIMPLE_ONEDIT_DISPATCHER / INSTALLABLE_NONE
+GWS_LIVE_01_STATUS: READY_TO_RESUME_AFTER_MERGE_DEPLOY / NOT_YET_PASSED
 GWS_SYNC_AUTONOMY_01: OPEN
 PFAG_OPS_01: OPEN
 GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: PENDING_EXTERNAL_OAUTH_CONFIGURATION
@@ -100,8 +109,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE_ASSIGNED
-NEXT_ACTION: OWNER_MERGE_GWS_LIVE_01A_THEN_RESUME_GWS_LIVE_01
-CURRENT_CODE_BASELINE: cfd4e96fe25a938a726e92356541233915c0e571
+NEXT_ACTION: OWNER_MERGE_REVIEW_AFTER_BRANCH_PUBLICATION
+CURRENT_CODE_BASELINE: ca63d9f61fb4cac6ae0c6089ef8639691b1117b4
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

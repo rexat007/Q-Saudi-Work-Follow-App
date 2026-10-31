@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const f=vi.hoisted(()=>({auth:{currentUser:{uid:'app-user',providerData:[{providerId:'google.com',uid:'google-subject'}],getIdToken:async()=> 'firebase-id'} as any},grant:vi.fn()}));
 vi.mock('../firebase/config',()=>({auth:f.auth}));
 vi.mock('../services/googleWorkspaceAuthorization',()=>({requestWorkspaceGoogleToken:f.grant}));
-vi.mock('../services/googleTemplatePicker',()=>({authorizeTemplateSelection:vi.fn()}));
+vi.mock('../services/googleTemplatePicker',()=>({selectWorkspaceDestinationFolder:vi.fn()}));
 import { ClientWorkspaceService } from '../services/workspace.service';
 beforeEach(()=>{vi.clearAllMocks();f.auth.currentUser={uid:'app-user',providerData:[{providerId:'google.com',uid:'google-subject'}],getIdToken:async()=> 'firebase-id'};});
 describe('PFAG-GWS1 isolated Google permission boundary',()=>{

@@ -8,11 +8,11 @@ Firestore/application commands remain canonical for identity, participation, rel
 
 Owner template reference: `https://docs.google.com/spreadsheets/d/1m2i0XoTz_woGDiFQ8syo7XVbA7jdv6cUAlV-lw667IM/edit`.
 
-Runtime reads `GOOGLE_PROJECT_TEMPLATE_FILE_ID` and `GOOGLE_PROJECT_TEMPLATE_VERSION`; both are required, with no personal-ID default in code. The operator must approve a version string for the actual Google template. Existing bindings retain their original ID/version. A change affects only unbound projects. No migration is implied.
+GWS1B supersedes runtime source-template reads/copies and those template environment variables. The reference is authoring evidence only. A compiled, sanitized, versioned blueprint must be approved before provisioning. Existing bindings retain their provenance and are never implicitly migrated. SABIL-HAIL-V1 is now approved from owner-local sources under GWS1B-LOCAL-01; Google live capture is not required for source release.
 
 Structural evidence: owner upload `SABIL_SHIPMENT_HAIL (2).xlsx`, SHA256 `94aa2faeb651e0ade869a4f8adab325bcff114ebd2faa7d093e3c005243cb54d`. The upload is not altered, committed, or used as a runtime template. Its version hash identifies inspection evidence, not an assertion that the live Google template is identical. XLSX does not prove Apps Script preservation.
 
-Required tabs: Loading Register; Offload Data; Offload Operations Audit; Daily Summary; Carrier Report Viewer; Carrier Daily Report; Dashboard. Runtime checks exact input-sheet headers and Asia/Riyadh timezone before binding. Drive `files.copy` preserves the native template as supported by Google. Live formula, named-range, validation, chart and bound-script behavior remains a separate acceptance gate.
+Required tabs: Loading Register; Offload Data; Offload Operations Audit; Daily Summary; Carrier Report Viewer; Carrier Daily Report; Dashboard. Runtime checks exact input-sheet headers and Asia/Riyadh timezone before binding. The new runtime generates a native workbook and installs exact captured bound Script content; it never calls Drive `files.copy`. Live formula, named-range, validation, chart and bound-script behavior remains a separate acceptance gate.
 
 ## Exact loading contract
 
@@ -72,7 +72,7 @@ Required tabs: Loading Register; Offload Data; Offload Operations Audit; Daily S
 
 App writable allowlists are code constants. Missing values do not clear cells. Explicit null may clear Remarks only. RAW value writes prevent source text becoming executable formulas. Existing formulas found even in an allowed input cell block that write.
 
-A newly copied template contains fixture inputs in the supplied evidence. Before exposing its binding, initialization clears only the loading allowlist and offload B/C/D/E/F/G/I/J/K/L. It never clears formula columns, report ranges or the original template. Repeating initialization is safe only before binding is exposed. Script-generated static report outputs are not rewritten by the app: live verification must demonstrate their refresh after fixture-input removal and new operational input.
+The authoring capture removes operational input values (including Offload review J/K/L), retains formulas and only explicitly approved static labels, and excludes unclassified report literals. Unknown content blocks asset approval. It never clears a live bound workbook during ordinary retry. Actual report refresh and cleanup equivalence require reference/script capture and live verification.
 
 ## Identity, units and current Trip boundary
 
@@ -82,15 +82,17 @@ No Driver is needed by the projection input. No fake identity is created. Existi
 
 Current canonical Trip commands atomically stage a coalesced event in `projects/{projectId}/workspace_sync_outbox/{sha256(tripId)}`. The event holds project/trip IDs, monotonic revision, input snapshot and PENDING/DELIVERED status. Current Trip source-series/explicit weighbridge timestamp metadata can be supplied under existing `sourceMetadata.metadata.googleSheetSource`. No guessed source series or fabricated timestamps are added. Missing source mapping produces a durable `mappingRequired` event, not loss of canonical data. Native manual loading does not yet supply that source-series contract; closing that intake gap belongs to PFAG-OPS-01 / the separately authorized operational work, not an invented Trip FSM here.
 
-## Provisioning and recovery
+## Provisioning and recovery — GWS1B
 
-`projects/{projectId}/workspace_continuity/current` is the server-owned receipt/status record. Its binding includes projectId, provider GOOGLE, spreadsheetId/driveFileId/URL, templateId/version, Google subject/account label, provisionedAt/by and revision. Tokens are never persisted there or in Project settings.
+The user chooses a writable destination root, not the reference workbook. `workspace_destination/current` records scoped approval. `workspace_continuity/current` retains immutable Project/root/subject/blueprint bindings, transactional execution fencing and stage/resource IDs. Folder and native Sheet creation include deterministic operation/role/version tags and parent atomically. A Sheet is created via Drive native Sheets MIME to avoid a separate untagged-file crash window; no template copy is involved. Script projects.create(parentId) binds to that Sheet; updateContent installs the exact reviewed files. Structural/formula/style/script validation precedes atomic binding + Project compatibility fields + audit.
 
-The canonical provision command re-reads the active account and Project, requires SUPER_ADMIN or assigned PROJECT_ADMIN, and enforces current MAINTENANCE lifecycle policy. It obtains the current Google subject, reserves a transactional owner/lease, and records each external stage. The copy is tagged with deterministic `sha256('PFAG-GWS1:'+projectId)` appProperties. Binding, Project settings and audit are committed together. A configured legacy workbook requires explicit migration; it is not silently replaced.
+Every mutation freshly checks actor, Project lifecycle/scope and Google identity. The adapter validates destination writability and existing storage isolation; generated files must match operation/version tags and not belong to another Project registry. Tokens are transient. Concurrent requests are fenced. Unknown folder/Sheet creation results reconcile tags, never blindly create again; zero/multiple results fail closed. An unknown Script creation result remains WORKSPACE_RECOVERY_REQUIRED: no unsupported find-by-parent API or automatic duplicate creation is invented. Operator reconciliation remains necessary for that edge. Known script IDs can safely retry content installation and verification. Already bound resources are reused; root/account/version changes require explicit migration. No existing data is reset.
 
-Concurrent provisioners cannot both issue copy. After an uncertain copy result, retry searches the tagged external file. One result resumes; multiple results fail; zero results remain `WORKSPACE_COPY_OUTCOME_UNCONFIRMED`, never another blind copy. A crashed folder request similarly requires explicit reconciliation. This favors no duplicates over automatic availability. Lost binding writes retain stage evidence for recovery. Existing bound files are verified, never re-created if missing. Account changes require explicit migration.
+## Blueprint authoring and capture
 
-The Google copy API does not provide transactionality with Firestore. These fail-closed recovery states are deliberate; they must not be bypassed by manually deleting receipts or reissuing copy without external reconciliation.
+`src/services/googleWorkspaceBlueprint/` contains schema, sanitizer, generator, verifier and a disabled reserved production asset. Synthetic test assets are never runtime imports. The approved asset must cover all seven tabs, static labels, formulas, dimensions/styles, validations, named ranges, charts, protections and exact manifest/Script files. The real function inventory is recorded in provenance.json. GWS1B-TRIGGER-01 supersedes the four installable dependencies with a central simple dispatcher; no trigger installation, timer, Execution API or user setup. Other UNREVIEWED/INSTALLABLE assets remain blocked. Unknown/external source references block approval. Formula-only expansion is active for generated bindings through the existing fenced outbox drain.
+
+Operator-only tool: `node --import tsx scripts/captureWorkspaceBlueprint.ts --spreadsheet <reference-id> --script <bound-script-id> --policy /tmp/policy.json --out /tmp/draft.json` (Google OAuth token through stdin, never arguments). It performs Sheets get(includeGridData) and Script getContent reads only. Alternatively use `--workbook-export /tmp/workbook.json --script-export /tmp/script.json` with the same policy/output. Do not persist credentials or raw operational exports in Git. Output is deterministic, sanitized, mode 0600, /tmp-only, non-overwriting, and always approved:false. Policy lists exact static coordinates and expected values, function classifications, required custom functions and trigger model. Manually review all unknown cells, security concerns and structure comparisons before creating an approved asset. This Google-export tool remains optional authoring tooling. The current release instead uses scripts/buildLocalWorkspaceBlueprint.py and the owner-local package; XLSX is not shipped as a runtime dependency.
 
 ## Durable delivery
 
@@ -103,19 +105,19 @@ Browser Google authorization is transient, not a server refresh-token grant. Thi
 ## API and compatibility
 
 - Existing `POST /api/workspace/provision`: sole current provisioning route; canonical server receipt authority replaces empty-workbook provisioning.
-- `GET /api/projects/:projectId/workspace/template`: authorized template configuration for Picker selection.
+- `GET /api/projects/:projectId/workspace/template`: retired (410).
+- `POST /api/projects/:projectId/workspace/destination`: exact destinationRootFolderId approval.
+- Provision body: only projectId + destinationRootFolderId; no client Project payload.
 - `GET /api/projects/:projectId/workspace`: public-safe status DTO (no credentials).
 - `POST /api/projects/:projectId/workspace/retry-sync`: empty body only; authenticated canonical drain.
 - Existing `POST /api/workspace/sync/initial`: template-bound projects drain outbox; legacy projects retain their existing projection/acknowledgement path.
 - Old `/sync/trips` and `/sync/sheets` are fenced for template bindings. Storage migration for a template binding requires an explicit migration policy.
 
-Legacy `ServerWorkspaceService.provisionProjectDrive` is not called by the current production provisioning route. Its historical empty-workbook/mock behavior remains only for historical harness compatibility; it is not template authority. Existing storage-isolation and legacy projection readers remain reused.
+Legacy `ServerWorkspaceService.provisionProjectDrive` is not called by the current production provisioning route. Its historical empty-workbook/mock behavior remains for harness compatibility; it is not blueprint authority. The old ProjectGoogleWorkspaceAuthority copy path is explicitly test-only and returns 410 outside tests. Existing storage-isolation and legacy projection readers remain reused.
 
 ## OAuth operator contract
 
-Scopes: `https://www.googleapis.com/auth/drive.file` for selected template/copy/folder access and `https://www.googleapis.com/auth/spreadsheets` for metadata and source-cell updates. Firebase Google sign-in also supplies its standard basic identity scopes for the account subject/profile/email; those do not grant broader Drive access. No unrestricted Drive scope is requested. Google Picker grants the app per-file access to the canonical template; a shared URL alone is insufficient. Picker selection must equal the server-configured template ID. Workspace authorization now uses a dedicated Google Identity Services permission grant. It does not call Firebase sign-in or reauthentication. The current Firebase UID and its google.com provider subject are checked before/after the grant; a different provider account fails closed.
-
-Configure public `VITE_GOOGLE_PICKER_API_KEY` and `VITE_GOOGLE_APP_ID` (Cloud project number), matching the OAuth client project. Restrict the key to approved browser origins and required APIs. Enable Google Drive API, Sheets API and Google Picker API. Template owner must permit access/copy by the chosen account. Existing bound copies must remain accessible to that account.
+Scopes: drive.file + spreadsheets + script.projects, with basic openid/email identity. No unrestricted Drive scope. Isolated Google permission acquisition does not call Firebase sign-in/reauthentication; application UID/provider subject must remain unchanged. Picker accepts exactly one folder MIME, never a Sheet/template. Enable Drive, Sheets, Picker and Apps Script APIs under the matching public OAuth/Picker project; scope consent/verification implications require operator review. No Project-specific template environment variables remain.
 
 The actual OAuth Client ID, deployed JavaScript origins, redirect allowlist, audience mode and consent status were NOT readable from the available repository/runtime credentials. Do not invent values or claim configuration is fixed. Operator must inspect the Web OAuth client used by Firebase Google sign-in, confirm every deployed browser origin, and the Firebase handler `https://<configured-authDomain>/__/auth/handler` (including custom-domain handlers actually used). Current default authDomain is `gen-lang-client-0774589047.firebaseapp.com`; overrides must be verified in deployment.
 
@@ -126,12 +128,12 @@ Error classes distinguish explicit configuration evidence, access_denied, popup 
 ## Open acceptance gates
 
 - GWS-OAUTH-PROD-01: production audience/consent verification, origins/redirects, final scope review.
-- GWS-LIVE-01: real OAuth/Picker grant; actual template copy; one-copy retry/concurrency; live header/timezone/formula/named-range/validation/chart/Apps Script behavior; controlled input row and script-output refresh; reopen; confirm no sample-data contamination.
+- GWS-LIVE-01: real OAuth/Picker grant; actual generated workbook/bound Script; no-duplicate retry/concurrency; live header/timezone/formula/named-range/validation/chart/Apps Script behavior; controlled input row and script-output refresh; reopen; confirm no sample-data contamination.
 - PFAG-OPS-01: dynamic weighbridge Truck intake without a predefined Driver/Truck roster and explicit source-series/time mapping. No readiness policy changes in GWS1.
 
 Source/controlled tests are not live Google acceptance. Current governance and publication state are defined only by the phase ledger.
 
-## Local verification observation — 2026-10-31
+## Historical GWS1 verification observation — 2026-10-31
 
 Baseline: `093b75b6889ec2b592d9af022f38f15ad039da3e`. Four GWS1 native suites: 59/59 PASS. Actual Wizard controlled Chromium: 4/4 PASS; no live Google credentials or writes. Combined relevant native regression selection: 605 PASS / 33 FAIL across 27 files; NOT an all-green command. Every failed case was reproduced on an isolated archive of that exact baseline; new failing cases = 0. No Phase-8 import/session implementation is changed.
 
@@ -153,7 +155,7 @@ Build PASS. TypeScript/lint observations: 440 -> 440, added 0, removed 0; lint E
 
 One existing PFAG-RB2 static test assertion is converged to the new canonical provisioning authority: lifecycle and fresh authorization must precede Google subject access/copy. The remaining role/context assertions and its 58-test count are preserved.
 
-## GWS-LIVE-01A — return context and continuation
+## Historical GWS-LIVE-01A source checkpoint — return context and continuation
 
 Owner-observed live defect: Q-PRJ-007 / WORKSPACE -> successful Google consent -> Project dashboard -> no visible Picker/error -> unconfigured Workspace. This observation is supplied by the owner; no independent deployed trace is claimed here.
 
@@ -180,3 +182,37 @@ Actual Wizard/client pipeline in controlled Chromium: 5/5 PASS, no runtime excep
 Build PASS; diagnostics 440 -> 440, added 0, removed 0; lint EXIT 2 / NOT PASS; diff whitespace check PASS. These are observations, not frozen cardinality gates. Local live-configuration variables are absent; deployed values, real OAuth return and real Google resources remain UNVERIFIED. No Console changes or live writes occurred.
 
 Additional layered-Wizard regression: `projectSetupLayeredWorkflow.test.tsx` reports 6 PASS / 12 FAIL (timeouts); all twelve case identities were reproduced on the exact merged baseline. The initial current run also emitted a Vitest RPC/console teardown error. A follow-up with console forwarding suppressed (`--silent`) completed without that runner error and retained exactly the same twelve baseline failures. Both runs are reported; this command is NOT PASS and those tests were not rewritten or skipped. The principal 30-file comparison above and this additional suite are reported separately.
+
+## Historical pre-local-capture GWS1B verification observation — 2026-10-31
+
+Baseline ca63d9f61fb4cac6ae0c6089ef8639691b1117b4. New core tests use a synthetic approved seven-tab fixture solely to exercise generation/recovery; they do not prove reference fidelity. The default production asset remains absent and blocks before creation. Offline operator capture was exercised twice with synthetic exports: byte-identical sanitized drafts, old input/source ID removed, approval false. Actual reference structure counts, bound source/functions/manifest/triggers and live Google acceptance remain unverified. Final command results are reported with the local owner-review delivery, not adopted as permanent cardinality invariants.
+
+Final local observations: new blueprint/picker/Google-adapter suites 44/44 PASS; combined relevant selection 676 PASS / 33 FAIL across 34 files (not all green). All 33 failures were reproduced on an isolated ca63d9f61fb4cac6ae0c6089ef8639691b1117b4 archive (212 PASS / 33 FAIL in the seven failing-file selection); no new failing case. Existing GWS1 59 tests, OAuth continuation and Wizard compatibility contracts retain test counts. Build PASS; normalized diagnostics 440 → 440, added/removed 0; lint EXIT 2 / NOT PASS. Runtime-key audit 16/16; auth trust boundary 23/23. Actual Wizard/client controlled Chromium 5/5 PASS using mocked Google/folder responses and synthetic server success, no runtime JS errors; not real blueprint deployment or live Google acceptance. No credentials, production resources or operator Console configuration were changed. No commit/push performed: missing reference capture prevents full release verification.
+
+## GWS1B-LOCAL-01 / TRIGGER-01 — current compiled release
+
+LOCAL_REFERENCE_CAPTURE = APPROVED. GOOGLE_LIVE_CAPTURE = NOT_REQUIRED_FOR_BLUEPRINT_SOURCE. REFERENCE_XLSX = OWNER_PROVIDED_CLEAN_STRUCTURAL_COPY. SCRIPT_SOURCE = OWNER_PROVIDED, with authorized dispatcher/trigger removal edits. Manifest = SOURCE_RECONSTRUCTED_FROM_SCRIPT_REQUIREMENTS (Asia/Riyadh, V8, spreadsheets.currentonly); script.scriptapp, Drive-wide and external-request scopes are absent. Provisioning still needs human OAuth drive.file + spreadsheets + script.projects plus basic identity to create/install the bound source.
+
+Reference XLSX SHA256: `7cdcf333cf24cf835c7d146ec63e3c1150d5b4629d0a86d15b2fa0f3fc7eb643`. Source contains seven required tabs, 492 formula cells, seven validation objects/rules, seven conditional-format rules, 17 merges, no named ranges/charts/enabled sheet protection. Actual .gs names already include OffloadOperationalAudit, so no collision/rename was necessary. The script has 26 top-level named functions plus four nested named helpers after removing the obsolete viewer trigger installer; provenance includes all 30. No direct custom spreadsheet functions were found; requiredCustomFunctions is empty.
+
+Sanitation classifies ownership, not forbidden-string replacement: 62 literal/control/output cells are removed (including old viewer carrier rows, dates, dashboard/audit output, and Loading Q2 default). Reports start with neutral totals, preserved headers/styles/labels and empty refresh timestamps; future edits run actual derived refresh functions. Daily Summary retains formulas and All control while clearing its historical start date. Static formula-dependent inline panels remain intact. The nine supplied sources retain manual Arrival linkage and review behavior; only trigger/dispatcher/report wiring changes are authorized here.
+
+Initial operational capacity = 297 rows per input tab, formulas seeded from row 2 through row 298 (8,188 normalized formula cells total). This is an intentional source-backed initial capacity, not the Offload style-only 10,189-row grid mistaken for computed capacity. All source-only aggregate/lookup end bounds 102/298/979/1000/10189 are made open-ended; Dashboard prepared-capacity D11 explicitly follows 298 and adjusts on insertions. Source T/H calculations remain S-R / =B. Empty guards in U/M count actual user inputs instead of formula-valued T/H; Excel _xlfn.XLOOKUP and CELL("format") are converted explicitly for Google Sheets. Date controls start blank. No arbitrary truncation of populated data occurs.
+
+The dispatcher routes viewer B3:B5 only to viewer refresh. Relevant Loading inputs route audit → ledger → dashboard (dashboard only on audit success). Offload single-cell review-relevant edits first call the unchanged review handler. Multi-cell edits refresh reports without inventing approval decisions. Irrelevant/header/formula/report edits do no heavy work. Document/script lock, 20-second between-stage budget, 2,000 source-row guard and 5,000 automatic ledger-output guard bound attempted automatic work; they cannot preempt a slow individual Google API call or prove live 30-second completion. Report errors preserve source edits. onOpen only creates Carrier Reports / Truck Operations menus. Zero active ScriptApp trigger-management calls; installable/timer dependencies are SUPERSEDED.
+
+No manual initialization or remote Script execution is part of provisioning. Static clean structures/validation/formulas/panels are born in the generated Sheet. Manual compatibility setup helpers are non-triggering/noninteractive; they are not auto-invoked. Reviewer names from supplied source are retained as PROJECT_CONFIGURATION_CANDIDATE debt GWS_REVIEWER_CONFIGURATION_01. Google API writes do not fire onEdit: Script-derived report refresh after programmatic APP writes remains GWS-SYNC-AUTONOMY-01 debt; formulas still recalculate. No bidirectional/master authority, autonomous worker, GWS2, dynamic identity/readiness or Phase 10 change.
+
+WORKSPACE_BLUEPRINT_SHA256: `036fb401b0dffa4b5755fac1d9acf1d5c2a7d0c01610ed23813d1f86b7bdeda8`.
+APPS_SCRIPT_BLUEPRINT_SHA256: `8acc1aa9b435fb93b4eddfdfc7faec91133e606439a9f5c969cc44ff7340360f`.
+Digests cover canonical sorted normalized release JSON and normalized Script files including reconstructed manifest; provenance.json records per-file hashes and inventory. Local RLE/style deduplication is a source representation only; runtime inflates the exact normalized Google structures. The XLSX remains outside runtime.
+
+XLSX export table wrappers (three, with no structured-reference formulas) are represented by their actual stripe colours as three native Sheets bandings; existing input/audit filters are recreated. Excel table IDs are not runtime authority. There are no source table calculated-column expressions or source images to omit.
+
+### Real-local release verification observation — 2026-10-31
+
+The actual-source generator round trip is interpreted into a fresh in-memory Google target from every mutation request (including styles, dimensions, filters and banding), then validated; altering a generated formula is rejected. This is structural emulation, not a Google formula engine or live execution. The operator extraction suite checks the actual owner XLSX hash, all source structure counts, ownership sanitation, exact deterministic compiled extraction and normalized formulas: 5/5 PASS. Script routing/review tests execute the shipped Script source with controlled services; actual empty-source audit, ledger, viewer and dashboard functions produce neutral outputs without source writes. Two expansion tests prove formula-only requests and uncertain-response retry without a second insert.
+
+New focused GWS1B selection: 72/72 PASS across six files. Relevant regression selection: 704 PASS / 33 FAIL across 36 files (NOT an all-green command), with all failed cases reproduced on the exact merged ca63d9f baseline, new failures 0. No tests removed/skipped; two retired template-error cases became destination/blueprint-error cases, and the capture-required default case now verifies the real local release. Existing GWS1 59, auth trust 23 and runtime-i18n 16 contracts pass; controlled actual-client Chromium 5/5 passes with mocked Google/server and no runtime JS errors. Build PASS; diagnostics 440 → 440 added/removed 0; lint EXIT 2 / NOT PASS. Counts are observations, not future cardinality invariants. Source/schema/UI-controlled verification is not live Google acceptance, formula evaluation or simple-trigger timing certification.
+
+Controlled Vitest timing observation (includes VM/test setup, not Google network latency): viewer B3 route 5.14 ms; Loading route 1.71 ms; combined Offload-input/reviewer routes 2.26 ms; actual empty-source audit/ledger/viewer/dashboard pipeline 5.32 ms. Irrelevant edits execute no report functions. These observations do not certify execution within Google's simple-trigger window on live large datasets.

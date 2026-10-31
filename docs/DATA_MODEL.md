@@ -1,8 +1,10 @@
-## PFAG-GWS1 — durable continuity representation
+## GWS1B — durable generated Workspace representation
 
-Current reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. `projects/{projectId}/workspace_continuity/current` stores provisioning stages, execution fencing and the public Google binding (template ID/version, subject/account label, file ID/URL, provisionedAt/by, revision), plus continuity/error/sync observations. Project settings retain existing folder/spreadsheet links. No OAuth credentials are persisted in either document.
+Current reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. `projects/{projectId}/workspace_destination/current` binds approved destination root, Project, actor and Google subject. `workspace_continuity/current` records immutable blueprint version/root/subject, execution owner and stages, Project folder ID, spreadsheet ID and Script project ID as each external result becomes known. Binding is published atomically with Project compatibility IDs and audit only after validation.
 
-`projects/{projectId}/workspace_sync_outbox/{sha256(tripId)}` stores the latest canonical projection snapshot, monotonic revision, mappingRequired and pending/delivered evidence. Writes share the canonical Trip command transaction. Missing source-series metadata is explicit debt, never fabricated. Sheet correlation is separate from canonical Trip identity. See [the complete field/ownership contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+New public binding fields include `destinationRootFolderId`, `projectFolderId`, `workspaceBlueprintVersion`, `appsScriptBlueprintVersion`, `scriptProjectId`, subject/account label and existing file URL/identity/revision. `templateId/templateVersion` are optional legacy provenance, not new blueprint configuration. Existing legacy bindings are not migrated. Tokens, raw reference data and source workbook IDs are not stored as blueprint content. The compiled asset carries sanitized Sheets structures and exact reviewed Script files plus capture/classification evidence; SABIL-HAIL-V1 is captured from owner-local XLSX + Script source; provenance.json records source/release digests. The manifest is reconstructed, not a Google export. Initial prepared capacity is 297 operational rows, with formula-only expansion on capacity exhaustion under the existing sync fence.
+
+`projects/{projectId}/workspace_sync_outbox/{sha256(tripId)}` remains the canonical coalesced projection event with revision/mappingRequired/delivery state, staged atomically with Trip commands. Correlation and input ownership remain in [the sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
 
 ## PFAG-RB2 maintenance representation
 

@@ -1,9 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.destination": "المجلد الأب لحفظ المشروع",
+
   "gws.status_unavailable": "تعذر التحقق من حالة مساحة العمل",
 
-  "gws.action_required": "أعد ربط Google أو اطلب من مسؤول المشروع التحقق من صلاحية الوصول للقالب وحالة استرداد مساحة العمل.",
+  "gws.action_required": "أعد ربط Google أو اطلب من مسؤول المشروع التحقق من مجلد الحفظ واعتماد مخطط مساحة العمل وحالة استردادها.",
 
   "gws.not_connected": "غير مرتبط",
   "gws.connected": "الحساب مرتبط",
@@ -12,8 +14,7 @@ export const arTranslations: TranslationDictionary = {
   "gws.degraded": "المزامنة تحتاج متابعة",
   "gws.authorization_required": "يلزم إعادة الربط",
   "gws.failed": "مساحة العمل غير متاحة",
-
-  "gws.purpose": "اربط حساب Google لنسخ ملف المشروع المعتمد وحفظ نسخة تشغيلية مستمرة. تبقى سجلات التطبيق المرجع المعتمد، ويُقيّم الاستعداد التشغيلي بصورة مستقلة.",
+  "gws.purpose": "اربط حساب Google واختر المجلد الذي تريد حفظ ملفات المشروع بداخله. سيُنشئ النظام مجلد المشروع وملف Google Sheets التشغيلي تلقائيًا. تبقى بيانات التطبيق المرجع المعتمد.",
   "gws.state": "حالة استمرارية Google",
   "gws.account": "معرّف حساب Google المرتبط",
   "gws.last_sync": "آخر مزامنة ناجحة",

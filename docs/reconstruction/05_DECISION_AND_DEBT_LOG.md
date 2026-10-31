@@ -1,3 +1,31 @@
+## GWS1B-LOCAL-01 / GWS1B-TRIGGER-01 — current source release decisions
+
+Exact acceptance/publication state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+- RESOLVED: GWS1B-CAPTURE. Owner-approved local Projects_Tamplate.xlsx + nine Script files replace Google capture as the source gate; Google ADC/tokens are not required for local release. Real Google runtime acceptance remains OPEN.
+- SUPERSEDED: four installable handlers/timer dependencies. Only onOpen/onEdit are automatic; no active trigger-management calls, ScriptApp scope, Execution API or user-run setup requirement. Blueprint embeds clean initialized structures. Existing installer helpers are noninteractive/non-triggered compatibility actions, not provisioning authority.
+- RESOLVED_LOCALLY: GWS1B-CAPACITY. Both inputs start with 297 prepared rows, based on Loading grid through row 298. Offload's trailing style-only grid is normalized; lookups/aggregates follow open ranges. Under the existing per-Project sync fence, a full generated sheet expands by 200 rows inside its last prepared row, copying only formula columns/style/validation, then retries the same RAW inputs. Uncertain expansion replies reconcile existing capacity before another insertion. No silent overflow.
+- TEST_HARNESS_COMPATIBILITY: prior capture-required default assertion now checks the approved real-local asset. No test removal/skip or count reduction.
+- PRESENTATION_COMPATIBILITY: Excel XLOOKUP namespaces removed, CELL("format") date validation translated to Google-compatible numeric/date-text validation; source-only empty guards exclude calculated T/H so empty rows do not show invented data errors. Net-weight/review/correlation semantics remain unchanged. These bounded conversions are explicit, not silently identical byte formulas.
+- GWS_REVIEWER_CONFIGURATION_01 — STILL_OPEN: supplied reviewer names retained in validation and handler, classified PROJECT_CONFIGURATION_CANDIDATE. They do not define application RBAC/permissions. No new reviewer configuration surface in this unit.
+- GWS-SIMPLE-TRIGGER-RUNTIME-01 — STILL_OPEN: local routing and work caps are verified, not Google 30-second runtime certification. Concurrent lock/budget/source/output limits defer expensive reports with visible console evidence; manual report menus remain. Google trigger queue/delivery limits are not an exactly-once guarantee.
+- GWS-SYNC-AUTONOMY-01 / GWS-SYNC-RECOVERY-01 — STILL_OPEN. Programmatic API/Script writes do not fire simple onEdit. APP projection can leave Script-only derived reports awaiting a manual source edit/report refresh; no autonomous refresh or remote execution claim. Existing hard-crash sync owner and ambiguous Script creation recovery require operator proof, never blind resource recreation.
+- GWS-OAUTH-PROD-01 / GWS-LIVE-01 — STILL_OPEN; scope/consent, human file ownership, bound Script execution and controlled live-row acceptance are not proved locally. PFAG-OPS-01 remains OPEN, Phase 10 NOT_STARTED.
+
+## Historical GWS1B core checkpoint — capture gates superseded by current entry above
+
+Status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+- SUPERSEDED: runtime hidden-template configuration/copy and template Picker. Previous GWS1 records below are historical for that strategy; input/formula allowlists and durable delivery decisions remain current.
+- IMPLEMENTED_LOCALLY: destination-only selection, human-token native creation, versioned blueprint generator, bound Script installation, validation, immutable binding and stage recovery. Missing approved production asset fails closed before creation.
+- STILL_OPEN — GWS1B-CAPTURE: obtain real Sheets includeGridData and bound Script getContent with operator access; sanitize and explicitly classify labels, functions, triggers, reports and external dependencies. No invented manifest/source; reserved SABIL-HAIL-V1 is not approved.
+- STILL_OPEN — GWS1B-CAPACITY: review actual finite formula capacity, safe expansion and script-driven report refresh. Helper tests are not a deployed expansion guarantee.
+- STILL_OPEN — GWS1B-SCRIPT-RECOVERY: ambiguous projects.create response cannot be discovered safely through a supported parent search here; block and require operator proof/reconciliation, never issue a second project blindly.
+- STILL_OPEN: production scope/consent review including script.projects and actual Google ownership/formula/report/script acceptance. Installable trigger models are explicitly unsupported and blocked until separately reviewed.
+- PRESERVED: sync autonomy/hard-crash sync recovery debt, PFAG-OPS-01, historical test debt and lint NOT PASS. No refresh worker, readiness, dynamic Truck/Driver intake, GWS2 or Phase 10 work.
+
+## Historical and retained earlier decisions
+
 ## GWS-LIVE-01A — bounded OAuth-return defect remediation
 
 Current supporting decision; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns status.
