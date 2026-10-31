@@ -1,3 +1,7 @@
+## GWS1B-LIVE-02 — initial destination versus migration
+
+Current state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md). Initial Project provisioning uses one explicit Picker-folder validator: local eligibleDestination registry checks, then one human-token Drive metadata read of that selected folder. Require valid ID, accessible/nontrashed folder MIME and canAddChildren===true; Shared Drive folders follow the same capability rule. Do not read unselected parents under drive.file. The migration-era validateDestinationFolder/assertProjectFolderResource ancestry proof remains unchanged for migration and bound-resource operations. Initial policy rejects selected current/foreign canonical IDs and foreign reservations; it is deliberately not a proof about every unselected ancestor. No OAuth/blueprint/Script or PWA redesign. See [the sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## GWS1B-LIVE-01 — client/server generation convergence
 
 Current supporting architecture; [the ledger](reconstruction/02_PHASE_LEDGER.md) alone owns status. Vite compiles APP_BUILD_ID and emits runtime-build.json in the same dist artifact. The production server advertises that artifact's identity, never a later checkout SHA. Build identity derives from commit/deployment SHA; local dirty/restricted builds use a deterministic source suffix, no timestamp. A missing identity fails the build; missing runtime artifact fails closed.

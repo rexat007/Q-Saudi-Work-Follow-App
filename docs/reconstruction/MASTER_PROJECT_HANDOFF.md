@@ -1,4 +1,8 @@
-## GWS1B-LIVE-01 continuation
+## GWS1B-LIVE-02 continuation
+
+Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #69 merged PWA generation convergence; owner reports the current Q-PRJ-007 error is DESTINATION_NOT_WRITABLE. Initial provisioning now validates the Picker-granted writable folder and selected-ID registry/reservation checks without migration ancestry traversal. drive.file is preserved; migration validation/scopes/blueprint/Script are unchanged. Source fix requires owner review/merge/deploy and a retry on the same Project; no live Google success is claimed. Contract/proof: [PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
+## Historical GWS1B-LIVE-01 merged checkpoint
 
 Exact state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #68 merged GWS1B. Owner-reported RUNTIME_TEMPLATE_SELECTION_RETIRED after redeploy is consistent with an old controlled client reaching the new retired route. Current source has no production client caller. This bounded unit reconciles PWA/app/API generations using shared build metadata, critical command fences, supported worker activation and guarded reload, plus separates current attempt and previous sync errors. Do not change Google permissions or destination validation to address that retired-call symptom. After owner merge/deploy, verify real deployed build convergence first, then retry Q-PRJ-007 Workspace/Google acceptance separately. No GWS2, PFAG-OPS-01 or Phase10 work is activated.
 

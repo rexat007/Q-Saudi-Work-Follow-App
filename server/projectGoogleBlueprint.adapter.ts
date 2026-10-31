@@ -2,7 +2,6 @@ import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} from '../src/services/projectGoogleSheetContract';
 import { google } from 'googleapis';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
-import { serverWorkspaceService } from './workspace.service';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
 import { blueprintRequests, blueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
@@ -34,6 +33,24 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     await owned(project.data.parentId,version);return project.data.parentId;
   };
   const normalizedFiles=(files:Array<{name?:string|null;type?:string|null;source?:string|null}>)=>files.map(({name,type,source})=>({name,type,source:String(source||'').replace(/\r\n/g,'\n').trimEnd()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  /** First provisioning validates only the Picker-granted folder. Migration's ancestry
+   * proof is a separate contract: drive.file does not grant unselected ancestors. */
+  const validateInitialWorkspaceDestination=async(folderId:string,id:string)=>{
+    if(id!==projectId)return gwsFail('FORBIDDEN_PROJECT_ACCESS',403);
+    let selectedId:string;
+    try {selectedId=await new WorkspaceStorageBoundary().eligibleDestination(projectId,folderId);}
+    catch(error){
+      const e=error as {code?:string;statusCode?:number};
+      const registryCodes=['INVALID_STORAGE_RESOURCE_ID','CURRENT_STORAGE_DESTINATION','STORAGE_TARGET_CONFLICT','PROJECT_NOT_FOUND','PROJECT_REGISTRY_MISMATCH','PERSISTENCE_BOUNDARY_INVALID'];
+      if(e.code&&registryCodes.includes(e.code))return gwsFail(e.code,e.statusCode||409);
+      return gwsFail('WORKSPACE_REGISTRY_ACCESS_FAILED',503);
+    }
+    await guarded('DESTINATION_ACCESS_FAILED',async()=>{
+      const info=await drive.files.get({fileId:selectedId,fields:'id,mimeType,trashed,driveId,capabilities(canAddChildren)',supportsAllDrives:true});
+      if(info.data.trashed||info.data.mimeType!=='application/vnd.google-apps.folder')return gwsFail('DESTINATION_FOLDER_INVALID',400);
+      if(info.data.capabilities?.canAddChildren!==true)return gwsFail('DESTINATION_NOT_WRITABLE',403);
+    });
+  };
   return {...base,
     async upsert(fileId,input){
       try {await base.upsert(fileId,input);return;}catch(error){
@@ -63,15 +80,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       const info=await auth.getTokenInfo(token);
       if(!['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects'].every(s=>info.scopes.includes(s)))return gwsFail('SCOPE_DENIED',403);
     });},
-    async validateDestination(folderId,id){await guarded('DESTINATION_FOLDER_INVALID',async()=>{
-      if(id!==projectId)return gwsFail('FORBIDDEN_PROJECT_ACCESS',403);
-      await new WorkspaceStorageBoundary().eligibleDestination(projectId,folderId);
-      const info=await drive.files.get({fileId:folderId,fields:'mimeType,driveId,capabilities,trashed',supportsAllDrives:true});
-      if(info.data.trashed||info.data.mimeType!=='application/vnd.google-apps.folder')return gwsFail('DESTINATION_FOLDER_INVALID');
-      if(!info.data.capabilities?.canAddChildren)return gwsFail('DESTINATION_NOT_WRITABLE',403);
-      const result=await serverWorkspaceService.validateDestinationFolder(projectId,folderId,info.data.driveId?'SHARED_DRIVE':'MY_DRIVE',undefined,info.data.driveId||undefined,token);
-      if(!result.valid)return gwsFail('DESTINATION_NOT_WRITABLE',403);
-    });},
+    validateDestination:validateInitialWorkspaceDestination,
     async findResource(op,role){return guarded('WORKSPACE_RECOVERY_REQUIRED',async()=>{
       if(op!==operation)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID');
       const result=await drive.files.list({q:`trashed = false and appProperties has { key='qSaudiWorkspaceOperation' and value='${operation}' } and appProperties has { key='resourceRole' and value='${role}' }`,fields:'files(id,parents,appProperties),nextPageToken',pageSize:100,supportsAllDrives:true,includeItemsFromAllDrives:true});
