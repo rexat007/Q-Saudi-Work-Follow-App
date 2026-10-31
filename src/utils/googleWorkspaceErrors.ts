@@ -1,8 +1,11 @@
-export type GoogleWorkspaceErrorCode = 'OAUTH_APP_CONFIGURATION_BLOCK' | 'AUTHORIZATION_DENIED' | 'POPUP_CLOSED' | 'TOKEN_EXPIRED' | 'SCOPE_DENIED' | 'NETWORK_ERROR' | 'PROVISIONING_FAILED';
+import {workspaceFailureCode} from './workspaceGenerationErrors';
+export type GoogleWorkspaceErrorCode = 'OAUTH_APP_CONFIGURATION_BLOCK' | 'AUTHORIZATION_DENIED' | 'POPUP_CLOSED' | 'TOKEN_EXPIRED' | 'SCOPE_DENIED' | 'NETWORK_ERROR' | 'PROVISIONING_FAILED' | 'APP_UPDATE_REQUIRED' | 'APP_VERSION_UNAVAILABLE';
 /** Only evidence explicitly returned by the provider can establish a consent configuration block.
  * A closed cross-origin popup alone cannot reveal the Google page's error. */
 export function classifyGoogleWorkspaceError(error: unknown): GoogleWorkspaceErrorCode {
   const e = error as { code?: string; message?: string; error?: string; error_description?: string } | null;
+  const versionCode=workspaceFailureCode(e?.code||e?.message||'');
+  if(versionCode==='APP_UPDATE_REQUIRED'||versionCode==='APP_VERSION_UNAVAILABLE')return versionCode;
   const evidence = [e?.code, e?.message, e?.error, e?.error_description].filter(Boolean).join(' ').toLowerCase();
   if (/not.*verified|testing.*test user|test user.*not|org_internal|access_blocked/.test(evidence)) return 'OAUTH_APP_CONFIGURATION_BLOCK';
   if (/scope_denied|insufficient.*scope|insufficientpermissions/.test(evidence)) return 'SCOPE_DENIED';
@@ -15,6 +18,7 @@ export function classifyGoogleWorkspaceError(error: unknown): GoogleWorkspaceErr
 
 export function continuityStateLabel(state: string, t: (key: string)=>string): string {
   switch(state) {
+    case 'APP_UPDATE_REQUIRED': return t('gws.app_update_required');
     case 'NOT_CONNECTED': return t('gws.not_connected');
     case 'CONNECTED': return t('gws.connected');
     case 'PROVISIONING': return t('gws.provisioning');

@@ -1,3 +1,4 @@
+vi.mock('../runtime/runtimeGeneration',()=>({CLIENT_BUILD_ID:'test',ensureRuntimeGeneration:vi.fn(async()=>{}),assertRuntimeGeneration:vi.fn()}));
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const f=vi.hoisted(()=>({auth:{currentUser:{uid:'app-user',providerData:[{providerId:'google.com',uid:'google-subject'}],getIdToken:async()=> 'firebase-id'} as any},grant:vi.fn()}));
 vi.mock('../firebase/config',()=>({auth:f.auth}));

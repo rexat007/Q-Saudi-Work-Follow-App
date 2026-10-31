@@ -1,3 +1,16 @@
+## GWS1B-LIVE-01 — current deployment-generation decisions
+
+Status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). GitHub baseline a38c0b00e581638169f8740816f9a4646c30dbe0 includes PR #68. Owner's live retired-route observation is treated as PWA_DEPLOYMENT_SPLIT_BRAIN; no independent production profile/cache trace was available.
+
+- RESOLVED_LOCALLY: obsolete-generation commands are fenced by artifact identity; retired template endpoint stays 410 and classifies APP_UPDATE_REQUIRED. Client callers to that route remain zero.
+- DECISION: build identifier is one emitted artifact, compiled into frontend and served by backend. No mutable current-checkout runtime identity or timestamp. Metadata failure blocks critical commands without removing offline shell.
+- DECISION: keep supported autoUpdate/Workbox lifecycle with explicit modern reload control; use a narrow generation-checked worker hook to migrate already-released unaware tabs. Do not await page navigation inside activation (avoids activation/navigation deadlock). Keep offline fallback and Workbox precache cleanup.
+- DECISION: last confirmed generation snapshot (90-second lease, 30-second/online/focus refresh) preserves OAuth popup user activation; destination/provision perform fresh checks and server header matching. This is not a transaction across network requests; a rolling deployment race is rejected at the server command fence.
+- DECISION: bounded session history (16 targets; max three reloads in ten minutes) prevents repeated/alternating-generation loops. Storage/worker/metadata failure refuses unsafe reload rather than clearing user storage. A tab with an undiscovered pre-patch worker still relies on normal browser update discovery/navigation before new worker code can run; no claim of retroactively changing executing old JavaScript.
+- RESOLVED_LOCALLY: stale template errors are hidden from current business guidance; current and relevant prior issues have separate labels. Audit and lastSyncError are not erased. DESTINATION_NOT_WRITABLE remains an independent validation result, not remediated here.
+- STILL_OPEN: deployed Render version/profile/cache evidence and real Q-PRJ-007 Folder Picker/provisioning acceptance after merge/deploy. Google OAuth consent/Apps Script/runtime debts remain; no acceptance inferred from fixture browsers.
+- PRESERVED: existing 440 diagnostics, lint EXIT2/NOT PASS and reproduced historical tests; GWS-SYNC-AUTONOMY-01, PFAG-OPS-01 and Phase10 boundaries.
+
 ## GWS1B-LOCAL-01 / GWS1B-TRIGGER-01 — current source release decisions
 
 Exact acceptance/publication state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).

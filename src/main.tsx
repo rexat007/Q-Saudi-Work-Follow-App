@@ -1,3 +1,4 @@
+import {startRuntimeGeneration} from './runtime/pwaUpdate';
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
@@ -5,6 +6,8 @@ import './index.css';
 import { AuthProvider } from './firebase/authContext';
 import { I18nProvider } from './i18n';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+
+startRuntimeGeneration();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

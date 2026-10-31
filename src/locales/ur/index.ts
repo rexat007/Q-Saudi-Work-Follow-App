@@ -1,6 +1,10 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.app_update_required": "ایپ کا نیا ورژن دستیاب ہے۔ ورک اسپیس کی تیاری سے پہلے اپ ڈیٹ ہو رہی ہے۔",
+  "gws.version_unavailable": "ایپ کے ورژن کی تصدیق نہیں ہو سکی۔ انٹرنیٹ سے جڑیں اور دوبارہ کوشش کریں۔",
+  "gws.current_attempt": "موجودہ کوشش",
+  "gws.previous_issue": "مطابقت پذیری کا پچھلا مسئلہ",
   "gws.destination": "پروجیکٹ کا بنیادی منزل فولڈر",
 
   "gws.status_unavailable": "ورک اسپیس کی حالت کی تصدیق نہیں ہوئی",
