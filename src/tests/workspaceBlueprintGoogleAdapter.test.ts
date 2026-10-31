@@ -16,6 +16,16 @@ beforeEach(()=>{
  f.scriptGet.mockResolvedValue({data:{parentId:'file'}});f.scriptCreate.mockResolvedValue({data:{scriptId:'script'}});f.scriptContent.mockResolvedValue({data:{files:b.script!.files}});
 });
 describe('GWS1B Google native generation API boundary',()=>{
+ it('requires only Drive file and Sheets for binding while keeping Script permission mandatory for optional automation',async()=>{
+  f.token.mockResolvedValue({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeBinding()).resolves.toBeUndefined();await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toThrow('SCOPE_DENIED:script.projects');
+ });
+ it.each(['valid','foreign-project','folder-parent','sheet-parent','operation','role','version','trashed'])('checks canonical resource ownership and parent bindings: %s',async mode=>{
+  f.fileGet.mockImplementation(async({fileId}:any)=>({data:fileId==='root'?{mimeType:'application/vnd.google-apps.folder'}:{name:'Project file',mimeType:fileId==='folder'?'application/vnd.google-apps.folder':'application/vnd.google-apps.spreadsheet',trashed:mode==='trashed',parents:[fileId==='folder'?(mode==='folder-parent'?'foreign':'root'):(mode==='sheet-parent'?'foreign':'folder')],appProperties:{projectId:mode==='foreign-project'?'P2':'P1',qSaudiWorkspaceOperation:mode==='operation'?'foreign':workspaceOperation('P1'),resourceRole:mode==='role'?'FOREIGN':fileId==='folder'?'FOLDER':'SPREADSHEET',workspaceBlueprintVersion:mode==='version'?'OTHER':'TEST-V1'}}}));
+  const result=projectGoogleBlueprintPort('fixture','P1').verifyBinding('root','folder','file','TEST-V1');
+  if(mode==='valid')await expect(result).resolves.toEqual({title:'Project file'});else await expect(result).rejects.toThrow(/BOUND_FILE_UNAVAILABLE|WORKSPACE_EXTERNAL_BINDING_INVALID/);
+  expect(f.fileCreate).not.toHaveBeenCalled();expect(f.scriptCreate).not.toHaveBeenCalled();
+ });
  it('creates a tagged native spreadsheet under the Project folder without files.copy',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.createProjectSpreadsheet('Project name','folder',workspaceOperation('P1'),'TEST-V1');expect(f.fileCreate).toHaveBeenCalledWith(expect.objectContaining({requestBody:expect.objectContaining({mimeType:'application/vnd.google-apps.spreadsheet',parents:['folder'],appProperties:expect.objectContaining({resourceRole:'SPREADSHEET',workspaceBlueprintVersion:'TEST-V1'})})}));expect(f.copy).not.toHaveBeenCalled()});
  it('requires script.projects for generation while preserving the narrow Drive scope',async()=>{const p=projectGoogleBlueprintPort('fixture','P1');await p.authorizeProvisioning();f.token.mockResolvedValueOnce({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});await expect(p.authorizeProvisioning()).rejects.toThrow('SCOPE_DENIED')});
  it.each([

@@ -1,7 +1,7 @@
 import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint/expansion';
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} from '../src/services/projectGoogleSheetContract';
 import { google } from 'googleapis';
-import {missingWorkspaceScopes, workspaceScopeDeniedCode} from '../src/utils/googleWorkspaceScopes';
+import {missingWorkspaceScopes, missingWorkspaceBindingScopes, workspaceScopeDeniedCode} from '../src/utils/googleWorkspaceScopes';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
@@ -17,7 +17,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(error instanceof GoogleWorkspaceCommandError)throw error;
       const e=error as {code?:number;status?:number;response?:{status?:number}};
       const status=e.response?.status||e.status||e.code;
-      return gwsFail(status===401?'TOKEN_EXPIRED':status===403?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
+      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&code!=='BOUND_FILE_UNAVAILABLE'?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
     }
   };
   const owned=async(fileId:string,version?:string)=>{
@@ -53,6 +53,25 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });
   };
   return {...base,
+    async authorizeBinding(){await guarded('AUTHORIZATION_REQUIRED',async()=>{
+      const info=await auth.getTokenInfo(token),missing=missingWorkspaceBindingScopes(info.scopes);
+      if(missing.length)return gwsFail(workspaceScopeDeniedCode(missing),403);
+    });},
+    async verifyBinding(rootId,folderId,fileId,version){return guarded('BOUND_FILE_UNAVAILABLE',async()=>{
+      const root=await drive.files.get({fileId:rootId,fields:'mimeType,trashed',supportsAllDrives:true});
+      const folder=await drive.files.get({fileId:folderId,fields:'mimeType,trashed,parents,appProperties',supportsAllDrives:true});
+      const file=await drive.files.get({fileId,fields:'name,mimeType,trashed,parents,appProperties',supportsAllDrives:true});
+      if(root.data.trashed||root.data.mimeType!=='application/vnd.google-apps.folder'||folder.data.trashed||folder.data.mimeType!=='application/vnd.google-apps.folder'||file.data.trashed||file.data.mimeType!=='application/vnd.google-apps.spreadsheet')return gwsFail('BOUND_FILE_UNAVAILABLE',404);
+      if(!folder.data.parents?.includes(rootId)||!file.data.parents?.includes(folderId))return gwsFail('BOUND_FILE_UNAVAILABLE',409);
+      for(const [info,role] of [[folder.data,'FOLDER'],[file.data,'SPREADSHEET']] as const){
+        if(info.appProperties?.projectId!==projectId||info.appProperties?.qSaudiWorkspaceOperation!==operation||info.appProperties?.resourceRole!==role||info.appProperties?.workspaceBlueprintVersion!==version)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID',403);
+      }
+      await new WorkspaceStorageBoundary().assertCanonicalStorage({projectId,settings:{googleSpreadsheetId:fileId,googleDriveFolderId:folderId}});
+      return {title:file.data.name||''};
+    });},
+    async verifyWorkbook(fileId,blueprint){await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
+      await owned(fileId,blueprint.version);const workbook=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});verifyBlueprintWorkbook(blueprint,workbook.data,true);
+    });},
     async upsert(fileId,input){
       try {await base.upsert(fileId,input);return;}catch(error){
         if((error as {code?:string}).code!=='TEMPLATE_FORMULA_CAPACITY_EXHAUSTED')throw error;
@@ -104,7 +123,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     async applyBlueprint(fileId,blueprint){await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',async()=>{
       await owned(fileId,blueprint.version);
       const snapshot=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
-      const requests=blueprintRequests(blueprint,snapshot.data);
+      const requests=blueprintRequests(blueprint,snapshot.data,true);
       for(const batch of blueprintRequestBatches(requests))await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:batch}});
       await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:[{updateSpreadsheetProperties:{properties:blueprint.properties,fields:Object.keys(blueprint.properties).join(',')}}]}});
     });},

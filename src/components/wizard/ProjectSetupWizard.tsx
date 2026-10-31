@@ -223,9 +223,13 @@ export async function executeProjectWorkspaceSyncOrchestration(
     let spreadsheetId = status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId;
     existingWorkspace = Boolean(spreadsheetId);
     if (!spreadsheetId) {
-      const destinationRootFolderId = await workspaceService.selectProjectWorkspaceDestination(project.projectId);
-      if (!isCurrent()) return;
-      const result = await workspaceService.provisionProjectDrive(project as any, destinationRootFolderId);
+      let result;
+      if(status?.recoveryAvailable)result=await workspaceService.resumeProjectWorkspace(project.projectId);
+      else {
+        const destinationRootFolderId = await workspaceService.selectProjectWorkspaceDestination(project.projectId);
+        if (!isCurrent()) return;
+        result = await workspaceService.provisionProjectDrive(project as any, destinationRootFolderId);
+      }
       if (!isCurrent()) return;
       if (!result?.spreadsheetId || !result?.projectFolderId) throw new Error('WORKSPACE_BINDING_INCOMPLETE');
       spreadsheetId = result.spreadsheetId;
@@ -242,6 +246,9 @@ export async function executeProjectWorkspaceSyncOrchestration(
       ? 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات'
       : 'تم تحديث وإسقاط بيانات المشروع في جدول البيانات بنجاح دون إعادة تهيئة مساحة العمل'});
   } catch (error: any) {
+    if((provisionSucceeded||existingWorkspace)&&isCurrent()&&workspaceService.getGoogleWorkspaceStatus) {
+      try {const latest=await workspaceService.getGoogleWorkspaceStatus(project.projectId);if(isCurrent())params.onWorkspaceStatus?.(latest);}catch { /* Keep the original attempt error; failed status read never means absence. */ }
+    }
     if(workspaceFailureCode(error.message||'')==='APP_UPDATE_REQUIRED'){setSyncNotice({type:'error',text:'APP_UPDATE_REQUIRED'});return;}
     setSyncNotice({type:'error',text: provisionSucceeded
       ? `تمت تهيئة مساحة العمل في Google Drive بنجاح، ولكن تعذر إكمال إسقاط البيانات الأولية: ${error.message || 'PROVISIONING_FAILED'}`
@@ -4061,7 +4068,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   <p>{t('gws.purpose')}</p>
                   {googleContinuity && <div className="space-y-1" aria-live="polite">
-                    <p>{t('gws.state')}: {continuityStateLabel(syncNotice?.type==='error' && workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED'?'APP_UPDATE_REQUIRED':googleContinuity.state, t)}</p>
+                    <p>{t('gws.state')}: {googleContinuity.binding?t('gws.sheet_connected'):continuityStateLabel(syncNotice?.type==='error' && workspaceFailureCode(syncNotice.text)==='APP_UPDATE_REQUIRED'?'APP_UPDATE_REQUIRED':googleContinuity.state, t)}</p>
+                    {googleContinuity.binding&&<p>{t(googleContinuity.state==='AUTHORIZATION_REQUIRED'?'gws.bound_authorization_required':googleContinuity.state==='BOUND_FILE_UNAVAILABLE'?'gws.bound_file_unavailable':googleContinuity.state==='SYNC_DEGRADED'?'gws.bound_sync_degraded':googleContinuity.pendingSyncCount||!googleContinuity.lastSuccessfulSyncAt?'gws.sync_pending':'gws.sync_healthy')}</p>}
+                    {googleContinuity.binding?.spreadsheetTitle&&<p>{googleContinuity.binding.spreadsheetTitle}</p>}
+                    {googleContinuity.recoveryAvailable&&<p>{t('gws.partial_resume')}</p>}
                     <p>{t('gws.destination')}: {googleContinuity.binding?.destinationRootFolderId || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.account')}: {googleContinuity.binding?.googleAccountLabel || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.last_sync')}: {googleContinuity.lastSuccessfulSyncAt || t('projects.batch4.not_configured')}</p>
@@ -4070,13 +4080,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {googleContinuity.binding && <a className="text-amber-400 underline" target="_blank" rel="noopener noreferrer" href={googleContinuity.binding.spreadsheetUrl}>{t('gws.open')}</a>}
                   </div>}
                   <div className="pt-2 flex justify-end">
-                    {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && <button
+                    {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && (!googleContinuity?.binding||googleContinuity.pendingSyncCount>0||!googleContinuity.lastSuccessfulSyncAt||['SYNC_DEGRADED','AUTHORIZATION_REQUIRED'].includes(googleContinuity.state)) && <button
                       onClick={handleSyncGoogleWorkspace}
                       disabled={isSyncingGoogle || !googleAuthorizationReady}
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
-                      <span>{googleContinuity?.binding || (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
+                      <span>{googleContinuity?.binding?t('gws.retry_sync'):googleContinuity?.recoveryAvailable?t('gws.resume_setup'): (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
                     </button>}
                   </div>
                 </div>

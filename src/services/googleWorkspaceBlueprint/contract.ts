@@ -1,5 +1,6 @@
 import type { sheets_v4, script_v1 } from 'googleapis';
 import { REQUIRED_GOOGLE_TABS, LOADING_HEADERS, OFFLOAD_HEADERS, LOADING_WRITABLE, OFFLOAD_WRITABLE } from '../projectGoogleSheetContract';
+import {WORKSPACE_TABS} from '../../types/workspace';
 
 export interface WorkspaceBlueprint {
   schemaVersion: 1;
@@ -23,10 +24,9 @@ export const columnIndex=(column:string)=>[...column].reduce((n,c)=>n*26+c.charC
 export function cellEntries(sheet:sheets_v4.Schema$Sheet) {
   return (sheet.data||[]).flatMap(grid=>(grid.rowData||[]).flatMap((row,r)=>(row.values||[]).map((cell,c)=>({row:r+(grid.startRow||0),column:c+(grid.startColumn||0),cell}))));
 }
-export function assertBlueprint(blueprint:WorkspaceBlueprint):void {
+export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=true):void {
   if(!blueprint||!Array.isArray(blueprint.sheets)||!Array.isArray(blueprint.namedRanges)||!blueprint.capture||!Array.isArray(blueprint.capture.sourceReferenceIds))return invalid();
-  if(!blueprint.script) return invalid('SCRIPT_SOURCE_CAPTURE_REQUIRED');
-  if(!Array.isArray(blueprint.script.files)||!Array.isArray(blueprint.script.functions)||!Array.isArray(blueprint.script.requiredCustomFunctions))return invalid();
+  if(requireAutomation&&!blueprint.script) return invalid('SCRIPT_SOURCE_CAPTURE_REQUIRED');
   if(!blueprint.approved || !blueprint.capture.complete || blueprint.capture.unaccounted || blueprint.capture.operationalRows || blueprint.capture.sourceReferenceIds.length || blueprint.schemaVersion!==1) return invalid('WORKSPACE_BLUEPRINT_CAPTURE_REQUIRED');
   if(!blueprint.version || blueprint.properties.timeZone!=='Asia/Riyadh' || !blueprint.properties.locale) return invalid();
   const names=blueprint.sheets.map(s=>s.properties?.title),ids=blueprint.sheets.map(s=>s.properties?.sheetId);
@@ -55,7 +55,10 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint):void {
     }
   };
   checkRanges([blueprint.sheets,blueprint.namedRanges]);
+  if(!requireAutomation)return;
   const script=blueprint.script;
+  if(!script)return invalid('SCRIPT_SOURCE_CAPTURE_REQUIRED');
+  if(!Array.isArray(script.files)||!Array.isArray(script.functions)||!Array.isArray(script.requiredCustomFunctions))return invalid();
   if(new Set(script.functions.map(f=>f.name)).size!==script.functions.length)return invalid('SCRIPT_FUNCTION_INVENTORY_INVALID');
   if(!script.version || !script.files.some(f=>f.name==='appsscript'&&f.type==='JSON') || !script.files.some(f=>f.type==='SERVER_JS')) return invalid('SCRIPT_SOURCE_CAPTURE_REQUIRED');
   if(script.triggerModel==='UNREVIEWED') return invalid('SCRIPT_TRIGGER_REVIEW_REQUIRED');
@@ -70,8 +73,8 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint):void {
 }
 
 /** Review/capture requests use target-local sheet IDs, never the source workbook IDs. */
-export function blueprintRequests(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet):sheets_v4.Schema$Request[] {
-  assertBlueprint(blueprint);
+export function blueprintRequests(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet,bindingOnly=false):sheets_v4.Schema$Request[] {
+  assertBlueprint(blueprint,!bindingOnly);
   const requests:sheets_v4.Schema$Request[]=[];
   const existing=current.sheets||[];
   for(const [index,sheet] of blueprint.sheets.entries()) {
@@ -149,16 +152,18 @@ export function blueprintRequestBatches(requests:sheets_v4.Schema$Request[]):she
   }
   if(current.length)batches.push(current);return batches;
 }
-export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:sheets_v4.Schema$Spreadsheet):void {
-  assertBlueprint(blueprint);
-  if(actual.sheets?.length!==blueprint.sheets.length || !subset(blueprint.properties,actual.properties))return invalid('WORKSPACE_STRUCTURE_INVALID');
+export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:sheets_v4.Schema$Spreadsheet,bindingOnly=false):void {
+  assertBlueprint(blueprint,!bindingOnly);
+  const projectionTitles=new Set((['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'] as const).map(key=>WORKSPACE_TABS[key].tabTitleAr));
+  const sheets=bindingOnly?actual.sheets?.filter(sheet=>!projectionTitles.has(sheet.properties?.title||'')):actual.sheets;
+  if(sheets?.length!==blueprint.sheets.length || !subset(blueprint.properties,actual.properties))return invalid('WORKSPACE_STRUCTURE_INVALID');
   for(const [i,sheet] of blueprint.sheets.entries()) {
-    const target=actual.sheets[i];
+    const target=sheets[i];
     if(target.properties?.title!==sheet.properties?.title || target.properties?.sheetId!==sheet.properties?.sheetId) return invalid('WORKSPACE_STRUCTURE_INVALID');
     if(!subset(sheet.properties?.gridProperties,target.properties?.gridProperties))return invalid('WORKSPACE_STRUCTURE_INVALID');
     const cells=cellEntries(target);
     const byCoordinate=new Map(cells.map(c=>[`${c.row}:${c.column}`,c.cell]));
-    if(cells.some(c=>c.cell.effectiveValue?.errorValue?.type==='NAME'||(blueprint.script!.requiredCustomFunctions.length>0&&c.cell.effectiveValue?.errorValue?.type==='LOADING')))return invalid('SCRIPT_FUNCTION_NOT_READY');
+    if(!bindingOnly&&cells.some(c=>c.cell.effectiveValue?.errorValue?.type==='NAME'||(blueprint.script!.requiredCustomFunctions.length>0&&c.cell.effectiveValue?.errorValue?.type==='LOADING')))return invalid('SCRIPT_FUNCTION_NOT_READY');
     for(const expected of cellEntries(sheet)) {
       const value=byCoordinate.get(`${expected.row}:${expected.column}`);
       if(!subset(expected.cell,value))return invalid('WORKSPACE_STRUCTURE_INVALID');

@@ -1,6 +1,6 @@
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
 import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
-import { projectGoogleWorkspaceServer, continuityRef, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
+import { projectGoogleWorkspaceServer, continuityRef, workspaceOperation, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { TripCommandsServerService, TripCommandError } from '../src/services/tripCommands.server';
 import { STATUS_COMMANDS } from '../src/types/tripCommands';
@@ -662,6 +662,13 @@ app.post('/api/projects/:projectId/workspace/destination', enforceProjectIsolati
     return res.json({success:true,data});
   } catch(error:any) { return res.status(error.status||error.statusCode||400).json({success:false,code:error.code||'DESTINATION_FOLDER_INVALID'}); }
 });
+app.post('/api/projects/:projectId/workspace/resume', enforceProjectIsolation, enforceAdminOnly, workspaceGenerationFence, async (req,res)=>{
+  try {
+    if(Object.keys(req.body||{}).some(key=>key!=='projectId')||(req.body?.projectId!==undefined&&req.body.projectId!==req.params.projectId))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    const data=await projectGoogleWorkspaceServer.resume(req.params.projectId,(req as any).user,projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId));
+    return res.json({success:true,data});
+  } catch(error:any){return res.status(error.status||502).json({success:false,code:error.code||'WORKSPACE_RECOVERY_REQUIRED'});}
+});
 app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try { res.json({ success: true, data: await projectGoogleWorkspaceServer.status(req.params.projectId, (req as any).user) }); }
   catch (error: any) { res.status(error.status || 403).json({ success: false, code: error.code || 'WORKSPACE_ACCESS_FAILED' }); }
@@ -767,6 +774,13 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
     const cleanProjectId = projectId.trim();
     const cleanSpreadsheetId = spreadsheetId.trim();
 
+    const workspace=await projectGoogleWorkspaceServer.status(cleanProjectId,(req as any).user);
+    if(!workspace.binding||workspace.binding.spreadsheetId!==cleanSpreadsheetId)return res.status(409).json({success:false,code:'WORKSPACE_BINDING_INVALID'});
+    const google=projectGoogleBlueprintPort(googleToken,cleanProjectId);
+    if(await google.subject()!==workspace.binding.googleSubject)return res.status(403).json({success:false,code:'WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION'});
+    if(workspace.binding.workspaceBlueprintVersion)await google.verifyBinding(workspace.binding.destinationRootFolderId!,workspace.binding.projectFolderId!,cleanSpreadsheetId,workspace.binding.workspaceBlueprintVersion);
+    else await google.verify(cleanSpreadsheetId,workspaceOperation(cleanProjectId));
+
     // Read freshness state to capture expected mutation revision BEFORE building snapshot
     const freshnessState = await getWorkspaceProjectionState(cleanProjectId);
     const expectedMutationRevision = freshnessState.mutationRevision;
@@ -838,6 +852,7 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
     }
 
     const totalRecords = upsertResults.reduce((acc, curr) => acc + curr.processedCount, 0);
+    await projectGoogleWorkspaceServer.initialProjectionResult(cleanProjectId,cleanSpreadsheetId,(req as any).user,null);
 
     const summary: WorkspaceSyncSummary = {
       projectId: cleanProjectId,
@@ -857,12 +872,13 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
       message: summary.auditMessage,
     });
   } catch (error: any) {
-    console.error('Error in /api/workspace/sync/initial:', error);
     const statusCode = resolveWorkspaceErrorStatusCode(error);
+    const code=error instanceof GoogleWorkspaceCommandError ? error.code : ['WORKSPACE_PROJECTION_REVISION_CONFLICT','GOOGLE_ACCESS_TOKEN_REQUIRED'].includes(error.code) ? error.code : 'SHEET_SYNC_FAILED';
+    await projectGoogleWorkspaceServer.initialProjectionResult(req.body?.projectId,req.body?.spreadsheetId,(req as any).user,code).catch(()=>{});
     res.status(statusCode).json({
       success: false,
-      error: error.message || 'فشلت عملية المزامنة والإسقاط الأولي لجداول مساحة العمل',
-      code: error.code,
+      error: 'WORKSPACE_INITIAL_PROJECTION_FAILED',
+      code,
     });
   }
 });

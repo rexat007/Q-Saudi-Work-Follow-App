@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.sheet_connected": "Connected to Google Sheets",
+  "gws.sync_healthy": "Synchronization is healthy",
+  "gws.sync_pending": "Changes are waiting to synchronize",
+  "gws.bound_sync_degraded": "The file is linked to the project, but synchronization needs attention",
+  "gws.bound_authorization_required": "The file is linked to the project. Reauthorize Google to resume synchronization",
+  "gws.bound_file_unavailable": "The registered file is unavailable. Verify access before recovery; no replacement will be created automatically.",
+  "gws.partial_resume": "Workspace setup is incomplete and will resume from the last successful step",
+  "gws.resume_setup": "Resume Workspace setup",
+  "gws.retry_sync": "Retry synchronization",
   "gws.destination_not_writable": "The connected account cannot add files to this folder. Choose a folder where it can add files.",
   "gws.destination_conflict": "This folder is registered or reserved for another project. Choose another folder.",
   "gws.destination_is_current": "This is the current project folder. Changing its location requires storage migration, not initial setup.",

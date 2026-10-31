@@ -1,5 +1,18 @@
 ## GWS1B-LIVE-02 — current initial-destination decision
 
+## GWS2-A — owner-authorized binding correction — 2026-10-31
+
+Current authority: [phase ledger](02_PHASE_LEDGER.md).
+
+- SUPERSEDED: requiring Apps Script create/install/verification before a valid Sheet binding can be connected. Historical tests encoding that gate are converged to binding/automation independence; test counts and substantive Project/subject/receipt/isolation/lease/resource-reuse checks are preserved.
+- RESOLVED_LOCALLY: server-derived resume uses the durable destination instead of reopening Picker; SCRIPT_REQUESTED no longer blocks a verified binding or triggers another Script create. Original uncertain automation evidence is preserved separately. Root/folder/file appProperties and parent mismatches fail closed.
+- RESOLVED_LOCALLY: bound Sheet identity is checked before initial canonical projection. Client-supplied external targets cannot redirect Project snapshots. Binding persists on authorization/file-access failures; no silent replacement.
+- TEST_HARNESS_COMPATIBILITY_CORRECTION: two projection tests now inspect the complete route instead of a fixed 5000-character slice. Their acknowledgment/error-order assertions remain. UI assertions follow the owner-required open/retry/resume controls. The prior 28 bounded-suite failures remain baseline debt, not successful tests.
+- STILL_OPEN: real Q-PRJ-007 resource verification/recovery; credentials/network access prevented local live acceptance. Owner-supplied state is evidence of the intended recovery path, not successful execution.
+- STILL_OPEN / GWS2-B: full canonical master-data projection and complete global/membership/relationship mutation routing. Existing initial snapshots and outbox are reusable; their present session-driven behavior is not completion.
+- STILL_OPEN / GWS2-C / EXTERNAL_AUTHORIZATION_CONFIGURATION_REQUIRED: server OAuth client secret, encryption key, redirect configuration and an explicit offline Google grant are absent. No refresh credential was collected, stored or exposed. A background worker is not implemented or claimed. See [bounded design](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+- PRESERVED: historical operational snapshots, canonical identities and business authorization/lifecycle rules; no Phase 10/PFAG-OPS work.
+
 Exact status authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline b936019580778394ccdcb07523ad635ec0295956 merges PWA convergence PR #69. Owner reports the current error is destination validation, not retired template selection.
 
 - PROVEN_SOURCE_DEFECT: selected writable folder passes metadata but the migration validator traverses an ungranted parent (403/404) and the adapter collapses that into DESTINATION_NOT_WRITABLE. Two cases failed before production changes; after correction the same cases pass with one selected-folder read and zero parent reads.

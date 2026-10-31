@@ -1,6 +1,15 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.sheet_connected": "مرتبط بـ Google Sheets",
+  "gws.sync_healthy": "المزامنة تعمل بصورة طبيعية",
+  "gws.sync_pending": "توجد تغييرات بانتظار المزامنة",
+  "gws.bound_sync_degraded": "الملف مربوط بالمشروع، لكن المزامنة تحتاج مراجعة",
+  "gws.bound_authorization_required": "الملف مربوط بالمشروع، ويلزم إعادة تفويض Google لاستئناف المزامنة",
+  "gws.bound_file_unavailable": "الملف المسجل غير متاح. يلزم التحقق من الوصول إليه قبل الاسترداد؛ لن يُنشأ بديل تلقائيًا.",
+  "gws.partial_resume": "إعداد مساحة العمل غير مكتمل — سيتم استئنافه من آخر خطوة ناجحة",
+  "gws.resume_setup": "استئناف إعداد مساحة العمل",
+  "gws.retry_sync": "إعادة محاولة المزامنة",
   "gws.destination_not_writable": "الحساب المرتبط لا يستطيع إضافة ملفات إلى هذا المجلد. اختر مجلدًا يسمح له بالإضافة.",
   "gws.destination_conflict": "هذا المجلد مسجل أو محجوز لمشروع آخر. اختر مجلدًا آخر.",
   "gws.destination_is_current": "هذا هو مجلد المشروع الحالي. تغيير موقعه يتطلب نقل التخزين، وليس التهيئة الأولى.",

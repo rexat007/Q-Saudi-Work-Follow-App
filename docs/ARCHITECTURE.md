@@ -1,5 +1,14 @@
 ## GWS1B-LIVE-02 — initial destination versus migration
 
+## GWS2 — Firestore authority, independent binding and automation
+
+Current state authority: [phase ledger](reconstruction/02_PHASE_LEDGER.md). FIRESTORE = CANONICAL DATA HUB; APPLICATION = FIRESTORE CLIENT; GOOGLE SHEET = FIRESTORE PROJECTION / CONTINUITY SURFACE; APPS SCRIPT = OPTIONAL WORKBOOK AUTOMATION.
+
+GWS2-A: isolated human-user grant for Sheets + drive.file → select destination once or server-derived recovery → verify Project/subject/receipt/version and resource appProperties/parents → verify the operational workbook independently of script runtime → atomic ProjectGoogleBinding → workspace CONNECTED. Automation has its own NOT_REQUIRED / NOT_INSTALLED / INSTALLING / READY / DEGRADED vocabulary. Legacy READY remains a compatibility state for a valid binding; it does not certify automation. Unknown prior script creation stays recorded in automationStage and is never repeated by binding recovery. Healthy connected UI offers the existing sheet link, with retry only for pending/failed sync.
+
+Initial projection still uses the existing canonical server reader and revision acknowledgment, now guarded by the durable binding and Google subject; client spreadsheet IDs cannot redirect writes. Existing snapshot limitations, mutation coverage and browser-token delivery are not represented as GWS2-B/C completion. Persistent authorization/worker requirements and external blockers are documented in [the authorization contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). Real Q-PRJ-007 acceptance, autonomous updates after browser close and per-entity live acceptance remain open. No bidirectional master authority or Phase 10 change.
+
+
 Current state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md). Initial Project provisioning uses one explicit Picker-folder validator: local eligibleDestination registry checks, then one human-token Drive metadata read of that selected folder. Require valid ID, accessible/nontrashed folder MIME and canAddChildren===true; Shared Drive folders follow the same capability rule. Do not read unselected parents under drive.file. The migration-era validateDestinationFolder/assertProjectFolderResource ancestry proof remains unchanged for migration and bound-resource operations. Initial policy rejects selected current/foreign canonical IDs and foreign reservations; it is deliberately not a proof about every unselected ancestor. No OAuth/blueprint/Script or PWA redesign. See [the sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
 
 ## GWS1B-LIVE-01 — client/server generation convergence
@@ -10,9 +19,9 @@ GET /api/runtime-version is public, credential-free and no-store. Token-free sta
 
 Supported registerSW callbacks, Workbox skipWaiting/clientsClaim and a narrow importScripts hook converge controllers and pages. Modern tabs reload only after confirming the new controller; legacy unaware tabs can be navigated once after verified activation, without waiting for that navigation inside activate. No auth/outbox storage is cleared. Workbox keeps offline navigation fallback and cleans obsolete precache revisions; API navigation is excluded. HTML/worker/version responses revalidate or are no-store, hashed assets remain immutable. See [the continuity contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for loop/race/offline limitations. No Google/blueprint redesign.
 
-## GWS1B — versioned Workspace generation
+## Historical GWS1B — versioned Workspace generation (binding gate superseded by GWS2)
 
-Current supporting architecture; exact state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+Historical implementation reference; current state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md).
 
 Isolated Google permission grant → destination-folder Picker → fresh server Project/account/scope/lifecycle authorization → immutable destination approval → tagged Project folder → new native spreadsheet → versioned blueprint construction → bound Apps Script project and exact content → structural/script validation → atomic durable binding → existing canonical-input outbox/manual drain. Human-user OAuth owns the resources; no hidden source workbook read/copy, service-account ownership, template Picker or Firebase reauthentication. Native Sheets MIME creation through Drive atomically includes parent and recovery tags. `drive.file`, `spreadsheets`, `script.projects` and basic identity are requested.
 

@@ -1,5 +1,21 @@
 # Project Google Sheet continuity contract — PFAG-GWS1
 
+## GWS2 current binding authority (owner decision, 2026-10-31)
+
+Exact current state defers to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). SCRIPT_REQUIRED_FOR_WORKSPACE_READY is SUPERSEDED. Verified Project folder + verified Google Sheet + durable scoped binding establish CONNECTED without a Script ID or installation. Binding authentication needs drive.file and spreadsheets; optional automation still requires script.projects and the strict automation asset/verification contract. No broader Drive scopes were added.
+
+POST /api/projects/:projectId/workspace/resume accepts projectId only. The server derives destination/resource identities from continuity and receipt, rechecks current Project authority, Google subject and immutable operation/version bindings, and reuses existing folder/file. Parent/root membership and Project/resourceRole/operation/version tags must match before binding. No manual Firestore reset, destination replacement or script-create retry is used. The original uncertain script stage remains in automationStage after the binding reaches BOUND. Existing binding survives revoked authorization or BOUND_FILE_UNAVAILABLE; replacement remains an explicit decision.
+
+Workspace state and automation state are independent. UI shows linked Sheet, title when available, successful-sync time, pending count and contextual status. A healthy binding has only the existing open-sheet action; pending/auth/degraded states may show retry. Partial state uses the same button for resume without Picker. Canonical AR/EN/UR labels are provided.
+
+Initial sync verifies canonical binding and current Google subject before reading/writing Project snapshots. Seven approved operational tabs and captured Script source files are unchanged; four existing master-projection tabs may coexist with the operational workbook. Binding verification ignores absent Apps Script function runtime only; it retains workbook structure/formula/format/validation checks. Strict optional automation verification remains unchanged.
+
+Scope of this delivery: GWS2-A source only. GWS2-B remains open (complete mutation coverage/current master snapshots); GWS2-C remains open (encrypted offline authorization, revocation and leased autonomous worker). Current browser-session delivery is not autonomous. Q-PRJ-007 live recovery and real CRUD/membership-to-Sheet acceptance have not been executed. [Authorization design and blockers](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+
+## Historical GWS1B implementation and verification records
+
+The remaining dated records preserve provenance. Their Script-required readiness, three-scope binding and no-GWS2 statements describe the old contract and do not override the GWS2 decision above.
+
 Classification: CURRENT_SUPPORTING_CONTRACT. Exact active state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
 
 ## Authority and evidence
