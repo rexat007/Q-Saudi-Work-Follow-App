@@ -1,3 +1,9 @@
+## PFAG-GWS1 — Google template trust boundary
+
+[The phase ledger](reconstruction/02_PHASE_LEDGER.md) owns current acceptance. Browser reauthorization requests drive.file + spreadsheets, using Google Picker to authorize only the configured template. Current Firebase identity is reauthenticated rather than silently replaced. Google mutations occur server-side after fresh account, Project scope and lifecycle checks. Account change requires explicit migration. Durable Project receipts/DTOs do not contain OAuth tokens; provider errors are sanitized and not logged with credentials.
+
+The app resolves destination IDs from its canonical binding, checks deterministic external operation tags, and fences legacy payload-driven writers for template workbooks. Current account authority is independent of Google authorization. No broader RBAC, Firebase rules, readiness or auth identity model is introduced. Production OAuth configuration and real Google acceptance remain separately unverified; see [the continuity contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## PFAG-RB2 maintenance trust boundary
 
 Current supporting contract. [The ledger](reconstruction/02_PHASE_LEDGER.md) owns acceptance; [the field and permission matrix](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) is the maintenance policy reference.

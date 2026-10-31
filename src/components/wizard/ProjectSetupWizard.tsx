@@ -1,3 +1,5 @@
+import { continuityStateLabel } from '../../utils/googleWorkspaceErrors';
+import type { ProjectGoogleStatus } from '../../types/projectGoogleWorkspace';
 import {canPresentProjectAction} from '../../utils/permissions';
 import {PricingCleanupAction} from './PricingCleanupAction';
 import {ProjectMaintenancePanel} from './ProjectMaintenancePanel';
@@ -244,6 +246,9 @@ export async function executeProjectWorkspaceSyncOrchestration(
   try {
     // 1. Request Google OAuth scopes
     await workspaceService.requestGoogleScopes();
+
+    // Narrow drive.file access must explicitly cover the canonical template before copy.
+    if (workspaceService.authorizeProjectTemplate) await workspaceService.authorizeProjectTemplate(project.projectId);
 
     // 2. Provision Drive folders and spreadsheet
     const syncResult = await workspaceService.provisionProjectDrive(project as any);
@@ -569,6 +574,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
+  const [googleContinuity, setGoogleContinuity] = useState<ProjectGoogleStatus | null>(null);
   const [syncNotice, setSyncNotice] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Active project lookup helper with temporary local bridge override
@@ -584,6 +590,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     }
     return fromGlobal || null;
   }, [globalProjects, editingProjectId, localProjectOverride]);
+
+  useEffect(() => {
+    let disposed = false;
+    setGoogleContinuity(null);
+    if (editingProjectId && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role)) {
+      void (async () => {
+        try {
+          const value = await clientWorkspaceService.getGoogleWorkspaceStatus(editingProjectId);
+          if (!disposed) setGoogleContinuity(value);
+        } catch { /* Do not present an unavailable status as READY. */ }
+      })();
+    }
+    return () => { disposed = true; };
+  }, [editingProjectId, activeSetupLayer, authContext.role]);
 
   const setCurrentProjectOverride = (value: ProjectEntity, token: ProjectContextToken, origin: 'CREATION' | 'FOUNDATION' = 'CREATION') => {
     if (!projectContext.isCurrent(token, value.projectId)) return;
@@ -1200,6 +1220,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       isCurrent: () => projectContext.isCurrent(requestContext, editingProjectId),
     });
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
+    if (editingProjectId) {
+      try {
+        const value = await clientWorkspaceService.getGoogleWorkspaceStatus(editingProjectId);
+        if (projectContext.isCurrent(requestContext, editingProjectId)) setGoogleContinuity(value);
+      } catch { /* Existing notice preserves the actual command failure. */ }
+    }
   };
 
 
@@ -4012,7 +4038,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>{presentBatch4Message(syncNotice.text, t)}</span>
+                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
 
@@ -4027,8 +4053,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                   </div>
 
+                  <p>{t('gws.purpose')}</p>
+                  {googleContinuity && <div className="space-y-1" aria-live="polite">
+                    <p>{t('gws.state')}: {continuityStateLabel(googleContinuity.state, t)}</p>
+                    <p>{t('gws.account')}: {googleContinuity.binding?.googleAccountLabel || t('projects.batch4.not_configured')}</p>
+                    <p>{t('gws.last_sync')}: {googleContinuity.lastSuccessfulSyncAt || t('projects.batch4.not_configured')}</p>
+                    <p>{t('gws.pending')}: {googleContinuity.pendingSyncCount}</p>
+                    {googleContinuity.lastSyncError && <p>{t('gws.last_error')}: {t('gws.action_required')} ({googleContinuity.lastSyncError})</p>}
+                    {googleContinuity.binding && <a className="text-amber-400 underline" target="_blank" rel="noopener noreferrer" href={googleContinuity.binding.spreadsheetUrl}>{t('gws.open')}</a>}
+                  </div>}
                   <div className="pt-2 flex justify-end">
-                    {isOperationallyMutable&&<button
+                    {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && <button
                       onClick={handleSyncGoogleWorkspace}
                       disabled={isSyncingGoogle}
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"

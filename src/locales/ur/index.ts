@@ -1,6 +1,30 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.action_required": "Google کو دوبارہ جوڑیں یا اپنے منتظم سے ٹیمپلیٹ تک رسائی اور ورک اسپیس کی بحالی کی حالت کی جانچ کروائیں۔",
+
+  "gws.not_connected": "منسلک نہیں",
+  "gws.connected": "اکاؤنٹ منسلک ہے",
+  "gws.provisioning": "ورک بک تیار ہو رہی ہے",
+  "gws.ready": "ورک بک تیار ہے",
+  "gws.degraded": "مطابقت کو توجہ درکار ہے",
+  "gws.authorization_required": "دوبارہ جوڑنا ضروری ہے",
+  "gws.failed": "ورک اسپیس دستیاب نہیں",
+
+  "gws.purpose": "منظور شدہ پروجیکٹ ورک بک کی نقل اور مستقل عملی بیک اپ کے لیے اپنا Google اکاؤنٹ جوڑیں۔ ایپ کے ریکارڈ مستند رہیں گے۔ عملی تیاری الگ جانچی جاتی ہے۔",
+  "gws.state": "Google تسلسل کی حالت",
+  "gws.account": "منسلک Google اکاؤنٹ کی شناخت",
+  "gws.last_sync": "آخری کامیاب مطابقت",
+  "gws.pending": "مطابقت کے منتظر ریکارڈ",
+  "gws.last_error": "مطابقت کا آخری مسئلہ",
+  "gws.open": "پروجیکٹ فائل Google Sheets میں کھولیں",
+  "gws.oauth_configuration": "Google نے اس اجازت ایپ کو روک دیا ہے۔ آپریٹر رضامندی کی ترتیب اور منظور شدہ ٹیسٹ اکاؤنٹس کی جانچ کرے۔",
+  "gws.authorization_denied": "Google کی اجازت مسترد ہو گئی۔ دوبارہ جوڑیں اور مطلوبہ اجازتیں دیکھیں۔",
+  "gws.popup_closed": "Google کی ونڈو اجازت مکمل ہونے سے پہلے بند ہو گئی۔ اگر رسائی کا پیغام دکھائی دیا تو آپریٹر سے رضامندی اور ٹیسٹ صارفین کی جانچ کروائیں۔",
+  "gws.token_expired": "Google کی اجازت ختم ہو گئی۔ اسی ورک بک کے لیے دوبارہ جوڑیں۔",
+  "gws.scope_denied": "مطلوبہ Google اجازتیں نہیں ملیں۔ دوبارہ جوڑیں اور اجازتیں دیکھیں۔",
+  "gws.network_error": "Google سے رابطہ نہیں ہو سکا۔ ایپ کا ڈیٹا محفوظ ہے؛ بعد میں دوبارہ مطابقت کریں۔",
+
   "rb2.truckType.TIPPER_32M3": "ٹپر 32 مکعب میٹر",
   "rb2.truckType.TRAILER_24M": "ٹریلر 24 میٹر",
   "rb2.truckType.FLATBED": "فلیٹ بیڈ",

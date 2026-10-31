@@ -1,6 +1,30 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.action_required": "Reconnect Google or ask your administrator to verify template access and the workspace recovery state.",
+
+  "gws.not_connected": "Not connected",
+  "gws.connected": "Account connected",
+  "gws.provisioning": "Provisioning workbook",
+  "gws.ready": "Workbook ready",
+  "gws.degraded": "Synchronization needs attention",
+  "gws.authorization_required": "Reconnect required",
+  "gws.failed": "Workspace unavailable",
+
+  "gws.purpose": "Connect your Google account to copy the approved project workbook and keep an operational backup. Application records remain authoritative. Operational readiness is evaluated separately.",
+  "gws.state": "Google continuity status",
+  "gws.account": "Connected Google account identifier",
+  "gws.last_sync": "Last successful sync",
+  "gws.pending": "Pending sync records",
+  "gws.last_error": "Last sync issue",
+  "gws.open": "Open project file in Google Sheets",
+  "gws.oauth_configuration": "Google blocked this OAuth application. The operator must verify consent configuration and permitted test accounts.",
+  "gws.authorization_denied": "Google authorization was denied. Reconnect and review the requested permissions.",
+  "gws.popup_closed": "The Google window closed without authorization. If it displayed an access block, ask the operator to check consent configuration and test-user access.",
+  "gws.token_expired": "Google authorization expired. Reconnect to continue using the same workbook.",
+  "gws.scope_denied": "Required Google permissions were not granted. Reconnect and review permissions.",
+  "gws.network_error": "Google could not be reached. Application data remains saved; retry synchronization later.",
+
   "rb2.truckType.TIPPER_32M3": "Tipper 32 m³",
   "rb2.truckType.TRAILER_24M": "Trailer 24 m",
   "rb2.truckType.FLATBED": "Flatbed",

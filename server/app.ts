@@ -1,3 +1,5 @@
+import { projectGoogleWorkspaceServer, continuityRef } from '../src/services/projectGoogleWorkspace.server';
+import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { TripCommandsServerService, TripCommandError } from '../src/services/tripCommands.server';
 import { STATUS_COMMANDS } from '../src/types/tripCommands';
 import { AdminAccountServerService, AdminCommandError } from '../src/services/adminAccount.server';
@@ -493,6 +495,7 @@ export function getGoogleAccessToken(req: express.Request, enforceInProduction: 
  * Ensures custom status codes are within the valid 400-599 range and defaults to 500.
  */
 export function resolveWorkspaceErrorStatusCode(error: any): number {
+  if (typeof error?.status === 'number' && error.status >= 400 && error.status <= 599) return error.status;
   if (typeof error?.statusCode === 'number' && error.statusCode >= 400 && error.statusCode <= 599) {
     return error.statusCode;
   }
@@ -517,6 +520,10 @@ app.use('/api/workspace', async (req, res, next) => {
   try {
     const actionPath = workspaceRoutePath(req);
     const projectId = res.locals.workspaceProjectId as string;
+    if (req.path.startsWith('/migrate/') && req.method !== 'GET') {
+      const id = req.body.projectId;
+      if (id && (await continuityRef(adminDb, id).get()).data()?.binding) throw workspaceError('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION', 409);
+    }
     const boundary = new WorkspaceStorageBoundary();
     const project = await boundary.project(projectId);
     const storage = projectStorage(project);
@@ -599,16 +606,13 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
       });
     }
 
-    const { projectCommandsServerService } = await import('../src/services/projectCommands.server');
-    // Use persisted Project truth for provisioning, not a client snapshot of settings.
-    const current = await adminDb.collection('projects').doc(project.projectId).get();
-    if (!current.exists) return res.status(404).json({ success: false, code: 'PROJECT_NOT_FOUND' });
-    const { decodeProject } = await import('../src/utils/persistenceBoundary');
-    const canonical = decodeProject<import('../src/types/entities').ProjectEntity>(current.data(), project.projectId);
-    const {assertFoundationMutation}=await import('../src/services/projectMutability.policy');
-    assertFoundationMutation(canonical.status,'MAINTENANCE');
-    const structure = await serverWorkspaceService.provisionProjectDrive(canonical, googleToken);
-    await projectCommandsServerService.recordWorkspaceLink(project.projectId, structure, (req as any).user);
+    const binding = await projectGoogleWorkspaceServer.provision(project.projectId, (req as any).user, projectGoogleTemplatePort(googleToken));
+    const state = await continuityRef(adminDb, project.projectId).get();
+    const folderId = state.data().folderId;
+    const structure = { projectId: project.projectId, spreadsheetId: binding.spreadsheetId,
+      spreadsheetUrl: binding.spreadsheetUrl, projectFolderId: folderId,
+      projectFolderName: `SABIL — ${project.projectId}`, subfolders: {},
+      provisionedAt: binding.provisionedAt, status: 'PROVISIONED' };
 
     res.json({
       success: true,
@@ -616,7 +620,7 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
       message: 'تم تهيئة هيكل مجلدات Google Drive وشيت الإسقاط بنجاح للمشروع',
     });
   } catch (error: any) {
-    console.error('Error in /api/workspace/provision:', error);
+    // Provider errors are sanitized by the canonical authority; never log OAuth material.
     const statusCode = resolveWorkspaceErrorStatusCode(error);
     res.status(statusCode).json({
       success: false,
@@ -658,11 +662,29 @@ app.post('/api/intake/canonical', enforceProjectIsolation, enforceAdminOnly, asy
   }
 });
 
+app.get('/api/projects/:projectId/workspace/template', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try { res.json({ success: true, data: await projectGoogleWorkspaceServer.templateConfiguration(req.params.projectId, (req as any).user) }); }
+  catch (error: any) { res.status(error.status || 403).json({ success: false, code: error.code || 'TEMPLATE_CONFIGURATION_REQUIRED' }); }
+});
+app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try { res.json({ success: true, data: await projectGoogleWorkspaceServer.status(req.params.projectId, (req as any).user) }); }
+  catch (error: any) { res.status(error.status || 403).json({ success: false, code: error.code || 'WORKSPACE_ACCESS_FAILED' }); }
+});
+app.post('/api/projects/:projectId/workspace/retry-sync', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    if (Object.keys(req.body || {}).length) return res.status(400).json({ success: false, code: 'INVALID_WORKSPACE_COMMAND' });
+    res.json({ success: true, data: await projectGoogleWorkspaceServer.retrySync(req.params.projectId, (req as any).user, projectGoogleTemplatePort(getGoogleAccessToken(req, true))) });
+  } catch (error: any) { res.status(error.status || 502).json({ success: false, code: error.code || 'SHEET_SYNC_FAILED' }); }
+});
+
 // ----------------------------------------------------
 // 4. Upsert Operations (Trips) to Google Sheets
 // ----------------------------------------------------
 app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
   try {
+    const pid = req.body.projectId;
+    if (pid && (await continuityRef(adminDb, pid).get()).data()?.binding) return res.status(409).json({ success: false, code: 'TEMPLATE_REQUIRES_CANONICAL_OUTBOX' });
+
     const googleToken = getGoogleAccessToken(req, true);
     const { spreadsheetId, trips } = req.body;
 
@@ -709,6 +731,20 @@ app.post('/api/workspace/sync/trips', enforceProjectIsolation, enforceDispatcher
 // ----------------------------------------------------
 // 4b. Server-Authoritative Initial Project Setup Projection
 // ----------------------------------------------------
+// Template-bound workbooks use the sole continuity authority; legacy projection remains isolated.
+app.use('/api/workspace/sync/initial', enforceAdminOnly, async (req, res, next) => {
+  if (req.method !== 'POST') return next();
+  try {
+    const templateProjectId = req.body.projectId;
+    if (templateProjectId && (await continuityRef(adminDb, templateProjectId).get()).data()?.binding) {
+      const current = await projectGoogleWorkspaceServer.status(templateProjectId, (req as any).user);
+      if (req.body.spreadsheetId !== current.binding?.spreadsheetId) return res.status(403).json({ success: false, code: 'WORKSPACE_BINDING_CONFLICT' });
+      const data = await projectGoogleWorkspaceServer.retrySync(templateProjectId, (req as any).user, projectGoogleTemplatePort(getGoogleAccessToken(req, true)));
+      return res.json({ success: true, data });
+    }
+    return next();
+  } catch (error: any) { return res.status(error.status || 502).json({success:false,code:error.code || 'SHEET_SYNC_FAILED'}); }
+});
 app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const googleToken = getGoogleAccessToken(req, true);
@@ -838,6 +874,9 @@ app.post('/api/workspace/sync/initial', enforceProjectIsolation, enforceAdminOnl
 // ----------------------------------------------------
 app.post('/api/workspace/sync/sheets', enforceProjectIsolation, enforceDispatcherOrAbove, async (req, res) => {
   try {
+    const pid = req.body.projectId;
+    if (pid && (await continuityRef(adminDb, pid).get()).data()?.binding) return res.status(409).json({ success: false, code: 'TEMPLATE_REQUIRES_CANONICAL_OUTBOX' });
+
     const googleToken = getGoogleAccessToken(req, true);
     const { 
       projectId, 

@@ -11,9 +11,9 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-29
+### Current Continuation Checkpoint — 2026-10-31
 
-- **Verified implementation baseline**: `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310` (RB1 merged and source-verified).
+- **Verified implementation baseline**: `093b75b6889ec2b592d9af022f38f15ad039da3e` (RB2 merged and source-verified).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
 - **Phase 1**: VERIFIED / CLOSED.
 - **Phase 2**: VERIFIED / CLOSED.
@@ -25,9 +25,9 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: MERGED / SOURCE_VERIFIED / CLOSED.
   - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
   - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
-- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns the current PFAG-RB2 state. RB1 is merged/source-verified/closed; PFAG-RULES-01 remains open. The maintenance contract records the bounded field/lifecycle/permission policy.
+- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns the current PFAG-GWS1 state. RB1/RB2 are merged/source-verified/closed; PFAG-RULES-01 remains open. The maintenance contract records the bounded field/lifecycle/permission policy.
 - **P8-B3**: MERGED / SOURCE_VERIFIED / CLOSED.
-- **Next action**: follow the ledger’s RB2 full-assurance verification/owner-merge gate; native/deployed rules acceptance is not claimed. Do not start Phase 10.
+- **Next action**: follow the ledger’s PFAG-GWS1 template-continuity gate and [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md); native/deployed rules acceptance is not claimed. Do not start Phase 10.
 - **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
 - **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
 - **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.

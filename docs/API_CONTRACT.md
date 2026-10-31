@@ -1,3 +1,9 @@
+## PFAG-GWS1 — current template continuity commands
+
+Exact unit status defers to [the ledger](reconstruction/02_PHASE_LEDGER.md). Existing `POST /api/workspace/provision` now uses the canonical template-copy/receipt authority. `GET /api/projects/:projectId/workspace/template` returns authorized template configuration; `GET /api/projects/:projectId/workspace` returns safe continuity status; `POST /api/projects/:projectId/workspace/retry-sync` accepts an empty body and drains server-recorded events. Current active SUPER_ADMIN or assigned PROJECT_ADMIN and allowed Project lifecycle are rechecked by the authority.
+
+Existing `/api/workspace/sync/initial` routes template bindings to the same drain and retains legacy acknowledgement semantics for legacy workbooks. Template bindings reject old payload-driven `/sync/trips`, `/sync/sheets` and implicit storage migration. File IDs and row payloads supplied to the retry command are rejected. No token is returned in the status DTO. See [the contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for failure/recovery codes and limits.
+
 ## PFAG-RB2 coherent foundation and maintenance API
 
 Current source reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. Detailed field/permission policy is [the maintenance contract](reconstruction/PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md).

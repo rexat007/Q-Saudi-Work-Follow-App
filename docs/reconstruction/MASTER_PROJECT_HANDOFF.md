@@ -1,3 +1,7 @@
+## PFAG-GWS1 continuation
+
+Defer exact current state to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PFAG-RB2 merged at `093b75b6889ec2b592d9af022f38f15ad039da3e`; Foundation source assurance remains PASS_WITH_DEBT. Current bounded work extends Google Workspace continuity with canonical template copy, durable provisioning receipts and source-only projection outbox. Read [PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) before operating it. Live OAuth/Picker/template/script acceptance remains a distinct gate; no Phase 10 or dynamic-intake readiness change is implied.
+
 ### Foundation assurance maintenance checkpoint
 
 Supporting summary only; [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. RB1 merged at `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310`, retaining the approved native-rules verification debt PFAG-RULES-01. RB2 composes coherent foundation refresh, bounded ACTIVE profile edits, explicit Project suspension/readiness-gated reactivation, reusable Driver/Truck profile editing and permission/readiness presentation. [The maintenance contract](PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md) records field and permission matrices. No Phase 10 implementation or live deployment certification is implied; owner merge remains manual.

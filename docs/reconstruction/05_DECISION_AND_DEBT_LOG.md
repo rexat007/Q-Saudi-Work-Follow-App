@@ -1,3 +1,17 @@
+## PFAG-GWS1 — template continuity decisions and explicit limits
+
+Current supporting debt record; exact active status remains in [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+- DECISION: Project canonical data remains in the app/Firestore. A single versioned native Google template copy is permanent operational continuity, not another master authority.
+- DECISION: server receipts and deterministic external tags fence provisioning; an unknown external result is reconciled, never blindly copied again. Template changes never migrate existing bindings implicitly.
+- DECISION: exact XLSX input/formula ownership outranks suggestive header names. Loading T and Offload H remain formula-owned. New-copy fixture-input clearing never edits the original owner file or report ranges.
+- DECISION: existing canonical Trip transaction stages a coalesced durable event. Authenticated retry is explicit; transient Google authorization does not imply an unattended refresh-token worker. Missing source metadata remains pending, not invented.
+- GWS-OAUTH-PROD-01 — OPEN: actual production consent/audience/verification, origins/redirects and final scopes must be inspected by the operator. No console access was available here.
+- GWS-LIVE-01 — OPEN: real Google OAuth + Picker access, actual copy and bound scripts/formulas, controlled row, copied-fixture cleanup and derived-output refresh, reopen/retry acceptance. Controlled fixtures do not close this gate.
+- GWS-SYNC-RECOVERY-01 — OPEN: a process death with a retained sync owner requires operator proof that the old writer is stopped before fence release. No automatic lease steals an uncertain external write. No product recovery command for that exceptional operator action is added here.
+- PFAG-OPS-01 — ROUTED_TO_NEXT_FOUNDATION_ACCEPTANCE: evaluate dynamic weighbridge intake with no predefined Driver/Truck roster and define explicit source-series/time capture. GWS1 adds no fake Driver, no readiness change and no Phase 10 Trip FSM.
+- Existing 440 TypeScript diagnostics and historical suite failures remain debt; source comparison must establish the actual delta. No lint PASS or live-Google acceptance is implied.
+
 ## PFAG-RB2 current maintenance decisions
 
 Current status belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). RB1 is merged/source-verified at `f56418f3ae16cbe2f2d4c726a0590d26bd6e2310`, containing `7887aa321a014360640972232abc4fa88ea33ded`. Older RB1 implementation observations below retain their historical unit scope.

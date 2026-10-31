@@ -1,3 +1,9 @@
+## PFAG-GWS1 — Project workbook continuity
+
+Current architecture reference; exact status defers to [the ledger](reconstruction/02_PHASE_LEDGER.md).
+
+Authenticated Project administration -> current account/scope/lifecycle -> Google reauthorization + canonical-template Picker grant -> server Drive template copy -> durable provisioning receipt -> atomic permanent binding. Canonical Trip command -> same-transaction coalesced outbox -> authenticated drain -> allowlisted source cells -> template formulas/reports. Firestore remains canonical; no bidirectional entity authority or Phase 10 change. Ambiguous copy outcomes never issue a second copy. Legacy worksheet builders are not the template provisioning authority. See [the sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md), including manual drain and hard-crash fencing limitations.
+
 ## PFAG-RB2 coherent maintenance composition
 
 Current architecture reference; exact acceptance state belongs to [the ledger](reconstruction/02_PHASE_LEDGER.md).
