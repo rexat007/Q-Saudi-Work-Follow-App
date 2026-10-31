@@ -6,8 +6,14 @@ export interface ProjectGoogleBinding {
   spreadsheetId: string;
   driveFileId: string;
   spreadsheetUrl: string;
-  templateId: string;
-  templateVersion: string;
+  /** Legacy compatibility only; new bindings use versioned blueprint identities. */
+  templateId?: string;
+  destinationRootFolderId?: string;
+  projectFolderId?: string;
+  workspaceBlueprintVersion?: string;
+  appsScriptBlueprintVersion?: string;
+  scriptProjectId?: string;
+  templateVersion?: string;
   googleSubject: string;
   googleAccountLabel: string;
   provisionedAt: string;

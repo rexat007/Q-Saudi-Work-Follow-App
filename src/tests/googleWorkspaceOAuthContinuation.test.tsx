@@ -109,7 +109,7 @@ vi.mock('../services/projectCanonicalRefresh.service', () => ({
 vi.mock('../services/workspace.service', () => ({
   clientWorkspaceService: {
     getGoogleWorkspaceStatus: vi.fn(),
-    authorizeProjectTemplate: vi.fn().mockResolvedValue(undefined),
+    selectProjectWorkspaceDestination: vi.fn().mockResolvedValue('destination-root'),
     requestGoogleScopes: vi.fn().mockResolvedValue(undefined),
     provisionProjectDrive: vi.fn().mockResolvedValue({
       spreadsheetId: 'spread-123',
@@ -192,7 +192,7 @@ afterEach(async () => { await act(async () => root.unmount()); container.remove(
 
 const status=(id:string,bound=false)=>({state:bound?'READY':'NOT_CONNECTED',binding:bound?{projectId:id,spreadsheetId:'new-sheet',spreadsheetUrl:'https://docs.google.com/spreadsheets/d/new-sheet/edit',googleAccountLabel:'SAME-ACCOUNT'}:null,pendingSyncCount:0,lastSuccessfulSyncAt:null,lastSyncError:null});
 const unbound={...mockProject,settings:{...mockProject.settings,googleDriveFolderId:undefined,googleSpreadsheetId:undefined}};
-beforeEach(()=>{vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>status(id) as any);vi.mocked(clientWorkspaceService.authorizeProjectTemplate).mockResolvedValue(undefined);vi.mocked(clientWorkspaceService.requestGoogleScopes).mockResolvedValue('fixture');});
+beforeEach(()=>{vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>status(id) as any);vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockResolvedValue('destination-root');vi.mocked(clientWorkspaceService.requestGoogleScopes).mockResolvedValue('fixture');});
 describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
  it('keeps Project/WORKSPACE through Google success and a same-identity profile snapshot refresh',async()=>{
    const oauth=deferred<string>();vi.mocked(clientWorkspaceService.requestGoogleScopes).mockReturnValueOnce(oauth.promise);
@@ -203,7 +203,7 @@ describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
    // A new profile object with the same UID/role/scope is not a new Project session.
    await render(unbound.projectId,[unbound],{...mockAuthContext,assignedProjectIds:[...mockAuthContext.assignedProjectIds!]});
    await act(async()=>oauth.resolve('fixture'));
-   expect(clientWorkspaceService.authorizeProjectTemplate).toHaveBeenCalledWith(unbound.projectId);
+   expect(clientWorkspaceService.selectProjectWorkspaceDestination).toHaveBeenCalledWith(unbound.projectId);
    expect(clientWorkspaceService.provisionProjectDrive).toHaveBeenCalledOnce();
    expect(container.textContent).toContain('gws.ready');expect(container.textContent).toContain('SAME-ACCOUNT');
    expect(container.querySelector('a')?.href).toContain('new-sheet');
@@ -211,20 +211,20 @@ describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
  it('fences late A authorization before Picker/provision when selection genuinely changes to B',async()=>{
    const oauth=deferred<string>();vi.mocked(clientWorkspaceService.requestGoogleScopes).mockReturnValueOnce(oauth.promise);
    await render(unbound.projectId,[unbound,B]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');await render(B.projectId,[unbound,B]);await act(async()=>oauth.resolve('fixture'));
-   expect(clientWorkspaceService.authorizeProjectTemplate).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(container.textContent).not.toContain('projects.batch4.workspace_sync_status');
+   expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(container.textContent).not.toContain('projects.batch4.workspace_sync_status');
  });
- it.each(['GOOGLE_PICKER_CONFIGURATION_REQUIRED','TEMPLATE_CONFIGURATION_REQUIRED','TEMPLATE_SELECTION_MISMATCH','NETWORK_ERROR'])('retains exact %s on the same Workspace layer',async code=>{
-   vi.mocked(clientWorkspaceService.authorizeProjectTemplate).mockRejectedValueOnce(new Error(code));
+ it.each(['GOOGLE_PICKER_CONFIGURATION_REQUIRED','WORKSPACE_BLUEPRINT_INVALID','DESTINATION_FOLDER_INVALID','NETWORK_ERROR'])('retains exact %s on the same Workspace layer',async code=>{
+   vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockRejectedValueOnce(new Error(code));
    await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
    expect(container.textContent).toContain('gws.purpose');expect(container.textContent).toContain(code);expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
  });
  it('durable READY binding overrides a Project prop with absent compatibility IDs',async()=>{
    vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(status(unbound.projectId,true) as any);
    await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.ready');await click('projects.labels.update_workspace_sync');
-   expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.authorizeProjectTemplate).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(unbound.projectId,'new-sheet');
+   expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(unbound.projectId,'new-sheet');
  });
  it('does not treat a failed status read as absence and create a workbook',async()=>{
    vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockRejectedValue(new Error('NETWORK_ERROR'));
-   await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.authorizeProjectTemplate).not.toHaveBeenCalled();expect(container.textContent).toContain('NETWORK_ERROR');
+   await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(container.textContent).toContain('NETWORK_ERROR');
  });
 });

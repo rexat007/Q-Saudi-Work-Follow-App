@@ -1,5 +1,5 @@
 /** Workspace permission grant only. Never calls Firebase sign-in/reauth or creates an app identity. */
-const scopes=['openid','email','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive.file'];
+const scopes=['openid','email','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/script.projects'];
 let loading: Promise<void> | undefined;
 async function identityLibrary(): Promise<void> {
   if ((window as any).google?.accounts?.oauth2) return;

@@ -2,7 +2,7 @@ import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 import {requestWorkspaceGoogleToken} from '../services/googleWorkspaceAuthorization';
 import {beginWorkspaceIntent,workspaceIntentCurrent} from '../utils/workspaceAuthorizationIntent';
 let options:any;
-const granted='openid email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file';
+const granted='openid email https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/script.projects';
 beforeEach(()=>{
  vi.stubEnv('VITE_FIREBASE_OAUTH_CLIENT_ID','fixture.apps.googleusercontent.com');
  vi.stubGlobal('window',{google:{accounts:{oauth2:{initTokenClient:vi.fn((value:any)=>{options=value;return {requestAccessToken:()=>{}}})}}}});

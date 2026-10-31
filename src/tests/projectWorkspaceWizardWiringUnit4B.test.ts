@@ -8,6 +8,7 @@ import path from 'path';
 describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Tests', () => {
   // Helper to construct mock workspace service
   const createMockWorkspaceService = () => ({
+    selectProjectWorkspaceDestination: vi.fn().mockResolvedValue('destination-root'),
     requestGoogleScopes: vi.fn().mockResolvedValue(undefined),
     provisionProjectDrive: vi.fn().mockResolvedValue({
       projectFolderId: 'fld_new_123',
@@ -72,7 +73,7 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     });
 
     expect(mockService.provisionProjectDrive).toHaveBeenCalledTimes(1);
-    expect(mockService.provisionProjectDrive).toHaveBeenCalledWith(project);
+    expect(mockService.provisionProjectDrive).toHaveBeenCalledWith(project, 'destination-root');
   });
 
   // Test 3: first-time flow uses returned spreadsheetId directly

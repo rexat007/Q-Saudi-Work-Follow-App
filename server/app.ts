@@ -1,3 +1,4 @@
+import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
 import { projectGoogleWorkspaceServer, continuityRef } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { TripCommandsServerService, TripCommandError } from '../src/services/tripCommands.server';
@@ -536,10 +537,7 @@ app.use('/api/workspace', async (req, res, next) => {
       return canonical;
     };
     if (actionPath === '/provision') {
-      const supplied = req.body.project || {};
-      bind(supplied.googleDriveFolderId, storage.folderId, false);
-      bind(supplied.googleSpreadsheetId, storage.spreadsheetId, false);
-      req.body.project = { ...project, googleDriveFolderId: storage.folderId, googleSpreadsheetId: storage.spreadsheetId };
+      if(Object.keys(req.body).some(key=>!['projectId','destinationRootFolderId'].includes(key))) throw workspaceError('INVALID_WORKSPACE_COMMAND',400);
     } else if (actionPath.startsWith('/sync/')) {
       req.body.spreadsheetId = bind(req.body.spreadsheetId, storage.spreadsheetId);
     } else if (actionPath === '/migrate/start' || actionPath === '/validate-destination') {
@@ -597,22 +595,10 @@ app.post('/api/projects/:projectId/foundation', enforceProjectIsolation, enforce
 app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     const googleToken = getGoogleAccessToken(req, true);
-    const { project } = req.body;
-
-    if (!project || !project.projectId || !project.nameAr) {
-      return res.status(400).json({
-        success: false,
-        error: 'بيانات المشروع غير مكتملة (projectId و nameAr مطلوبان)',
-      });
-    }
-
-    const binding = await projectGoogleWorkspaceServer.provision(project.projectId, (req as any).user, projectGoogleTemplatePort(googleToken));
-    const state = await continuityRef(adminDb, project.projectId).get();
-    const folderId = state.data().folderId;
-    const structure = { projectId: project.projectId, spreadsheetId: binding.spreadsheetId,
-      spreadsheetUrl: binding.spreadsheetUrl, projectFolderId: folderId,
-      projectFolderName: `SABIL — ${project.projectId}`, subfolders: {},
-      provisionedAt: binding.provisionedAt, status: 'PROVISIONED' };
+    const { projectId, destinationRootFolderId } = req.body;
+    if (!projectId || !destinationRootFolderId || Object.keys(req.body).some(key=>!['projectId','destinationRootFolderId'].includes(key))) return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    const binding = await projectGoogleWorkspaceServer.provision(projectId, destinationRootFolderId, (req as any).user, projectGoogleBlueprintPort(googleToken,projectId));
+    const structure = { projectId, spreadsheetId:binding.spreadsheetId,spreadsheetUrl:binding.spreadsheetUrl,projectFolderId:binding.projectFolderId,projectFolderName:projectId,subfolders:{},provisionedAt:binding.provisionedAt,status:'PROVISIONED' };
 
     res.json({
       success: true,
@@ -662,9 +648,14 @@ app.post('/api/intake/canonical', enforceProjectIsolation, enforceAdminOnly, asy
   }
 });
 
-app.get('/api/projects/:projectId/workspace/template', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
-  try { res.json({ success: true, data: await projectGoogleWorkspaceServer.templateConfiguration(req.params.projectId, (req as any).user) }); }
-  catch (error: any) { res.status(error.status || 403).json({ success: false, code: error.code || 'TEMPLATE_CONFIGURATION_REQUIRED' }); }
+// Retired: normal Project users never receive or select a runtime reference template.
+app.get('/api/projects/:projectId/workspace/template', enforceProjectIsolation, enforceAdminOnly, (_req, res) => res.status(410).json({success:false,code:'RUNTIME_TEMPLATE_SELECTION_RETIRED'}));
+app.post('/api/projects/:projectId/workspace/destination', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
+  try {
+    if(Object.keys(req.body||{}).some(key=>key!=='destinationRootFolderId')) return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    const data=await projectGoogleWorkspaceServer.approveDestination(req.params.projectId,req.body.destinationRootFolderId,(req as any).user,projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId));
+    return res.json({success:true,data});
+  } catch(error:any) { return res.status(error.status||error.statusCode||400).json({success:false,code:error.code||'DESTINATION_FOLDER_INVALID'}); }
 });
 app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try { res.json({ success: true, data: await projectGoogleWorkspaceServer.status(req.params.projectId, (req as any).user) }); }
@@ -673,7 +664,9 @@ app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAd
 app.post('/api/projects/:projectId/workspace/retry-sync', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
     if (Object.keys(req.body || {}).length) return res.status(400).json({ success: false, code: 'INVALID_WORKSPACE_COMMAND' });
-    res.json({ success: true, data: await projectGoogleWorkspaceServer.retrySync(req.params.projectId, (req as any).user, projectGoogleTemplatePort(getGoogleAccessToken(req, true))) });
+    const current=await projectGoogleWorkspaceServer.status(req.params.projectId,(req as any).user);
+    const port=current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId):projectGoogleTemplatePort(getGoogleAccessToken(req,true));
+    res.json({ success: true, data: await projectGoogleWorkspaceServer.retrySync(req.params.projectId, (req as any).user, port) });
   } catch (error: any) { res.status(error.status || 502).json({ success: false, code: error.code || 'SHEET_SYNC_FAILED' }); }
 });
 
@@ -739,7 +732,7 @@ app.use('/api/workspace/sync/initial', enforceAdminOnly, async (req, res, next) 
     if (templateProjectId && (await continuityRef(adminDb, templateProjectId).get()).data()?.binding) {
       const current = await projectGoogleWorkspaceServer.status(templateProjectId, (req as any).user);
       if (req.body.spreadsheetId !== current.binding?.spreadsheetId) return res.status(403).json({ success: false, code: 'WORKSPACE_BINDING_CONFLICT' });
-      const data = await projectGoogleWorkspaceServer.retrySync(templateProjectId, (req as any).user, projectGoogleTemplatePort(getGoogleAccessToken(req, true)));
+      const data = await projectGoogleWorkspaceServer.retrySync(templateProjectId, (req as any).user, current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(getGoogleAccessToken(req,true),templateProjectId):projectGoogleTemplatePort(getGoogleAccessToken(req, true)));
       return res.json({ success: true, data });
     }
     return next();

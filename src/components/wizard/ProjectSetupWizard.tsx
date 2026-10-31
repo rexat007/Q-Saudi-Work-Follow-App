@@ -220,9 +220,9 @@ export async function executeProjectWorkspaceSyncOrchestration(
     let spreadsheetId = status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId;
     existingWorkspace = Boolean(spreadsheetId);
     if (!spreadsheetId) {
-      if (workspaceService.authorizeProjectTemplate) await workspaceService.authorizeProjectTemplate(project.projectId);
+      const destinationRootFolderId = await workspaceService.selectProjectWorkspaceDestination(project.projectId);
       if (!isCurrent()) return;
-      const result = await workspaceService.provisionProjectDrive(project as any);
+      const result = await workspaceService.provisionProjectDrive(project as any, destinationRootFolderId);
       if (!isCurrent()) return;
       if (!result?.spreadsheetId || !result?.projectFolderId) throw new Error('WORKSPACE_BINDING_INCOMPLETE');
       spreadsheetId = result.spreadsheetId;
@@ -4037,7 +4037,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       syncNotice.type === 'success' ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300' : 'bg-rose-950/40 border-rose-800 text-rose-300'
                     }`}>
                       <CheckCircle2 className="w-4 h-4 shrink-0" />
-                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
+                      <span>{syncNotice.text.includes('OAUTH_APP_CONFIGURATION_BLOCK') ? t('gws.oauth_configuration') : syncNotice.text.includes('AUTHORIZATION_DENIED') ? t('gws.authorization_denied') : syncNotice.text.includes('POPUP_CLOSED') ? t('gws.popup_closed') : syncNotice.text.includes('TOKEN_EXPIRED') ? t('gws.token_expired') : syncNotice.text.includes('SCOPE_DENIED') ? t('gws.scope_denied') : syncNotice.text.includes('NETWORK_ERROR') ? t('gws.network_error') : /DESTINATION_|SCRIPT_|BLUEPRINT_|TEMPLATE_|WORKSPACE_|SHEET_|GOOGLE_PICKER_|GOOGLE_OAUTH_/.test(syncNotice.text) ? t('gws.action_required') : presentBatch4Message(syncNotice.text, t)}</span>
                     </div>
                   )}
 
@@ -4050,13 +4050,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </div>
                     <div>
                       <span className="block text-stone-500 font-bold">{t('projects.batch4.project_root_folder_id')}</span>
-                      <span className="font-mono text-stone-200 block truncate">{project.settings?.googleDriveFolderId || t('projects.batch4.not_configured')}</span>
+                      <span className="font-mono text-stone-200 block truncate">{googleContinuity?.binding?.projectFolderId || project.settings?.googleDriveFolderId || t('projects.batch4.not_configured')}</span>
                     </div>
                   </div>
 
                   <p>{t('gws.purpose')}</p>
                   {googleContinuity && <div className="space-y-1" aria-live="polite">
                     <p>{t('gws.state')}: {continuityStateLabel(googleContinuity.state, t)}</p>
+                    <p>{t('gws.destination')}: {googleContinuity.binding?.destinationRootFolderId || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.account')}: {googleContinuity.binding?.googleAccountLabel || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.last_sync')}: {googleContinuity.lastSuccessfulSyncAt || t('projects.batch4.not_configured')}</p>
                     <p>{t('gws.pending')}: {googleContinuity.pendingSyncCount}</p>

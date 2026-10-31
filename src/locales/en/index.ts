@@ -1,9 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.destination": "Destination parent folder",
+
   "gws.status_unavailable": "Workspace status not verified",
 
-  "gws.action_required": "Reconnect Google or ask your administrator to verify template access and the workspace recovery state.",
+  "gws.action_required": "Reconnect Google or ask your administrator to verify the destination folder, blueprint approval and workspace recovery state.",
 
   "gws.not_connected": "Not connected",
   "gws.connected": "Account connected",
@@ -12,8 +14,7 @@ export const enTranslations: TranslationDictionary = {
   "gws.degraded": "Synchronization needs attention",
   "gws.authorization_required": "Reconnect required",
   "gws.failed": "Workspace unavailable",
-
-  "gws.purpose": "Connect your Google account to copy the approved project workbook and keep an operational backup. Application records remain authoritative. Operational readiness is evaluated separately.",
+  "gws.purpose": "Connect your Google account and choose the folder where Project files should be saved. The system creates the Project folder and operational workbook automatically. Application data remains canonical.",
   "gws.state": "Google continuity status",
   "gws.account": "Connected Google account identifier",
   "gws.last_sync": "Last successful sync",

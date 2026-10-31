@@ -1,9 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.destination": "پروجیکٹ کا بنیادی منزل فولڈر",
+
   "gws.status_unavailable": "ورک اسپیس کی حالت کی تصدیق نہیں ہوئی",
 
-  "gws.action_required": "Google کو دوبارہ جوڑیں یا اپنے منتظم سے ٹیمپلیٹ تک رسائی اور ورک اسپیس کی بحالی کی حالت کی جانچ کروائیں۔",
+  "gws.action_required": "Google کو دوبارہ جوڑیں یا منتظم سے منزل کے فولڈر، ورک اسپیس خاکے کی منظوری اور بحالی کی حالت کی جانچ کروائیں۔",
 
   "gws.not_connected": "منسلک نہیں",
   "gws.connected": "اکاؤنٹ منسلک ہے",
@@ -12,8 +14,7 @@ export const urTranslations: TranslationDictionary = {
   "gws.degraded": "مطابقت کو توجہ درکار ہے",
   "gws.authorization_required": "دوبارہ جوڑنا ضروری ہے",
   "gws.failed": "ورک اسپیس دستیاب نہیں",
-
-  "gws.purpose": "منظور شدہ پروجیکٹ ورک بک کی نقل اور مستقل عملی بیک اپ کے لیے اپنا Google اکاؤنٹ جوڑیں۔ ایپ کے ریکارڈ مستند رہیں گے۔ عملی تیاری الگ جانچی جاتی ہے۔",
+  "gws.purpose": "اپنا Google اکاؤنٹ جوڑیں اور پروجیکٹ فائلوں کے لیے فولڈر منتخب کریں۔ نظام پروجیکٹ فولڈر اور عملی ورک بک خود بنائے گا۔ ایپ کا ڈیٹا مستند رہے گا۔",
   "gws.state": "Google تسلسل کی حالت",
   "gws.account": "منسلک Google اکاؤنٹ کی شناخت",
   "gws.last_sync": "آخری کامیاب مطابقت",
