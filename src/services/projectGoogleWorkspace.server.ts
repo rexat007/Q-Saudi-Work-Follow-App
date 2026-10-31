@@ -1,4 +1,4 @@
-import { assertBlueprint, type WorkspaceBlueprint } from './googleWorkspaceBlueprint/contract';
+import { assertBlueprint, BlueprintError, type WorkspaceBlueprint } from './googleWorkspaceBlueprint/contract';
 import { activeWorkspaceBlueprint } from './googleWorkspaceBlueprint/sabilHailV1';
 import { createHash, randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
@@ -9,11 +9,19 @@ import type { AuthUserContext } from '../types/common';
 import type { ProjectEntity } from '../types/entities';
 import type { ProjectGoogleBinding, ProjectGoogleStatus } from '../types/projectGoogleWorkspace';
 import type { OperationalSheetInput } from './projectGoogleSheetContract';
+import {classifyWorkspaceGenerationFailure, type WorkspaceGenerationDiagnostic, type WorkspaceGenerationOperation} from '../utils/workspaceGenerationDiagnostics';
 
 export class GoogleWorkspaceCommandError extends Error {
-  constructor(public code: string, public status = 409) { super(code); }
+  constructor(public code: string, public status = 409, public diagnostic?: WorkspaceGenerationDiagnostic) { super(code); }
 }
 export const gwsFail = (code: string, status = 409): never => { throw new GoogleWorkspaceCommandError(code,status); };
+export async function withWorkspaceGenerationDiagnostic<T>(operation: WorkspaceGenerationOperation, run: () => Promise<T>): Promise<T> {
+  try { return await run(); } catch(error) {
+    if(error instanceof GoogleWorkspaceCommandError && error.diagnostic) throw error;
+    const failure=classifyWorkspaceGenerationFailure(error,operation,error instanceof GoogleWorkspaceCommandError || error instanceof BlueprintError ? error.code : undefined);
+    throw new GoogleWorkspaceCommandError(failure.code,502,failure.diagnostic);
+  }
+}
 export interface TemplateConfiguration { id: string; version: string }
 export function configuredTemplate(): TemplateConfiguration {
   const id = process.env.GOOGLE_PROJECT_TEMPLATE_FILE_ID;
@@ -127,7 +135,7 @@ export class ProjectGoogleWorkspaceServer {
       if(s.googleSubject&&s.googleSubject!==subject)return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
       if(s.workspaceBlueprintVersion&&s.workspaceBlueprintVersion!==blueprint.version)return gwsFail('WORKSPACE_RECOVERY_REQUIRED');
       if(s.leaseUntil>Date.now())return gwsFail('WORKSPACE_PROVISIONING_IN_PROGRESS');
-      const next={...s,projectId,destinationRootFolderId:rootId,googleSubject:subject,workspaceBlueprintVersion:blueprint.version,operationId:op,owner,leaseUntil:Date.now()+120000,state:'PROVISIONING'};
+      const next={...s,projectId,destinationRootFolderId:rootId,googleSubject:subject,workspaceBlueprintVersion:blueprint.version,operationId:op,owner,leaseUntil:Date.now()+120000,state:'PROVISIONING',lastGenerationDiagnostic:null};
       tx.set(ref,next);return {...next,project};
     });
     const save=async(patch:Record<string,unknown>)=>{
@@ -164,7 +172,7 @@ export class ProjectGoogleWorkspaceServer {
       if(!state.scriptProjectId) {
         // Apps Script has no create idempotency key / get-by-parent endpoint. Never create twice
         // when a response was lost. An operator must recover the existing bound script ID.
-        if(state.stage==='SCRIPT_REQUESTED')return gwsFail('WORKSPACE_RECOVERY_REQUIRED');
+        if(state.stage==='SCRIPT_REQUESTED')return await withWorkspaceGenerationDiagnostic('CREATE_BOUND_SCRIPT',async()=>gwsFail('WORKSPACE_RECOVERY_REQUIRED'));
         await save({stage:'SCRIPT_REQUESTED'});
         const scriptProjectId=await google.createBoundScript(state.fileId);
         await save({scriptProjectId,stage:'SCRIPT_CREATED'});
@@ -174,17 +182,18 @@ export class ProjectGoogleWorkspaceServer {
       }
       await google.verifyGenerated(state.fileId,state.scriptProjectId,blueprint);await save({stage:'VERIFIED'});
       const binding:ProjectGoogleBinding={projectId,provider:'GOOGLE',destinationRootFolderId:rootId,projectFolderId:state.folderId,spreadsheetId:state.fileId,driveFileId:state.fileId,spreadsheetUrl:`https://docs.google.com/spreadsheets/d/${state.fileId}/edit`,workspaceBlueprintVersion:blueprint.version,appsScriptBlueprintVersion:blueprint.script!.version,scriptProjectId:state.scriptProjectId,googleSubject:subject,googleAccountLabel:google.accountLabel?.()||subject,provisionedAt:new Date().toISOString(),provisionedBy:who.userId,revision:1};
-      await this.db.runTransaction(async(tx:any)=>{
+      await withWorkspaceGenerationDiagnostic('PERSIST_BINDING',()=>this.db.runTransaction(async(tx:any)=>{
         const {project}=await this.authorized(tx,projectId,who),snap=await tx.get(ref);
         if(snap.data()?.owner!==owner||snap.data()?.binding)return gwsFail('WORKSPACE_EXECUTION_FENCED');
-        tx.set(ref,{...snap.data(),binding,state:'READY',stage:'BOUND',leaseUntil:0,lastSyncError:null});
+        tx.set(ref,{...snap.data(),binding,state:'READY',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
         tx.update(this.db.collection('projects').doc(projectId),{settings:{...project.settings,googleDriveFolderId:binding.projectFolderId,googleSpreadsheetId:binding.spreadsheetId,googleDriveProvisioning:{enabled:true,status:'PROVISIONED',rootFolderName:name,spreadsheetTitle:name}},updatedBy:who.userId,updatedAt:new Date().toISOString()});
         this.audit(tx,projectId,who.userId,'WORKSPACE_BOUND',{fileId:binding.spreadsheetId,workspaceBlueprintVersion:blueprint.version,scriptProjectId:binding.scriptProjectId});
-      });return binding;
+      }));return binding;
     } catch(error) {
       const code=(error as {code?:string}).code||'SPREADSHEET_GENERATION_FAILED';
-      await this.db.runTransaction(async(tx:any)=>{const snap=await tx.get(ref);if(snap.data()?.owner===owner)tx.set(ref,{...snap.data(),state:'FAILED',lastSyncError:code,leaseUntil:0});});
-      throw new GoogleWorkspaceCommandError(code,502);
+      const diagnostic=error instanceof GoogleWorkspaceCommandError ? error.diagnostic : undefined;
+      await this.db.runTransaction(async(tx:any)=>{const snap=await tx.get(ref);if(snap.data()?.owner===owner)tx.set(ref,{...snap.data(),state:'FAILED',lastSyncError:code,leaseUntil:0,lastGenerationDiagnostic:diagnostic||null});});
+      throw new GoogleWorkspaceCommandError(code,502,diagnostic);
     }
   }
   /** Retired copy path: unreachable outside native compatibility tests. */

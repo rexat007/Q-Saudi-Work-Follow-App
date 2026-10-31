@@ -1,6 +1,6 @@
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
 import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
-import { projectGoogleWorkspaceServer, continuityRef } from '../src/services/projectGoogleWorkspace.server';
+import { projectGoogleWorkspaceServer, continuityRef, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import { TripCommandsServerService, TripCommandError } from '../src/services/tripCommands.server';
 import { STATUS_COMMANDS } from '../src/types/tripCommands';
@@ -616,6 +616,7 @@ app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, 
       success: false,
       error: error.message || 'فشلت عملية تهيئة Google Workspace للمشروع',
       code: error.code,
+      ...(error instanceof GoogleWorkspaceCommandError && error.diagnostic ? {diagnostic:error.diagnostic} : {}),
     });
   }
 });

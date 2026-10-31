@@ -251,6 +251,11 @@ describe('GWS1B live generation error presentation',()=>{
 });
 
 describe('initial destination error guidance',()=>{
+ it.each(['APPLY_BLUEPRINT:BLUEPRINT_APPLY_FAILED','CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED','INSTALL_SCRIPT_CONTENT:PERMISSION_DENIED','VERIFY_SCRIPT_CONTENT:SCRIPT_CONTENT_INSTALL_FAILED','PERSIST_BINDING:WORKSPACE_BINDING_PERSIST_FAILED'])('preserves the exact post-generation stage code %s in the operator UI',async code=>{
+  vi.mocked(clientWorkspaceService.provisionProjectDrive).mockRejectedValueOnce(Error(code));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  expect(container.querySelector('code[role="status"]')?.textContent).toBe(code);expect(container.textContent).not.toContain('gws.scope_denied');
+ });
  it.each(['requestGoogleScopes','selectProjectWorkspaceDestination'] as const)('shows only the missing scope aliases from %s before provisioning',async(method)=>{
   vi.mocked(clientWorkspaceService[method]).mockRejectedValueOnce(Error('SCOPE_DENIED:drive.file,script.projects'));
   await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
