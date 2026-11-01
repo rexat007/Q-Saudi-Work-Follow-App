@@ -3,6 +3,6 @@
  * requests made internally by tab reconciliation. No request/header is logged. */
 export function configureWorkspaceGoogleTransport(auth:any,beforeRequest:()=>Promise<void>=async()=>{}) {
   auth.transporter?.interceptors?.request?.add({resolved:async(options:any)=>{
-    await beforeRequest();return {...options,timeout:15000,retry:false};
+    await beforeRequest();return {...options,maxContentLength:options.maxContentLength??8*1024*1024,timeout:15000,retry:false};
   }});
 }

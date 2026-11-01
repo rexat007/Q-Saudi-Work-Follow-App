@@ -1,3 +1,16 @@
+## Workbook bounded-memory repair — 2026-11-01
+
+Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); merged baseline `fff5c313b3276e7c4672f00fad9cce7ae550f4a7`.
+
+- RESOLVED_IN_SOURCE: production Blueprint initialization/apply/verify/repair no longer materializes full workbook grids. Metadata-first normalized evidence and capped canonical rectangles replace six unbounded read sites; Ops delivery replaces its open-column read with owned pages.
+- RESOLVED_IN_SOURCE: repair no longer retains two whole workbook snapshots; unchanged canonical evidence is reused, only changed cell/dimension ranges are re-read after writes. Batches are generated incrementally; retained repair operations depend on blueprint size.
+- RESOLVED_IN_SOURCE: uncertain inspection/repair cannot acknowledge pending projection. Binding stays intact, health is degraded/review-required, owned lease releases; retry can recover the same resources. Script hash verification retains exact names/types/content and parent proof without duplicate large serialized copies.
+- PRESERVED: legacy Dashboard/history, Ops ownership metadata, stable numeric IDs, Project/grant/binding/lease fences, canonical RAW/master semantics, existing Script identity, coordinator and historical debt.
+- STILL_OPEN: real Google/Render recovery acceptance and actual heap observation; local synthetic/provider fixtures prove call architecture, not live latency or an exact heap number.
+- STILL_OPEN / OUTSIDE_THIS_UNIT: generic master reconciliation still reads `A2:ZZ` and retains canonical master rows. It is separate data projection, never structural repair. The shared 8-MiB transport response cap bounds a provider response; master paging/domain cardinality redesign is not implemented. Oversize projection fails/degrades and retains pending work rather than proving delivery.
+- OPERATIONAL_LIMIT: metadata 4 MiB/128 sheets; canonical pages 128×32/2 MiB, total 4096 ranges/200000 inspected cells; repair batches ≤100 requests/approximately 1 MB of request payload. Owned Ops pages retain at most 50000 keys, with explicit 200000-row/1024-column inventory ceilings; over-budget work fails closed, never truncates/acknowledges silently. These are infrastructure safety limits, not new business validation.
+- NOT_REQUIRED_FOR_ACCEPTANCE / NOT_ROOT_CAUSE_REMEDIATION: increasing Render RAM/plan or NODE_OPTIONS. No hosting change performed. No PR/merge/live mutation authorized by this unit.
+
 ## Global user-active Workspace coordination — 2026-11-01
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `7dcd4e8489dec84802316c4a222a022adf4de669` includes merged durable authorization acceptance.

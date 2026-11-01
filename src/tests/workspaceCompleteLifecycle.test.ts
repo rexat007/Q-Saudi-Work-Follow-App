@@ -17,9 +17,10 @@ describe('complete Workspace lifecycle with independent health models',()=>{
   await x.provision();expect(await x.service.status('P1',who)).toMatchObject({workspaceState:'CONNECTED',workbookHealth:'HEALTHY',syncHealth:'HEALTHY',automationState:'DEGRADED',pendingSyncCount:0});
   expect(x.p.projectMasterTabs).toHaveBeenCalledOnce();expect(x.p.createBoundScript).not.toHaveBeenCalled();expect(x.store[path].binding.scriptProjectId).toBeUndefined();
  });
- it('never loses valid binding because repair fails, while master projection still runs',async()=>{
+ it('retains binding and pending projection after failed repair, then recovers the same resources',async()=>{
   const x=setup();await x.approve();x.p.repairWorkbook.mockRejectedValueOnce(Error('structure differs'));await x.provision();
-  expect(await x.service.status('P1',who)).toMatchObject({binding:{spreadsheetId:'file'},workspaceState:'CONNECTED',workbookHealth:'DEGRADED',syncHealth:'HEALTHY'});expect(x.p.projectMasterTabs).toHaveBeenCalledOnce();
+  expect(await x.service.status('P1',who)).toMatchObject({binding:{spreadsheetId:'file'},workspaceState:'CONNECTED',workbookHealth:'DEGRADED',syncHealth:'DEGRADED',pendingSyncCount:1});expect(x.p.projectMasterTabs).not.toHaveBeenCalled();expect(x.p.authorizeProvisioning).not.toHaveBeenCalled();expect(x.store[path].syncOwner).toBeNull();expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');
+  await x.service.initializeBound('P1',who,x.p as unknown as GoogleBlueprintPort);expect(x.p.projectMasterTabs).toHaveBeenCalledOnce();expect(x.p.createProjectFolder).toHaveBeenCalledOnce();expect(x.p.createProjectSpreadsheet).toHaveBeenCalledOnce();expect(await x.service.status('P1',who)).toMatchObject({binding:{spreadsheetId:'file'},workbookHealth:'HEALTHY',pendingSyncCount:0});
  });
  it('recovers Q-PRJ-007-shaped SCRIPT_REQUESTED evidence with zero new folder/Sheet creates',async()=>{
   const x=setup(true);await x.approve();x.store[path]={projectId:'P1',folderId:'folder',fileId:'file',destinationRootFolderId:'root',googleSubject:'subject',workspaceBlueprintVersion:'TEST-V1',operationId:workspaceOperation('P1'),stage:'SCRIPT_REQUESTED',state:'FAILED',leaseUntil:0};

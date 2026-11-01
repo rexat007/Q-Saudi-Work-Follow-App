@@ -1,3 +1,11 @@
+## Workspace inspection memory boundary
+
+Exact current state: [phase ledger](reconstruction/02_PHASE_LEDGER.md); resource limits and verification: [Workspace sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
+Explicit initialize → verify immutable binding → metadata-only structural inventory → exact canonical bounded ranges → normalized `WorkspaceWorkbookInspection` → non-destructive repair plan → streamed capped request batches → re-read metadata and changed ranges only → verify existing Script parent/file hashes → separate canonical data projection. Normal Blueprint execution never requests whole-workbook grids. Preserved legacy/profile tabs require metadata only; legacy Dashboard is not read or rewritten for ownership proof. Missing managed tabs are created inside the existing workbook; no replacement workbook/folder/Script is inferred.
+
+Memory retained by structure repair depends on canonical blueprint size, bounded metadata and one capped range, independently of legacy populated-cell volume. Owned Ops projection scans finite pages and keeps primary-key/row coordinates, numeric IDs and ownership proof, not all historical cell objects. Master data projection remains a separate existing reconciliation authority with an 8-MiB provider response ceiling; it has not become paginated in this unit. Over-budget reads fail closed and leave pending work. Stage diagnostics contain names/numbers only. Failed structural verification blocks projection/automation and releases the owned lease while retaining binding. Hosting RAM upgrade is not required; source/protocol tests do not claim live Render heap or Google acceptance.
+
 ## Adaptive operational and Workspace architecture — current
 
 Operational report projections now use OperationalReportTabRegistry, a reserved Ops namespace and sheet-scoped DOCUMENT ownership metadata. Creation atomically records marker/header; server mutations use verified numeric sheet IDs, and profile Script V2 checks the same markers. Legacy SABIL sheets and unmarked partial V1 tables remain untouched; canonical re-projection into new owned views replaces title-based adoption. Known Script upgrades reuse existing resources. Details and pending live acceptance are in [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).

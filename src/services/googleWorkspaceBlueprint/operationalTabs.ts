@@ -1,12 +1,13 @@
+import type {WorkspaceWorkbookInspection} from './inspection';
 import type {sheets_v4} from 'googleapis';
 import type {WorkspaceBlueprint} from './contract';
 import {OperationalReportTabRegistry,operationalTabIds,operationalTabByTitle,operationalTabMetadata,assertOperationalTabOwnership,OperationalTabError} from '../operationalReportTabRegistry';
 const header=(sheet:sheets_v4.Schema$Sheet)=>sheet.data?.find(g=>(g.startRow||0)===0)?.rowData?.[0]?.values||[];
 /** Bounded preserve-and-reproject migration. Old tabs are never claimed, renamed or deleted. */
-export function planOwnedOperationalTabs(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet,createLegacy?:(blueprint:WorkspaceBlueprint)=>sheets_v4.Schema$Request[]) {
+export function planOwnedOperationalTabs(blueprint:WorkspaceBlueprint,current:WorkspaceWorkbookInspection|sheets_v4.Schema$Spreadsheet,createLegacy?:(blueprint:WorkspaceBlueprint)=>sheets_v4.Schema$Request[]) {
  const requests:sheets_v4.Schema$Request[]=[],drift:string[]=[],conflicts:string[]=[];
  const existing=current.sheets||[],used=new Set(existing.map(s=>s.properties?.sheetId));
- const pristine=existing.every(s=>s.properties?.title==='Sheet1'&&!s.charts?.length&&!s.merges?.length&&!s.protectedRanges?.length&&!s.developerMetadata?.length&&!(s.data||[]).some(g=>(g.rowData||[]).some(r=>(r.values||[]).some(c=>c.userEnteredValue||c.note))));
+ const pristine=('kind' in current?current.freshDefaultEmpty||existing.length===0:true)&&existing.every(s=>s.properties?.title==='Sheet1'&&!s.charts?.length&&!s.merges?.length&&!s.protectedRanges?.length&&!s.developerMetadata?.length&&!(s.data||[]).some(g=>(g.rowData||[]).some(r=>(r.values||[]).some(c=>c.userEnteredValue||c.note))));
  const legacy=blueprint.sheets.filter(s=>!operationalTabByTitle(s.properties?.title||''));
  // A positively empty newly created workbook still receives the unchanged Dual legacy foundation.
  // Existing/partial workbooks never enter this branch; no legacy repair/rename is attempted.
@@ -39,7 +40,7 @@ export function planOwnedOperationalTabs(blueprint:WorkspaceBlueprint,current:sh
   return existing.filter(s=>s.properties?.title===definition.previousTitle).map(sheet=>{
    const actualHeaders=header(sheet).map(c=>c.userEnteredValue?.stringValue);
    const plain=!sheet.merges?.length&&!sheet.charts?.length&&!sheet.protectedRanges?.length&&!sheet.developerMetadata?.length&&!(sheet.data||[]).some(g=>(g.rowData||[]).some((r,i)=>(r.values||[]).some((c,index)=>c.note||c.userEnteredValue?.formulaValue||c.pivotTable||c.textFormatRuns?.length||c.dataValidation||((i+(g.startRow||0))>0&&c.userEnteredFormat)||index>=expectedHeaders.length&&c.userEnteredValue)));
-   const compatible=expectedHeaders.length>0&&JSON.stringify(actualHeaders)===JSON.stringify(expectedHeaders)&&plain;
+   const compatible=!('kind' in current)&&expectedHeaders.length>0&&JSON.stringify(actualHeaders)===JSON.stringify(expectedHeaders)&&plain;
    return {sheetId:sheet.properties!.sheetId!,disposition:compatible?'PRESERVED_PREVIOUS_ENGINE_LAYOUT':'PRESERVED_UNPROVEN'};
   });
  });

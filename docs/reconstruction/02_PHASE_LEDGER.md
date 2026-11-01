@@ -1,7 +1,23 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Global user-active Workspace sync coordinator — 2026-11-01
+### Workspace bounded-memory inspection and repair — 2026-11-01
+
+CURRENT_CODE_BASELINE: `fff5c313b3276e7c4672f00fad9cce7ae550f4a7` — merged main, including global user-active coordinator `a4900f8fadd86dff657faf4307d1663c043e9ea3`. Working branch: `reconstruction/workspace-bounded-memory-repair`.
+
+WORKSPACE_BOUNDED_MEMORY_REPAIR: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+WORKBOOK_INSPECTION: METADATA_FIRST / BOUNDED_RANGE.
+FULL_GRID_FETCH: PROHIBITED.
+REPAIR_MEMORY_COMPLEXITY: INDEPENDENT_OF_LEGACY_DATA_VOLUME (bounded structural metadata + canonical blueprint evidence + one capped range).
+HOSTING_RAM_UPGRADE: NOT_REQUIRED.
+
+The owner reported Render heap exhaustion around 270–280 MB during initialization. Six Blueprint full-grid read sites and one open-column Ops read are replaced by bounded metadata/range inspection. The normalized Workbook inspection retains only canonical evidence; profile ownership repair does not read preserved legacy grids. Repair applies bounded batches and rereads structural metadata plus only affected canonical ranges. Streaming owned-table projection retains keys/row coordinates, not workbook snapshots. Script verification compares file identities and deterministic normalized-source hashes.
+
+Initialization records only safe stage names/numeric counters. Failed inspection/repair keeps binding and pending work, skips automation/projection until structure is verified, and releases the owned lease. Existing Project/grant/principal/binding/version/provider/Script-parent/Operational Report ownership fences remain. Current user-active server coordination policy is unchanged; it cannot perform repair automatically. Existing Sheet/folder/Script identities and legacy Dashboard are preserved. No scopes, blueprint/Script assets, hosting settings, canonical domain authority or Phase 10 activation change.
+
+Local verification: 48 files, 901/902 PASS; only the TBC-B4 checkpoint-anchor failure is independently reproduced on the merged baseline. New failures/removals/skips 0. New bounded tests 14/14; final affected subset 129/129 (overlapping cases). Build PASS; lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0; diff check PASS. These are dated observations, not permanent count contracts. The [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) records hard resource ceilings, master-projection boundaries and controlled verification. No real Q-PRJ-007 mutation, Render heap measurement or deployed acceptance is claimed. This unit authorizes one commit and branch push only; PR/merge and deployment remain owner-controlled. Earlier implementation checkpoints are historical where superseded.
+
+### Historical global user-active Workspace sync coordinator implementation — 2026-11-01
 
 CURRENT_CODE_BASELINE: `7dcd4e8489dec84802316c4a222a022adf4de669` — merged durable authorization acceptance, containing `86fc73e5141ca56cdc0c5dbbf292fd253494d983`. Working branch: `reconstruction/global-user-active-workspace-sync`.
 

@@ -1,3 +1,4 @@
+import {workbookInspectionFixture} from './helpers/workbookInspectionFixture';
 import {afterEach,beforeEach,describe,it,expect,vi} from 'vitest';
 import {blueprintFixture} from './helpers/workspaceBlueprintFixture';
 const f=vi.hoisted(()=>({files:vi.fn(),create:vi.fn(),sheets:vi.fn(),batch:vi.fn(),scriptCreate:vi.fn(),scriptGet:vi.fn(),install:vi.fn(),content:vi.fn()}));
@@ -15,6 +16,7 @@ import {projectGoogleBlueprintPort} from '../../server/projectGoogleBlueprint.ad
 import {ProjectGoogleWorkspaceServer,workspaceOperation} from '../services/projectGoogleWorkspace.server';
 import {classifyWorkspaceGenerationFailure,workspaceGenerationDiagnosticCode} from '../utils/workspaceGenerationDiagnostics';
 
+let providerWorkbook:ReturnType<typeof workbookInspectionFixture>;
 const path='projects/P1/workspace_continuity/current';
 const actor={userId:'admin',role:'SUPER_ADMIN' as const,email:'',displayName:'',assignedProjectIds:[]};
 function fixture(){
@@ -48,7 +50,7 @@ beforeEach(()=>{
  vi.resetAllMocks();
  f.files.mockImplementation(async({fileId}:any)=>({data:fileId==='root'?{mimeType:'application/vnd.google-apps.folder',capabilities:{canAddChildren:true}}:{name:'Project sheet',mimeType:fileId==='folder'?'application/vnd.google-apps.folder':'application/vnd.google-apps.spreadsheet',parents:[fileId==='folder'?'root':'folder'],appProperties:{projectId:'P1',qSaudiWorkspaceOperation:workspaceOperation('P1'),resourceRole:fileId==='folder'?'FOLDER':'SPREADSHEET',workspaceBlueprintVersion:'TEST-V1'}}}));
  f.create.mockImplementation(async({requestBody}:any)=>({data:{id:requestBody.mimeType==='application/vnd.google-apps.folder'?'folder':'file'}}));
- f.sheets.mockResolvedValue({data:blueprintFixture()});f.batch.mockResolvedValue({});
+ providerWorkbook=workbookInspectionFixture(blueprintFixture());f.sheets.mockImplementation(args=>providerWorkbook.get(args));f.batch.mockImplementation(args=>providerWorkbook.update(args));
  f.scriptCreate.mockResolvedValue({data:{scriptId:'script'}});f.scriptGet.mockResolvedValue({data:{parentId:'file'}});
  f.install.mockResolvedValue({});f.content.mockResolvedValue({data:{files:blueprintFixture().script!.files}});
 });
@@ -56,7 +58,7 @@ afterEach(()=>{vi.restoreAllMocks()});
 
 describe('actual Google adapter + durable generation stage diagnostics',()=>{
  it('preserves CONNECTED and stage diagnostics on a generic blueprint repair 403 without duplicate artifacts',async()=>{
-  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce({response:{status:403}});
+  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};providerWorkbook=workbookInspectionFixture(workbook);f.batch.mockRejectedValueOnce({response:{status:403}});
   await x.provision();
   expect(x.records.get(path)).toMatchObject({stage:'BOUND',folderId:'folder',fileId:'file',workspaceState:'CONNECTED',workbookHealth:'DEGRADED',lastWorkbookError:'GOOGLE_PERMISSION_DENIED',lastGenerationDiagnostic:{operation:'APPLY_BLUEPRINT',httpStatus:403,providerReason:'UNRECOGNIZED'}});
   expect(f.scriptCreate).not.toHaveBeenCalled();await x.provision();expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();expect(x.records.get(path)).toMatchObject({state:'READY',workspaceState:'CONNECTED',stage:'BOUND',lastGenerationDiagnostic:null});
@@ -92,7 +94,7 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
  it('retains SCRIPT_FUNCTION_NOT_READY for strict optional automation verification',async()=>{
   const x=fixture();await x.approve();await x.provision();const workbook=blueprintFixture();
   workbook.sheets[0].data![0].rowData![1].values![0].effectiveValue={errorValue:{type:'NAME'}};
-  f.sheets.mockResolvedValueOnce({data:workbook});
+  providerWorkbook=workbookInspectionFixture(workbook);
   await expect(x.port.verifyGenerated('file','script',blueprintFixture())).rejects.toMatchObject({code:'VERIFY_WORKBOOK:SCRIPT_FUNCTION_NOT_READY'});
   expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY'});
  });
@@ -103,12 +105,12 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
   await x.provision();expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();
  });
  it.each(['insufficientPermissions','insufficient_scope','ACCESS_TOKEN_SCOPE_INSUFFICIENT'])('requires explicit %s provider evidence for scope denial',async reason=>{
-  const x=fixture();await x.approve();f.batch.mockRejectedValueOnce(provider(reason));
+  const x=fixture();await x.approve();providerWorkbook.book.sheets![0].data![0].rowData![0].values![0]={};f.batch.mockRejectedValueOnce(provider(reason));
   await expect(x.port.applyBlueprint('file',blueprintFixture())).rejects.toMatchObject({code:'SCOPE_DENIED',diagnostic:{providerReason:reason}});
  });
  it('publishes and persists only closed metadata, without secrets or provider messages',async()=>{
   const log=vi.spyOn(console,'log'),warn=vi.spyOn(console,'warn'),err=vi.spyOn(console,'error');
-  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
+  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};providerWorkbook=workbookInspectionFixture(workbook);f.batch.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
   await x.provision();const failure={message:x.records.get(path).lastWorkbookError,code:x.records.get(path).lastWorkbookError,diagnostic:x.records.get(path).lastGenerationDiagnostic};
   const publicPayload={error:failure.message,code:failure.code,diagnostic:failure.diagnostic};
   expect(publicPayload.code).toBe('API_ACCESS_DISABLED');

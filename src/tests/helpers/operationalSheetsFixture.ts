@@ -12,7 +12,12 @@ export function operationalSheetsFixture(initial:sheets_v4.Schema$Spreadsheet={s
   else if(request.addProtectedRange){const range=request.addProtectedRange.protectedRange!,sheet=find(range.range!.sheetId!);(sheet.protectedRanges||=[]).push(structuredClone(range));}
   else throw Error('unexpected destructive or unrelated request');
  };
- const api={spreadsheets:{get:vi.fn(async(args:any)=>{const copy=structuredClone(book);if(args.ranges){const title=args.ranges[0].match(/^'((?:[^']|'')*)'!/)[1].replace(/''/g,"'");copy.sheets=copy.sheets!.filter(s=>s.properties?.title===title);}if(!args.includeGridData)copy.sheets=copy.sheets!.map(({properties,developerMetadata})=>({properties,developerMetadata}));return {data:copy};}),batchUpdate:vi.fn(async({requestBody}:any)=>{const before=structuredClone(book);try{for(const request of requestBody.requests)apply(request);}catch(error){Object.assign(book,before);throw error;}requests.push(structuredClone(requestBody.requests));return {data:{replies:[]}};})}};
+ const api={spreadsheets:{get:vi.fn(async(args:any)=>{
+  const result:any={...book,sheets:[]};
+  const ranges=(args.ranges||[]).map((text:string)=>{const m=text.match(/^'((?:[^']|'')*)'!([A-Z]+)(\d+):([A-Z]+)(\d+)$/);if(!m)throw Error('fixture requires bounded A1 ranges');const col=(s:string)=>[...s].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0)-1;return {title:m[1].replace(/''/g,"'"),r:Number(m[3])-1,c:col(m[2]),er:Number(m[5]),ec:col(m[4])+1};});
+  for(const sheet of book.sheets||[]){const selected=ranges.filter((r:any)=>r.title===sheet.properties?.title);if(ranges.length&&!selected.length)continue;const {data,...metadata}=sheet;const out:any=structuredClone(metadata);if(args.includeGridData){if(!ranges.length)throw Error('unbounded workbook grid fetch');out.data=selected.map((range:any)=>({startRow:range.r,startColumn:range.c,rowData:Array.from({length:range.er-range.r},(_,r)=>({values:Array.from({length:range.ec-range.c},(_,c)=>{for(const g of data||[]){const value=g.rowData?.[range.r+r-(g.startRow||0)]?.values?.[range.c+c-(g.startColumn||0)];if(value)return structuredClone(value);}return {};})}))}));}result.sheets.push(out);}
+  return {data:result};
+ }),batchUpdate:vi.fn(async({requestBody}:any)=>{const before=structuredClone(book);try{for(const request of requestBody.requests)apply(request);}catch(error){Object.assign(book,before);throw error;}requests.push(structuredClone(requestBody.requests));return {data:{replies:[]}};})}};
  return {book,requests,api};
 }
 export function fixtureSheet(id:number,title:string,values:unknown[][],extras:Partial<sheets_v4.Schema$Sheet>={}):sheets_v4.Schema$Sheet {

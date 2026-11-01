@@ -1,3 +1,7 @@
+## Bounded inspection and owned-table delivery
+
+Current state belongs to [the ledger](02_PHASE_LEDGER.md); exact limits are in [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md). Profile structure repair uses metadata only for preserved legacy/owned tabs, never historical grids. Existing sheet-scoped ownership and numeric-ID mutations remain. Ops delivery reads capped exact pages, retains keys/row coordinates, streams bounded writes and fails closed at explicit inventory/response limits. Audit verification reads headers only. Structure inspection is separate from canonical data projection; generic master paging is not implemented. Existing Script parent/identity and normalized-source fingerprints stay authoritative. No profile, measurement/intake, source asset, authorization or Google resource identity is redesigned. Controlled large-workbook testing is not live Google/Render acceptance.
+
 # Operational Profiles & Adaptive Workspace Engine
 
 Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Current credential/provider resilience baseline: `e39cce70d3d8e3d549b99d8f8882908d44555de5` (merged report-isolation source). This is a source/local verification contract, not real Google or Firebase production acceptance.

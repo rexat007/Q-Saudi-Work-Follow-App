@@ -1,3 +1,4 @@
+import type {WorkspaceWorkbookInspection} from './inspection';
 import {planOwnedOperationalTabs} from './operationalTabs';
 import type {sheets_v4} from 'googleapis';
 import {assertBlueprint,cellEntries,blueprintRequests,type WorkspaceBlueprint} from './contract';
@@ -6,14 +7,14 @@ import {columnIndex} from './contract';
 
 type Sheet=sheets_v4.Schema$Sheet;
 /** Expected properties may omit provider defaults and resource-generated IDs. */
-const contains=(expected:any,actual:any):boolean=>expected&&typeof expected==='object'
+const contains=(expected:any,actual:any,key=''):boolean=>expected&&typeof expected==='object'
   ?Array.isArray(expected)?Array.isArray(actual)&&expected.length===actual.length&&expected.every((v,i)=>contains(v,actual[i]))
-  :Object.entries(expected).every(([key,v])=>contains(v,actual?.[key]))
-  :expected===actual||(actual===undefined&&(expected===false||expected===0));
+  :Object.entries(expected).every(([key,v])=>contains(v,actual?.[key],key))
+  :expected===actual||(actual===undefined&&(expected===false||expected===0||key==='alpha'&&expected===1));
 export interface WorkbookRepairPlan {requests:sheets_v4.Schema$Request[];drift:string[];conflicts:string[]}
 /** Never uses updateCells '*' or clears inputs. IDs are resolved by title, not position.
  * Non-formula values occupying formula cells are preserved and reported for review. */
-export function planWorkbookRepair(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet):WorkbookRepairPlan {
+export function planWorkbookRepair(blueprint:WorkspaceBlueprint,current:WorkspaceWorkbookInspection|sheets_v4.Schema$Spreadsheet):WorkbookRepairPlan {
   assertBlueprint(blueprint,false);
   if(blueprint.operationalTabOwnershipSchema===1)return planOwnedOperationalTabs(blueprint,current,legacy=>blueprintRequests(legacy,current,true));
   const requests:sheets_v4.Schema$Request[]=[],drift:string[]=[],conflicts:string[]=[];
@@ -75,6 +76,19 @@ export function planWorkbookRepair(blueprint:WorkspaceBlueprint,current:sheets_v
         if(sameTitle?.chartId!==undefined)add('CHART:'+title,{updateChartSpec:{chartId:sameTitle.chartId,spec:mapped.spec}});else add('CHART:'+title,{addChart:{chart:mapped}});
       }
     }
+    for(const data of sheet.data||[])for(const [dimension,metadata] of [['ROWS',data.rowMetadata],['COLUMNS',data.columnMetadata]] as const){
+      for(const [offset,expected] of (metadata||[]).entries()){
+        const index=offset+(dimension==='ROWS'?(data.startRow||0):(data.startColumn||0)),key=dimension==='ROWS'?'rowMetadata':'columnMetadata';
+        const found=actual?.data?.slice().reverse().find(g=>index>=(dimension==='ROWS'?(g.startRow||0):(g.startColumn||0))&&index<(dimension==='ROWS'?(g.startRow||0):(g.startColumn||0))+(g[key]?.length||0));
+        const value=found?.[key]?.[index-(dimension==='ROWS'?(found.startRow||0):(found.startColumn||0))];
+        if(Object.keys(expected).length&&!contains(expected,value))add('DIMENSION:'+title,{updateDimensionProperties:{range:{sheetId:id,dimension,startIndex:index,endIndex:index+1},properties:expected,fields:Object.keys(expected).join(',')}});
+      }
+    }
+    for(const key of ['rowGroups','columnGroups'] as const)for(const group of sheet[key]||[]){
+      const mapped=remap(group),found=(actual?.[key]||[]).find(g=>contains(mapped.range,g.range)&&g.depth===mapped.depth);
+      if(!found)add('GROUP:'+title,{addDimensionGroup:{range:mapped.range}});
+      if(!contains(mapped.collapsed||false,found?.collapsed))add('GROUP_STATE:'+title,{updateDimensionGroup:{dimensionGroup:mapped,fields:'collapsed'}});
+    }
     if(sheet.basicFilter&&!contains(remap(sheet.basicFilter),actual?.basicFilter))add('FILTER:'+title,{setBasicFilter:{filter:remap(sheet.basicFilter)}});
     for(const view of sheet.filterViews||[]){const mapped=remap(view);delete mapped.filterViewId;if(!(actual?.filterViews||[]).some(v=>contains(mapped,v)))add('FILTER_VIEW:'+title,{addFilterView:{filter:mapped}});}
     for(const band of sheet.bandedRanges||[]){const mapped=remap(band);delete mapped.bandedRangeId;if(!(actual?.bandedRanges||[]).some(b=>contains(mapped,b)))add('BANDING:'+title,{addBanding:{bandedRange:mapped}});}
@@ -84,6 +98,6 @@ export function planWorkbookRepair(blueprint:WorkspaceBlueprint,current:sheets_v
     else if(!contains(range,found.range))add('NAMED_RANGE:'+named.name,{updateNamedRange:{namedRange:{namedRangeId:found.namedRangeId,range},fields:'range'}});
   }
   if(!contains(blueprint.properties,current.properties))add('PROPERTIES',{updateSpreadsheetProperties:{properties:blueprint.properties,fields:Object.keys(blueprint.properties).join(',')}});
-  for(const extra of existing)if(extra.properties?.title==='Sheet1'&&!blueprint.sheets.some(s=>s.properties?.title==='Sheet1')&&!cellEntries(extra).some(c=>c.cell.userEnteredValue||c.cell.note)&&!extra.charts?.length&&!extra.protectedRanges?.length&&!extra.merges?.length) add('EMPTY_DEFAULT_TAB',{deleteSheet:{sheetId:extra.properties.sheetId}});
+  for(const extra of existing)if(!('kind' in current)&&extra.properties?.title==='Sheet1'&&!blueprint.sheets.some(s=>s.properties?.title==='Sheet1')&&!cellEntries(extra).some(c=>c.cell.userEnteredValue||c.cell.note)&&!extra.charts?.length&&!extra.protectedRanges?.length&&!extra.merges?.length) add('EMPTY_DEFAULT_TAB',{deleteSheet:{sheetId:extra.properties.sheetId}});
   return {requests,drift:[...new Set(drift)],conflicts};
 }
