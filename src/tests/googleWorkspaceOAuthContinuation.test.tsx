@@ -110,6 +110,8 @@ vi.mock('../services/projectCanonicalRefresh.service', () => ({
 vi.mock('../services/workspace.service', () => ({
   clientWorkspaceService: {
     getGoogleWorkspaceStatus: vi.fn(),
+    connectBackgroundAuthorization: vi.fn().mockResolvedValue(undefined),
+    initializeWorkspace: vi.fn(),
     resumeProjectWorkspace: vi.fn().mockResolvedValue({spreadsheetId:'new-sheet',projectFolderId:'new-folder'}),
     selectProjectWorkspaceDestination: vi.fn().mockResolvedValue('destination-root'),
     requestGoogleScopes: vi.fn().mockResolvedValue(undefined),
@@ -294,4 +296,27 @@ describe('initial destination error guidance',()=>{
 it.each(['DESTINATION_NOT_WRITABLE','STORAGE_TARGET_CONFLICT','CURRENT_STORAGE_DESTINATION','SCOPE_DENIED','DESTINATION_ACCESS_FAILED','DESTINATION_FOLDER_INVALID','WORKSPACE_REGISTRY_ACCESS_FAILED'])('resolves destination guidance for %s through canonical AR/EN/UR keys',code=>{
  const key=workspaceDestinationMessageKey(code);expect(key).not.toBeNull();
  for(const locale of ['ar','en','ur'] as const){expect(Object.prototype.hasOwnProperty.call(dictionaries[locale],key!)).toBe(true);expect(resolveTranslation(key!,locale).trim()).not.toBe('');expect(resolveTranslation(key!,locale)).not.toBe(key);}
+});
+
+
+describe('complete Workspace minimal controls',()=>{
+ it.each(['REPAIR_REQUIRED','DEGRADED'] as const)('keeps a bound Sheet visible and offers only contextual repair for %s',async health=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId,true),workbookHealth:health,backgroundAuthorization:'CONNECTED',automationState:'DEGRADED'} as any);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');
+  expect(container.textContent).toContain('gws.sheet_connected');expect(container.textContent).toContain('gws.repair_workbook');expect(container.textContent).toContain('gws.automation_degraded');
+  expect(container.textContent).not.toContain(uiKey('projects.labels.initialize_workspace_sync'));expect(container.textContent).not.toContain('gws.enable_background');expect(container.querySelector('a')?.href).toContain('new-sheet');
+ });
+ it('reconnects background authorization without another Picker, folder or Sheet',async()=>{
+  const bound={...status(unbound.projectId,true),workbookHealth:'HEALTHY',backgroundAuthorization:'AUTHORIZATION_REQUIRED',state:'AUTHORIZATION_REQUIRED'} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);vi.mocked(clientWorkspaceService.initializeWorkspace).mockResolvedValue({...bound,backgroundAuthorization:'CONNECTED',state:'READY'});
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.reauthorize');
+  expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledWith(unbound.projectId,expect.any(Function));expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(unbound.projectId);
+  expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();
+ });
+ it('shows configuration guidance while preserving an existing binding',async()=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId,true),workbookHealth:'HEALTHY',backgroundAuthorization:'NOT_CONNECTED'} as any);
+  vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockRejectedValueOnce(Error('GOOGLE_OFFLINE_CONFIGURATION_REQUIRED'));
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.enable_background');
+  expect(container.textContent).toContain('gws.offline_configuration_required');expect(container.textContent).toContain('gws.sheet_connected');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+ });
 });

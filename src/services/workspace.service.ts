@@ -175,6 +175,33 @@ export class ClientWorkspaceService {
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
   }
+  public async initializeWorkspace(projectId:string):Promise<ProjectGoogleStatus> {
+    await ensureRuntimeGeneration();
+    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    const result=await response.json();if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
+  }
+  /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
+  public async connectBackgroundAuthorization(projectId:string,isCurrent:()=>boolean):Promise<void> {
+    const popup=window.open('about:blank','qsaudi-workspace-authorization','popup,width=560,height=720');
+    if(!popup)throw Error('POPUP_BLOCKED');
+    let listener:(event:MessageEvent)=>void=()=>{},timer:ReturnType<typeof setTimeout>|undefined,poll:ReturnType<typeof setInterval>|undefined;
+    try {
+      await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
+      const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({automation:true})});
+      const result=await response.json();if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
+      const url=new URL(result.url);if(url.origin!=='https://accounts.google.com')throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
+      await new Promise<void>((resolve,reject)=>{
+        listener=(event:MessageEvent)=>{
+          if(event.origin!==window.location.origin||event.source!==popup||event.data?.type!=='QSAUDI_WORKSPACE_OAUTH')return;
+          if(!isCurrent())return reject(Error('WORKSPACE_IDENTITY_CHANGED'));
+          if(event.data.result==='CONNECTED'&&event.data.projectId===projectId)resolve();else reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));
+        };
+        window.addEventListener('message',listener);timer=setTimeout(()=>reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED')),600000);
+        poll=setInterval(()=>{if(!isCurrent()||popup.closed)reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));},500);
+        popup.location.href=url.href;
+      });
+    } finally {window.removeEventListener('message',listener);clearTimeout(timer);clearInterval(poll);popup.close();}
+  }
   public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
     await ensureRuntimeGeneration();
     const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});

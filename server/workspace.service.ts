@@ -1,4 +1,5 @@
 import { WorkspaceStorageBoundary, workspaceError, normalizeStorageId, projectStorage } from './workspace.isolation';
+import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
 import { google, sheets_v4, drive_v3 } from 'googleapis';
 import JSZip from 'jszip';
 import { 
@@ -124,13 +125,14 @@ export class ServerWorkspaceService {
    * Adheres strictly to the OAuth & Workspace architecture constraint:
    * Tokens are obtained on client-side and forwarded via Authorization: Bearer <token>.
    */
-  private getAuthClient(bearerToken?: string) {
+  private getAuthClient(bearerToken?: string,beforeRequest?:()=>Promise<void>) {
     if (!bearerToken || bearerToken.trim() === '') {
       return null;
     }
     const cleanToken = bearerToken.replace(/^Bearer\s+/i, '').trim();
     const auth = new google.auth.OAuth2();
     auth.setCredentials({ access_token: cleanToken });
+    configureWorkspaceGoogleTransport(auth,beforeRequest);
     return auth;
   }
 
@@ -483,10 +485,11 @@ export class ServerWorkspaceService {
     records: Record<string, any>[],
     expectedColumns: readonly string[] | string[],
     bearerToken?: string,
-    valueInputOption:'RAW'|'USER_ENTERED'='USER_ENTERED'
+    valueInputOption:'RAW'|'USER_ENTERED'='USER_ENTERED',
+    beforeRequest?:()=>Promise<void>
   ): Promise<UpsertResult> {
     const startTime = Date.now();
-    const auth = this.getAuthClient(bearerToken);
+    const auth = this.getAuthClient(bearerToken,beforeRequest);
     if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});
 
     if (!auth) {
@@ -648,10 +651,11 @@ export class ServerWorkspaceService {
     authoritativeRecords: Record<string, any>[],
     expectedColumns: readonly string[] | string[],
     bearerToken?: string,
-    valueInputOption?:'RAW'|'USER_ENTERED'
+    valueInputOption?:'RAW'|'USER_ENTERED',
+    beforeRequest?:()=>Promise<void>
   ): Promise<UpsertResult> {
     const startTime = Date.now();
-    const auth = this.getAuthClient(bearerToken);
+    const auth = this.getAuthClient(bearerToken,beforeRequest);
     if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});
 
     if (!auth) {
@@ -732,7 +736,7 @@ export class ServerWorkspaceService {
     }
 
     // 10. ONLY AFTER successful deletion: call existing upsertTabRecords(authoritativeRecords)
-    const upsertRes = valueInputOption ? await this.upsertTabRecords(spreadsheetId,tabTitle,primaryKeyName,authoritativeRecords,expectedColumns,bearerToken,valueInputOption) : await this.upsertTabRecords(
+    const upsertRes = beforeRequest ? await this.upsertTabRecords(spreadsheetId,tabTitle,primaryKeyName,authoritativeRecords,expectedColumns,bearerToken,valueInputOption,beforeRequest) : valueInputOption ? await this.upsertTabRecords(spreadsheetId,tabTitle,primaryKeyName,authoritativeRecords,expectedColumns,bearerToken,valueInputOption) : await this.upsertTabRecords(
       spreadsheetId,
       tabTitle,
       primaryKeyName,

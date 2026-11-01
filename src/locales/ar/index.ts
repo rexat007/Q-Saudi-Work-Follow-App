@@ -1,6 +1,18 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.workbook_healthy": "بنية الملف سليمة",
+  "gws.workbook_repair_required": "الملف مربوط بالمشروع، لكن بنيته تحتاج إلى إصلاح",
+  "gws.workbook_degraded": "الملف مربوط بالمشروع، وتعذّر إكمال إصلاح بنيته",
+  "gws.automation_ready": "أتمتة الملف جاهزة",
+  "gws.automation_installing": "جارٍ تجهيز أتمتة الملف",
+  "gws.automation_degraded": "أتمتة الملف تحتاج مراجعة؛ الربط والمزامنة مستقلان عنها",
+  "gws.automation_not_installed": "أتمتة الملف غير مثبّتة",
+  "gws.enable_background": "تفعيل المزامنة التلقائية مع Google",
+  "gws.reauthorize": "إعادة تفويض Google",
+  "gws.repair_workbook": "إصلاح بنية الملف",
+  "gws.offline_configuration_required": "الملف مربوط بالمشروع. يلزم تهيئة تفويض Google الخلفي في إعدادات الاستضافة لتفعيل المزامنة التلقائية",
+  "gws.offline_failed": "الملف مربوط بالمشروع، لكن لم يكتمل تفويض Google. أعد المحاولة دون اختيار مجلد جديد",
   "gws.sheet_connected": "مرتبط بـ Google Sheets",
   "gws.sync_healthy": "المزامنة تعمل بصورة طبيعية",
   "gws.sync_pending": "توجد تغييرات بانتظار المزامنة",

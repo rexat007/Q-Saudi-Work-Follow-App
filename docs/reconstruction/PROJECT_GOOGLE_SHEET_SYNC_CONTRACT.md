@@ -1,6 +1,52 @@
-# Project Google Sheet continuity contract — PFAG-GWS1
+# Complete Project Google Workspace integration contract
 
-## GWS2 current binding authority (owner decision, 2026-10-31)
+Exact state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This current contract supersedes structure-before-binding and the prior GWS2-C source deferral. Dated evidence retained below remains historical.
+
+## Binding and independent health
+
+Verified folder/Sheet, approved Google subject, immutable Project/operation/version tags, exact parents and canonical storage isolation establish binding. The server persists CONNECTED and queues the four master domains BEFORE inspecting structure or automation. A valid binding survives missing formulas/Script, provider failure and pending sync. Binding health (CONNECTED/BOUND_FILE_UNAVAILABLE), sync health (HEALTHY/PENDING/DEGRADED/AUTHORIZATION_REQUIRED), workbook health (HEALTHY/REPAIR_REQUIRED/REPAIRING/DEGRADED), and automation health (NOT_INSTALLED/INSTALLING/READY/DEGRADED) are independent. No automatic replacement or new Picker follows an existing binding.
+
+Q-PRJ-007 recovery derives folder/file/root from durable continuity and receipt. When both resources already exist, recovery verifies binding/access evidence rather than requiring permission to create another child in the destination; initial/missing-resource creation retains the selected-folder writability gate. It never creates replacement folder/Sheet or requires an owner-supplied Script ID. Owner-provided existence evidence is not independent live verification.
+
+## Safe workbook reconciliation and automation
+
+The approved SABIL-HAIL-V1 source is unchanged. planWorkbookRepair resolves existing tabs by title, remaps canonical range IDs, safely recognizes renamed headers, expands but never shrinks grids, repairs missing headers/formulas/validation/formatting/named ranges/merges/protections/charts and preserves extra legitimate tabs. Only provably empty default Sheet1 may be removed. Inputs/review values are never cleared. Non-formula operator content in canonical formula/label cells and overlapping merges become review conflicts, not destructive writes. Re-reading the workbook after repair detects unfinished drift. Strict pristine-workbook checks remain for historical capture/automation compatibility, not binding.
+
+Script authorization is independent. Approved files, manifest, parent and simple-trigger contract are verified. Exact missing/different content is installed; healthy content is not repeatedly uploaded. A fresh, positively known unattempted Sheet can receive one Script-create attempt after persisting SCRIPT_REQUESTED. Known Script IDs are reused. The Apps Script API has no get-by-parent/list-projects endpoint: an old uncertain create without an ID cannot safely prove non-existence. Such automation is explicitly DEGRADED/AUTOMATION_RECOVERY_REQUIRED; binding and Sheets projection continue. No empty Drive search is treated as proof that a bound Script does not exist.
+
+## Canonical projection and delivery
+
+Canonical command → Firestore mutation + atomic tab dirty state/metadata-only MASTER_DATA outbox → fresh server transaction snapshot → current scoped binding → RAW stable-ID reconciliation → current-principal/owner/lease/revision/grant-fenced acknowledgment. Carrier, Material, Driver and Truck/Fleet fields come only from canonical identities, participation and temporal relationships. Missing fields remain blank/absent. Driver affiliations/assignments from reviewed import also invalidate DRIVERS. Global changes fan out only to participating Projects, including suspended/removed membership. Fan-out inherits Firestore transaction limits; unbounded scale is not claimed.
+
+The existing native operational event contract, Trip/Ticket correlation, writable allowlists, review/formula ownership, pricing and event-time snapshots are preserved. No Sheet row is master authority. The initial native path and automatic drain share the same canonical reader/writer; empty datasets still produce master tabs/headers. Provider calls occur after canonical transactions, so Google failure cannot roll back committed business changes.
+
+One standalone worker discovers active grants, examines pending Project outboxes, refreshes Google authorization and calls the SAME initialization/drain. Leases renew every 30 seconds, expire after 120 seconds and are checked before each Google HTTP request; provider timeout is 15 seconds with hidden retries disabled. Revision, live owner/expiry, current Project principal and canonical active grant are checked before acknowledgment. Crashed owners may be reclaimed only after expiry. Old permanent owners first receive a quarantine expiry, not immediate concurrent takeover. Google does not accept a Firestore fencing token; timed-out requests may have uncertain provider outcomes, so replay is idempotent and a fresh snapshot is required. This is not a cross-provider atomic transaction.
+
+## Commands and UI
+
+- POST /api/projects/:projectId/workspace/resume: server-derived recovery; no replacement resource IDs.
+- POST /api/projects/:projectId/workspace/initialize: empty body; verify binding, reconcile workbook/automation, deliver initial/pending canonical data. Uses persistent grant when configured, otherwise an authorized transient Google token.
+- POST /api/projects/:projectId/workspace/authorization: {automation:boolean}; current Firebase Project administrator starts offline consent. Returns only Google authorization URL and sets HttpOnly browser-binding cookie.
+- GET /workspace/google/callback: single-use browser-bound PKCE/nonce transaction; no app sign-in. Returns a CSP-restricted same-origin popup completion message with only Project/result. No tokens, provider messages or Google identity are reflected.
+- DELETE /api/projects/:projectId/workspace/authorization: revoke/remove server credential; preserve binding.
+
+Normal connected UI has one Open Sheet primary action. Only one contextual secondary action is chosen: background authorization/reconnect, workbook repair, or retry. Structure/automation warnings cannot show setup as incomplete. OAuth popup completion is fenced to opener origin/window/current Project intent; its timer monitors cancellation, not data delivery. No open browser is needed by the worker.
+
+## Deployment and live gates
+
+[Background authorization and exact deployment configuration](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) is part of this package. All source paths are implemented fail-closed even when settings are absent. No live Q-PRJ-007 recovery, resource creation, Google write, real owner grant or browser-closed Google acceptance has been executed from this environment. SOURCE_COMPLETE/LOCAL_VERIFIED, DEPLOYED, LIVE_BINDING_ACCEPTED, LIVE_MASTER_SYNC_ACCEPTED, LIVE_AUTOMATION_ACCEPTED and LIVE_BACKGROUND_SYNC_ACCEPTED remain separate statuses. Whole capability is not COMPLETE until applicable live gates pass.
+
+## Local verification observation — 2026-11-01
+
+53 native bounded suites: 1187 PASS / 39 FAIL / 0 pending. The 39 failures exactly match independently executed merged baseline `92cc6c838ab4e823eb691f62a9b56084fb6ab5dc` (1118 PASS / 39 FAIL across 49 files); this is NOT an all-green command. Five isolated localhost OAuth HTTP tests additionally PASS 5/5; the test sandbox requires local-listener permission for those five only. Combined 54 files: 1192 PASS / 39 proven baseline failures, new failures 0, removed tests 0, skipped tests 0. New package-focused files: 70/70 PASS, including repair, lifecycle, secure grants/worker, provider protocol/transport and HTTP security. Four new actual-Wizard UI cases also pass.
+
+Application build PASS; standalone worker bundle build PASS. Diagnostics 440→440, added 0, removed 0 after ignoring source positions/equivalent union rendering. Lint remains EXIT 2 / NOT PASS. Built standalone worker fails closed with the bounded WORKSPACE_WORKER_UNAVAILABLE message when external configuration is absent. Whitespace diff check PASS. Counts are dated observations, not frozen architectural cardinalities. No live Google/Firestore business mutation, OAuth grant, resource creation or deployment is represented by these results.
+
+## Historical GWS2 A+B and earlier records (superseded where stated above)
+
+### Prior Project Google Sheet continuity contract — PFAG-GWS1
+
+### Historical GWS2 binding authority checkpoint (2026-10-31)
 
 Exact current state defers to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). SCRIPT_REQUIRED_FOR_WORKSPACE_READY is SUPERSEDED. Verified Project folder + verified Google Sheet + durable scoped binding establish CONNECTED without a Script ID or installation. Binding authentication needs drive.file and spreadsheets; optional automation still requires script.projects and the strict automation asset/verification contract. No broader Drive scopes were added.
 
@@ -15,7 +61,7 @@ Scope of this delivery: GWS2-A + GWS2-B source, implemented / verified / awaitin
 
 Verification after LIVE-04 convergence (2026-11-01): 673 PASS / 35 FAIL / 0 pending in the 30-file bounded selection; the command is not all green. All 35 failures were independently reproduced on merged main `4cc2ab16a5aec9a4fc39e68aeb0d4a954a0cbfa8` (632 PASS / 35 FAIL across the 28 existing files). No new failures, removed tests or skips. Generation diagnostics remain 16/16; the initial three-suite focused check is 70/70. Build PASS; normalized diagnostics 440→440, added/removed 0; lint EXIT 2 / NOT PASS; diff check PASS. These are source/controlled results, not live Google acceptance.
 
-## GWS2-B canonical master projection and durable invalidation
+### Historical GWS2-B canonical master projection checkpoint
 
 The native snapshot is built by buildCanonicalProjection in the existing initial-projection service, composed through SetupFleetQuery within one Firestore transaction. It includes current Global profiles, ACTIVE/SUSPENDED/REMOVED Project memberships and canonical temporal relationships. Missing names/units/license/density fields are blank/absent, never fabricated. Standalone Driver/Truck participation is retained. The previous initial reader remains only for legacy bindings/compatibility; native delivery does not use its historical placeholders.
 

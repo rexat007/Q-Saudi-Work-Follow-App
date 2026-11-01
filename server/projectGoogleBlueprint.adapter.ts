@@ -5,21 +5,28 @@ import {missingWorkspaceScopes, missingWorkspaceBindingScopes, workspaceScopeDen
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
 import {serverWorkspaceService} from './workspace.service';
 import {MASTER_TABS,masterTabTitle} from '../src/services/projectWorkspaceMasterContract';
+import {planWorkbookRepair} from '../src/services/googleWorkspaceBlueprint/repair';
+import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
+import {classifyWorkspaceGenerationFailure} from '../src/utils/workspaceGenerationDiagnostics';
+import {assertBlueprint} from '../src/services/googleWorkspaceBlueprint/contract';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
 import { blueprintRequests, blueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
 
 /** Human-user OAuth only. No hidden template access, service account, refresh token or files.copy. */
 export function projectGoogleBlueprintPort(token:string,projectId:string):GoogleBlueprintPort {
-  const base=projectGoogleTemplatePort(token),operation=workspaceOperation(projectId);
+  let deliveryFence:()=>Promise<void>=async()=>{};
+  const base=projectGoogleTemplatePort(token,()=>deliveryFence()),operation=workspaceOperation(projectId);
   const auth=new google.auth.OAuth2();auth.setCredentials({access_token:token});
+  configureWorkspaceGoogleTransport(auth,()=>deliveryFence());
   const drive=google.drive({version:'v3',auth}),sheets=google.sheets({version:'v4',auth}),script=google.script({version:'v1',auth});
   const guarded=async<T>(code:string,run:()=>Promise<T>):Promise<T>=>{
     try{return await run();}catch(error){
       if(error instanceof GoogleWorkspaceCommandError)throw error;
       const e=error as {code?:number;status?:number;response?:{status?:number}};
       const status=e.response?.status||e.status||e.code;
-      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&!['BOUND_FILE_UNAVAILABLE','MASTER_DATA_SYNC_FAILED'].includes(code)?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
+      const scope=classifyWorkspaceGenerationFailure(error,'VERIFY_WORKBOOK').diagnostic.category==='SCOPE_DENIED';
+      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&scope?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
     }
   };
   const owned=async(fileId:string,version?:string)=>{
@@ -55,6 +62,21 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });
   };
   return {...base,
+    setDeliveryFence(check){deliveryFence=check;},
+    async repairWorkbook(fileId,blueprint){return withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
+      await owned(fileId,blueprint.version);
+      const before=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
+      const plan=planWorkbookRepair(blueprint,before.data);
+      for(const requests of blueprintRequestBatches(plan.requests))await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',()=>sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests}}));
+      const after=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
+      const remaining=planWorkbookRepair(blueprint,after.data);
+      return {repaired:plan.requests.length>0,conflicts:[...remaining.conflicts,...(remaining.requests.length?['WORKBOOK_REPAIR_INCOMPLETE']:[])]};
+    });},
+    async verifyAutomation(fileId,scriptId,blueprint){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{
+      assertBlueprint(blueprint,true);if(await scriptParent(scriptId,blueprint.version)!==fileId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
+      const content=await script.projects.getContent({scriptId});
+      if(JSON.stringify(normalizedFiles(content.data.files||[]))!==JSON.stringify(normalizedFiles(blueprint.script!.files)))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
+    });},
     async projectMasterTabs(fileId,snapshot,tabs){await guarded('MASTER_DATA_SYNC_FAILED',async()=>{
       if(snapshot.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       if(!tabs.length||tabs.some(tab=>!MASTER_TABS.some(spec=>spec.key===tab)))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
@@ -63,7 +85,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
         for(const row of rows){const id=row[spec.primaryKey];if(row.projectId!==projectId||typeof id!=='string'||!id||ids.has(id))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);ids.add(id);}
       }
       await owned(fileId);
-      for(const spec of MASTER_TABS.filter(spec=>tabs.includes(spec.key)))await serverWorkspaceService.reconcileTabSnapshot(fileId,masterTabTitle(spec.key),spec.primaryKey,snapshot[spec.source],spec.columns,token,'RAW');
+      for(const spec of MASTER_TABS.filter(spec=>tabs.includes(spec.key)))await serverWorkspaceService.reconcileTabSnapshot(fileId,masterTabTitle(spec.key),spec.primaryKey,snapshot[spec.source],spec.columns,token,'RAW',()=>deliveryFence());
     });},
     async authorizeBinding(){await guarded('AUTHORIZATION_REQUIRED',async()=>{
       const info=await auth.getTokenInfo(token),missing=missingWorkspaceBindingScopes(info.scopes);
