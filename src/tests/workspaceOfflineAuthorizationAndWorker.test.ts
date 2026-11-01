@@ -75,7 +75,7 @@ describe('server-only offline Google authorization',()=>{
 });
 describe('browser-absent canonical worker using the existing drain',()=>{
  it('accepts usable binding/sync authorization even when optional Script scope is declined',async()=>{
-  const x=setup();x.provider.exchange.mockResolvedValueOnce({refreshToken:'fixture-private-refresh',subject:'subject',scopes:REQUIRED_WORKSPACE_SCOPES.slice(0,2)});await x.authorize();
+  const x=setup();x.provider.exchange.mockResolvedValueOnce({refreshToken:'fixture-private-refresh',subject:'subject',scopes:REQUIRED_WORKSPACE_SCOPES.slice(0,2)});x.provider.refresh.mockResolvedValueOnce({accessToken:'fixture-private-access',subject:'subject',scopes:REQUIRED_WORKSPACE_SCOPES.slice(0,2)});await x.authorize();
   const grant=x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId];expect(grant.status).toBe('ACTIVE');expect(grant.scopes).not.toContain(REQUIRED_WORKSPACE_SCOPES[2]);expect(x.store[path].binding.spreadsheetId).toBe('file');
  });
  it('refreshes a secure grant, rereads Firestore and delivers/acknowledges with no browser token',async()=>{
@@ -112,7 +112,7 @@ describe('browser-absent canonical worker using the existing drain',()=>{
   expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');expect((await getState('P1',x.db)).dirtyTabs).toEqual(['CARRIERS']);
  });
  it('does not write for a foreign Project or a replaced canonical grant',async()=>{
-  const x=setup();await x.authorize();await x.dirty();x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId].projectId='P2';
+  const x=setup();await x.authorize();await x.dirty();x.provider.refresh.mockClear();x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId].projectId='P2';
   await runWorkspaceSyncWorker(x.db,x.authorization,(()=>x.port) as any,()=>config);expect(x.provider.refresh).not.toHaveBeenCalled();expect(x.port.projectMasterTabs).not.toHaveBeenCalled();
  });
  it('has a fail-closed standalone scheduling entry without a public unauthenticated trigger',()=>{
@@ -126,9 +126,9 @@ describe('user-active durable refresh bounded failures',()=>{
  it.each([['GOOGLE_NETWORK_ERROR',502],['GOOGLE_SERVICE_UNAVAILABLE',503],['GOOGLE_RATE_LIMITED',429],['SCOPE_DENIED',403]] as const)('preserves %s and its HTTP meaning without revoking a transiently unavailable grant',async(code,status)=>{
   const x=setup();await x.authorize();await x.dirty();
   x.provider.refresh.mockRejectedValueOnce(new GoogleWorkspaceCommandError(code,status));
-  await expect(x.authorization.access('P1',who)).rejects.toMatchObject({code,status,message:code});
-  expect(x.store[path]).toMatchObject({backgroundAuthorization:'CONNECTED',binding:{spreadsheetId:'file'}});
-  expect(x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId].status).toBe('ACTIVE');
+  await expect(x.authorization.access('P1',who)).rejects.toMatchObject(code==='SCOPE_DENIED'?{code:'AUTHORIZATION_REQUIRED',authorizationReason:'AUTH_BINDING_SCOPE_MISSING'}:{code,status,message:code});
+  expect(x.store[path]).toMatchObject({backgroundAuthorization:code==='SCOPE_DENIED'?'AUTHORIZATION_REQUIRED':'CONNECTED',binding:{spreadsheetId:'file'}});
+  expect(x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId].status).toBe(code==='SCOPE_DENIED'?'AUTHORIZATION_REQUIRED':'ACTIVE');
   expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');
  });
 });

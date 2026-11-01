@@ -697,8 +697,10 @@ app.post('/api/projects/:projectId/workspace/initialize',enforceProjectIsolation
   }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:502).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED'});}
 });
 app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
-  try { res.json({ success: true, data: await projectGoogleWorkspaceServer.status(req.params.projectId, (req as any).user) }); }
-  catch (error: any) { res.status(error.status || 403).json({ success: false, code: error.code || 'WORKSPACE_ACCESS_FAILED' }); }
+  try { const data=await projectGoogleWorkspaceServer.status(req.params.projectId,(req as any).user);
+    const authorizationDiagnostic=await workspaceOfflineAuthorization.diagnoseWorkspaceAuthorization(req.params.projectId,(req as any).user);
+    res.setHeader('Cache-Control','no-store');res.json({success:true,data:{...data,authorizationDiagnostic}}); }
+  catch(error){res.status(error instanceof GoogleWorkspaceCommandError?error.status:503).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'GOOGLE_AUTHORIZATION_DIAGNOSIS_UNAVAILABLE'});}
 });
 app.post('/api/projects/:projectId/workspace/retry-sync', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {

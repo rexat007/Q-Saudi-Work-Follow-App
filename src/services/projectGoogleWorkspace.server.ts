@@ -1,3 +1,4 @@
+import {workspaceGrantFailure,boundedAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 import {isGoogleProviderCode,classifyGoogleProviderFailure} from '../../server/workspaceGoogleErrors';
 import { assertBlueprint, BlueprintError, type WorkspaceBlueprint } from './googleWorkspaceBlueprint/contract';
 import { activeWorkspaceBlueprint } from './googleWorkspaceBlueprint/sabilHailV1';
@@ -100,7 +101,8 @@ export class ProjectGoogleWorkspaceServer {
     if(this.backgroundGrantId){
       const continuity=await tx.get(continuityRef(this.db,projectId)),grant=await tx.get(this.db.collection('workspace_google_authorizations').doc(this.backgroundGrantId));
       const b=continuity.data()?.binding,g=grant.data();
-      if(continuity.data()?.backgroundAuthorizationId!==this.backgroundGrantId||g?.status!=='ACTIVE'||g.actorId!==who.userId||g.projectId!==projectId||g.subject!==b?.googleSubject||g.spreadsheetId!==b?.spreadsheetId||g.bindingRevision!==b?.revision)return gwsFail('AUTHORIZATION_REQUIRED',401);
+      const reason=continuity.data()?.backgroundAuthorizationId!==this.backgroundGrantId?'AUTH_GRANT_NOT_ACTIVE':workspaceGrantFailure(g,b,projectId,who.userId);
+      if(reason)throw Object.assign(new GoogleWorkspaceCommandError('AUTHORIZATION_REQUIRED',401),{authorizationReason:reason});
     }
     return {project,principal};
   }
@@ -120,7 +122,7 @@ export class ProjectGoogleWorkspaceServer {
     });
     const jobs=await syncOutboxRef(this.db,projectId).get();
     const pending=jobs.docs.filter((d:any)=>d.data().status!=='DELIVERED').length;
-    return {state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding(state.binding):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:!state.scriptProjectId&&!state.binding?.scriptProjectId&&(state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)),recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
+    return {authorizationDiagnostic:boundedAuthorizationDiagnosis(state.authorizationDiagnostic),state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding(state.binding):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:!state.scriptProjectId&&!state.binding?.scriptProjectId&&(state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)),recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
   }
   async approveDestination(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);

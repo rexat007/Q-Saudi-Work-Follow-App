@@ -1,3 +1,13 @@
+## Durable Google authorization diagnosis — current
+
+Exact state: [phase ledger](reconstruction/02_PHASE_LEDGER.md); semantics: [credential contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+
+- `GET /api/projects/:projectId/workspace` additionally includes `authorizationDiagnostic` in the existing status data. It is credential-free, no-store and computed from authorized metadata/current Firebase provider identity, not a Google refresh.
+- `GET /api/projects/:projectId/workspace/authorization/diagnosis`: existing administrator/Project/build guards; no request resource IDs or credential input; returns `{success:true,data:{result,reason?,providerCode?,metadataOnly:true}}`. Results are CONNECTED_VALID, REAUTHORIZATION_REQUIRED, GRANT_BINDING_STALE, ACCOUNT_MISMATCH, AUTOMATION_SCOPE_REQUIRED or PROVIDER_TEMPORARILY_UNAVAILABLE. Reason and transient providerCode are closed vocabularies. Diagnosis failure is bounded; no raw error response.
+- Existing consent POST/callback retain PKCE/state/nonce/browser/origin fences. CONNECTED completion is sent only after shared first-refresh validation and atomic candidate acceptance. On failure only bounded application code/authorization reason may cross the popup; no provider payload or credential/identity. Failed replacement leaves old continuity intact.
+
+initialize/retry-sync/automation-recover keep their existing command bodies and server credential resolver. A genuine invalid grant may still return AUTHORIZATION_REQUIRED; status/diagnosis supplies the specific reason. Temporary Google service/network/rate/quota errors preserve the grant and return their existing canonical code. No resource recreation or new business API is introduced.
+
 ## Current operational configuration and recovery commands
 
 Exact state is [the ledger](reconstruction/02_PHASE_LEDGER.md); policy is [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).

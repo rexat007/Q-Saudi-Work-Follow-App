@@ -1,7 +1,24 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Google authorization and provider resilience — 2026-11-01
+### Durable Google authorization acceptance and self-diagnosis — 2026-11-01
+
+CURRENT_CODE_BASELINE: `93fd02bc9f1e253165f22b7a2c263b44a09d5382` — merged main, PR #77, containing provider-resilience commit `e85935cd855ed2587f5c58c69c03976ef915d8ab`. Working branch: `reconstruction/google-durable-auth-acceptance`.
+
+GOOGLE_DURABLE_AUTH_ACCEPTANCE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN.
+CRON: NOT_REQUIRED.
+CREDENTIAL_LIFECYCLE: OAUTH_ONCE / SERVER_REFRESH_THEREAFTER / REAUTHORIZE_ONLY_ON_CREDENTIAL_OR_SECURITY_INVALIDATION.
+
+The owner reports repeated AUTHORIZATION_REQUIRED after OAuth. Source confirmed callback published ACTIVE/CONNECTED before its first refresh proof and access collapsed distinct causes. Candidates now remain encrypted PENDING_VALIDATION until the same refresh authority used by normal access proves audience, Google subject, access-token presence and binding scopes. Only a successful proof and fresh principal/binding/version fence atomically activate the candidate, supersede the old same-Project grant and replace the continuity pointer. Failed candidates are discarded without changing the previous grant or continuity; bounded failure audit remains. Consent/activation/revocation versions fence stale or concurrently completed OAuth callbacks.
+
+Safe metadata self-diagnosis distinguishes missing/inactive grant, actor/Project/account/resource/revision mismatches, rejected refresh, refreshed subject and binding-scope withdrawal. Optional Script scope does not disable Sheets. Provider 503/network/rate/quota failures preserve ACTIVE/CONNECTED; UI offers retry later instead of another consent loop. The existing memory-only browser fallback remains available to Projects with no durable grant; one-time durable consent is an explicit action. No tokens/provider bodies/emails/codes appear in diagnosis or audit. Metadata diagnosis is not a new live refresh or provider-availability claim.
+
+Binding revision audit: native and legacy binding creation initialize revision 1; workbook repair, owned Ops migration/report refresh, Script identity recovery/package installation preserve it. No structural/security revision split is needed for current source. The existing revision plus Project/Google-subject/Spreadsheet and canonical grant-pointer fences are retained; real identity changes still invalidate the old grant. No resource recreation, manual Firestore edit, extra scopes/Cloud configuration, scheduler, GWS2 expansion, PFAG-OPS or Phase 10 work is authorized. This branch's commit/push is authorized; PR/merge remain owner-controlled. Controlled source verification is separate from deployment/live Q-PRJ-007 acceptance. See [credential lifecycle](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) and [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
+Earlier checkpoints are historical where superseded.
+
+### Historical Google authorization and provider resilience implementation — 2026-11-01
 
 CURRENT_CODE_BASELINE: `e39cce70d3d8e3d549b99d8f8882908d44555de5` — merged main including operational report isolation. Working branch: `reconstruction/google-auth-provider-resilience`.
 
@@ -103,15 +120,15 @@ By explicit owner decision, initial validation now checks only the Picker-select
 
 ### Current Active State
 ```yaml
-WORKING_BRANCH: reconstruction/google-auth-provider-resilience
+WORKING_BRANCH: reconstruction/google-durable-auth-acceptance
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GOOGLE_AUTHORIZATION_AND_PROVIDER_RESILIENCE
+ACTIVE_UNIT: GOOGLE_DURABLE_AUTHORIZATION_ACCEPTANCE_AND_SELF_DIAGNOSIS
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW
-ACTIVE_UNIT_TYPE: BOUNDED_CREDENTIAL_AND_PROVIDER_RECOVERY
+ACTIVE_UNIT_TYPE: BOUNDED_DURABLE_CREDENTIAL_LIFECYCLE
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -191,8 +208,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE / COMPLETE_CURRENT_RESILIENCE_REVIEW_AND_LIVE_GATES
-NEXT_ACTION: OWNER_REVIEW_GOOGLE_AUTH_PROVIDER_RESILIENCE
-CURRENT_CODE_BASELINE: e39cce70d3d8e3d549b99d8f8882908d44555de5
+NEXT_ACTION: OWNER_REVIEW_GOOGLE_DURABLE_AUTH_ACCEPTANCE
+CURRENT_CODE_BASELINE: 93fd02bc9f1e253165f22b7a2c263b44a09d5382
 CURRENT_SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN
 CREDENTIAL_AUTHORITY: SERVER_REFRESH_WHEN_CONNECTED
 BROWSER_GOOGLE_TOKEN: EPHEMERAL / MEMORY_ONLY

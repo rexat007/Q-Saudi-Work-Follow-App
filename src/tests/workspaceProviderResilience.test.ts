@@ -1,3 +1,4 @@
+import {WorkspaceGoogleOfflineAuthorization,type OfflineConfig} from '../services/workspaceGoogleOfflineAuthorization.server';
 import {describe,it,expect,vi,beforeEach} from 'vitest';
 const f=vi.hoisted(()=>({api:null as any,credentials:[] as string[],drive:vi.fn(),scriptGet:vi.fn(),content:vi.fn(),install:vi.fn(),create:vi.fn()}));
 vi.mock('googleapis',()=>({google:{auth:{OAuth2:class{setCredentials(c:any){if(c.access_token)f.credentials.push(c.access_token)}async getTokenInfo(){return {scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects']}}}},drive:()=>({files:{get:f.drive}}),sheets:()=>f.api,script:()=>({projects:{get:f.scriptGet,getContent:f.content,updateContent:f.install,create:f.create}}),oauth2:()=>({userinfo:{get:async()=>({data:{id:'subject'}})}})}}));
@@ -40,4 +41,28 @@ describe('Q-PRJ-007-shaped user-active execution with durable authority',()=>{
  it.each([503,429,408])('provider %s keeps pending evidence/binding and releases its lease for retry',async status=>{const x=setup(),credential=await x.resolve();f.drive.mockRejectedValueOnce(provider(status));await expect(x.service.forExecutionAuthorization(credential.authorizationId).retrySync('P1',operationActor,projectGoogleBlueprintPort(credential.accessToken,'P1'))).rejects.toThrow();expect(x.store['projects/P1/workspace_sync_outbox/T1'].status).toBe('PENDING');expect(x.store['projects/P1/workspace_continuity/current']).toMatchObject({syncOwner:null,binding:{spreadsheetId:'file'}});});
  it('even a failing finish/audit transaction cannot leave an owned lease stuck',async()=>{const x=setup(),credential=await x.resolve();x.failWrites('/audit_logs/');f.drive.mockRejectedValueOnce(provider(503));await expect(x.service.forExecutionAuthorization(credential.authorizationId).retrySync('P1',operationActor,projectGoogleBlueprintPort(credential.accessToken,'P1'))).rejects.toThrow();expect(x.store['projects/P1/workspace_continuity/current'].syncOwner).toBeNull();expect(x.store['projects/P1/workspace_sync_outbox/T1'].status).toBe('PENDING');});
  it('grant revocation after credential acquisition fences the operation without browser fallback',async()=>{const x=setup(),credential=await x.resolve();x.store['workspace_google_authorizations/G'].status='REVOKED';await expect(x.service.forExecutionAuthorization(credential.authorizationId).retrySync('P1',operationActor,projectGoogleBlueprintPort(credential.accessToken,'P1'))).rejects.toHaveProperty('code','AUTHORIZATION_REQUIRED');expect(x.book.requests).toEqual([]);});
+});
+
+
+it('one accepted OAuth grant survives initialize/retry cycles, actual Ops migration, workbook repair and Script package installation',async()=>{
+ const x=setup(),c:OfflineConfig={clientId:'fixture-client',clientSecret:'fixture-secret',redirectUri:'https://fixture.example/workspace/google/callback',key:Buffer.alloc(32,7),keyVersion:'v1'};
+ const provider={authorizationUrl:vi.fn((o:any)=>`https://accounts.google.com?state=${o.state}`),exchange:vi.fn(async()=>({refreshToken:'fixture-refresh',subject:'subject',scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects']})),refresh:vi.fn(async()=>({accessToken:'server-fresh',subject:'subject',scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects']})),revoke:vi.fn(async()=>{})};
+ const auth=new WorkspaceGoogleOfflineAuthorization(()=>provider,x.db,()=>c,async()=> 'subject'),start=await auth.begin('P1',operationActor,true);
+ await auth.callback(new URL(start.url).searchParams.get('state')!,'fixture-code',start.browser);
+ const state=x.store['projects/P1/workspace_continuity/current'],id=state.backgroundAuthorizationId;
+ state.scriptProjectId='existing-script';state.binding.scriptProjectId='existing-script';state.binding.appsScriptBlueprintVersion='DUAL_WEIGHBRIDGE_SCRIPT_V1';
+ const legacy=structuredClone(x.book.book.sheets![0]);
+ for(const command of ['initializeBound','retrySync','initializeBound','retrySync'] as const){
+  const credential=await resolveWorkspaceExecutionToken('P1',operationActor,{headers:{'x-google-access-token':'stale-browser'}},{status:(id,user)=>x.service.status(id,user),access:(id,user)=>auth.access(id,user)});
+  const port=projectGoogleBlueprintPort(credential.accessToken,'P1');
+  // Master writer transport is covered separately; keep actual repair, Script and owned Ops writes here.
+  port.projectMasterTabs=vi.fn(async()=>{});
+  await x.service.forExecutionAuthorization(credential.authorizationId)[command]('P1',operationActor,port);
+  expect(x.store['projects/P1/workspace_continuity/current']).toMatchObject({backgroundAuthorizationId:id,backgroundAuthorization:'CONNECTED',binding:{revision:1,spreadsheetId:'file',googleSubject:'subject'},automationState:'READY',workbookHealth:'HEALTHY'});
+  expect(await auth.diagnoseWorkspaceAuthorization('P1',operationActor)).toMatchObject({result:'CONNECTED_VALID'});
+ }
+ expect(provider.exchange).toHaveBeenCalledOnce();expect(provider.refresh).toHaveBeenCalledTimes(5);expect(f.create).not.toHaveBeenCalled();expect(f.install).toHaveBeenCalledOnce();
+ expect(x.store['workspace_google_authorizations/'+id]).toMatchObject({status:'ACTIVE',bindingRevision:1});
+ expect(x.store['projects/P1/workspace_sync_outbox/T1'].status).toBe('DELIVERED');expect(x.book.book.sheets!.some(s=>s.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)).toBe(true);expect(x.book.book.sheets!.find(s=>s.properties?.sheetId===1)).toEqual(legacy);
+ expect(f.credentials).not.toContain('stale-browser');
 });

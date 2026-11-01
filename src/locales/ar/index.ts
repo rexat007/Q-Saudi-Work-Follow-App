@@ -4681,6 +4681,13 @@ export const arTranslations: TranslationDictionary = {
   "admin_console.errors.invalid": "تحقق من إجراء الحساب والمشاريع المختارة.",
   "admin_console.errors.conflict": "تغيرت بيانات الحساب. حدّث البيانات وحاول مجددًا.",
   "admin_console.errors.failed": "تعذر إكمال تحديث الحساب.",
+  "gws.authorization_binding_review": "يلزم مراجعة ربط مساحة العمل؛ إعادة التفويض لا تصلح اختلاف هوية الربط.",
+  "gws.authorization_account_mismatch": "الحساب الحالي لا يطابق حساب Google المعتمد لمساحة العمل. استخدم الحساب المرتبط أو راجع الربط.",
+  "gws.authorization_automation_scope": "مزامنة Sheets متاحة؛ أذونات Apps Script غير متاحة للأتمتة.",
+  "gws.authorization_retry_later": "خدمة Google غير متاحة مؤقتًا. أعد المحاولة لاحقًا؛ التفويض المحفوظ لم يُلغَ.",
+  "gws.authorization_diagnosis_unavailable": "تعذر التحقق من حالة التفويض الآن. أعد المحاولة لاحقًا.",
+  "gws.grant_automation_permission": "منح إذن Apps Script",
+  "gws.connect_durable_authorization": "تفويض Google للمزامنة بطلب المستخدم لاحقًا",
 };
 
 

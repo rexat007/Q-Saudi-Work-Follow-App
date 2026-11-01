@@ -4681,6 +4681,13 @@ export const urTranslations: TranslationDictionary = {
   "admin_console.errors.invalid": "اکاؤنٹ کی کارروائی اور منتخب منصوبے چیک کریں۔",
   "admin_console.errors.conflict": "اکاؤنٹ تبدیل ہو گیا ہے۔ تازہ کر کے دوبارہ کوشش کریں۔",
   "admin_console.errors.failed": "اکاؤنٹ کی تبدیلی مکمل نہیں ہو سکی۔",
+  "gws.authorization_binding_review": "ورک اسپیس کے ربط کا جائزہ لیں۔ دوبارہ اجازت دینا ربط کی شناخت کا فرق درست نہیں کرتا۔",
+  "gws.authorization_account_mismatch": "موجودہ اکاؤنٹ ورک اسپیس کے Google اکاؤنٹ سے مطابقت نہیں رکھتا۔ منسلک اکاؤنٹ استعمال کریں یا ربط کا جائزہ لیں۔",
+  "gws.authorization_automation_scope": "Sheets کی ہم وقت سازی دستیاب ہے؛ Apps Script کی خودکاری کی اجازت موجود نہیں۔",
+  "gws.authorization_retry_later": "Google عارضی طور پر دستیاب نہیں۔ بعد میں کوشش کریں؛ محفوظ اجازت برقرار ہے۔",
+  "gws.authorization_diagnosis_unavailable": "اجازت کی حالت کی جانچ نہیں ہو سکی۔ بعد میں کوشش کریں۔",
+  "gws.grant_automation_permission": "Apps Script کی اجازت دیں",
+  "gws.connect_durable_authorization": "آئندہ صارف کی درخواست پر ہم وقت سازی کے لیے Google کی اجازت دیں",
 };
 
 

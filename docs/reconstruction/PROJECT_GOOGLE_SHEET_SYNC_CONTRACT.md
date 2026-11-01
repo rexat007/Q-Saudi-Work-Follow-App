@@ -1,3 +1,9 @@
+## Durable Google authorization acceptance — 2026-11-01
+
+State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). [Credential lifecycle](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) specifies PENDING_VALIDATION, shared first-refresh proof, atomic old/new promotion, safe metadata diagnosis and consent/revocation fencing. Exchange success alone cannot publish ACTIVE/CONNECTED. Failed replacement keeps the previous grant usable; transient provider errors do not revoke it. Optional Script scope does not disable Sheets. OAuth once → server refresh thereafter; reauthorization only on genuine credential/security invalidation. USER_ACTIVE / REQUEST_DRIVEN and CRON = NOT_REQUIRED remain unchanged. No durable grant still permits fresh memory-only browser fallback and a separate one-time durable-consent action.
+
+Workspace status/diagnosis distinguishes credential rejection, binding/account review, optional automation permission and temporary provider unavailability. It does not require manual Firestore inspection. Ordinary workbook/Script/report maintenance preserves binding.revision; actual Project/subject/Spreadsheet/revision changes and revocation stay fenced. Existing resource IDs and all canonical data/measurement/pricing/outbox/lease authorities remain. Local test acceptance is not a deployed Q-PRJ-007 recovery claim.
+
 ## User-active authorization and provider recovery — 2026-11-01
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN; CREDENTIAL_AUTHORITY = SERVER_REFRESH_WHEN_CONNECTED; BROWSER_GOOGLE_TOKEN = EPHEMERAL / MEMORY_ONLY; CRON = NOT_REQUIRED. Browser reload never restores a Google access token. Only the retired session key is purged; no auth/outbox/storage reset is required.
