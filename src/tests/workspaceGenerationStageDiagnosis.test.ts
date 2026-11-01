@@ -23,7 +23,7 @@ function fixture(){
   ['users/admin',{userId:'admin',role:'SUPER_ADMIN',status:'ACTIVE',assignedProjectIds:[]}],
  ]);
  const options={failBindingOnce:false};
- const ref=(path:string):any=>({path,id:path.split('/').at(-1),doc:(id:string)=>ref(path+'/'+id),collection:(name:string)=>ref(path+'/'+name),get:async()=>({exists:records.has(path),data:()=>structuredClone(records.get(path)),docs:[...records].filter(([key])=>key.startsWith(path+'/')&&!key.slice(path.length+1).includes('/')).map(([key,value])=>({id:key.split('/').at(-1),data:()=>structuredClone(value)}))})});
+ const ref=(path:string):any=>({path,id:path.split('/').at(-1),doc:(id:string)=>ref(path+'/'+id),collection:(name:string)=>ref(path+'/'+name),where:()=>ref(path),get:async()=>({exists:records.has(path),data:()=>structuredClone(records.get(path)),docs:[...records].filter(([key])=>key.startsWith(path+'/')&&!key.slice(path.length+1).includes('/')).map(([key,value])=>({id:key.split('/').at(-1),data:()=>structuredClone(value)}))})});
  const db:any={collection:(name:string)=>ref(name),runTransaction:async(fn:any)=>{
   const writes:Array<[string,any]>=[];
   const result=await fn({get:(r:any)=>r.get(),set:(r:any,value:any)=>{
@@ -34,6 +34,8 @@ function fixture(){
  }};
  const service=new ProjectGoogleWorkspaceServer(db,undefined,()=>blueprintFixture());
  const port=projectGoogleBlueprintPort('private-access-token','P1');
+ // This suite isolates generation/provider diagnostics from projection HTTP I/O.
+ port.projectMasterTabs=vi.fn(async()=>{});port.authorizeProvisioning=vi.fn(async()=>{throw new Error('optional grant absent')});
  return {records,options,port,approve:()=>service.approveDestination('P1','root',actor,port),provision:()=>service.provision('P1','root',actor,port)};
 }
 function provider(reason?:string){return {
@@ -53,10 +55,10 @@ beforeEach(()=>{
 afterEach(()=>{vi.restoreAllMocks()});
 
 describe('actual Google adapter + durable generation stage diagnostics',()=>{
- it('retains SPREADSHEET_CREATED on a generic blueprint 403 and retries without duplicate artifacts',async()=>{
-  const x=fixture();await x.approve();f.batch.mockRejectedValueOnce({response:{status:403}});
-  await expect(x.provision()).rejects.toMatchObject({code:'APPLY_BLUEPRINT:BLUEPRINT_APPLY_FAILED',diagnostic:{operation:'APPLY_BLUEPRINT',httpStatus:403,providerReason:'UNRECOGNIZED'}});
-  expect(x.records.get(path)).toMatchObject({stage:'SPREADSHEET_CREATED',folderId:'folder',fileId:'file',lastSyncError:'APPLY_BLUEPRINT:BLUEPRINT_APPLY_FAILED'});
+ it('preserves CONNECTED and stage diagnostics on a generic blueprint repair 403 without duplicate artifacts',async()=>{
+  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce({response:{status:403}});
+  await x.provision();
+  expect(x.records.get(path)).toMatchObject({stage:'BOUND',folderId:'folder',fileId:'file',workspaceState:'CONNECTED',workbookHealth:'DEGRADED',lastWorkbookError:'APPLY_BLUEPRINT:BLUEPRINT_APPLY_FAILED',lastGenerationDiagnostic:{operation:'APPLY_BLUEPRINT',httpStatus:403,providerReason:'UNRECOGNIZED'}});
   expect(f.scriptCreate).not.toHaveBeenCalled();await x.provision();expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();expect(x.records.get(path)).toMatchObject({state:'READY',workspaceState:'CONNECTED',stage:'BOUND',lastGenerationDiagnostic:null});
  });
  it('diagnoses optional Script creation denial while SCRIPT_REQUESTED recovery still binds the same Sheet',async()=>{
@@ -64,7 +66,7 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
   f.scriptCreate.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
   await expect(x.port.createBoundScript('file')).rejects.toMatchObject({code:'CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED',diagnostic:{operation:'CREATE_BOUND_SCRIPT',service:'script.googleapis.com',httpStatus:403,providerReason:'SERVICE_DISABLED'}});
   await x.provision();await x.provision();
-  expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY',workspaceState:'CONNECTED',automationStage:'SCRIPT_REQUESTED',automationState:'NOT_INSTALLED'});
+  expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY',workspaceState:'CONNECTED',automationStage:'SCRIPT_REQUESTED',automationState:'DEGRADED'});
   expect(x.records.get(path).binding.scriptProjectId).toBeUndefined();expect(f.scriptCreate).toHaveBeenCalledOnce();expect(f.create).not.toHaveBeenCalled();expect(f.install).not.toHaveBeenCalled();
  });
  it('optional content installation preserves its denial stage and retries the same Script without disrupting binding',async()=>{
@@ -94,20 +96,20 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
   await expect(x.port.verifyGenerated('file','script',blueprintFixture())).rejects.toMatchObject({code:'VERIFY_WORKBOOK:SCRIPT_FUNCTION_NOT_READY'});
   expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY'});
  });
- it('identifies binding persistence failure after VERIFIED without creating replacements',async()=>{
+ it('identifies binding persistence failure before structure repair without creating replacements',async()=>{
   const x=fixture();await x.approve();x.options.failBindingOnce=true;
   await expect(x.provision()).rejects.toMatchObject({code:'PERSIST_BINDING:WORKSPACE_BINDING_PERSIST_FAILED'});
-  expect(x.records.get(path)).toMatchObject({stage:'VERIFIED',lastGenerationDiagnostic:{operation:'PERSIST_BINDING'}});
+  expect(x.records.get(path)).toMatchObject({stage:'SPREADSHEET_CREATED',lastGenerationDiagnostic:{operation:'PERSIST_BINDING'}});
   await x.provision();expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();
  });
  it.each(['insufficientPermissions','insufficient_scope','ACCESS_TOKEN_SCOPE_INSUFFICIENT'])('requires explicit %s provider evidence for scope denial',async reason=>{
   const x=fixture();await x.approve();f.batch.mockRejectedValueOnce(provider(reason));
-  await expect(x.provision()).rejects.toMatchObject({code:'APPLY_BLUEPRINT:SCOPE_DENIED',diagnostic:{providerReason:reason}});
+  await expect(x.port.applyBlueprint('file',blueprintFixture())).rejects.toMatchObject({code:'APPLY_BLUEPRINT:SCOPE_DENIED',diagnostic:{providerReason:reason}});
  });
  it('publishes and persists only closed metadata, without secrets or provider messages',async()=>{
   const log=vi.spyOn(console,'log'),warn=vi.spyOn(console,'warn'),err=vi.spyOn(console,'error');
-  const x=fixture();await x.approve();f.batch.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
-  const failure=await x.provision().catch(error=>error);
+  const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
+  await x.provision();const failure={message:x.records.get(path).lastWorkbookError,code:x.records.get(path).lastWorkbookError,diagnostic:x.records.get(path).lastGenerationDiagnostic};
   const publicPayload={error:failure.message,code:failure.code,diagnostic:failure.diagnostic};
   expect(publicPayload.code).toBe('APPLY_BLUEPRINT:API_ACCESS_DISABLED');
   expect(Object.keys(publicPayload.diagnostic).sort()).toEqual(['category','httpStatus','operation','providerReason','service']);

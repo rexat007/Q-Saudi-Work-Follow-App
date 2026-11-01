@@ -1,6 +1,18 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.workbook_healthy": "Workbook structure is healthy",
+  "gws.workbook_repair_required": "The file is connected, but its structure needs repair",
+  "gws.workbook_degraded": "The file is connected; structure repair could not be completed",
+  "gws.automation_ready": "Workbook automation is ready",
+  "gws.automation_installing": "Installing workbook automation",
+  "gws.automation_degraded": "Workbook automation needs attention; binding and sync are independent",
+  "gws.automation_not_installed": "Workbook automation is not installed",
+  "gws.enable_background": "Enable automatic Google synchronization",
+  "gws.reauthorize": "Reauthorize Google",
+  "gws.repair_workbook": "Repair workbook structure",
+  "gws.offline_configuration_required": "The file is connected. Configure server Google authorization in hosting settings to enable automatic synchronization",
+  "gws.offline_failed": "The file is connected, but Google authorization did not complete. Retry without choosing a new folder",
   "gws.sheet_connected": "Connected to Google Sheets",
   "gws.sync_healthy": "Synchronization is healthy",
   "gws.sync_pending": "Changes are waiting to synchronize",

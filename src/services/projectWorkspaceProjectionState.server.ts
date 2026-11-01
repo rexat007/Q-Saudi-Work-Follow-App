@@ -232,7 +232,8 @@ export async function markProjectionSuccessful(
     const snap = await transaction.get(docRef);
     if(leaseGuard){
       const lease=await transaction.get(database.collection('projects').doc(cleanProjectId).collection('workspace_continuity').doc('current'));
-      if(lease.data()?.syncOwner!==leaseGuard.owner)throw Object.assign(new Error('WORKSPACE_EXECUTION_FENCED'),{code:'WORKSPACE_EXECUTION_FENCED'});
+      const current=lease.data();
+      if(current?.syncOwner!==leaseGuard.owner||current?.syncLeaseExpiresAt<=Date.now()||current?.syncLeaseRevision!==(current?.binding?.revision??0)||current?.syncLeaseSpreadsheetId!==current?.binding?.spreadsheetId)throw Object.assign(new Error('WORKSPACE_EXECUTION_FENCED'),{code:'WORKSPACE_EXECUTION_FENCED'});
     }
     const exists = snap.exists;
     const rawData = exists ? decodeProjection(snap.data(), cleanProjectId) : null;

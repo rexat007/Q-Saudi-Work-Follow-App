@@ -1,4 +1,6 @@
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
+import {registerWorkspaceOAuthCallback,registerWorkspaceOAuthCommands} from './workspaceGoogleOAuth.routes';
+import {workspaceOfflineAuthorization} from './workspaceSyncWorker';
 import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
 import { projectGoogleWorkspaceServer, continuityRef, workspaceOperation, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
@@ -47,9 +49,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Public, non-sensitive and never cached; precedes application authentication.
 app.get('/api/runtime-version',runtimeVersionHandler);
+registerWorkspaceOAuthCallback(app);
 
 // Global API Authentication Context Resolver
 app.use('/api', authenticateUser);
+registerWorkspaceOAuthCommands(app,[enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence]);
 
 // Global account governance: current principal plus transaction-time reauthorization.
 app.post('/api/admin/users/:userId/commands', async (req: any, res) => {
@@ -669,6 +673,15 @@ app.post('/api/projects/:projectId/workspace/resume', enforceProjectIsolation, e
     const data=await projectGoogleWorkspaceServer.resume(req.params.projectId,(req as any).user,projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId));
     return res.json({success:true,data});
   } catch(error:any){return res.status(error.status||502).json({success:false,code:error.code||'WORKSPACE_RECOVERY_REQUIRED'});}
+});
+app.post('/api/projects/:projectId/workspace/initialize',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
+  try {
+    if(Object.keys(req.body||{}).length)return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    const status=await projectGoogleWorkspaceServer.status(req.params.projectId,req.user);
+    const token=status.backgroundAuthorization==='CONNECTED'?(await workspaceOfflineAuthorization.access(req.params.projectId,req.user)).accessToken:getGoogleAccessToken(req,true);
+    await projectGoogleWorkspaceServer.initializeBound(req.params.projectId,req.user,projectGoogleBlueprintPort(token,req.params.projectId));
+    return res.json({success:true,data:await projectGoogleWorkspaceServer.status(req.params.projectId,req.user)});
+  }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:502).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED'});}
 });
 app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try { res.json({ success: true, data: await projectGoogleWorkspaceServer.status(req.params.projectId, (req as any).user) }); }

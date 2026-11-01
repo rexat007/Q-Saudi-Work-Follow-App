@@ -56,7 +56,7 @@ describe('GWS1B Google native generation API boundary',()=>{
  });
  it('does not invent missing scope names from a provider 403 without a granted-scope list',async()=>{
   f.token.mockRejectedValueOnce({response:{status:403,data:{access_token:'sensitive-access-fixture'}}});
-  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED',message:'SCOPE_DENIED',status:403});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'AUTHORIZATION_REQUIRED',message:'AUTHORIZATION_REQUIRED',status:403});
  });
  it('fails closed without inventing names when token metadata has no scopes field',async()=>{
   f.token.mockResolvedValueOnce({});await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED',status:403});

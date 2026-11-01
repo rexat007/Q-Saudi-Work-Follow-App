@@ -4,6 +4,7 @@ import { auth } from '../firebase/config';
 import { getGoogleAccessToken, resolveWorkspaceErrorStatusCode } from '../../server/app';
 import { authenticateUser, enforceProjectIsolation, enforceAdminOnly, enforceDispatcherOrAbove } from '../../server/security.middleware';
 import fs from 'fs';
+import ts from 'typescript';
 import path from 'path';
 
 describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3) Tests', () => {
@@ -218,11 +219,19 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
     expect(workspaceClientContent).not.toContain('activateProject');
   });
 
-  // Test 12: no continuous mutation sync was added
-  it('12. no continuous mutation sync was added', () => {
+  // Test 12: client timers may monitor OAuth cancellation, but cannot deliver projections.
+  it('12. continuous projection delivery remains server-owned', () => {
     const workspaceClientPath = path.resolve(__dirname, '../services/workspace.service.ts');
     const workspaceClientContent = fs.readFileSync(workspaceClientPath, 'utf-8');
-    expect(workspaceClientContent).not.toContain('setInterval');
+    const source=ts.createSourceFile('workspace.service.ts',workspaceClientContent,ts.ScriptTarget.Latest,true);
+    const visit=(node:ts.Node)=>{
+      if(ts.isCallExpression(node)&&ts.isIdentifier(node.expression)&&['setInterval','setTimeout'].includes(node.expression.text)){
+        expect(node.arguments[0]?.getText(source)||'').not.toMatch(/syncInitialProjectWorkspace|syncWorkspaceData|retrySync|fetch\s*\(|upsertTabRecords/);
+      }
+      ts.forEachChild(node,visit);
+    };
+    visit(source);
+    expect(fs.readFileSync(path.resolve(__dirname,'../../server/workspaceSyncWorker.ts'),'utf8')).toContain('service.retrySync');
     expect(workspaceClientContent).not.toContain('onSnapshot');
   });
 

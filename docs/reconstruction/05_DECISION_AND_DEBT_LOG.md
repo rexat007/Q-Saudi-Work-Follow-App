@@ -1,3 +1,20 @@
+## Complete Workspace package — 2026-11-01
+
+Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+- RESOLVED_IN_SOURCE: structure-before-binding gate. Verified resource binding is persisted before non-destructive structure reconciliation; four independent health dimensions prevent automation/structure problems hiding the Sheet.
+- RESOLVED_IN_SOURCE: GWS2-C source deferral. Offline PKCE/state/nonce endpoints, authenticated encrypted refresh storage, reauthorization/revocation, a standalone worker and renewable Project leases are implemented. Missing external secrets/configuration now fail closed at use, not at source import.
+- RESOLVED_IN_SOURCE: browser-only delivery and permanent syncOwner deadlock. The same outbox/drain runs without browser tokens; current principal/grant/owner/revision and provider-request fencing are retained.
+- RESOLVED_IN_SOURCE: reviewed import affiliation/assignment changes now invalidate Driver projection as well as Fleet; no import business semantics changed.
+- SUPERSEDED_PRESENTATION_CONTRACT: historical tests that required rejection before binding on workbook errors now assert CONNECTED with separate repair/degraded state. The client timer prohibition now protects against client-side projection delivery while permitting bounded OAuth popup cancellation. Test counts and substantive resource/authorization assertions are retained.
+- STILL_OPEN / EXTERNAL_LIVE_CONFIGURATION: OAuth web client secret/approved redirect, credential encryption key, Firebase server access, real owner offline consent and Render scheduled command. No secrets are requested in chat.
+- STILL_OPEN / LIVE_ACCEPTANCE: Q-PRJ-007 existing-resource recovery, exact seven operational tabs/approved automation or explicit degraded status, four entity CRUD/membership/relationship projections and browser-closed delivery must be verified after owner merge/deploy. No live resources were changed here.
+- STILL_OPEN / PROVIDER_UNCERTAINTY: historical SCRIPT_REQUESTED without Script identity cannot be retried blindly; provider API cannot prove bound-script non-existence by parent. Automation stays degraded, independently of binding/sync. Formula cells containing operator text are retained for review.
+- STILL_OPEN / SCALE_AND_DISTRIBUTED_IO: global fan-out remains transaction-bounded; a Google write cannot be atomically fenced with Firestore. Request timeouts, renewable leases, idempotent writes and revisioned replay reduce and recover uncertain outcomes; no cross-provider atomicity claim.
+- PRESERVED: recorded baseline failures, diagnostic debt/lint NOT PASS, Phase 10/PFAG-OPS-01 separation and historical evidence below.
+
+## Historical decision records (superseded where the current package resolves them)
+
 ## GWS1B-LIVE-02 — current initial-destination decision
 
 ## GWS2 A+B merge preparation — 2026-11-01

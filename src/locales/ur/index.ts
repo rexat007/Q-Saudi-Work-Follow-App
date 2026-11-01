@@ -1,6 +1,18 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.workbook_healthy": "ورک بک کی ساخت درست ہے",
+  "gws.workbook_repair_required": "فائل منسلک ہے لیکن اس کی ساخت کی مرمت درکار ہے",
+  "gws.workbook_degraded": "فائل منسلک ہے؛ ساخت کی مرمت مکمل نہیں ہو سکی",
+  "gws.automation_ready": "ورک بک کی خودکاری تیار ہے",
+  "gws.automation_installing": "ورک بک کی خودکاری نصب ہو رہی ہے",
+  "gws.automation_degraded": "ورک بک کی خودکاری کو توجہ درکار ہے؛ ربط اور مطابقت پذیری الگ ہیں",
+  "gws.automation_not_installed": "ورک بک کی خودکاری نصب نہیں ہے",
+  "gws.enable_background": "Google کے ساتھ خودکار مطابقت پذیری فعال کریں",
+  "gws.reauthorize": "Google کو دوبارہ اجازت دیں",
+  "gws.repair_workbook": "ورک بک کی ساخت کی مرمت کریں",
+  "gws.offline_configuration_required": "فائل منسلک ہے۔ خودکار مطابقت پذیری کے لیے ہوسٹنگ میں سرور کی Google اجازت ترتیب دیں",
+  "gws.offline_failed": "فائل منسلک ہے لیکن Google کی اجازت مکمل نہیں ہوئی۔ نیا فولڈر منتخب کیے بغیر دوبارہ کوشش کریں",
   "gws.sheet_connected": "Google Sheets سے منسلک",
   "gws.sync_healthy": "ہم وقت سازی درست کام کر رہی ہے",
   "gws.sync_pending": "تبدیلیاں ہم وقت سازی کی منتظر ہیں",
