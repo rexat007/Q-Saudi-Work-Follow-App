@@ -94,7 +94,7 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
     Object.defineProperty(auth, 'currentUser', {
       value: {
         getIdToken: async () => {
-          throw new Error('Network failure refreshing Firebase ID token');
+          throw new Error('private-token private-email');
         },
       },
       configurable: true,
@@ -102,7 +102,7 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
     });
 
     await expect(clientWorkspaceService.getWorkspaceHeaders({}, true)).rejects.toThrow(
-      /Network failure refreshing Firebase ID token/
+      /^Firebase ID Token retrieval failed$/
     );
   });
 
@@ -185,7 +185,6 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
   // Test 9: non-production mock Google token uses X-Google-Access-Token only
   it('9. non-production mock Google token uses X-Google-Access-Token only', async () => {
     const mockToken = 'mock_oauth_token_dev_1720000000000';
-    clientWorkspaceService.setAccessToken(mockToken);
 
     Object.defineProperty(auth, 'currentUser', {
       value: {
@@ -195,6 +194,7 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
       writable: true,
     });
 
+    clientWorkspaceService.setAccessToken(mockToken);
     const headers = await clientWorkspaceService.getWorkspaceHeaders();
     expect(headers['X-Google-Access-Token']).toBe(mockToken);
     expect(headers['Authorization']).toBe('Bearer test-firebase-token-777');

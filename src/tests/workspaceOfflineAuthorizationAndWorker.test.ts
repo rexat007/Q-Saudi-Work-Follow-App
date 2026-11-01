@@ -120,3 +120,15 @@ describe('browser-absent canonical worker using the existing drain',()=>{
   expect(fs.readFileSync('server/app.ts','utf8')).not.toMatch(/app\.post\([^\n]*worker/);
  });
 });
+
+
+describe('user-active durable refresh bounded failures',()=>{
+ it.each([['GOOGLE_NETWORK_ERROR',502],['GOOGLE_SERVICE_UNAVAILABLE',503],['GOOGLE_RATE_LIMITED',429],['SCOPE_DENIED',403]] as const)('preserves %s and its HTTP meaning without revoking a transiently unavailable grant',async(code,status)=>{
+  const x=setup();await x.authorize();await x.dirty();
+  x.provider.refresh.mockRejectedValueOnce(new GoogleWorkspaceCommandError(code,status));
+  await expect(x.authorization.access('P1',who)).rejects.toMatchObject({code,status,message:code});
+  expect(x.store[path]).toMatchObject({backgroundAuthorization:'CONNECTED',binding:{spreadsheetId:'file'}});
+  expect(x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId].status).toBe('ACTIVE');
+  expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');
+ });
+});

@@ -23,7 +23,7 @@ describe('GWS1B Google native generation API boundary',()=>{
  });
  it('does not classify a bare master-data write 403 as missing OAuth scope',async()=>{
   f.reconcile.mockRejectedValueOnce({response:{status:403}});
-  await expect(projectGoogleBlueprintPort('fixture','P1').projectMasterTabs('file',{projectId:'P1',drivers:[],carriers:[],materials:[],fleetRows:[]},['CARRIERS'])).rejects.toMatchObject({code:'MASTER_DATA_SYNC_FAILED'});
+  await expect(projectGoogleBlueprintPort('fixture','P1').projectMasterTabs('file',{projectId:'P1',drivers:[],carriers:[],materials:[],fleetRows:[]},['CARRIERS'])).rejects.toMatchObject({code:'GOOGLE_PERMISSION_DENIED',status:403});
  });
  it('requires only Drive file and Sheets for binding while keeping Script permission mandatory for optional automation',async()=>{
   f.token.mockResolvedValue({scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});
@@ -56,7 +56,7 @@ describe('GWS1B Google native generation API boundary',()=>{
  });
  it('does not invent missing scope names from a provider 403 without a granted-scope list',async()=>{
   f.token.mockRejectedValueOnce({response:{status:403,data:{access_token:'sensitive-access-fixture'}}});
-  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'AUTHORIZATION_REQUIRED',message:'AUTHORIZATION_REQUIRED',status:403});
+  await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'GOOGLE_PERMISSION_DENIED',message:'GOOGLE_PERMISSION_DENIED',status:403});
  });
  it('fails closed without inventing names when token metadata has no scopes field',async()=>{
   f.token.mockResolvedValueOnce({});await expect(projectGoogleBlueprintPort('fixture','P1').authorizeProvisioning()).rejects.toMatchObject({code:'SCOPE_DENIED',status:403});
@@ -78,5 +78,5 @@ describe('generated formula capacity recovery',()=>{
   f.sheetGet.mockResolvedValue({data:{sheets:[{properties:{sheetId:100,title:'Loading Register',gridProperties:{rowCount:2}},data:[{rowData:[{}, {values:[{userEnteredValue:{stringValue:'old'}}]}]}]}]}});
  }
  it('expands only a full generated sheet and retries RAW input writes without copying human values',async()=>{capacity();await projectGoogleBlueprintPort('fixture','P1').upsert('file',input);const requests=f.batch.mock.calls[0][0].requestBody.requests;expect(requests[0].insertDimension.range).toMatchObject({sheetId:100,startIndex:1,endIndex:201});expect(requests.filter((r:any)=>r.copyPaste?.pasteType==='PASTE_FORMULA')).toHaveLength(19);expect(JSON.stringify(requests)).not.toContain('PASTE_NORMAL');expect(f.valueBatch).toHaveBeenCalledWith(expect.objectContaining({requestBody:expect.objectContaining({valueInputOption:'RAW'})}));});
- it('a lost expansion response retries existing capacity without issuing a second insert',async()=>{capacity();f.batch.mockRejectedValueOnce(Error('lost response'));const p=projectGoogleBlueprintPort('fixture','P1');await expect(p.upsert('file',input)).rejects.toThrow('WORKSPACE_EXPANSION_FAILED');await p.upsert('file',input);expect(f.batch).toHaveBeenCalledTimes(1);});
+ it('a lost expansion response retries existing capacity without issuing a second insert',async()=>{capacity();f.batch.mockRejectedValueOnce(Error('lost response'));const p=projectGoogleBlueprintPort('fixture','P1');await expect(p.upsert('file',input)).rejects.toThrow('GOOGLE_NETWORK_ERROR');await p.upsert('file',input);expect(f.batch).toHaveBeenCalledTimes(1);});
 });

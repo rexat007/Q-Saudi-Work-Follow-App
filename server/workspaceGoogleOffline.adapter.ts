@@ -1,3 +1,4 @@
+import {classifyGoogleProviderFailure} from './workspaceGoogleErrors';
 import {createHash} from 'node:crypto';
 import {google} from 'googleapis';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
@@ -19,14 +20,13 @@ export function googleOfflineProvider(c:OfflineConfig):GoogleOfflineProvider {
       const auth=client();auth.setCredentials({refresh_token:refreshToken});
       let token:string|null|undefined;
       try{token=(await auth.getAccessToken()).token;}catch(error){
-        const e=error as any;if(e.response?.data?.error==='invalid_grant'||e.response?.status===401)return gwsFail('AUTHORIZATION_REQUIRED',401);
-        return gwsFail('GOOGLE_REFRESH_UNAVAILABLE',502);
+        const failure=classifyGoogleProviderFailure(error);if(failure.code==='TOKEN_EXPIRED')return gwsFail('AUTHORIZATION_REQUIRED',401);return gwsFail(failure.code,failure.status);
       }
       if(!token)return gwsFail('AUTHORIZATION_REQUIRED',401);
-      const info=await auth.getTokenInfo(token);if(info.aud!==c.clientId)return gwsFail('AUTHORIZATION_REQUIRED',401);
+      try{const info=await auth.getTokenInfo(token);if(info.aud!==c.clientId)return gwsFail('AUTHORIZATION_REQUIRED',401);
       const user=await google.oauth2({version:'v2',auth}).userinfo.get();
       if(!user.data.id)return gwsFail('AUTHORIZATION_REQUIRED',401);
-      return {accessToken:token,subject:user.data.id,scopes:info.scopes};
+      return {accessToken:token,subject:user.data.id,scopes:info.scopes};}catch(error){if(error instanceof Error&&'code' in error&&typeof error.code==='string'&&error.code==='AUTHORIZATION_REQUIRED')throw error;const failure=classifyGoogleProviderFailure(error);return gwsFail(failure.code,failure.status);}
     },
     async revoke(refreshToken){await client().revokeToken(refreshToken);},
   };

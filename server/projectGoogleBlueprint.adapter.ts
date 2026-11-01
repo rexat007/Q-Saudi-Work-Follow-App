@@ -1,3 +1,4 @@
+import {classifyGoogleProviderFailure} from './workspaceGoogleErrors';
 import {OperationalReportTabRegistry,OperationalTabError,operationalTabHeaders} from '../src/services/operationalReportTabRegistry';
 import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint/expansion';
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} from '../src/services/projectGoogleSheetContract';
@@ -8,7 +9,6 @@ import {serverWorkspaceService} from './workspace.service';
 import {MASTER_TABS,masterTabTitle} from '../src/services/projectWorkspaceMasterContract';
 import {planWorkbookRepair} from '../src/services/googleWorkspaceBlueprint/repair';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
-import {classifyWorkspaceGenerationFailure} from '../src/utils/workspaceGenerationDiagnostics';
 import {profileTripRow,operationalReportTables} from '../src/services/operationalReporting';
 import {resolveWorkspaceTemplate,PROFILE_REVIEW_HEADERS} from '../src/services/workspaceTemplateRegistry';
 import {assertBlueprint} from '../src/services/googleWorkspaceBlueprint/contract';
@@ -27,10 +27,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     try{return await run();}catch(error){
       if(error instanceof GoogleWorkspaceCommandError)throw error;
       if(error instanceof OperationalTabError)return gwsFail(error.code,409);
-      const e=error as {code?:number;status?:number;response?:{status?:number}};
-      const status=e.response?.status||e.status||e.code;
-      const scope=classifyWorkspaceGenerationFailure(error,'VERIFY_WORKBOOK').diagnostic.category==='SCOPE_DENIED';
-      return gwsFail(status===401?'TOKEN_EXPIRED':status===403&&scope?'SCOPE_DENIED':code,status===401?401:status===403?403:502);
+      const failure=classifyGoogleProviderFailure(error);return gwsFail(failure.code,failure.status);
     }
   };
   const owned=async(fileId:string,version?:string)=>{

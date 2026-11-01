@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "gws.host_unavailable": "The application service is temporarily unavailable. Retry when it is reachable.",
+  "gws.google_service_unavailable": "Google is temporarily unavailable. Your binding and pending work are preserved.",
+  "gws.google_network_error": "The connection to Google timed out or was interrupted. Retry without recreating the workspace.",
+  "gws.google_rate_limited": "Google is limiting requests. Wait briefly and retry.",
+  "gws.google_quota_exceeded": "Google quota is exhausted. Check the project quota before retrying.",
+  "gws.google_invalid_request": "Google rejected the request. Keep the existing workspace and report the support code.",
+  "gws.google_permission_denied": "The Google account cannot perform this action on the bound resource. Check its permissions.",
+  "gws.google_api_disabled": "The required Google API is disabled or unavailable to this project.",
   "op.DRAFT": "Draft",
   "op.lastEvent": "Last recorded event",
   "op.elapsedMinutes": "Minutes since last event",

@@ -1,3 +1,9 @@
+## Workspace execution credentials and bounded failures — current
+
+Exact state: [phase ledger](reconstruction/02_PHASE_LEDGER.md). User-active sync does not imply browser-owned credentials: CONNECTED durable authorization refreshes server-side before a browser header can be considered. initialize, retry-sync and automation recovery share the resolver, canonical principal/subject/Project/binding checks and authorization-ID execution fences. Identity, scope, revoked-grant or refresh errors cannot silently fall back. NOT_CONNECTED requires explicit fresh interactive permission; AUTHORIZATION_REQUIRED requires reauthorization.
+
+Browser Google access tokens remain memory-only and are never restored from storage; only the retired legacy key is purged. Encrypted server refresh credentials retain their existing authority. No raw access/refresh/Firebase token, OAuth code, client secret or provider PII is logged or returned by diagnostic handling. A bounded provider classifier separates credential/scope/API/permission/resource/request/rate/quota/network/service failures; empty/proxy/malformed host responses are separately HOST_SERVICE_UNAVAILABLE. Lease cleanup releases only its own owner, while process death still relies on expiry. CURRENT_SYNC_TRIGGER = USER_ACTIVE; CRON = NOT_REQUIRED. No Google Cloud/scopes, Drive validation, RBAC, rules or source-asset expansion.
+
 ## Operational capability and request-driven Workspace boundaries
 
 Current state: [the ledger](reconstruction/02_PHASE_LEDGER.md). [Operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md) defines the bounded policy.

@@ -1,8 +1,9 @@
+import {classifyGoogleProviderFailure,isGoogleProviderCode} from '../../server/workspaceGoogleErrors';
 import {createCipheriv,createDecipheriv,createHash,randomBytes,randomUUID} from 'node:crypto';
 import {adminDb,adminAuth} from '../firebase/admin';
 import type {AuthUserContext} from '../types/common';
 import {BINDING_WORKSPACE_SCOPES,REQUIRED_WORKSPACE_SCOPES,missingWorkspaceBindingScopes,missingWorkspaceScopes} from '../utils/googleWorkspaceScopes';
-import {ProjectGoogleWorkspaceServer,continuityRef,gwsFail} from './projectGoogleWorkspace.server';
+import {GoogleWorkspaceCommandError,ProjectGoogleWorkspaceServer,continuityRef,gwsFail} from './projectGoogleWorkspace.server';
 
 export const AUTHORIZATIONS='workspace_google_authorizations';
 const TRANSACTIONS='workspace_google_oauth_transactions';
@@ -98,7 +99,7 @@ export class WorkspaceGoogleOfflineAuthorization {
     if(await this.googleSubject(who.userId)!==grant.subject)return this.requireAuthorization(projectId,id);
     const token=openWorkspaceSecret(grant.secret,this.aad(projectId,grant.subject,id),c);
     let refreshed:Awaited<ReturnType<GoogleOfflineProvider['refresh']>>;
-    try{refreshed=await this.provider(c).refresh(token);}catch(error){if((error as {code?:string}).code==='AUTHORIZATION_REQUIRED')return this.requireAuthorization(projectId,id);return gwsFail('GOOGLE_REFRESH_UNAVAILABLE',502);}
+    try{refreshed=await this.provider(c).refresh(token);}catch(error){const code=(error as {code?:string}).code;if(code==='AUTHORIZATION_REQUIRED'||code==='TOKEN_EXPIRED')return this.requireAuthorization(projectId,id);const failure=classifyGoogleProviderFailure(error);return gwsFail(code&&isGoogleProviderCode(code)?code:failure.code,error instanceof GoogleWorkspaceCommandError?error.status:failure.status);}
     if(refreshed.subject!==grant.subject||missingWorkspaceBindingScopes(refreshed.scopes).length)return this.requireAuthorization(projectId,id);
     return {accessToken:refreshed.accessToken,automation:missingWorkspaceScopes(refreshed.scopes).length===0,authorizationId:id};
   }

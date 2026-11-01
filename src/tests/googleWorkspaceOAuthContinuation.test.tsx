@@ -320,3 +320,23 @@ describe('complete Workspace minimal controls',()=>{
   expect(container.textContent).toContain('gws.offline_configuration_required');expect(container.textContent).toContain('gws.sheet_connected');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
  });
 });
+
+
+describe('user-active Workspace credential choice',()=>{
+ it.each([true,false])('uses server refresh only when this Project has a connected durable grant: %s',async connected=>{
+  const bound={...status(mockProject.projectId,true),backgroundAuthorization:connected?'CONNECTED':'NOT_CONNECTED'} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);
+  const notice=vi.fn();
+  await executeProjectWorkspaceSyncOrchestration({project:mockProject,isSyncingGoogle:false,setIsSyncingGoogle:vi.fn(),setSyncNotice:notice,workspaceStatus:bound});
+  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledTimes(connected?0:1);
+  expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
+  expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+  expect(notice).toHaveBeenLastCalledWith(expect.objectContaining({type:'success'}));
+ });
+ it('cannot use another Project cached durable status to bypass interactive authorization',async()=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(status(mockProject.projectId,true) as any);
+  await executeProjectWorkspaceSyncOrchestration({project:mockProject,isSyncingGoogle:false,setIsSyncingGoogle:vi.fn(),setSyncNotice:vi.fn(),workspaceStatus:{...status('OTHER',true),backgroundAuthorization:'CONNECTED'} as any});
+  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledOnce();
+  expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
+ });
+});

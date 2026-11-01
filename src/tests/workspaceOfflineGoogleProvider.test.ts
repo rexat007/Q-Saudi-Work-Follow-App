@@ -38,7 +38,7 @@ describe('actual Google offline provider protocol',()=>{
  });
  it.each(['invalid_grant','rate_limit'] as const)('distinguishes %s from revoked authorization without echoing payloads',async kind=>{
   f.access.mockRejectedValueOnce({response:{status:kind==='invalid_grant'?400:429,data:{error:kind,email:'private-email',access_token:'private-token'}}});
-  const error=await googleOfflineProvider(c).refresh('fixture-refresh').catch(e=>e);expect(error.code).toBe(kind==='invalid_grant'?'AUTHORIZATION_REQUIRED':'GOOGLE_REFRESH_UNAVAILABLE');expect(JSON.stringify(error)).not.toContain('private-');
+  const error=await googleOfflineProvider(c).refresh('fixture-refresh').catch(e=>e);expect(error.code).toBe(kind==='invalid_grant'?'AUTHORIZATION_REQUIRED':'GOOGLE_RATE_LIMITED');expect(JSON.stringify(error)).not.toContain('private-');
  });
  it('checks execution ownership at the HTTP boundary and bounds provider timeout/retries',async()=>{
   const check=vi.fn(async()=>{}),interceptors:any[]=[];configureWorkspaceGoogleTransport({transporter:{interceptors:{request:{add:(i:any)=>interceptors.push(i)}}}},check);

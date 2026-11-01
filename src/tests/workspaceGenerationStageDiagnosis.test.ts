@@ -58,20 +58,20 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
  it('preserves CONNECTED and stage diagnostics on a generic blueprint repair 403 without duplicate artifacts',async()=>{
   const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce({response:{status:403}});
   await x.provision();
-  expect(x.records.get(path)).toMatchObject({stage:'BOUND',folderId:'folder',fileId:'file',workspaceState:'CONNECTED',workbookHealth:'DEGRADED',lastWorkbookError:'APPLY_BLUEPRINT:BLUEPRINT_APPLY_FAILED',lastGenerationDiagnostic:{operation:'APPLY_BLUEPRINT',httpStatus:403,providerReason:'UNRECOGNIZED'}});
+  expect(x.records.get(path)).toMatchObject({stage:'BOUND',folderId:'folder',fileId:'file',workspaceState:'CONNECTED',workbookHealth:'DEGRADED',lastWorkbookError:'GOOGLE_PERMISSION_DENIED',lastGenerationDiagnostic:{operation:'APPLY_BLUEPRINT',httpStatus:403,providerReason:'UNRECOGNIZED'}});
   expect(f.scriptCreate).not.toHaveBeenCalled();await x.provision();expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();expect(x.records.get(path)).toMatchObject({state:'READY',workspaceState:'CONNECTED',stage:'BOUND',lastGenerationDiagnostic:null});
  });
  it('diagnoses optional Script creation denial while SCRIPT_REQUESTED recovery still binds the same Sheet',async()=>{
   const x=fixture();await x.approve();x.records.set(path,{projectId:'P1',destinationRootFolderId:'root',folderId:'folder',fileId:'file',operationId:workspaceOperation('P1'),googleSubject:'fixture-subject',workspaceBlueprintVersion:'TEST-V1',stage:'SCRIPT_REQUESTED',state:'FAILED',leaseUntil:0});
   f.scriptCreate.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
-  await expect(x.port.createBoundScript('file')).rejects.toMatchObject({code:'CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED',diagnostic:{operation:'CREATE_BOUND_SCRIPT',service:'script.googleapis.com',httpStatus:403,providerReason:'SERVICE_DISABLED'}});
+  await expect(x.port.createBoundScript('file')).rejects.toMatchObject({code:'API_ACCESS_DISABLED',diagnostic:{operation:'CREATE_BOUND_SCRIPT',service:'script.googleapis.com',httpStatus:403,providerReason:'SERVICE_DISABLED'}});
   await x.provision();await x.provision();
   expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY',workspaceState:'CONNECTED',automationStage:'SCRIPT_REQUESTED',automationState:'DEGRADED'});
   expect(x.records.get(path).binding.scriptProjectId).toBeUndefined();expect(f.scriptCreate).toHaveBeenCalledOnce();expect(f.create).not.toHaveBeenCalled();expect(f.install).not.toHaveBeenCalled();
  });
  it('optional content installation preserves its denial stage and retries the same Script without disrupting binding',async()=>{
   const x=fixture();await x.approve();await x.provision();f.install.mockRejectedValueOnce(provider());
-  await expect(x.port.installScript('script',blueprintFixture())).rejects.toMatchObject({code:'INSTALL_SCRIPT_CONTENT:PERMISSION_DENIED'});
+  await expect(x.port.installScript('script',blueprintFixture())).rejects.toMatchObject({code:'GOOGLE_PERMISSION_DENIED'});
   expect(x.records.get(path)).toMatchObject({state:'READY',workspaceState:'CONNECTED',binding:{spreadsheetId:'file'}});
   await x.port.installScript('script',blueprintFixture());expect(f.install.mock.calls.map(call=>call[0].scriptId)).toEqual(['script','script']);
   expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
  it.each(['workbook','script'] as const)('preserves optional %s verification stage without invalidating the Sheet binding',async kind=>{
   const x=fixture();await x.approve();await x.provision();
   if(kind==='workbook')f.sheets.mockRejectedValueOnce(provider());else f.content.mockRejectedValueOnce(provider());
-  const code=kind==='workbook'?'VERIFY_WORKBOOK:PERMISSION_DENIED':'VERIFY_SCRIPT_CONTENT:PERMISSION_DENIED';
+  const code=kind==='workbook'?'GOOGLE_PERMISSION_DENIED':'GOOGLE_PERMISSION_DENIED';
   await expect(x.port.verifyGenerated('file','script',blueprintFixture())).rejects.toMatchObject({code});
   expect(x.records.get(path)).toMatchObject({stage:'BOUND',state:'READY',binding:{spreadsheetId:'file'}});
   await x.port.verifyGenerated('file','script',blueprintFixture());expect(f.create).toHaveBeenCalledTimes(2);expect(f.scriptCreate).not.toHaveBeenCalled();
@@ -104,14 +104,14 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
  });
  it.each(['insufficientPermissions','insufficient_scope','ACCESS_TOKEN_SCOPE_INSUFFICIENT'])('requires explicit %s provider evidence for scope denial',async reason=>{
   const x=fixture();await x.approve();f.batch.mockRejectedValueOnce(provider(reason));
-  await expect(x.port.applyBlueprint('file',blueprintFixture())).rejects.toMatchObject({code:'APPLY_BLUEPRINT:SCOPE_DENIED',diagnostic:{providerReason:reason}});
+  await expect(x.port.applyBlueprint('file',blueprintFixture())).rejects.toMatchObject({code:'SCOPE_DENIED',diagnostic:{providerReason:reason}});
  });
  it('publishes and persists only closed metadata, without secrets or provider messages',async()=>{
   const log=vi.spyOn(console,'log'),warn=vi.spyOn(console,'warn'),err=vi.spyOn(console,'error');
   const x=fixture();await x.approve();const workbook=blueprintFixture();workbook.sheets[0].data![0].rowData![0].values![0]={};f.sheets.mockResolvedValueOnce({data:workbook});f.batch.mockRejectedValueOnce(provider('SERVICE_DISABLED'));
   await x.provision();const failure={message:x.records.get(path).lastWorkbookError,code:x.records.get(path).lastWorkbookError,diagnostic:x.records.get(path).lastGenerationDiagnostic};
   const publicPayload={error:failure.message,code:failure.code,diagnostic:failure.diagnostic};
-  expect(publicPayload.code).toBe('APPLY_BLUEPRINT:API_ACCESS_DISABLED');
+  expect(publicPayload.code).toBe('API_ACCESS_DISABLED');
   expect(Object.keys(publicPayload.diagnostic).sort()).toEqual(['category','httpStatus','operation','providerReason','service']);
   expect(JSON.stringify(publicPayload)).not.toMatch(/private-|user@example|Bearer|authorization|client_secret|access_token|id_token/);
   expect(JSON.stringify(x.records.get(path).lastGenerationDiagnostic)).toBe(JSON.stringify(publicPayload.diagnostic));
@@ -122,15 +122,15 @@ describe('actual Google adapter + durable generation stage diagnostics',()=>{
 describe('closed provider classification and UI formatting',()=>{
  it('does not derive scope failure from a bare 403 or untrusted message text',()=>{
   const failure=classifyWorkspaceGenerationFailure({response:{status:403,data:{error:{message:'insufficient_scope private-email'}}}},'CREATE_BOUND_SCRIPT');
-  expect(failure.code).toBe('CREATE_BOUND_SCRIPT:SCRIPT_PROJECT_CREATION_FAILED');
+  expect(failure.code).toBe('GOOGLE_PERMISSION_DENIED');
  });
  it('recognizes legacy Google reason arrays and sanitizes unknown service/reason fields',()=>{
-  expect(classifyWorkspaceGenerationFailure({response:{status:403,data:{error:{errors:[{reason:'accessNotConfigured'}]}}}},'CREATE_BOUND_SCRIPT').code).toBe('CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED');
+  expect(classifyWorkspaceGenerationFailure({response:{status:403,data:{error:{errors:[{reason:'accessNotConfigured'}]}}}},'CREATE_BOUND_SCRIPT').code).toBe('API_ACCESS_DISABLED');
   const failure=classifyWorkspaceGenerationFailure({response:{status:403,data:{error:{details:[{reason:'private-reason',metadata:{service:'private-service'}}]}}},config:{url:'https://private-host/path?token=private-token'}},'INSTALL_SCRIPT_CONTENT');
   expect(failure.diagnostic).toMatchObject({providerReason:'UNRECOGNIZED',service:'UNKNOWN'});expect(JSON.stringify(failure)).not.toContain('private-');
  });
  it('retains a real expired-token status as bounded metadata',()=>{
-  expect(classifyWorkspaceGenerationFailure({response:{status:401}},'VERIFY_WORKBOOK')).toMatchObject({code:'VERIFY_WORKBOOK:TOKEN_EXPIRED',diagnostic:{httpStatus:401}});
+  expect(classifyWorkspaceGenerationFailure({response:{status:401}},'VERIFY_WORKBOOK')).toMatchObject({code:'TOKEN_EXPIRED',diagnostic:{httpStatus:401}});
  });
  it('extracts only known stage/category pairs from contextual UI errors',()=>{
   expect(workspaceGenerationDiagnosticCode('Context: CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED')).toBe('CREATE_BOUND_SCRIPT:API_ACCESS_DISABLED');
