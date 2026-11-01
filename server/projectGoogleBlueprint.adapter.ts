@@ -8,6 +8,8 @@ import {MASTER_TABS,masterTabTitle} from '../src/services/projectWorkspaceMaster
 import {planWorkbookRepair} from '../src/services/googleWorkspaceBlueprint/repair';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
 import {classifyWorkspaceGenerationFailure} from '../src/utils/workspaceGenerationDiagnostics';
+import {profileTripRow,operationalReportTables} from '../src/services/operationalReporting';
+import {resolveWorkspaceTemplate,PROFILE_REVIEW_HEADERS} from '../src/services/workspaceTemplateRegistry';
 import {assertBlueprint} from '../src/services/googleWorkspaceBlueprint/contract';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
@@ -62,6 +64,19 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });
   };
   return {...base,
+    async projectProfileReports(fileId,report){await guarded('PROFILE_REPORT_SYNC_FAILED',async()=>{
+      if(report.rows.some(row=>row.projectId!==projectId))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
+      await owned(fileId);
+      for(const table of operationalReportTables(report))await serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence());
+    });},
+    async projectProfileTrip(fileId,trip,blueprint){await guarded('PROFILE_TRIP_SYNC_FAILED',async()=>{
+      if(trip.projectId!==projectId||!trip.operationalSnapshot)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
+      const template=resolveWorkspaceTemplate(trip.operationalSnapshot.configuration);
+      if(blueprint.templateId&&blueprint.templateId!==template.templateId)return gwsFail('WORKSPACE_TEMPLATE_MIGRATION_REQUIRED');
+      await owned(fileId);const row=profileTripRow(trip);
+      await serverWorkspaceService.upsertTabRecords(fileId,'Trip Register','tripId',[row],[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true);
+    });},
+    async verifyScriptParent(fileId,scriptId,version){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,version)!==fileId)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID',403);});},
     setDeliveryFence(check){deliveryFence=check;},
     async repairWorkbook(fileId,blueprint){return withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
       await owned(fileId,blueprint.version);

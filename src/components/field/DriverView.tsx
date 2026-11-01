@@ -177,7 +177,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
                 </div>
                 <div className="col-span-2">
                   <div className="text-stone-500 mb-0.5">{t("field_operations.loaded_material")}</div>
-                  <div className="font-bold text-stone-900">{activeTrip.materialId} ({(activeTrip.netWeight || 0).toLocaleString()} {t("operations.kg")}</div>
+                  <div className="font-bold text-stone-900">{activeTrip.materialId} ({activeTrip.operationalSnapshot ? activeTrip.operationalWeights?.loadingEffectiveWeight!=null ? <>{activeTrip.operationalWeights.loadingEffectiveWeight} {t('shared.units.ton')} · {t(`op.${activeTrip.operationalWeights.loadingWeightBasis}`)}</> : t('op.UNAVAILABLE') : <>{(activeTrip.netWeight || 0).toLocaleString()} {t("operations.kg")}</>}</div>
                 </div>
               </div>
 

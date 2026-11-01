@@ -133,14 +133,14 @@ export class ClientWorkspaceService {
    */
   public async prepareGoogleAuthorization(): Promise<void> { await Promise.all([ensureRuntimeGeneration(),prepareWorkspaceGoogleAuthorization()]); }
 
-  public async requestGoogleScopes(): Promise<string> {
+  public async requestGoogleScopes(automation=false): Promise<string> {
     assertRuntimeGeneration();
     const current = auth.currentUser;
     const uid = current?.uid;
     const subject = current?.providerData.find(provider => provider.providerId === 'google.com')?.uid;
     try {
       if (!uid || !subject) throw new Error('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH');
-      const token = await requestWorkspaceGoogleToken(subject, () => auth.currentUser?.uid === uid);
+      const token = await requestWorkspaceGoogleToken(subject, () => auth.currentUser?.uid === uid,automation);
       if (auth.currentUser?.uid !== uid) throw new Error('WORKSPACE_IDENTITY_CHANGED');
       this.setAccessToken(token);
       return token;
@@ -174,6 +174,14 @@ export class ClientWorkspaceService {
     const result = await response.json();
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
+  }
+  public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
+    await ensureRuntimeGeneration();const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({scriptProjectId})});
+    const result=await response.json();if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
+  }
+  public async drainPendingWorkspace(projectId:string):Promise<void> {
+    if(!auth.currentUser)return;const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    if(!response.ok)throw Error('WORKSPACE_SYNC_DEFERRED');
   }
   public async initializeWorkspace(projectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();

@@ -37,4 +37,6 @@ export interface ProjectGoogleStatus {
   syncHealth?: WorkspaceSyncHealth;
   workbookHealth?: WorkbookHealth;
   backgroundAuthorization?: 'CONNECTED'|'AUTHORIZATION_REQUIRED'|'NOT_CONNECTED';
+  automationRecoveryRequired?:boolean;
+  syncTrigger?:'USER_ACTIVE';
 }

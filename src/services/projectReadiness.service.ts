@@ -7,6 +7,7 @@ import { canEvaluateProjectActivation } from './projectMutability.policy';
 import type { AuthUserContext } from '../types/common';
 import { ProjectEntity } from '../types/entities';
 import type { ProjectReadinessReadContext } from './projectReadiness.context';
+import {validateOperationalConfiguration,resolveReadinessRequirements} from './operationalProfileResolver';
 
 export type ReadinessCategory = 'LIFECYCLE' | 'SETUP' | 'RELATIONSHIP' | 'PRICING' | 'AUTHORITY' | 'DATA_INTEGRITY';
 export interface ReadinessBlocker {
@@ -66,6 +67,9 @@ export class ProjectReadinessService {
     if (!project) throw new Error('المشروع غير موجود');
     
     const blockers: ReadinessBlocker[] = [];
+    const configuration=project.operationalConfiguration?validateOperationalConfiguration(project.operationalConfiguration):null;
+    const requiresPath=!configuration||resolveReadinessRequirements(configuration).coherentDriverPath;
+    if(project.operationalConfigurationRequired&&!configuration)blockers.push({category:'SETUP',ownerPhase:'PHASE_6',code:'OPERATIONAL_CONFIGURATION_REQUIRED',message:'OPERATIONAL_CONFIGURATION_REQUIRED'});
 
     const lifecycle = lifecycleReadiness(project, projectId, actor);
     const setup = readContext.getSetupReadiness ? await readContext.getSetupReadiness(projectId, project) : unavailableSetupReadiness();
@@ -76,10 +80,10 @@ export class ProjectReadinessService {
 
     // 2. Carrier membership
     const carriers = await readContext.listActiveCarrierMemberships(projectId);
-    if (carriers.length === 0) blockers.push({ category: 'RELATIONSHIP', ownerPhase: 'PHASE_5', code: 'NO_ACTIVE_CARRIER', message: 'لا يوجد ناقلات نشطة' });
+    if (requiresPath&&carriers.length === 0) blockers.push({ category: 'RELATIONSHIP', ownerPhase: 'PHASE_5', code: 'NO_ACTIVE_CARRIER', message: 'لا يوجد ناقلات نشطة' });
 
     // 3. Operational Path Check
-    let completePath = await this.findCoherentOperationalPath(projectId, effectiveAt, readContext, materials, carriers, blockers);
+    let completePath = requiresPath?await this.findCoherentOperationalPath(projectId, effectiveAt, readContext, materials, carriers, blockers):null;
     if (completePath) {
       validateCandidateIds(completePath);
       if (readContext.revalidateCandidatePath) {
@@ -88,7 +92,7 @@ export class ProjectReadinessService {
         if (revalidation.length) completePath = null;
       }
     }
-    if (!completePath) {
+    if (requiresPath&&!completePath) {
       blockers.push({ category: 'RELATIONSHIP', ownerPhase: 'PHASE_5', code: 'NO_COMPLETE_OPERATIONAL_PATH', message: 'لا يوجد مسار تشغيلي مكتمل' });
     }
 

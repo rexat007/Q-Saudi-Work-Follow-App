@@ -3,6 +3,14 @@ export type AnalyticsTranslator = (key: string, params?: Record<string, string |
 
 // Exact current presentation labels; never apply this registry to entity names or notes.
 export const analyticsTextKeys: Readonly<Record<string, string>> = {
+  "op.MEASURED": "op.MEASURED",
+  "op.DERIVED_FROM_LOADING": "op.DERIVED_FROM_LOADING",
+  "op.DERIVED_FROM_UNLOADING": "op.DERIVED_FROM_UNLOADING",
+  "op.ESTIMATED_TRUCK_CAPACITY": "op.ESTIMATED_TRUCK_CAPACITY",
+  "op.PROJECT_STANDARD": "op.PROJECT_STANDARD",
+  "op.ESTIMATED_MATERIAL_TRUCK_MATRIX": "op.ESTIMATED_MATERIAL_TRUCK_MATRIX",
+  "op.UNAVAILABLE": "op.UNAVAILABLE",
+
   "معلقة": "dashboard.labels.pending_suffix",
   "الناقل": "entityResolution.labels.carrier_3",
   "المكتملة": "dashboard.labels.completed_col",

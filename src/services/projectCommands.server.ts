@@ -8,6 +8,8 @@ import { sanitizeUndefined } from '../utils/sanitize';
 import { ProjectValidator } from '../validators/project.validator';
 import { LEGAL_LIFECYCLE_TRANSITIONS } from './projectLifecycle.policy';
 import { ACTIVE_PROJECT_PROFILE_FIELDS, assertFoundationMutation, canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
+import {validateOperationalConfiguration,resolveOperationalProfile} from './operationalProfileResolver';
+import {markDirtyInTransaction} from './projectWorkspaceProjectionState.server';
 import type { ProjectEntity } from '../types/entities';
 import type { AuthUserContext } from '../types/common';
 
@@ -92,7 +94,7 @@ export class ProjectCommandsServerService {
     foundation.settings = Object.fromEntries(FOUNDATION_SETTINGS.filter(key => settings[key] !== undefined).map(key => [key, settings[key]]));
     validateFoundation(foundation);
     if (typeof foundation.nameEn !== 'string' || typeof foundation.clientName !== 'string' || !foundation.location || typeof foundation.settings.zatcaTaxNumber !== 'string' || typeof foundation.settings.vatRatePercent !== 'number') fail('INVALID_PROJECT_COMMAND');
-    const normalized: any = sanitizeUndefined({ ...foundation, status: 'SETUP', authorizedCarrierIds: [], authorizedMaterialIds: [], settings: { ...foundation.settings, requireTareOnExit: true, maxToleranceKg: 500, allowDriverSelfDispatch: false, ...(settings.googleDriveProvisioning ? { googleDriveProvisioning: settings.googleDriveProvisioning } : {}) } });
+    const normalized: any = sanitizeUndefined({ ...foundation, operationalConfigurationRequired:true, status: 'SETUP', authorizedCarrierIds: [], authorizedMaterialIds: [], settings: { ...foundation.settings, requireTareOnExit: true, maxToleranceKg: 500, allowDriverSelfDispatch: false, ...(settings.googleDriveProvisioning ? { googleDriveProvisioning: settings.googleDriveProvisioning } : {}) } });
     validateProject({ ...normalized, projectId: 'Q-PRJ-VALIDATION' });
     const fingerprint = createHash('sha256').update(JSON.stringify(stable(normalized))).digest('hex');
     return this.db.runTransaction(async (tx: any) => {
@@ -139,6 +141,24 @@ export class ProjectCommandsServerService {
       this.audit(tx, projectId, actor, null, project, 'CREATE_PROJECT');
       tx.set(ledgerRef, { command: 'CREATE_PROJECT', actorId: actor.userId, operationId: raw.operationId, fingerprint, projectId, result: project, createdAt: now });
       return project;
+    });
+  }
+  async configureOperations(projectId:string,input:any,authenticated:AuthUserContext) {
+    exact(input,['configuration','expectedVersion','acknowledgeLegacyDualCompatibility']);
+    const configuration=validateOperationalConfiguration(input.configuration);
+    if(!validId(projectId)||!Number.isInteger(input.expectedVersion))fail('INVALID_PROJECT_COMMAND');
+    return this.db.runTransaction(async(tx:any)=>{
+      const actor=await this.actor(tx,authenticated,projectId),ref=this.db.collection('projects').doc(projectId),snap=await tx.get(ref);
+      if(!snap.exists)fail('PROJECT_NOT_FOUND',404);const project=decodeProject<ProjectEntity>(snap.data(),projectId);
+      assertFoundationMutation(project.status,'MAINTENANCE');if((project.version||0)!==input.expectedVersion)fail('PROJECT_VERSION_CONFLICT',409);
+      if(JSON.stringify(project.operationalConfiguration)===JSON.stringify(configuration))return project;
+      const trips=await tx.get(ref.collection('trips').limit(1)),continuity=await tx.get(ref.collection('workspace_continuity').doc('current'));
+      const legacyCompatible=!project.operationalConfiguration&&continuity.data()?.binding?.workspaceBlueprintVersion==='SABIL-HAIL-V1'&&resolveOperationalProfile(configuration)==='DUAL_WEIGHBRIDGE'&&input.acknowledgeLegacyDualCompatibility===true;
+      if((trips.docs.length||continuity.data()?.binding||continuity.data()?.fileId||continuity.data()?.folderId)&&!legacyCompatible)fail('OPERATIONAL_PROFILE_IMPACT_ASSESSMENT_REQUIRED',409);
+      await markDirtyInTransaction(tx,projectId,['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'],'OPERATIONAL_CONFIGURATION',undefined,this.db);
+      const after={...project,operationalConfiguration:configuration,operationalConfigurationRequired:true,version:(project.version||0)+1,updatedAt:new Date(),updatedBy:actor.userId};
+      tx.update(ref,{operationalConfiguration:configuration,operationalConfigurationRequired:true,version:after.version,updatedAt:after.updatedAt,updatedBy:actor.userId});
+      this.audit(tx,projectId,actor,project,after,'CONFIGURE_PROJECT_OPERATIONS');return after;
     });
   }
   async updateFoundation(projectId: string, patch: any, authenticated: AuthUserContext, expectedVersion?:number) {

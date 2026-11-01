@@ -1,3 +1,4 @@
+import type {TripOperationalSnapshot,OperationalTimeline,OperationalWeights,WeightBasis} from './operationalProfile';
 /**
  * Trip Engine Domain Types & Schemas
  * Strictly adhering to architectural requirements:
@@ -148,6 +149,9 @@ export interface TripEntitySnapshot {
 }
 
 export interface TripRecord {
+  operationalSnapshot?:TripOperationalSnapshot;
+  operationalTimeline?:OperationalTimeline;
+  operationalWeights?:OperationalWeights;
   tripId: string;
   projectId: string;
   tripSerial: string;

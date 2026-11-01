@@ -486,7 +486,8 @@ export class ServerWorkspaceService {
     expectedColumns: readonly string[] | string[],
     bearerToken?: string,
     valueInputOption:'RAW'|'USER_ENTERED'='USER_ENTERED',
-    beforeRequest?:()=>Promise<void>
+    beforeRequest?:()=>Promise<void>,
+    preserveUnmappedColumns=false
   ): Promise<UpsertResult> {
     const startTime = Date.now();
     const auth = this.getAuthClient(bearerToken,beforeRequest);
@@ -539,6 +540,7 @@ export class ServerWorkspaceService {
     existingRows.forEach((row, idx) => {
       const keyVal = row[pkIndex];
       if (keyVal !== undefined && keyVal !== null && keyVal !== '') {
+        if(preserveUnmappedColumns&&rowIndexByKey.has(String(keyVal).trim()))throw workspaceError('PROFILE_DUPLICATE_ROW_REVIEW_REQUIRED',409);
         rowIndexByKey.set(String(keyVal).trim(), idx + 2); // row 2 onwards
       }
     });
@@ -568,6 +570,15 @@ export class ServerWorkspaceService {
       const existingRowNumber = rowIndexByKey.get(pkValue);
 
       if (existingRowNumber !== undefined) {
+        if(preserveUnmappedColumns){
+          for(let column=0;column<currentHeaders.length;){
+            if(!Object.hasOwn(rec,currentHeaders[column])){column++;continue;}
+            const start=column,values:any[]=[];
+            while(column<currentHeaders.length&&Object.hasOwn(rec,currentHeaders[column]))values.push(rowValues[column++]);
+            updateRequests.push({range:`${tabTitle}!${this.columnIndexToLetter(start)}${existingRowNumber}:${this.columnIndexToLetter(column-1)}${existingRowNumber}`,values:[values]});
+          }
+          updatedCount++;continue;
+        }
         // Existing row -> update in-place
         const range = `${tabTitle}!A${existingRowNumber}:${this.columnIndexToLetter(currentHeaders.length - 1)}${existingRowNumber}`;
         updateRequests.push({ range, values: [rowValues] });

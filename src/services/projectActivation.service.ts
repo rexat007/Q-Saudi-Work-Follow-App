@@ -39,9 +39,9 @@ export class ProjectActivationService {
       if (error.code === 'PERSISTENCE_BOUNDARY_INVALID') throw new ProjectActivationError(error.code, `المشروع غير جاهز للتنشيط: ${error.message}`, 400);
       throw error;
     }
-    if (!readiness.ready || !readiness.candidatePath) throw Object.assign(new ProjectActivationError('PROJECT_NOT_READY', `المشروع غير جاهز للتنشيط: ${readiness.blockers.map(blocker => blocker.message).join(' | ')}`),{blockers:readiness.blockers});
+    if (!readiness.ready || !preflight.project.operationalConfiguration&&!readiness.candidatePath) throw Object.assign(new ProjectActivationError('PROJECT_NOT_READY', `المشروع غير جاهز للتنشيط: ${readiness.blockers.map(blocker => blocker.message).join(' | ')}`),{blockers:readiness.blockers});
     const path: CandidatePath = readiness.candidatePath;
-    validateCandidateIds(path); // Must precede construction of any candidate refs.
+    if(path)validateCandidateIds(path); // Must precede construction of any candidate refs.
 
     await this.db.runTransaction(async (tx: any) => {
       const reads = new ProjectReadinessAdminReadContext(this.db, ref => tx.get(ref));
@@ -54,10 +54,17 @@ export class ProjectActivationService {
       if (lifecycle.state === 'ALREADY_ACTIVE') return;
       if (!lifecycle.ready) throw new ProjectActivationError('PROJECT_NOT_APPROVED', 'لا يمكن تنشيط مشروع ما لم يكن في حالة معتمد (APPROVED)');
       // Re-read the full selected path and globals with the transaction's snapshot.
+      if(project.operationalConfiguration){
+        const current=Object.assign(reads,reactivating?{getProject:async()=>({...project,status:'APPROVED'})}:{});
+        const result=await this.readinessService.evaluateProjectReadiness(projectId,new Date(),current,actor);
+        if(!result.ready)throw Object.assign(new ProjectActivationError('PROJECT_NOT_READY','PROJECT_NOT_READY'),{blockers:result.blockers});
+      }else{
+      if(!path)throw new ProjectActivationError('PROJECT_NOT_READY','PROJECT_NOT_READY');
       const blockers = await reads.revalidateCandidatePath(projectId, path, () => new Date());
       if (blockers.length) throw Object.assign(new ProjectActivationError('PROJECT_NOT_READY', `المشروع غير جاهز للتنشيط: ${blockers.map(blocker => blocker.message).join(' | ')}`),{blockers});
       const setup = await reads.getSetupReadiness(projectId, project);
       if (!setup.ready) throw Object.assign(new ProjectActivationError('PROJECT_SETUP_NOT_READY', 'Project setup is incomplete.'),{blockers:setup.blockers});
+      }
       const now = new Date(), auditLogId = `AUDIT-ACTIVATION-${projectId}-${randomUUID()}`;
       const update = { status: 'ACTIVE' as const, updatedAt: now, updatedBy: actor.userId };
       const audit = sanitizeUndefined({

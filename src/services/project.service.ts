@@ -33,6 +33,10 @@ export class ProjectService {
     await this.command(`/api/projects/${encodeURIComponent(projectId)}/foundation`, { updates, expectedVersion });
   }
 
+  async configureOperations(projectId:string, configuration:import('../types/operationalProfile').OperationalConfiguration, expectedVersion:number, acknowledgeLegacyDualCompatibility=false):Promise<ProjectEntity> {
+    return this.command(`/api/projects/${encodeURIComponent(projectId)}/operational-configuration`,{configuration,expectedVersion,acknowledgeLegacyDualCompatibility});
+  }
+
   async deleteProject(_projectId: string, _context: AuthUserContext): Promise<void> {
     throw new Error('PROJECT_DELETE_NOT_SUPPORTED');
   }

@@ -1,3 +1,4 @@
+import {snapshotOperationalConfiguration,resolveOperationalWeights,resolveTimeMetrics,profileTransitionAllowed,validateOperationalConfiguration} from './operationalProfileResolver';
 import { commercialTotals, PricingService } from './pricing.service';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
@@ -33,7 +34,7 @@ export interface DispatchTripParams {
   projectId: string;
   carrierId: string;
   truckId: string;
-  driverId: string;
+  driverId: string | null;
   materialId: string;
   pricingRuleId: string;
   clientUUID?: string;
@@ -66,7 +67,7 @@ export interface ImportedTripDispatchParams {
   projectId: string;
   carrierId: string;
   truckId: string;
-  driverId: string;
+  driverId: string | null;
   materialId: string;
   pricingRuleId?: string | null;
   pricingMode?: 'RESOLVED' | 'PENDING';
@@ -197,6 +198,8 @@ export class TripService {
       throw new Error(`حالة المشروع (${project.status}) لا تسمح بترحيل رحلات تشغيلية`);
     }
 
+    const configuration=project.operationalConfiguration?validateOperationalConfiguration(project.operationalConfiguration):null;
+    const optionalDriver=configuration&&configuration.driverIntakeMode!=='PRELOADED_ROSTER'&&!driverId;
     const [
       carrierGlobal,
       carrierMembership,
@@ -216,13 +219,13 @@ export class TripService {
       this.persistence.projectCarrierMembershipRepository.getMembership(cleanProjectId, carrierId),
       this.persistence.globalMaterialRepository.findById(materialId),
       this.persistence.projectMaterialMembershipRepository.getMembership(cleanProjectId, materialId),
-      this.persistence.globalDriverRepository.findById(driverId),
-      this.persistence.projectDriverMembershipRepository.getMembership(cleanProjectId, driverId),
+      optionalDriver?Promise.resolve(null):this.persistence.globalDriverRepository.findById(driverId),
+      optionalDriver?Promise.resolve(null):this.persistence.projectDriverMembershipRepository.getMembership(cleanProjectId, driverId),
       this.persistence.globalTruckRepository.findById(truckId),
       this.persistence.projectTruckMembershipRepository.getMembership(cleanProjectId, truckId),
-      this.persistence.projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId),
+      optionalDriver?Promise.resolve(null):this.persistence.projectDriverCarrierAffiliationRepository.getAffiliation(cleanProjectId, driverId),
       this.persistence.projectTruckCarrierAffiliationRepository.getAffiliation(cleanProjectId, truckId),
-      this.persistence.projectDriverTruckAssignmentRepository.getActiveAssignmentByDriver(cleanProjectId, driverId),
+      optionalDriver?Promise.resolve(null):this.persistence.projectDriverTruckAssignmentRepository.getActiveAssignmentByDriver(cleanProjectId, driverId),
       this.persistence.projectDriverTruckAssignmentRepository.getActiveAssignmentByTruck(cleanProjectId, truckId),
       this.persistence.projectTruckMaterialAllocationRepository.getActiveAllocationByTruck(cleanProjectId, truckId),
     ]);
@@ -241,10 +244,10 @@ export class TripService {
       throw new Error(`المادة (${materialId}) ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
-    if (!driverGlobal || !evaluateGlobalEligibility('DRIVER', driverGlobal).CAN_USE_OPERATIONALLY) {
+    if (!optionalDriver&&(!driverGlobal || !evaluateGlobalEligibility('DRIVER', driverGlobal).CAN_USE_OPERATIONALLY)) {
       throw new Error('السائق المحدد غير موجود في الهوية الموحدة أو غير نشط (INACTIVE)');
     }
-    if (!driverMembership || driverMembership.status !== 'ACTIVE') {
+    if (!optionalDriver&&(!driverMembership || driverMembership.status !== 'ACTIVE')) {
       throw new Error(`السائق (${driverId}) ليس لديه عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
@@ -255,6 +258,7 @@ export class TripService {
       throw new Error(`الشاحنة (${truckId}) ليس لديها عضوية نشطة (ACTIVE) في هذا المشروع`);
     }
 
+    if(!optionalDriver){
     if (!driverAssignment || !driverAssignment.truckId || !truckAssignment || !truckAssignment.driverId) {
       throw new Error(`لا يوجد تعيين تشغيلي نشط (Driver ↔ Truck) بين السائق (${driverId}) والشاحنة (${truckId})`);
     }
@@ -271,6 +275,8 @@ export class TripService {
       throw new Error(`السائق المحدد (${driverId}) تابع للناقل (${driverAffiliation.carrierId}) وليس للناقل المختار (${carrierId}) [العلاقة: Driver → Carrier]`);
     }
 
+    }
+    else if(truckAssignment)throw new Error('CANONICAL_ASSIGNED_DRIVER_REQUIRED');
     if (!truckAffiliation || truckAffiliation.status !== 'ACTIVE') {
       throw new Error(`الشاحنة (${truckId}) ليس لديها تبعية نشطة لناقل (Carrier Affiliation) في هذا المشروع`);
     }
@@ -312,7 +318,9 @@ export class TripService {
     if (!params.truckId || typeof params.truckId !== 'string' || !params.truckId.trim()) {
       throw new Error('معرف الشاحنة (truckId) مطلوب ولا يمكن تركه فارغاً');
     }
-    if (!params.driverId || typeof params.driverId !== 'string' || !params.driverId.trim()) {
+    const configuredProject=await this.persistence.projectRepository.findById(params.projectId.trim());
+    const configuredIntake=configuredProject?.operationalConfiguration?validateOperationalConfiguration(configuredProject.operationalConfiguration).driverIntakeMode:null;
+    if ((!params.driverId || typeof params.driverId !== 'string' || !params.driverId.trim())&&(!configuredIntake||configuredIntake==='PRELOADED_ROSTER')) {
       throw new Error('معرف السائق (driverId) مطلوب ولا يمكن تركه فارغاً');
     }
     if (!params.materialId || typeof params.materialId !== 'string' || !params.materialId.trim()) {
@@ -372,7 +380,7 @@ export class TripService {
       projectId: cleanProjectId,
       carrierId: params.carrierId,
       truckId: params.truckId,
-      driverId: params.driverId,
+      driverId: params.driverId||null,
       materialId: params.materialId,
       pricingRuleId: params.pricingRuleId,
 
@@ -394,12 +402,12 @@ export class TripService {
         tareWeightKg: truckGlobal.tareWeightKg || 0,
         legalPayloadLimitKg: truckGlobal.legalPayloadLimitKg || 0,
       },
-      driverSnapshot: {
+      driverSnapshot: driverGlobal?{
         driverId: driverGlobal.driverId,
         fullNameAr: driverGlobal.fullNameAr || '',
         nationalOrIqamaId: driverGlobal.nationalId || (driverGlobal as any).nationalOrIqamaId || '',
         phone: driverGlobal.phone || '',
-      },
+      }:null,
       materialSnapshot: {
         materialId: materialGlobal.materialId,
         code: materialGlobal.code || '',
@@ -443,9 +451,8 @@ export class TripService {
 
       status: 'DISPATCHED',
 
-      weights: {
-        originTareKg: truckGlobal.tareWeightKg || 0,
-      },
+      weights: project.operationalConfiguration?{}:{originTareKg:truckGlobal.tareWeightKg||0},
+      ...(project.operationalConfiguration?{operationalSnapshot:snapshotOperationalConfiguration(project.operationalConfiguration,project.version||0,params.driverId||null,{truckCapacityKg:truckGlobal.legalPayloadLimitKg,truckType:truckGlobal.truckType,materialId:params.materialId}),operationalTimeline:{}}:{}),
 
       financials: {
         baseAmountSAR: 0,
@@ -466,6 +473,7 @@ export class TripService {
       updatedBy: context.userId,
     };
 
+    if(newTrip.operationalSnapshot)newTrip.operationalWeights=resolveOperationalWeights(newTrip.operationalSnapshot.configuration,{estimatedCapacityTonnes:newTrip.operationalSnapshot.estimatedCapacityTonnes});
     // 13. Validate
     const validation = TripValidator.validate(newTrip);
     if (!validation.isValid) {
@@ -517,7 +525,9 @@ export class TripService {
     }
 
     // FSM validation
-    const transitionCheck = TripValidator.validateStatusTransition(existing.status, targetStatus);
+    const operational=existing.operationalSnapshot;
+    const priorWeights=operational?resolveOperationalWeights(operational.configuration,{loadingMeasuredWeight:existing.weights.originNetKg==null?null:existing.weights.originNetKg/1000,unloadingMeasuredWeight:existing.weights.destinationNetKg==null?null:existing.weights.destinationNetKg/1000,estimatedCapacityTonnes:operational.estimatedCapacityTonnes}):null;
+    const transitionCheck = operational?{isValid:profileTransitionAllowed(existing.status,targetStatus,operational,existing.operationalTimeline||{},priorWeights!),errors:[{messageAr:'OPERATIONAL_CHECKPOINT_REQUIRED'}]}:TripValidator.validateStatusTransition(existing.status, targetStatus);
     if (!transitionCheck.isValid) {
       throw new Error(transitionCheck.errors[0].messageAr);
     }
@@ -526,8 +536,9 @@ export class TripService {
       status: targetStatus,
     };
 
+    if(operational&&payload.unloadDecision==='ACCEPT_ORIGIN_NET_AS_DESTINATION')throw new Error('DERIVED_WEIGHT_IS_NOT_A_MEASUREMENT');
     // If capturing origin weighbridge
-    if (targetStatus === 'WEIGHED_ORIGIN' && payload.originTareKg && payload.originGrossKg) {
+    if (targetStatus === 'WEIGHED_ORIGIN' && typeof payload.originTareKg==='number' && typeof payload.originGrossKg==='number') {
       const originNetKg = payload.originGrossKg - payload.originTareKg;
       updates.weights = {
         ...existing.weights,
@@ -550,7 +561,7 @@ export class TripService {
         destinationNetKg,
         destinationTicketNo: payload.destinationTicketNo,
         billableWeightKg: destinationNetKg,
-        varianceKg: destinationNetKg - (existing.weights.originNetKg || 0),
+        ...(!operational||operational.profile==='DUAL_WEIGHBRIDGE'?{varianceKg:destinationNetKg-(existing.weights.originNetKg||0)}:{}),
       };
       updates.unloadingDataSource = 'MANUAL'; // measurements entered by the authenticated operator
       updates.unloadingActorType = 'USER'; updates.unloadingActorId = context.userId;
@@ -560,6 +571,14 @@ export class TripService {
     if (targetStatus === 'WEIGHED_ORIGIN') (updates as any).loadTime = new Date().toISOString();
     if (targetStatus === 'OFFLOADED') (updates as any).unloadTime = new Date().toISOString();
 
+    if(operational){
+      const now=new Date().toISOString(),timeline={...existing.operationalTimeline};
+      const point=({LOADING:'loadingStartedAt',WEIGHED_ORIGIN:'loadingCompletedAt',IN_TRANSIT:'departedAt',AT_DESTINATION:'arrivedAt',OFFLOADED:'unloadingCompletedAt',COMPLETED:'completedAt'} as const)[targetStatus];
+      if(point&&!timeline[point])timeline[point]=now;
+      const metrics=resolveTimeMetrics(timeline,operational.configuration);if(metrics.expectedArrivalAt)timeline.expectedArrivalAt=metrics.expectedArrivalAt;
+      updates.operationalTimeline=timeline;
+      const weights={...existing.weights,...updates.weights};updates.operationalWeights=resolveOperationalWeights(operational.configuration,{loadingMeasuredWeight:weights.originNetKg==null?null:weights.originNetKg/1000,unloadingMeasuredWeight:weights.destinationNetKg==null?null:weights.destinationNetKg/1000,estimatedCapacityTonnes:operational.estimatedCapacityTonnes});
+    }
     // If completing trip: calculate server financials automatically
     if (targetStatus === 'COMPLETED') {
       const billableWeightKg = updates.weights?.billableWeightKg || existing.weights.billableWeightKg || existing.weights.originNetKg || 0;
@@ -569,10 +588,11 @@ export class TripService {
       
       let baseAmount = 0;
       let settlementBase = 0;
+      let operationalSettlement:ReturnType<PricingService['calculateSettlement']>|undefined;
 
       if (existing.pricingSnapshot.pricingType !== 'LEGACY_UNRESOLVED') {
-        const calculation = new PricingService().calculateSettlement({pricingRule:{...existing.pricingSnapshot,pricingType,rate} as any,netWeightKg:billableWeightKg,allowMissingWeight:true});
-        settlementBase=calculation.settlementBase; baseAmount=calculation.settlementAmount;
+        const calculation = new PricingService().calculateSettlement({pricingRule:{...existing.pricingSnapshot,pricingType,rate} as any,netWeightKg:operational&&billableWeightKg===0?undefined:billableWeightKg,allowMissingWeight:true});
+        settlementBase=calculation.settlementBase; baseAmount=calculation.settlementAmount;if(operational)operationalSettlement=calculation;
       } else {
         // Preserve the explicit legacy pending marker and its existing completion representation.
         settlementBase=1; baseAmount=rate;
@@ -581,6 +601,7 @@ export class TripService {
 
       updates.pricingSnapshot = {
         ...existing.pricingSnapshot,
+        ...(operationalSettlement?operationalSettlement.snapshot:{}),
         settlementBase,
         settlementAmount: baseAmount,
       };
@@ -595,8 +616,8 @@ export class TripService {
         deductionsAmountSAR: deductions,
         ...totals,
         currency: 'SAR',
-        isFinalized: true,
-        finalizedAt: new Date(),
+        isFinalized: operationalSettlement?.isPending ? false : true,
+        ...(operationalSettlement?.isPending ? {} : {finalizedAt: new Date()}),
       };
     }
 
@@ -624,6 +645,26 @@ export class TripService {
     }, context);
 
     return { ...existing, ...updates } as TripEntity;
+  }
+
+  async recordOperationalCheckpoint(projectId:string,tripId:string,checkpoint:'loadingCompletedAt'|'unloadingStartedAt',context:AuthUserContext):Promise<TripEntity> {
+    const trip=await this.persistence.tripRepository.findById(projectId,tripId);
+    if(!trip?.operationalSnapshot||trip.financials.isFinalized||!(checkpoint==='loadingCompletedAt'?['LOADING','WEIGHED_ORIGIN']:['AT_DESTINATION','WEIGHED_DESTINATION']).includes(trip.status))throw Error('OPERATIONAL_CHECKPOINT_INVALID');
+    if(trip.operationalTimeline?.[checkpoint])return trip;
+    const now=new Date().toISOString(),updates={operationalTimeline:{...trip.operationalTimeline,[checkpoint]:now}};
+    await this.persistence.tripRepository.update(projectId,tripId,updates,context.userId);
+    await this.persistence.tripEventService.recordEvent({eventId:`EVT-${tripId}-${checkpoint}`,tripId,projectId,eventType:'EVENT_OPERATIONAL_CHECKPOINT',statusResulting:trip.status,deviceTimestamp:now,payload:{checkpoint},idempotencyKey:`CHECKPOINT-${tripId}-${checkpoint}`},context);
+    return {...trip,...updates};
+  }
+  async associateOperationalDriver(projectId:string,tripId:string,driverId:string,context:AuthUserContext):Promise<TripEntity> {
+    const trip=await this.persistence.tripRepository.findById(projectId,tripId);
+    if(!trip?.operationalSnapshot||trip.driverId||trip.financials.isFinalized||['COMPLETED','CANCELLED','REJECTED'].includes(trip.status))throw Error('DRIVER_ASSOCIATION_NOT_ALLOWED');
+    const {driverGlobal}=await this.validateCanonicalTripEntities(projectId,trip.carrierId,trip.truckId,driverId,trip.materialId);
+    const updates={driverId,driverSnapshot:{driverId,fullNameAr:driverGlobal.fullNameAr||'',nationalOrIqamaId:driverGlobal.nationalId||'',phone:driverGlobal.phone||''}};
+    await this.persistence.tripRepository.update(projectId,tripId,updates,context.userId);
+    await this.persistence.auditLogService.recordLog({projectId,entityType:'TRIP',entityId:tripId,action:'UPDATE',before:trip,after:{...trip,...updates}},context);
+    await this.persistence.tripEventService.recordEvent({eventId:`EVT-${tripId}-DRIVER`,tripId,projectId,eventType:'EVENT_DRIVER_ASSOCIATED',statusResulting:trip.status,deviceTimestamp:new Date().toISOString(),payload:{driverId},idempotencyKey:`DRIVER-${tripId}`},context);
+    return {...trip,...updates};
   }
 
   /**
@@ -781,7 +822,9 @@ export class TripService {
     if (!params.truckId || typeof params.truckId !== 'string' || !params.truckId.trim()) {
       throw new Error('معرف الشاحنة (truckId) مطلوب ولا يمكن تركه فارغاً');
     }
-    if (!params.driverId || typeof params.driverId !== 'string' || !params.driverId.trim()) {
+    const configuredProject=await this.persistence.projectRepository.findById(params.projectId.trim());
+    const configuredIntake=configuredProject?.operationalConfiguration?validateOperationalConfiguration(configuredProject.operationalConfiguration).driverIntakeMode:null;
+    if ((!params.driverId || typeof params.driverId !== 'string' || !params.driverId.trim())&&(!configuredIntake||configuredIntake==='PRELOADED_ROSTER')) {
       throw new Error('معرف السائق (driverId) مطلوب ولا يمكن تركه فارغاً');
     }
     if (!params.materialId || typeof params.materialId !== 'string' || !params.materialId.trim()) {
@@ -805,6 +848,7 @@ export class TripService {
     } else if(params.pricingMode==='RESOLVED') throw Error('MISSING_PRICING');
 
     const opData = params.operationalData || {};
+    if(project.operationalConfiguration){const c=project.operationalConfiguration;if(c.loadingMeasurementMode==='NONE'&&[opData.tareWeightKg,opData.grossWeightKg,opData.netWeightKg].some(v=>v!==undefined)||c.unloadingMeasurementMode==='NONE'&&opData.destinationNetWeightKg!==undefined)throw Error('UNSUPPORTED_MEASUREMENT');}
     let pricingSnapshot: any;
     let financials: any;
     let finalPricingRuleId: string;
@@ -931,12 +975,12 @@ export class TripService {
       tareWeightKg: truckGlobal.tareWeightKg || 0,
       legalPayloadLimitKg: truckGlobal.legalPayloadLimitKg || 0,
     };
-    const driverSnapshot = {
+    const driverSnapshot = driverGlobal?{
       driverId: driverGlobal.driverId,
       fullNameAr: driverGlobal.fullNameAr || driverGlobal.name || '',
       nationalOrIqamaId: driverGlobal.idNumber || (driverGlobal as any).nationalOrIqamaId || '',
       phone: driverGlobal.phone || '',
-    };
+    }:null;
     const materialSnapshot = {
       materialId: materialGlobal.materialId,
       code: materialGlobal.code || '',
@@ -961,7 +1005,7 @@ export class TripService {
       projectId: cleanProjectId,
       carrierId: params.carrierId,
       truckId: params.truckId,
-      driverId: params.driverId,
+      driverId: params.driverId||null,
       materialId: params.materialId,
       pricingRuleId: finalPricingRuleId,
       clientUUID: params.clientUUID,
@@ -985,6 +1029,7 @@ export class TripService {
       materialSnapshot,
       pricingSnapshot,
       status: mappedStatus,
+      ...(project.operationalConfiguration?{operationalSnapshot:snapshotOperationalConfiguration(project.operationalConfiguration,project.version||0,params.driverId||null,{truckCapacityKg:truckGlobal.legalPayloadLimitKg,truckType:truckGlobal.truckType,materialId:params.materialId}),operationalTimeline:{...(opData.loadTime?{loadingCompletedAt:opData.loadTime}:{}),...(opData.unloadTime?{unloadingCompletedAt:opData.unloadTime}:{})}}:{}),
       weights: {
         originTareKg: originTare,
         originGrossKg: originGross,
@@ -999,6 +1044,13 @@ export class TripService {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+
+    if(newTrip.operationalSnapshot){
+      const snapshot=newTrip.operationalSnapshot,c=snapshot.configuration;
+      if(newTrip.pricingSnapshot.isPending)newTrip.financials.isFinalized=false;
+      newTrip.operationalWeights=resolveOperationalWeights(c,{loadingMeasuredWeight:originNet==null?null:originNet/1000,unloadingMeasuredWeight:opData.destinationNetWeightKg==null?null:opData.destinationNetWeightKg/1000,estimatedCapacityTonnes:snapshot.estimatedCapacityTonnes});
+      if(mappedStatus==='COMPLETED'&&((c.loadingMeasurementMode==='WEIGHBRIDGE'&&newTrip.operationalWeights.loadingMeasuredWeight===null)||(c.unloadingMeasurementMode==='WEIGHBRIDGE'&&newTrip.operationalWeights.unloadingMeasuredWeight===null)||(c.requiredCheckpoints||[]).some(k=>!newTrip.operationalTimeline?.[k])))throw Error('OPERATIONAL_CHECKPOINT_REQUIRED');
+    }
 
     await this.persistence.tripRepository.create(newTrip);
 

@@ -1,3 +1,13 @@
+## Adaptive operational and Workspace architecture — current
+
+Exact state is [the ledger](reconstruction/02_PHASE_LEDGER.md); semantics are [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+Project business capabilities → OperationalProfileResolver → immutable Trip operational snapshot → current canonical Trip commands/identity/temporal/pricing authorities → durable metadata-only outbox → authenticated server canonical snapshot → profile-aware RAW Sheet projection and reporting. WorkspaceTemplateRegistry compiles four native profile blueprints and deterministic common/profile automation bundles. Independent Driver intake modes never fabricate identity; existing canonical Fleet onboarding remains authoritative. Measurements, derivations and estimates are separate facts.
+
+Current delivery is USER_ACTIVE / REQUEST_DRIVEN. A throttled active-user hook invokes the existing protected server drain with no client business rows; valid transient or existing encrypted Google grants serve the request. SCHEDULED_BACKGROUND_WORKER is NOT_REQUIRED, CRON_JOB is NOT_DEPLOYED by owner decision. Worker/offline source remains dormant future capability. No scheduler/offline secret configuration is a prerequisite for current acceptance. No automatic OAuth popup or identity/RBAC expansion.
+
+The older complete-Workspace checkpoint below describes the previous deployment proposal; scheduled-worker requirements there are superseded by this decision. Binding-first repair and principal/lease/revision/provider fences remain current. Real Google profile/recovery acceptance is still external; no deployment is claimed.
+
 ## Complete Project Workspace integration
 
 Exact current state: [phase ledger](reconstruction/02_PHASE_LEDGER.md). Firestore is the canonical data hub; the application commands Firestore; Sheets is the server projection/continuity surface; Apps Script is optional workbook-local automation.

@@ -1,3 +1,7 @@
+## Owner policy — dormant background capability
+
+Exact state is [the ledger](02_PHASE_LEDGER.md). CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN; SCHEDULED_BACKGROUND_WORKER = NOT_REQUIRED; CRON_JOB = NOT_DEPLOYED. No scheduler or new offline grant setup is required for current operational-engine acceptance. Existing encrypted grants may still serve an authorized active request. The worker/authorization implementation is retained as dormant future capability; the technical protocol and optional future deployment instructions below are preserved, but are not instructions to deploy cron now. Actual browser-closed acceptance is not claimed. See [the operational contract](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
 # Implemented Workspace background authorization and delivery
 
 Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This is implemented source, superseding the earlier design-only GWS2-C record. Source/local tests do not establish deployment or live acceptance.
@@ -18,7 +22,7 @@ Reauthorization atomically supersedes/removes the previous local secret and inst
 
 A Project lease records owner, claim time, expiry and binding revision. It renews every 30 seconds, expires after 120 seconds and fences every provider HTTP request and acknowledgment. A worker cannot reclaim an unexpired owner. Legacy owners lacking expiry first receive a 120-second quarantine expiry. Current principal, canonical active grant, Project/binding/subject and lease/revision are revalidated; revocation or replacement prevents acknowledgment. All provider requests use 15-second timeouts and no hidden retries. An already-in-flight Google mutation cannot participate in a Firestore transaction: timeout outcomes remain uncertain and are recovered through stable IDs/current-snapshot replay. No distributed atomicity is claimed.
 
-## Required hosting configuration (secret values never belong in chat)
+## Optional future background hosting configuration (not a current prerequisite)
 
 | Variable | Purpose |
 | --- | --- |
@@ -32,7 +36,7 @@ A Project lease records owner, claim time, expiry and binding revision. It renew
 
 The source fails closed for missing/invalid settings; no dummy grant, mock token or service-account Google ownership substitution is used. Keep the existing client-side Google settings/Picker application consistent with this OAuth app. Register the exact redirect in Google Cloud; enable Drive, Sheets and Apps Script APIs as applicable and approve required consent/test users. Apps Script scope is optional for binding/sync and required for automation installation. Do not expand to full Drive scope.
 
-## Exact external deployment steps
+## Optional future background deployment steps — not current instructions
 
 1. Owner reviews/merges the source branch and deploys web/API from the same artifact generation. No source publication is a live acceptance claim.
 2. Configure the variables above in hosting secret settings, including the exact Google-approved callback. Do not commit secret files or paste values into chat.
@@ -42,7 +46,7 @@ The source fails closed for missing/invalid settings; no dummy grant, mock token
 
 Key rotation: deploy new key/version, retain old versioned keys only in hosting secret keyring while existing grants are reauthorized, then remove retired keys. Do not delete old keys before migration/reauthorization or relabel unreadable ciphertext as a healthy grant. Operational retention/TTL of expired OAuth transaction metadata should be configured under the owner's retention policy; no code or raw verifier remains after consumption.
 
-## Live acceptance still required
+## Future background live acceptance — not a current gate
 
 No real Google grant/resource mutation or Q-PRJ-007 recovery was executed here. Verify on the existing Sheet: binding visible/setup gone/Open Sheet available; seven approved operational tabs and structure repair preserve inputs/review data; approved Script package verified or explicit automation-degraded state; four master projections; create/update/suspend/remove and temporal changes preserve stable rows/Project isolation/history; close browser, queue controlled canonical mutation, run scheduler and verify delivery/acknowledgment. Test revoked access, missing file, provider failure and retry without new resource creation. Historical SCRIPT_REQUESTED with no recoverable Script ID remains inconclusive and must not cause blind Script duplication; Google has no get-bound-project-by-parent API. Binding and Sheets sync remain usable independently.
 
