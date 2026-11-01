@@ -1,5 +1,6 @@
+import {planOwnedOperationalTabs} from './operationalTabs';
 import type {sheets_v4} from 'googleapis';
-import {assertBlueprint,cellEntries,type WorkspaceBlueprint} from './contract';
+import {assertBlueprint,cellEntries,blueprintRequests,type WorkspaceBlueprint} from './contract';
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE} from '../projectGoogleSheetContract';
 import {columnIndex} from './contract';
 
@@ -14,6 +15,7 @@ export interface WorkbookRepairPlan {requests:sheets_v4.Schema$Request[];drift:s
  * Non-formula values occupying formula cells are preserved and reported for review. */
 export function planWorkbookRepair(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet):WorkbookRepairPlan {
   assertBlueprint(blueprint,false);
+  if(blueprint.operationalTabOwnershipSchema===1)return planOwnedOperationalTabs(blueprint,current,legacy=>blueprintRequests(legacy,current,true));
   const requests:sheets_v4.Schema$Request[]=[],drift:string[]=[],conflicts:string[]=[];
   const existing=current.sheets||[],used=new Set(existing.map(s=>s.properties?.sheetId));
   const mapping=new Map<number,number>();const selected=new Map<string,Sheet|undefined>();

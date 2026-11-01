@@ -1,3 +1,4 @@
+import {OperationalReportTabRegistry,OperationalTabError,operationalTabHeaders} from '../src/services/operationalReportTabRegistry';
 import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint/expansion';
 import {LOADING_WRITABLE,OFFLOAD_WRITABLE,LOADING_FORMULAS,OFFLOAD_FORMULAS} from '../src/services/projectGoogleSheetContract';
 import { google } from 'googleapis';
@@ -25,6 +26,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
   const guarded=async<T>(code:string,run:()=>Promise<T>):Promise<T>=>{
     try{return await run();}catch(error){
       if(error instanceof GoogleWorkspaceCommandError)throw error;
+      if(error instanceof OperationalTabError)return gwsFail(error.code,409);
       const e=error as {code?:number;status?:number;response?:{status?:number}};
       const status=e.response?.status||e.status||e.code;
       const scope=classifyWorkspaceGenerationFailure(error,'VERIFY_WORKBOOK').diagnostic.category==='SCOPE_DENIED';
@@ -64,17 +66,22 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });
   };
   return {...base,
-    async projectProfileReports(fileId,report){await guarded('PROFILE_REPORT_SYNC_FAILED',async()=>{
-      if(report.rows.some(row=>row.projectId!==projectId))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
-      await owned(fileId);
-      for(const table of operationalReportTables(report))await serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence());
-    });},
-    async projectProfileTrip(fileId,trip,blueprint){await guarded('PROFILE_TRIP_SYNC_FAILED',async()=>{
+    async projectProfileReports(fileId,report){
+      if(report.rows.some(row=>row.projectId!==projectId)||!report.configuration)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
+      await guarded('PROFILE_REPORT_SYNC_FAILED',()=>owned(fileId));
+      const template=resolveWorkspaceTemplate(report.configuration),templateId=template.templateId;
+      // Migration rehydrates the new owned register even when old V1 outbox events were delivered.
+      await guarded(OperationalReportTabRegistry.TRIPS.failureCode,()=>serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.TRIPS.title,'tripId',report.rows,[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true,{tabId:'TRIPS',templateId}));
+      // Audit is append-only local review evidence; never snapshot-clear it.
+      await guarded(OperationalReportTabRegistry.AUDIT.failureCode,()=>serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.AUDIT.title,'Trip ID',[],operationalTabHeaders('AUDIT'),token,'RAW',()=>deliveryFence(),true,{tabId:'AUDIT',templateId}));
+      for(const table of operationalReportTables(report))await guarded(OperationalReportTabRegistry[table.tabId].failureCode,()=>serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence(),{tabId:table.tabId,templateId}));
+    },
+    async projectProfileTrip(fileId,trip,blueprint){await guarded(OperationalReportTabRegistry.TRIPS.failureCode,async()=>{
       if(trip.projectId!==projectId||!trip.operationalSnapshot)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       const template=resolveWorkspaceTemplate(trip.operationalSnapshot.configuration);
       if(blueprint.templateId&&blueprint.templateId!==template.templateId)return gwsFail('WORKSPACE_TEMPLATE_MIGRATION_REQUIRED');
       await owned(fileId);const row=profileTripRow(trip);
-      await serverWorkspaceService.upsertTabRecords(fileId,'Trip Register','tripId',[row],[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true);
+      await serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.TRIPS.title,'tripId',[row],[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true,{tabId:'TRIPS',templateId:template.templateId});
     });},
     async verifyScriptParent(fileId,scriptId,version){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,version)!==fileId)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID',403);});},
     setDeliveryFence(check){deliveryFence=check;},

@@ -312,7 +312,7 @@ export class ProjectGoogleWorkspaceServer {
       await save({state:code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(code)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED',lastSyncError:code});
       throw error;
     } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
-    if(google.projectMasterTabs)await this.retrySync(projectId,who,google).catch(()=>{});
+    if(google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
   }
   private async claimSync(projectId:string,who:AuthUserContext,owner:string) {
     const result=await this.db.runTransaction(async(tx:any)=>{
@@ -436,7 +436,17 @@ export class ProjectGoogleWorkspaceServer {
     }
   }
   /** Drain only server-recorded events. Request never supplies a file ID or row payload. */
-  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>) {
+  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>,initialized=false) {
+    // Namespace/Script V2 upgrade reuses the existing binding and known Script identity.
+    // The internal flag prevents initialization's final drain from recursively upgrading a degraded Script.
+    if(!initialized&&google.repairWorkbook&&google.authorizeProvisioning){
+      const prior=await this.db.runTransaction(async(tx:any)=>{const {project}=await this.authorized(tx,projectId,who);const snap=await tx.get(continuityRef(this.db,projectId));return {project,state:snap.data()};});
+      const binding=prior.state?.binding;
+      if(binding&&prior.project.operationalConfiguration&&(prior.state.scriptProjectId||binding.scriptProjectId)&&binding.appsScriptBlueprintVersion!==this.resolvedBlueprint(prior.project,binding).script?.version){
+        await this.initializeBound(projectId,who,google as GoogleBlueprintPort);
+        const result=await this.status(projectId,who);if(result.lastSyncError?.startsWith('PROFILE_REPORT_'))throw new GoogleWorkspaceCommandError(result.lastSyncError,502);return result;
+      }
+    }
     const owner=randomUUID(),ref=continuityRef(this.db,projectId);
     const state=await this.claimSync(projectId,who,owner);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));

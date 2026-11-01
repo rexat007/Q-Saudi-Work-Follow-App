@@ -1,8 +1,11 @@
+import {operationalTabByTitle,assertOperationalTabOwnership} from '../operationalReportTabRegistry';
+import {planOwnedOperationalTabs} from './operationalTabs';
 import type { sheets_v4, script_v1 } from 'googleapis';
 import { REQUIRED_GOOGLE_TABS, LOADING_HEADERS, OFFLOAD_HEADERS, LOADING_WRITABLE, OFFLOAD_WRITABLE } from '../projectGoogleSheetContract';
 import {WORKSPACE_TABS} from '../../types/workspace';
 
 export interface WorkspaceBlueprint {
+  operationalTabOwnershipSchema?:1;
   templateId?:string;
   requiredTabs?:readonly string[];
   schemaVersion: 1;
@@ -38,6 +41,7 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
   for(const sheet of blueprint.sheets) {
     const p=sheet.properties;
     if(!p || !Number.isSafeInteger(p.sheetId) || !p.gridProperties?.rowCount || p.gridProperties.rowCount>50000 || !p.gridProperties.columnCount) return invalid();
+    if(blueprint.operationalTabOwnershipSchema===1){const tabId=operationalTabByTitle(p.title!);if(tabId)assertOperationalTabOwnership(sheet,{tabId,templateId:blueprint.templateId!});}
     const tab=REQUIRED_GOOGLE_TABS.indexOf(p.title as typeof REQUIRED_GOOGLE_TABS[number]);
     if(tab>=0&&tab<2) {
       const headers=tab===0?LOADING_HEADERS:OFFLOAD_HEADERS;
@@ -79,6 +83,7 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
 /** Review/capture requests use target-local sheet IDs, never the source workbook IDs. */
 export function blueprintRequests(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet,bindingOnly=false):sheets_v4.Schema$Request[] {
   assertBlueprint(blueprint,!bindingOnly);
+  if(blueprint.operationalTabOwnershipSchema===1)return planOwnedOperationalTabs(blueprint,current,legacy=>blueprintRequests(legacy,current,bindingOnly)).requests;
   const requests:sheets_v4.Schema$Request[]=[];
   const existing=current.sheets||[];
   for(const [index,sheet] of blueprint.sheets.entries()) {
@@ -158,6 +163,9 @@ export function blueprintRequestBatches(requests:sheets_v4.Schema$Request[]):she
 }
 export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:sheets_v4.Schema$Spreadsheet,bindingOnly=false):void {
   assertBlueprint(blueprint,!bindingOnly);
+  if(blueprint.operationalTabOwnershipSchema===1){
+    const plan=planOwnedOperationalTabs(blueprint,actual);if(plan.requests.length)invalid('WORKSPACE_STRUCTURE_INVALID');return;
+  }
   const projectionTitles=new Set((['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'] as const).map(key=>WORKSPACE_TABS[key].tabTitleAr));
   const sheets=bindingOnly?actual.sheets?.filter(sheet=>!projectionTitles.has(sheet.properties?.title||'')):actual.sheets;
   if(sheets?.length!==blueprint.sheets.length || !subset(blueprint.properties,actual.properties))return invalid('WORKSPACE_STRUCTURE_INVALID');

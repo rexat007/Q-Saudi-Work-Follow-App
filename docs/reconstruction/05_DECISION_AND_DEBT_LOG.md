@@ -1,3 +1,13 @@
+## Operational report tab ownership correction — 2026-11-01
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `376904d80095515e7417b8e314e44965721600de`.
+
+- RESOLVED_IN_SOURCE: title-only reuse of legacy Dashboard and generic report tabs. One reserved registry plus sheet-scoped developer metadata establishes engine ownership. Generic/master APIs cannot bypass the reserved namespace; numeric-ID value writes prevent a concurrent title replacement redirecting mutations.
+- RESOLVED_IN_SOURCE: partial previous-profile rollout. Preserve all unmarked/legacy content, classify compatible previous layouts without claiming them, create owned Ops tabs and rehydrate canonical data even after V1 event acknowledgment. No destructive migration or duplicate resource provisioning.
+- RESOLVED_IN_SOURCE: stale profile Script destinations. V2 shares the registry and verifies metadata before writes; known Script version upgrade is automatic through the existing initialization/drain authority with a recursion fence. Legacy SABIL source assets are unchanged.
+- RESOLVED_IN_SOURCE: undifferentiated report-stage errors. Ownership/conflict and per-report-stage diagnostics are bounded and contain no provider payload or personal/credential data.
+- STILL_OPEN: owner review/publication/merge/deployment and independent live acceptance on the existing Project workbook. Local mocks are not live certification. Prior TypeScript/historical test debt is neither fixed nor waived; no new scheduled-worker prerequisite or Phase 10 unit is introduced.
+
 ## Operational profile decisions — 2026-11-01
 
 Exact current state: [the ledger](02_PHASE_LEDGER.md). Contract: [adaptive operations](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).

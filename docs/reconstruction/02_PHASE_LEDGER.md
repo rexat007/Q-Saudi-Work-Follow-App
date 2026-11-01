@@ -1,8 +1,21 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
+### Operational report tab isolation remediation — 2026-11-01
 
-### Operational profiles and adaptive Workspace engine — 2026-11-01
+CURRENT_CODE_BASELINE: `376904d80095515e7417b8e314e44965721600de` — merged main containing the operational profile engine. Current local branch: `reconstruction/operational-report-tab-isolation`.
+
+OPERATIONAL_REPORT_TAB_ISOLATION: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+PROFILE_TAB_OWNERSHIP: sheet-scoped DOCUMENT developer metadata; QSAUDI_OPERATIONAL_PROFILE, schema 1, canonical template family and stable tab identity.
+PARTIAL_PROFILE_TAB_RECOVERY: preserve previous/unproven tabs; create/reuse owned Ops namespace; rehydrate canonical Trips and reports. No legacy rename/deletion or replacement folder/Spreadsheet/binding.
+
+Source review confirmed title-only report reuse could target the legacy SABIL Dashboard. All four profiles now share the reserved Ops namespace and numeric-sheet-ID writes after ownership proof. Same-name unowned/mismatched tabs fail closed. Workbook-local profile automation verifies the same markers; Script bundle V2 upgrades reuse a confirmed existing Script identity. Previous profile tabs remain historical continuity evidence; exact compatible headers are classified without claiming unmarked content.
+
+Measurement/intake, historical weight/pricing, identity/authorization and USER_ACTIVE / REQUEST_DRIVEN sync decisions are unchanged. SCHEDULED_BACKGROUND_WORKER remains NOT_REQUIRED; no cron, Phase 10 or unrelated work is activated. Local provider/transaction fixtures prove recovery behavior; actual deployed/live Google acceptance remains pending. See [the operational contract](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md). The following initial-engine checkpoint is historical where superseded.
+
+
+
+### Historical initial operational engine checkpoint — 2026-11-01
 
 CURRENT_CODE_BASELINE: `6a7f1973a9737757f1de82f664f375ecb5d65f79` — merged main, PR #74. Branch: `reconstruction/operational-profiles-workspace-engine`.
 
