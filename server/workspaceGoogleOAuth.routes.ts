@@ -1,3 +1,5 @@
+import {boundedWorkspaceHttpCode} from '../src/utils/workspaceHttp';
+import {isWorkspaceAuthReason} from '../src/utils/workspaceAuthorization';
 import {randomBytes} from 'node:crypto';
 import type {Express} from 'express';
 import {workspaceOfflineAuthorization} from './workspaceSyncWorker';
@@ -9,7 +11,7 @@ import {GoogleWorkspaceCommandError} from '../src/services/projectGoogleWorkspac
 export function registerWorkspaceOAuthCallback(app:Express) {
   app.get('/workspace/google/callback',async(req,res)=>{
     res.setHeader('Cache-Control','no-store');res.setHeader('Referrer-Policy','no-referrer');
-    let result:{projectId:string|null;result:string}={projectId:null,result:'AUTHORIZATION_FAILED'};
+    let result:{projectId:string|null;result:string;code?:string;authorizationReason?:string}={projectId:null,result:'AUTHORIZATION_FAILED'};
     let origin:string;
     try{
       const c=workspaceOfflineConfig(),uri=new URL(c.redirectUri);origin=uri.origin;
@@ -17,14 +19,19 @@ export function registerWorkspaceOAuthCallback(app:Express) {
       const cookie=(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(cookieName+'='))?.slice(cookieName.length+1)||'';
       res.cookie(cookieName,'',{secure:uri.protocol==='https:',httpOnly:true,sameSite:'lax',path:'/',maxAge:0});
       if(typeof req.query.state==='string'&&typeof req.query.code==='string'&&!req.query.error)result=await workspaceOfflineAuthorization.callback(req.query.state,req.query.code,cookie);
-    }catch{try{origin=new URL(workspaceOfflineConfig().redirectUri).origin;}catch{return res.status(503).type('text/plain').send('GOOGLE_OFFLINE_CONFIGURATION_REQUIRED');}}
+    }catch(error){const e=error as {code?:unknown;authorizationReason?:unknown},code=boundedWorkspaceHttpCode(e?.code);if(code)result={projectId:null,result:'AUTHORIZATION_FAILED',code,...(isWorkspaceAuthReason(e?.authorizationReason)?{authorizationReason:e.authorizationReason}:{})};try{origin=new URL(workspaceOfflineConfig().redirectUri).origin;}catch{return res.status(503).type('text/plain').send('GOOGLE_OFFLINE_CONFIGURATION_REQUIRED');}}
     const nonce=randomBytes(18).toString('base64');
     res.setHeader('Content-Security-Policy',`default-src 'none'; script-src 'nonce-${nonce}'; frame-ancestors 'none'; base-uri 'none'`);
-    // No code, state, provider error, Google identity or credential is reflected.
+    // No OAuth code, state, provider error body, Google identity or credential is reflected.
     return res.type('html').send(`<!doctype html><meta charset="utf-8"><title>Google Workspace</title><script nonce="${nonce}">history.replaceState(null,'','/workspace/google/callback');if(window.opener){window.opener.postMessage(${JSON.stringify({type:'QSAUDI_WORKSPACE_OAUTH',...result})},${JSON.stringify(origin!)});window.close();}</script>`);
   });
 }
 export function registerWorkspaceOAuthCommands(app:Express,guards:any[]) {
+  app.get('/api/projects/:projectId/workspace/authorization/diagnosis',...guards,async(req:any,res)=>{
+    res.setHeader('Cache-Control','no-store');
+    try{return res.json({success:true,data:await workspaceOfflineAuthorization.diagnoseWorkspaceAuthorization(req.params.projectId,req.user)});}
+    catch{return res.status(503).json({success:false,code:'GOOGLE_AUTHORIZATION_DIAGNOSIS_UNAVAILABLE'});}
+  });
   app.post('/api/projects/:projectId/workspace/authorization',...guards,async(req:any,res)=>{
     res.setHeader('Cache-Control','no-store');
     try{

@@ -4681,6 +4681,13 @@ export const enTranslations: TranslationDictionary = {
   "admin_console.errors.invalid": "Check the account command and selected projects.",
   "admin_console.errors.conflict": "The account changed. Refresh and try again.",
   "admin_console.errors.failed": "The account update could not be completed.",
+  "gws.authorization_binding_review": "Review the Workspace binding. Reauthorization cannot repair a binding identity mismatch.",
+  "gws.authorization_account_mismatch": "The current account does not match the Workspace Google account. Use the linked account or review the binding.",
+  "gws.authorization_automation_scope": "Sheets synchronization is available; Apps Script automation permission is missing.",
+  "gws.authorization_retry_later": "Google is temporarily unavailable. Retry later; your stored authorization remains intact.",
+  "gws.authorization_diagnosis_unavailable": "Authorization status could not be checked. Retry later.",
+  "gws.grant_automation_permission": "Grant Apps Script permission",
+  "gws.connect_durable_authorization": "Authorize Google for future user-active sync",
 };
 
 

@@ -1,3 +1,5 @@
+import {isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
+import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceFetch,decodeWorkspaceResponse} from '../utils/workspaceHttp';
 import {CLIENT_BUILD_ID,ensureRuntimeGeneration,assertRuntimeGeneration} from '../runtime/runtimeGeneration';
 import {workspaceFailureCode} from '../utils/workspaceGenerationErrors';
@@ -203,7 +205,10 @@ export class ClientWorkspaceService {
         listener=(event:MessageEvent)=>{
           if(event.origin!==window.location.origin||event.source!==popup||event.data?.type!=='QSAUDI_WORKSPACE_OAUTH')return;
           if(!isCurrent())return reject(Error('WORKSPACE_IDENTITY_CHANGED'));
-          if(event.data.result==='CONNECTED'&&event.data.projectId===projectId)resolve();else reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));
+          if(event.data.result==='CONNECTED'&&event.data.projectId===projectId)resolve();else {
+            const code=boundedWorkspaceHttpCode(event.data.code)||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED';
+            reject(Error(isWorkspaceAuthReason(event.data.authorizationReason)?event.data.authorizationReason:code));
+          }
         };
         window.addEventListener('message',listener);timer=setTimeout(()=>reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED')),600000);
         poll=setInterval(()=>{if(!isCurrent()||popup.closed)reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));},500);

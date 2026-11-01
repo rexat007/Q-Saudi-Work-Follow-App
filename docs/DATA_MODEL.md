@@ -1,3 +1,13 @@
+## Durable Google authorization lifecycle metadata — current
+
+State: [phase ledger](reconstruction/02_PHASE_LEDGER.md); authority: [credential contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+
+Server-only `workspace_google_authorizations/{authorizationId}` retains encrypted `secret`, Project/actor/subject/Spreadsheet/bindingRevision and scopes. Status now explicitly includes PENDING_VALIDATION, ACTIVE, AUTHORIZATION_REQUIRED, SUPERSEDED and REVOKED. Candidates have `expiresAt` (milliseconds); accepted records clear it and record `refreshValidatedAt`, `automationRequested`, `automationAuthorized`, `lastFailureReason` and update time. No raw access token is persisted. Failed candidates are deleted; interrupted/expired noncanonical candidates cannot activate or be selected by ACTIVE discovery.
+
+`workspace_google_oauth_transactions` adds `previousAuthorizationId` and `authorizationVersion` to the existing ten-minute single-use context. Continuity increments `authorizationVersion` on acceptance/revocation and retains canonical `backgroundAuthorizationId`/status plus allowlisted `authorizationDiagnostic`. Diagnosis/audit contains only closed result/reason/provider code and metadataOnly=true, never credential/email/provider identity. A candidate never becomes the continuity pointer before proof. Failed replacement does not rewrite old continuity or grant.
+
+Binding revision remains the current security/lease generation: new native/legacy bindings start at 1; ordinary repair, Script package/identity maintenance and Ops reports preserve it. No redundant structural/security revision field or resource-ID migration is invented. Physical weights, Trip snapshots, canonical master identity and existing outbox representation remain unchanged.
+
 ## Current operational capability and Trip snapshot representation
 
 Status defers to [the ledger](reconstruction/02_PHASE_LEDGER.md); field/policy details are [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).

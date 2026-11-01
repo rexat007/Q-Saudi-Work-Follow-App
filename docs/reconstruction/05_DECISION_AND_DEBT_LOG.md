@@ -1,3 +1,16 @@
+## Durable Google authorization acceptance — 2026-11-01
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `93fd02bc9f1e253165f22b7a2c263b44a09d5382` contains merged provider-resilience source.
+
+- RESOLVED_IN_SOURCE: exchange-only ACTIVE/CONNECTED publication. Encrypted PENDING_VALIDATION candidates must pass the exact execution refresh authority, subject/audience/binding-scope proof and final canonical/consent-version fence before atomic activation.
+- RESOLVED_IN_SOURCE: failed replacement outage. Old grant/pointer remain untouched until success; failed candidate is discarded with bounded audit. Concurrent/revoked consent cannot activate stale credentials; foreign-Project grants cannot be modified through corrupt local pointers.
+- RESOLVED_IN_SOURCE: generic authorization loop diagnosis. Closed authoritative reasons distinguish grant, actor, Project, account, Spreadsheet, revision, refresh rejection and scope causes. Metadata-only protected diagnosis requires no token/decryption/provider call. UI separates genuine reauthorization, binding/account review, optional Script consent and transient retry.
+- PRESERVED: provider service/network/rate/quota errors do not destroy ACTIVE/CONNECTED, and successful retry uses server refresh without another OAuth exchange. Browser-only fallback remains ephemeral/explicit when no durable grant exists. SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN; CRON = NOT_REQUIRED.
+- VERIFIED_SOURCE_POLICY: native/legacy binding creation initializes revision 1; ordinary repair, Ops migration/reporting and Script installation/recovery preserve it. No structural/security split is necessary in current writers; exact identity/revision/grant fences remain mandatory.
+- STILL_OPEN: live deployment and actual Q-PRJ-007 recovery acceptance, existing TypeScript/historical guard debt, provider-side token revocation and distributed I/O uncertainty. Expired orphan candidates cannot activate; no TTL cleanup deployment is claimed. No resource recreation, new scopes/Cloud config, manual database patch or phase activation is part of this unit.
+
+The preceding provider-resilience correction is merged; its implementation-time observations below remain historical evidence, not this unit's current state.
+
 ## Google authorization and provider resilience — 2026-11-01
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Implementation baseline `e39cce70d3d8e3d549b99d8f8882908d44555de5`.

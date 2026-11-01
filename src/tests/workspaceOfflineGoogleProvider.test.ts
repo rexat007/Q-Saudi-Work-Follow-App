@@ -46,3 +46,8 @@ describe('actual Google offline provider protocol',()=>{
   check.mockRejectedValueOnce(Error('WORKSPACE_EXECUTION_FENCED'));await expect(interceptors[0].resolved({})).rejects.toThrow('WORKSPACE_EXECUTION_FENCED');
  });
 });
+
+ it('first-use refresh rejects an OAuth audience mismatch before accepting provider subject or scopes',async()=>{
+  f.info.mockResolvedValueOnce({aud:'foreign-client',scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets']});
+  await expect(googleOfflineProvider(c).refresh('fixture-refresh')).rejects.toMatchObject({code:'AUTHORIZATION_REQUIRED',status:401});expect(f.user).not.toHaveBeenCalled();
+ });

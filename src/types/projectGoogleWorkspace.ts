@@ -1,3 +1,4 @@
+import type {WorkspaceAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 /** Public DTO: no credentials, raw Google errors or token material. */
 export type ContinuityState = 'NOT_CONNECTED' | 'CONNECTED' | 'PROVISIONING' | 'READY' | 'SYNC_DEGRADED' | 'AUTHORIZATION_REQUIRED' | 'FAILED' | 'BOUND_FILE_UNAVAILABLE';
 export type WorkspaceBindingState = 'NOT_CONNECTED' | 'CONNECTING' | 'CONNECTED' | 'SYNC_DEGRADED' | 'AUTHORIZATION_REQUIRED' | 'BOUND_FILE_UNAVAILABLE';
@@ -39,4 +40,5 @@ export interface ProjectGoogleStatus {
   backgroundAuthorization?: 'CONNECTED'|'AUTHORIZATION_REQUIRED'|'NOT_CONNECTED';
   automationRecoveryRequired?:boolean;
   syncTrigger?:'USER_ACTIVE';
+  authorizationDiagnostic?:WorkspaceAuthorizationDiagnosis;
 }

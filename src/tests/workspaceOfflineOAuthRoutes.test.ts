@@ -2,7 +2,7 @@ import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
 import express from 'express';
 import http from 'node:http';
 import type {AddressInfo} from 'node:net';
-const f=vi.hoisted(()=>({begin:vi.fn(),callback:vi.fn(),revoke:vi.fn()}));
+const f=vi.hoisted(()=>({begin:vi.fn(),callback:vi.fn(),revoke:vi.fn(),diagnoseWorkspaceAuthorization:vi.fn()}));
 vi.mock('../../server/workspaceSyncWorker',()=>({workspaceOfflineAuthorization:f}));
 vi.mock('../services/workspaceGoogleOfflineAuthorization.server',()=>({workspaceOfflineConfig:()=>({redirectUri:'https://fixture.example/workspace/google/callback'})}));
 import {registerWorkspaceOAuthCallback,registerWorkspaceOAuthCommands} from '../../server/workspaceGoogleOAuth.routes';
@@ -11,7 +11,7 @@ const request=(method:string,path:string,body?:any,cookie?:string,authorized=tru
  const req=http.request({host:'127.0.0.1',port:(server.address() as AddressInfo).port,path,method,headers:{'Content-Type':'application/json',...(cookie?{Cookie:cookie}:{}),...(authorized?{Authorization:'Bearer fixture-firebase'}:{})}},res=>{let body='';res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode!,headers:res.headers,body}));});req.on('error',reject);req.end(body?JSON.stringify(body):undefined);
 });
 beforeEach(async()=>{
- vi.resetAllMocks();f.begin.mockResolvedValue({url:'https://accounts.google.com/o/oauth2/v2/auth?state=fixture-state',browser:'fixture-browser',expiresIn:600});f.callback.mockResolvedValue({projectId:'P1',result:'CONNECTED'});f.revoke.mockResolvedValue({revoked:true});
+ vi.resetAllMocks();f.begin.mockResolvedValue({url:'https://accounts.google.com/o/oauth2/v2/auth?state=fixture-state',browser:'fixture-browser',expiresIn:600});f.callback.mockResolvedValue({projectId:'P1',result:'CONNECTED'});f.revoke.mockResolvedValue({revoked:true});f.diagnoseWorkspaceAuthorization.mockResolvedValue({result:'CONNECTED_VALID',metadataOnly:true});
  const app=express();app.use(express.json());registerWorkspaceOAuthCallback(app);
  const guard=(req:any,res:any,next:any)=>{if(!req.headers.authorization)return res.status(401).end();req.user={userId:'actor'};next();};registerWorkspaceOAuthCommands(app,[guard]);
  await new Promise<void>((resolve,reject)=>{server=app.listen(0,'127.0.0.1',resolve);server.once('error',reject)});
@@ -42,3 +42,16 @@ describe('offline authorization HTTP boundary',()=>{
   const r=await request('DELETE','/api/projects/P1/workspace/authorization');expect(JSON.parse(r.body)).toEqual({success:true,revoked:true});expect(f.revoke).toHaveBeenCalledWith('P1',{userId:'actor'});
  });
 });
+
+ it('offers protected no-store server metadata diagnosis without returning grant or credential fields',async()=>{
+  const r=await request('GET','/api/projects/P1/workspace/authorization/diagnosis');expect(r.status).toBe(200);expect(JSON.parse(r.body)).toEqual({success:true,data:{result:'CONNECTED_VALID',metadataOnly:true}});expect(f.diagnoseWorkspaceAuthorization).toHaveBeenCalledWith('P1',{userId:'actor'});expect(r.headers['cache-control']).toBe('no-store');
+  expect((await request('GET','/api/projects/P1/workspace/authorization/diagnosis',undefined,undefined,false)).status).toBe(401);
+ });
+ it('callback failure carries only canonical transient codes or bounded authorization reasons',async()=>{
+  const {GoogleWorkspaceCommandError}=await import('../services/projectGoogleWorkspace.server');
+  f.callback.mockRejectedValueOnce(Object.assign(new GoogleWorkspaceCommandError('AUTHORIZATION_REQUIRED',401),{authorizationReason:'AUTH_REFRESH_REJECTED',refresh_token:'private-refresh',email:'private-email'}));
+  const r=await request('GET','/workspace/google/callback?state=fixture-state&code=private-code',undefined,'__Host-qws=fixture-browser',false);
+  expect(r.body).toContain('AUTH_REFRESH_REJECTED');expect(r.body).toContain('AUTHORIZATION_REQUIRED');expect(r.body).not.toMatch(/private-|refresh_token|email/);
+  f.callback.mockRejectedValueOnce(new GoogleWorkspaceCommandError('GOOGLE_SERVICE_UNAVAILABLE',503));
+  expect((await request('GET','/workspace/google/callback?state=fixture-state&code=private-code',undefined,'__Host-qws=fixture-browser',false)).body).toContain('GOOGLE_SERVICE_UNAVAILABLE');
+ });

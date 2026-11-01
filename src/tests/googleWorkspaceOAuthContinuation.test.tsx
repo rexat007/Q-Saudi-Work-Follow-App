@@ -340,3 +340,31 @@ describe('user-active Workspace credential choice',()=>{
   expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
  });
 });
+
+
+describe('durable authorization self-diagnosis in actual Wizard',()=>{
+ it('a transient provider diagnosis retries with server refresh and never opens another OAuth consent',async()=>{
+  const bound={...status(unbound.projectId,true),state:'SYNC_DEGRADED',syncTrigger:'USER_ACTIVE',backgroundAuthorization:'CONNECTED',authorizationDiagnostic:{result:'PROVIDER_TEMPORARILY_UNAVAILABLE',providerCode:'GOOGLE_SERVICE_UNAVAILABLE',metadataOnly:true}} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.authorization_retry_later');expect(container.textContent).not.toContain('gws.reauthorize');
+  await click('gws.retry_sync');expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(unbound.projectId,'new-sheet');
+ });
+ it('binding identity drift displays review guidance rather than starting another OAuth loop',async()=>{
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId,true),state:'AUTHORIZATION_REQUIRED',backgroundAuthorization:'AUTHORIZATION_REQUIRED',syncTrigger:'USER_ACTIVE',authorizationDiagnostic:{result:'GRANT_BINDING_STALE',reason:'AUTH_BINDING_REVISION_MISMATCH',metadataOnly:true}} as any);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.authorization_binding_review');expect(container.textContent).not.toContain('gws.reauthorize');
+  const action=Array.from(container.querySelectorAll('button')).find(b=>b.textContent?.includes('gws.retry_sync')) as HTMLButtonElement;expect(action.disabled).toBe(true);expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();
+ });
+ it('automation-only scope loss offers a separate explicit grant action without disabling Sheets authorization',async()=>{
+  const bound={...status(unbound.projectId,true),backgroundAuthorization:'CONNECTED',syncTrigger:'USER_ACTIVE',authorizationDiagnostic:{result:'AUTOMATION_SCOPE_REQUIRED',reason:'AUTH_AUTOMATION_SCOPE_MISSING',metadataOnly:true}} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);vi.mocked(clientWorkspaceService.initializeWorkspace).mockResolvedValue(bound);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.authorization_automation_scope');expect(container.textContent).not.toContain('gws.reauthorize');await click('gws.grant_automation_permission');
+  expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledWith(unbound.projectId,expect.any(Function));expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(unbound.projectId);expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+ });
+});
+
+ it('missing durable authorization preserves explicit fresh-browser fallback while offering one-time durable consent',async()=>{
+  const bound={...status(unbound.projectId,true),pendingSyncCount:1,backgroundAuthorization:'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',authorizationDiagnostic:{result:'REAUTHORIZATION_REQUIRED',reason:'AUTH_GRANT_MISSING',metadataOnly:true}} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.connect_durable_authorization');await click('gws.retry_sync');
+  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledOnce();expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(unbound.projectId,'new-sheet');
+ });
