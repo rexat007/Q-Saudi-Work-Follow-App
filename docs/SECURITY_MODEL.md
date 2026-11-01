@@ -1,3 +1,9 @@
+## Global activity is server coordination — current
+
+A Firebase-authenticated global Workspace request supplies no Project IDs/list, business rows or Google header. Actor-owned grant discovery filters ACTIVE, then rechecks current canonical role/Project scope, grant pointer/actor/subject/Spreadsheet/revision and actual pending work before refresh. SUPER_ADMIN cannot borrow another actor's Google grant. No-work/interactive-maintenance states never reach Google. Pending-only delivery rechecks under the existing renewable Project lease and cannot invoke workbook/Script repair. Explicit Project commands retain their independent authorization policy.
+
+Only bounded aggregate counters cross a successful HTTP 200 response; Project Google authorization errors remain canonical Project diagnosis, never application-wide Google 401. Firebase authentication failures remain separate. Private cursor/pass ownership is server-only/default-deny and stale owners cannot release another pass. No client Firestore authority, scopes, rules, assets or scheduler expansion. State: [ledger](reconstruction/02_PHASE_LEDGER.md); details: [sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## Durable Google credential acceptance — current
 
 Current state: [phase ledger](reconstruction/02_PHASE_LEDGER.md); protocol: [credential contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). Exchange alone never establishes execution authority. Encrypted PENDING_VALIDATION candidates must pass the same refresh/audience/subject/binding-scope proof as access() before atomic ACTIVE promotion and old same-Project supersession. Failure preserves the old grant/continuity; candidate/consent expiry, previous-pointer and authorizationVersion checks fence concurrent callbacks and revocation. Refresh rechecks canonical grant/binding after provider I/O; existing per-request and acknowledgment fences remain.

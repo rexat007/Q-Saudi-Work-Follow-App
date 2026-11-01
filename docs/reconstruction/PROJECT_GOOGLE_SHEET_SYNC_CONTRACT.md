@@ -1,3 +1,35 @@
+## Global user-active coordination — current
+
+Exact state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+```text
+USER_ACTIVE_SYNC_AUTHORITY = SERVER_COORDINATOR
+CLIENT_PROJECT_LOOP = RETIRED
+GLOBAL_GOOGLE_401 = NOT_ALLOWED
+PROJECT_REAUTHORIZATION = PROJECT_SCOPED
+CRON = NOT_REQUIRED
+```
+
+Authenticated readiness/focus/online/visible → one POST /api/workspace/user-active-sync → server-owned grant discovery → current canonical Project/grant/principal proof → real pending work → durable server refresh → existing pending-only canonical drain → bounded counts. The browser supplies neither Project IDs/list nor Google credentials. It opens no consent/Picker/repair flow. Pointerdown/keydown are not triggers; Project-array changes are not execution authority. Throttle is 60 seconds, only one hook request is in flight, and auth-readiness cleanup removes listeners.
+
+WorkspaceSyncCoordinator shares discovery/fencing/delivery with the dormant scheduled worker. Actor mode queries one actorId equality index, pages owned history and filters ACTIVE before candidate execution; scheduled mode queries ACTIVE and resolves each grant's own actor. There is no Project collection scan, cross-user grant borrowing or SUPER_ADMIN Google-ownership bypass. Canonical pointer, Project/actor/subject/Spreadsheet/bindingRevision/current role/Project scope are rechecked. Missing work causes no refresh/provider call. Genuine finite live Project leases are skipped before refresh; races remain protected by lease-claim/provider-request fences.
+
+Global mode skips AUTHORIZATION_REQUIRED, unavailable files, unhealthy/review-required workbook state, uncertain Script recovery and explicit migration/Script-version maintenance. It never calls initializeBound or installs/recovers automation. retrySync's internal pendingOnly policy bypasses automatic maintenance and repeats eligibility/pending checks at lease claim. Explicit manual Project retry/repair/reauthorization/recovery remain separate. A canonical master dirty marker without a pending MASTER_DATA event recreates only that metadata event, preserving mutationRevision; it does not manufacture a business change or projection result.
+
+Each pass examines at most 20 grants, admits at most 3 execution attempts and checks a 25-second admission budget between Projects. Queries fetch at most 21 records each, with one optional wrap query. This is not a hard deadline for an in-flight canonical command; existing 15-second per-provider-call timeouts and renewable Project leases retain their authority. A server-only actor-hashed cursor/pass owner in workspace_sync_coordinators advances over inactive/no-work pages, avoids starving later grants, expires after 120 seconds and cannot be overwritten by stale owners. No new Firestore index/config deployment is required by the single-equality discovery query; no TTL or scheduler deployment is claimed.
+
+A completed pass returns HTTP 200 and only success/examined/eligible/attempted/delivered/skipped/deferred. Project auth/provider failures preserve canonical diagnosis/pending evidence, release owned leases, defer/skip locally and continue other candidates. Provider bodies, Project/Script IDs, emails and credentials are excluded from the global result. Firebase authentication can still return 401; malformed/client-scoped commands or Google headers are rejected. Host/discovery/storage failure is a bounded availability result, never a global Google reauthentication instruction. Per-Project and local source verification do not claim deployed/live Google acceptance.
+
+### Global coordinator verification observation — 2026-11-01
+
+47 bounded files: 887/888 PASS, one pre-existing translationByConstructionGuard TBC-B4 checkpoint-anchor failure reproduced on a clean archive of merged baseline 7dcd4e8489dec84802316c4a222a022adf4de669 (25/26 in the baseline guard). The regression command is NOT all green. Final focused subset rerun: 105/105 PASS; these are repeated cases, not additional unique tests. Coordinator 28/28, actual client/hook 10/10 and real localhost HTTP 8/8 pass. Existing durable acceptance/provider, Workspace lifecycle, operational/report isolation and B1–B4 tests remain passing. New failures 0, removed tests 0, skipped/pending 0.
+
+The ten-Project fixture executes exactly two eligible pending Projects. Tests prove no work/no binding/attention/live-lease skip before refresh, actor ownership/current principal/Project-binding fences, dirty-marker-only metadata recovery, no automatic repair after a state race, per-Project Google 401/503 isolation, bounded fair cursor continuation, concurrent same-actor pass serialization and preserved manual Project retry. Real-hook tests prove one Firebase-only global POST, no browser Google header, no pointer/keyboard calls, no Project-array execution scope, throttle/single flight/offline/visibility/StrictMode/logout behavior. No actual Google/Firebase production mutation or deployment is claimed.
+
+Historical source-shape convergence retains existing counts: the eight-case operational UI suite now asserts one global request and loss of administrator readiness; the dual-token server-delivery guard follows the extracted shared coordinator while preserving its client-timer/onSnapshot prohibitions. The shared in-memory transaction fixture gains deterministic document-ID paging only for ordered queries; existing unordered behavior is retained.
+
+Build PASS; lint baseline/final EXIT 2 / NOT PASS, 440→440 diagnostics, added 0/removed 0 after ignoring source positions and equivalent quoted-literal union display order. git diff --check PASS. No package/lockfile/config/workflow/rules, locale/blueprint/Apps Script asset, generated artifact or unrelated domain changes. Counts are dated observations, not frozen invariants. USER_ACTIVE_SYNC_AUTHORITY = SERVER_COORDINATOR; CRON = NOT_REQUIRED. Real deployed global-request and Project recovery acceptance remains an owner gate.
+
 ## Durable Google authorization acceptance — 2026-11-01
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). [Credential lifecycle](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) specifies PENDING_VALIDATION, shared first-refresh proof, atomic old/new promotion, safe metadata diagnosis and consent/revocation fencing. Exchange success alone cannot publish ACTIVE/CONNECTED. Failed replacement keeps the previous grant usable; transient provider errors do not revoke it. Optional Script scope does not disable Sheets. OAuth once → server refresh thereafter; reauthorization only on genuine credential/security invalidation. USER_ACTIVE / REQUEST_DRIVEN and CRON = NOT_REQUIRED remain unchanged. No durable grant still permits fresh memory-only browser fallback and a separate one-time durable-consent action.
@@ -30,7 +62,7 @@ Operational report tab isolation now uses the centralized Ops namespace and shee
 
 Four capability-resolved versioned templates replace one universal SABIL blueprint for newly configured Projects. Shared canonical Arabic master tabs remain. Profile Trip rows retain physical/derived/estimated weight provenance, stable IDs and operator review/formula columns; server rebuilds app-owned operational reports from canonical Firestore. Generic Script recovery accepts a supplied ID only after current canonical Sheet parent proof, then installs/verifies the resolved bundle. Confirmed identity is persisted immediately. Uncertain create still forbids duplication. Explicit compatible dual adoption preserves the existing SABIL resource IDs/tags and historical Trips.
 
-CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN. SCHEDULED_BACKGROUND_WORKER = NOT_REQUIRED. CRON_JOB = NOT_DEPLOYED (owner decision). Authorized app open/focus/online/interaction requests the existing server drain with canonical empty command body and one-minute throttle. Valid transient or existing encrypted grants serve delivery; no automatic consent popup or paid scheduling prerequisite. Earlier scheduled-worker/offline setup requirements below describe a superseded deployment proposal, not the current acceptance gate. Source/local verification remains distinct from deployed/live acceptance.
+CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN. SCHEDULED_BACKGROUND_WORKER = NOT_REQUIRED. CRON_JOB = NOT_DEPLOYED (owner decision). Authorized app readiness/focus/online/visible requests one global server coordinator pass, with no Project list or Google header and a one-minute throttle. Only eligible owned durable grants plus real pending work serve automatic delivery; transient browser grants remain explicit Project actions. no automatic consent popup or paid scheduling prerequisite. Earlier scheduled-worker/offline setup requirements below describe a superseded deployment proposal, not the current acceptance gate. Source/local verification remains distinct from deployed/live acceptance.
 
 # Complete Project Google Workspace integration contract
 

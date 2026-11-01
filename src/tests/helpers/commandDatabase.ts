@@ -2,17 +2,20 @@ import { FieldValue } from 'firebase-admin/firestore';
 /** Staged, serialized transaction model. This is NOT a Firestore emulator. */
 export function commandDatabase(initial: Record<string, any>) {
   const store = structuredClone(initial); let queue = Promise.resolve(); let failPath = '';
-  const reference = (path: string, filters: [string, any][] = [], limit = Infinity): any => ({
-    path, max: limit, id: path.split('/').at(-1), filters,
+  const reference = (path: string, filters: [string, any][] = [], limit = Infinity, ordered=false, after?:string): any => ({
+    path, max: limit, ordered, after, id: path.split('/').at(-1), filters,
     collection: (name: string) => reference(`${path}/${name}`), doc: (id: string) => reference(`${path}/${id}`),
-    where: (field: string, _op: string, value: any) => reference(path, [...filters, [field, value]], limit),
-    limit: (count: number) => reference(path, filters, count),
-    get: async () => snapshot({ path, filters, max: limit }),
+    where: (field: string, _op: string, value: any) => reference(path, [...filters, [field, value]], limit,ordered,after),
+    limit: (count: number) => reference(path, filters, count,ordered,after),
+    orderBy: (_field:any) => reference(path,filters,limit,true,after),
+    startAfter: (id:string) => reference(path,filters,limit,ordered,id),
+    get: async () => snapshot({ path, filters, max: limit, ordered, after }),
   });
   const snapshot = (ref: any): any => {
     // Document paths have an even segment count; query paths are collections.
     if (ref.path.split('/').length % 2 === 0) return { id: ref.id || ref.path.split('/').at(-1), exists: ref.path in store, data: () => structuredClone(store[ref.path]) };
-    const docs = Object.entries(store).filter(([key, value]) => key.startsWith(ref.path + '/') && !key.slice(ref.path.length + 1).includes('/') && ref.filters.every(([field, expected]: any) => value[field] === expected)).slice(0, ref.max || Infinity).map(([key, value]) => ({ id: key.split('/').at(-1), exists: true, data: () => structuredClone(value) }));
+    const entries=Object.entries(store);if(ref.ordered)entries.sort(([a],[b])=>a<b?-1:a>b?1:0);
+    const docs = entries.filter(([key, value]) => key.startsWith(ref.path + '/') && !key.slice(ref.path.length + 1).includes('/') && (!ref.after||key.split('/').at(-1)!>ref.after)&&ref.filters.every(([field, expected]: any) => value[field] === expected)).slice(0, ref.max || Infinity).map(([key, value]) => ({ id: key.split('/').at(-1), exists: true, data: () => structuredClone(value) }));
     return { docs, empty: docs.length === 0 };
   };
   const apply = (path: string, data: any, merge: boolean) => {

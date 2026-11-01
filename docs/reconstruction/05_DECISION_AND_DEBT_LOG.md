@@ -1,3 +1,16 @@
+## Global user-active Workspace coordination — 2026-11-01
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `7dcd4e8489dec84802316c4a222a022adf4de669` includes merged durable authorization acceptance.
+
+- RESOLVED_IN_SOURCE: blind application-root per-Project retry-sync calls and pre-Project Google 401. One Firebase-only request discovers server-owned eligible work; Google reauthorization remains Project-scoped and completed passes return aggregate counters/HTTP 200.
+- RESOLVED_IN_SOURCE: noisy pointer/keyboard and Project-array execution scope. Readiness/focus/online/visible use a 60-second throttle and one in-flight request; current server principal/grants own eligibility.
+- RESOLVED_IN_SOURCE: automatic coordination could otherwise invoke retrySync's Script/workbook maintenance. Shared pending-only eligibility is repeated at lease claim and disables automatic initialization/repair/install/recovery; explicit Project actions retain their policy.
+- SHARED_AUTHORITY: WorkspaceSyncCoordinator serves actor passes and the dormant scheduled entry; no parallel discovery/delivery engine or scheduler activation. Actor-hashed durable cursors, bounded admissions and expiring ownership prevent starvation/overlapping passes. Only existing canonical dirty markers can recreate metadata outbox at the same revision.
+- PRESERVED: durable refresh proof, actor/Project/account/binding/current principal/lease/provider/acknowledgment fences; pending evidence and grant health on transient failure; domain/pricing/weight/import authority and historical debt.
+- STILL_OPEN: deployment and real application-global/live Project acceptance, recorded typecheck/guard debt and distributed provider uncertainty. The admission budget is not a hard in-flight command deadline; no live Google mutation or cron configuration is claimed.
+
+Earlier checkpoints below remain historical where superseded.
+
 ## Durable Google authorization acceptance — 2026-11-01
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `93fd02bc9f1e253165f22b7a2c263b44a09d5382` contains merged provider-resilience source.

@@ -60,10 +60,10 @@ export function getProjectionStateDocRef(projectId: string,database:any=adminDb)
  * Retrieves the current projection freshness state for a project.
  * If no state document exists, returns a deterministic clean default state.
  */
-export async function getState(projectId: string,database:any=adminDb): Promise<ProjectWorkspaceProjectionState> {
+export async function getState(projectId: string,database:any=adminDb,transaction?:any): Promise<ProjectWorkspaceProjectionState> {
   const docRef = getProjectionStateDocRef(projectId,database);
   const cleanProjectId = projectId.trim();
-  const snap = await docRef.get();
+  const snap = transaction ? await transaction.get(docRef) : await docRef.get();
 
   if (!snap.exists) {
     return createCleanProjectionState(cleanProjectId);

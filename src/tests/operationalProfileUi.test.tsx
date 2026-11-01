@@ -5,7 +5,7 @@ import {beforeEach,afterEach,describe,it,expect,vi} from 'vitest';
 const f=vi.hoisted(()=>({configure:vi.fn(),send:vi.fn(),drain:vi.fn(),recover:vi.fn(),authorize:vi.fn()}));
 vi.mock('../i18n',()=>({useI18n:()=>({t:(key:string)=>key,isRTL:false})}));
 vi.mock('../services/project.service',()=>({projectService:{configureOperations:f.configure}}));
-vi.mock('../services/workspace.service',()=>({clientWorkspaceService:{drainPendingWorkspace:f.drain,requestGoogleScopes:f.authorize,recoverWorkspaceAutomation:f.recover}}));
+vi.mock('../services/workspace.service',()=>({clientWorkspaceService:{requestUserActiveWorkspaceSync:f.drain,requestGoogleScopes:f.authorize,recoverWorkspaceAutomation:f.recover}}));
 vi.mock('../services/tripCommandClient.service',()=>({sendTripCommand:f.send}));
 vi.mock('../repositories/trip.repository',()=>({tripRepository:{subscribeByProject:(_p:string,cb:Function)=>{cb([]);return()=>{};}}}));
 vi.mock('../repositories/pricingRule.repository',()=>({pricingRuleRepository:{subscribeByProject:(_p:string,cb:Function)=>{cb([{pricingRuleId:'R',projectId:'P1',carrierId:'C',materialId:'M',pricingModel:'PER_TRIP',baseRateSAR:10,status:'ACTIVE',effectiveFrom:'2020-01-01',effectiveTo:'2099-01-01'}]);return()=>{};}}}));
@@ -29,8 +29,8 @@ describe('adaptive project UX uses protected authorities',()=>{
  it('explicit Script recovery sends supplied ID only after requesting automation authorization',async()=>{const done=vi.fn();await act(async()=>root.render(<WorkspaceAutomationRecovery projectId="P1" onRecovered={done}/>));await change(host.querySelector('input')!,'existing-script');await click('op.recover');expect(f.authorize).toHaveBeenCalledWith(true);expect(f.recover).toHaveBeenCalledWith('P1','existing-script');expect(done).toHaveBeenCalledOnce();});
 });
 describe('owner-approved user-active synchronization',()=>{
- function Hook({role='PROJECT_ADMIN',ids=['P1']}:{role?:string;ids?:string[]}){useUserActiveWorkspaceSync([project()],{...operationActor,role,assignedProjectIds:ids});return null;}
- it('requests canonical drain on activity with throttle, no scheduled worker, and cleans up on scope removal',async()=>{vi.useFakeTimers();vi.setSystemTime(new Date('2026-11-01T00:00:00Z'));await act(async()=>root.render(<Hook/>));expect(f.drain).toHaveBeenCalledWith('P1');await act(async()=>window.dispatchEvent(new Event('focus')));expect(f.drain).toHaveBeenCalledTimes(1);vi.advanceTimersByTime(61000);await act(async()=>window.dispatchEvent(new Event('pointerdown')));expect(f.drain).toHaveBeenCalledTimes(2);await act(async()=>root.render(<Hook ids={[]}/>));vi.advanceTimersByTime(61000);await act(async()=>window.dispatchEvent(new Event('focus')));expect(f.drain).toHaveBeenCalledTimes(2);});
+ function Hook({role='PROJECT_ADMIN',ids=['P1']}:{role?:string;ids?:string[]}){useUserActiveWorkspaceSync({...operationActor,role,assignedProjectIds:ids});return null;}
+ it('requests one global pass with throttle and cleans up when administrator readiness is lost',async()=>{vi.useFakeTimers();vi.setSystemTime(new Date('2026-11-01T00:00:00Z'));await act(async()=>root.render(<Hook/>));expect(f.drain).toHaveBeenCalledWith();await act(async()=>window.dispatchEvent(new Event('focus')));expect(f.drain).toHaveBeenCalledTimes(1);vi.advanceTimersByTime(61000);await act(async()=>window.dispatchEvent(new Event('focus')));expect(f.drain).toHaveBeenCalledTimes(2);await act(async()=>root.render(<Hook role="VIEWER" ids={[]}/>));vi.advanceTimersByTime(61000);await act(async()=>window.dispatchEvent(new Event('focus')));expect(f.drain).toHaveBeenCalledTimes(2);});
  it('operational role cannot gain Google administrator delivery authority',async()=>{await act(async()=>root.render(<Hook role="DISPATCHER"/>));expect(f.drain).not.toHaveBeenCalled();});
 });
 

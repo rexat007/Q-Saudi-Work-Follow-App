@@ -95,7 +95,8 @@ export class ClientWorkspaceService {
    */
   public async getWorkspaceHeaders(
     extraHeaders: Record<string, string> = {},
-    requireAuth: boolean = true
+    requireAuth: boolean = true,
+    includeGoogleToken: boolean = true
   ): Promise<Record<string, string>> {
     const headers: Record<string, string> = { ...extraHeaders };
 
@@ -123,7 +124,7 @@ export class ClientWorkspaceService {
 
     // 2. Google OAuth Access Token (X-Google-Access-Token: <Google OAuth Token>)
     headers['X-App-Build']=CLIENT_BUILD_ID;
-    const googleToken = this.getAccessToken();
+    const googleToken = includeGoogleToken ? this.getAccessToken() : null;
     if (googleToken) {
       headers['X-Google-Access-Token'] = googleToken;
     }
@@ -181,6 +182,11 @@ export class ClientWorkspaceService {
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({scriptProjectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
+  }
+  /** Firebase-only application request. No Project list, Google token or consent popup. */
+  public async requestUserActiveWorkspaceSync():Promise<void> {
+    const response=await workspaceFetch('/api/workspace/user-active-sync',{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_COORDINATOR_UNAVAILABLE');
   }
   public async drainPendingWorkspace(projectId:string):Promise<void> {
     if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});

@@ -1,7 +1,26 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Durable Google authorization acceptance and self-diagnosis — 2026-11-01
+### Global user-active Workspace sync coordinator — 2026-11-01
+
+CURRENT_CODE_BASELINE: `7dcd4e8489dec84802316c4a222a022adf4de669` — merged durable authorization acceptance, containing `86fc73e5141ca56cdc0c5dbbf292fd253494d983`. Working branch: `reconstruction/global-user-active-workspace-sync`.
+
+GLOBAL_USER_ACTIVE_WORKSPACE_SYNC: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+USER_ACTIVE_SYNC_AUTHORITY: SERVER_COORDINATOR.
+CLIENT_PROJECT_LOOP: RETIRED.
+GLOBAL_GOOGLE_401: NOT_ALLOWED.
+PROJECT_REAUTHORIZATION: PROJECT_SCOPED.
+CRON: NOT_REQUIRED.
+
+Source confirms the application-root hook previously issued retry-sync for every accessible Project on load/focus/online/visibility/pointer/keyboard without proving work or authorization. The root now sends one Firebase-only, Project-list-free global request on authenticated readiness/focus/online/visible, throttled to 60 seconds with one in-flight request. Pointer/keyboard triggers and Project-array execution authority are removed.
+
+The shared coordinator discovers actor-owned grant metadata, filters ACTIVE, then rechecks canonical pointer/Project/actor/subject/Spreadsheet/revision/current principal and pending outbox or canonical master dirty markers before refreshing credentials. SUPER_ADMIN never bypasses Google ownership. No-work, missing binding, required authorization, unavailable file, operator review, uncertain Script recovery and migration/maintenance cases are skipped without Google. Pending-only delivery rechecks at lease claim and cannot initialize/repair/install automation; explicit Project actions retain their policy. Individual failures stay in Project diagnosis/pending state and cannot become application-wide Google 401. Only bounded counters cross the global response.
+
+Server-owned cursor/expiring pass ownership bound discovery and serialize same-actor passes; existing Project/provider/acknowledgment fences remain. The dormant scheduled entry shares this engine but retains its separate maintenance policy; no scheduler is activated. Existing dirty-marker recovery recreates only its metadata outbox at the same mutation revision. No canonical business data, resources, scopes, Google Cloud/Apps Script assets, pricing, identity or phase activation is changed. Commit/push is authorized for this branch only; PR/merge and actual deployment/live acceptance remain owner-controlled. See [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
+Earlier implementation checkpoints are historical where superseded.
+
+### Historical durable Google authorization acceptance implementation — 2026-11-01
 
 CURRENT_CODE_BASELINE: `93fd02bc9f1e253165f22b7a2c263b44a09d5382` — merged main, PR #77, containing provider-resilience commit `e85935cd855ed2587f5c58c69c03976ef915d8ab`. Working branch: `reconstruction/google-durable-auth-acceptance`.
 
@@ -120,15 +139,15 @@ By explicit owner decision, initial validation now checks only the Picker-select
 
 ### Current Active State
 ```yaml
-WORKING_BRANCH: reconstruction/google-durable-auth-acceptance
+WORKING_BRANCH: reconstruction/global-user-active-workspace-sync
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: GOOGLE_DURABLE_AUTHORIZATION_ACCEPTANCE_AND_SELF_DIAGNOSIS
+ACTIVE_UNIT: GLOBAL_USER_ACTIVE_WORKSPACE_SYNC_COORDINATOR
 ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW
-ACTIVE_UNIT_TYPE: BOUNDED_DURABLE_CREDENTIAL_LIFECYCLE
+ACTIVE_UNIT_TYPE: BOUNDED_SERVER_COORDINATION
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -208,8 +227,8 @@ P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
 NEXT_UNIT: NONE / COMPLETE_CURRENT_RESILIENCE_REVIEW_AND_LIVE_GATES
-NEXT_ACTION: OWNER_REVIEW_GOOGLE_DURABLE_AUTH_ACCEPTANCE
-CURRENT_CODE_BASELINE: 93fd02bc9f1e253165f22b7a2c263b44a09d5382
+NEXT_ACTION: OWNER_REVIEW_GLOBAL_USER_ACTIVE_WORKSPACE_SYNC
+CURRENT_CODE_BASELINE: 7dcd4e8489dec84802316c4a222a022adf4de669
 CURRENT_SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN
 CREDENTIAL_AUTHORITY: SERVER_REFRESH_WHEN_CONNECTED
 BROWSER_GOOGLE_TOKEN: EPHEMERAL / MEMORY_ONLY

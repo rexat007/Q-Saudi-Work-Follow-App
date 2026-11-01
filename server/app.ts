@@ -1,7 +1,8 @@
+import {registerUserActiveWorkspaceSync} from './workspaceSyncCoordinator.routes';
 import {resolveWorkspaceExecutionToken} from './workspaceExecutionToken';
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
 import {registerWorkspaceOAuthCallback,registerWorkspaceOAuthCommands} from './workspaceGoogleOAuth.routes';
-import {workspaceOfflineAuthorization} from './workspaceSyncWorker';
+import {workspaceOfflineAuthorization,workspaceSyncCoordinator} from './workspaceSyncWorker';
 import { projectGoogleBlueprintPort } from './projectGoogleBlueprint.adapter';
 import { projectGoogleWorkspaceServer, continuityRef, workspaceOperation, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
 import { projectGoogleTemplatePort } from './projectGoogleTemplate.adapter';
@@ -54,6 +55,7 @@ registerWorkspaceOAuthCallback(app);
 
 // Global API Authentication Context Resolver
 app.use('/api', authenticateUser);
+registerUserActiveWorkspaceSync(app,workspaceSyncCoordinator);
 registerWorkspaceOAuthCommands(app,[enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence]);
 
 // Global account governance: current principal plus transaction-time reauthorization.

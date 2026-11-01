@@ -320,14 +320,40 @@ export class ProjectGoogleWorkspaceServer {
     } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
     if(google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
   }
-  private async claimSync(projectId:string,who:AuthUserContext,owner:string) {
+  /** No Google I/O. The coordinator and lease claim share this maintenance boundary. */
+  private assertPendingOnlyState(project:ProjectEntity,s:any) {
+    if(!s?.binding||s.binding.projectId!==project.projectId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
+    if(s.backgroundAuthorization!=='CONNECTED'||s.state==='AUTHORIZATION_REQUIRED')return gwsFail('AUTHORIZATION_REQUIRED',401);
+    if(s.syncOwner&&Number.isFinite(s.syncLeaseExpiresAt)&&s.syncLeaseExpiresAt>Date.now())return gwsFail('WORKSPACE_SYNC_IN_PROGRESS');
+    if(s.state==='BOUND_FILE_UNAVAILABLE'||['BOUND_FILE_UNAVAILABLE','PROJECT_WORKSPACE_FILE_MISSING'].includes(s.lastSyncError))return gwsFail('BOUND_FILE_UNAVAILABLE');
+    if(s.lastWorkbookError==='WORKBOOK_OPERATOR_REVIEW_REQUIRED')return gwsFail('WORKBOOK_OPERATOR_REVIEW_REQUIRED');
+    if(s.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||!s.scriptProjectId&&!s.binding.scriptProjectId&&['SCRIPT_REQUESTED','CREATE_REQUESTED'].includes(s.automationStage||s.stage))return gwsFail('AUTOMATION_RECOVERY_REQUIRED');
+    if(s.workbookHealth!=='HEALTHY'||/MIGRATION_REQUIRED/.test(s.lastSyncError||''))return gwsFail('WORKSPACE_MAINTENANCE_REQUIRED');
+    const blueprint=this.resolvedBlueprint(project,s.binding);
+    if((s.scriptProjectId||s.binding.scriptProjectId)&&blueprint.script&&s.binding.appsScriptBlueprintVersion!==blueprint.script.version)return gwsFail('WORKSPACE_MAINTENANCE_REQUIRED');
+  }
+  private async pendingWork(tx:any,projectId:string) {
+    const events=await tx.get(syncOutboxRef(this.db,projectId).where('status','==','PENDING').limit(1));
+    const projection=await projectionState(projectId,this.db,tx),dirtyTabs=projection.dirtyTabs.filter(isMasterTab);
+    const master=dirtyTabs.length?await tx.get(syncOutboxRef(this.db,projectId).doc('MASTER_DATA')):null;
+    return {pending:events.docs.length>0||dirtyTabs.length>0,projection,dirtyTabs,master};
+  }
+  async hasPendingUserActiveWork(projectId:string,who:AuthUserContext):Promise<boolean> {
+    return this.db.runTransaction(async(tx:any)=>{const {project}=await this.authorized(tx,projectId,who),s=(await tx.get(continuityRef(this.db,projectId))).data();this.assertPendingOnlyState(project,s);return (await this.pendingWork(tx,projectId)).pending;});
+  }
+  private async claimSync(projectId:string,who:AuthUserContext,owner:string,pendingOnly=false) {
     const result=await this.db.runTransaction(async(tx:any)=>{
       const {project}=await this.authorized(tx,projectId,who);const ref=continuityRef(this.db,projectId),snap=await tx.get(ref),s=snap.data()||{},now=Date.now();
       if(!s.binding||s.binding.projectId!==projectId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
+      if(pendingOnly)this.assertPendingOnlyState(project,s);
+      const work=pendingOnly?await this.pendingWork(tx,projectId):null;
+      if(work&&!work.pending)return gwsFail('WORKSPACE_NO_PENDING_WORK');
       if(s.syncOwner){
         if(!Number.isFinite(s.syncLeaseExpiresAt)){tx.set(ref,{...s,syncLeaseExpiresAt:now+120000});return null;}
         if(s.syncLeaseExpiresAt>now)return null;
       }
+      // Reestablish only the metadata event for an existing canonical dirty marker; no new mutation revision.
+      if(work?.dirtyTabs.length&&work.master?.data()?.status!=='PENDING')tx.set(syncOutboxRef(this.db,projectId).doc('MASTER_DATA'),{projectId,kind:'MASTER_DATA',revision:work.projection.mutationRevision,dirtyTabs:work.dirtyTabs,status:'PENDING',updatedAt:work.projection.updatedAt});
       const next={...s,syncOwner:owner,syncLeaseClaimedAt:now,syncLeaseExpiresAt:now+120000,syncLeaseRevision:s.binding.revision??0,syncLeaseSpreadsheetId:s.binding.spreadsheetId};tx.set(ref,next);return {...next,project};
     });
     if(!result)return gwsFail('WORKSPACE_SYNC_IN_PROGRESS');return result;
@@ -442,7 +468,8 @@ export class ProjectGoogleWorkspaceServer {
     }
   }
   /** Drain only server-recorded events. Request never supplies a file ID or row payload. */
-  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>,initialized=false) {
+  async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>,mode:boolean|{pendingOnly:true}=false) {
+    const pendingOnly=typeof mode==='object'&&mode.pendingOnly,initialized=typeof mode==='boolean'?mode: true;
     // Namespace/Script V2 upgrade reuses the existing binding and known Script identity.
     // The internal flag prevents initialization's final drain from recursively upgrading a degraded Script.
     if(!initialized&&google.repairWorkbook&&google.authorizeProvisioning){
@@ -454,7 +481,7 @@ export class ProjectGoogleWorkspaceServer {
       }
     }
     const owner=randomUUID(),ref=continuityRef(this.db,projectId);
-    const state=await this.claimSync(projectId,who,owner);
+    const state=await this.claimSync(projectId,who,owner,pendingOnly);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));
     const heartbeat=setInterval(()=>{void this.renewSync(projectId,who,owner).catch(()=>{});},30000);heartbeat.unref?.();
     try {
