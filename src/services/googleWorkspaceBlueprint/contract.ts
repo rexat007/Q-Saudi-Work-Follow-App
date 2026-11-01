@@ -1,3 +1,4 @@
+import type {WorkspaceWorkbookInspection} from './inspection';
 import {operationalTabByTitle,assertOperationalTabOwnership} from '../operationalReportTabRegistry';
 import {planOwnedOperationalTabs} from './operationalTabs';
 import type { sheets_v4, script_v1 } from 'googleapis';
@@ -51,9 +52,8 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
       if(cells.some(c=>c.row>0&&inputs.includes(c.column)&&c.cell.userEnteredValue)) return invalid('BLUEPRINT_OPERATIONAL_DATA_FOUND');
     }
   }
-  const serialized=JSON.stringify(blueprint);
-  if(/https?:\/\/|IMPORTRANGE\s*\(/i.test(JSON.stringify(blueprint.sheets))) return invalid('BLUEPRINT_EXTERNAL_REFERENCE');
-  for(const id of blueprint.capture.sourceReferenceIds) if(id.length>8 && serialized.replace(JSON.stringify(blueprint.capture),'').includes(id)) return invalid('BLUEPRINT_SOURCE_ID_FOUND');
+  const scan=(value:unknown):void=>{if(typeof value==='string'&&/https?:\/\/|IMPORTRANGE\s*\(/i.test(value))return invalid('BLUEPRINT_EXTERNAL_REFERENCE');if(Array.isArray(value))value.forEach(scan);else if(value&&typeof value==='object')Object.values(value).forEach(scan);};
+  scan(blueprint.sheets);
   const checkRanges=(value:unknown):void=>{
     if(Array.isArray(value)) {value.forEach(checkRanges);return;}
     if(!value||typeof value!=='object')return;
@@ -81,7 +81,7 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
 }
 
 /** Review/capture requests use target-local sheet IDs, never the source workbook IDs. */
-export function blueprintRequests(blueprint:WorkspaceBlueprint,current:sheets_v4.Schema$Spreadsheet,bindingOnly=false):sheets_v4.Schema$Request[] {
+export function blueprintRequests(blueprint:WorkspaceBlueprint,current:WorkspaceWorkbookInspection|sheets_v4.Schema$Spreadsheet,bindingOnly=false):sheets_v4.Schema$Request[] {
   assertBlueprint(blueprint,!bindingOnly);
   if(blueprint.operationalTabOwnershipSchema===1)return planOwnedOperationalTabs(blueprint,current,legacy=>blueprintRequests(legacy,current,bindingOnly)).requests;
   const requests:sheets_v4.Schema$Request[]=[];
@@ -140,6 +140,7 @@ export function blueprintRequests(blueprint:WorkspaceBlueprint,current:sheets_v4
   }
   // Delete only Google's initial empty default sheet, in the same batch after adding required tabs.
   for(const extra of existing.filter(s=>!blueprint.sheets.some(b=>b.properties?.sheetId===s.properties?.sheetId))) {
+    if('kind' in current)continue;
     if(extra.properties?.title!=='Sheet1'||cellEntries(extra).some(c=>c.cell.userEnteredValue)) return invalid('WORKSPACE_STRUCTURE_INVALID');
     requests.push({deleteSheet:{sheetId:extra.properties!.sheetId}});
   }
@@ -151,17 +152,18 @@ function subset(expected:any,actual:any,strictValue=false,key=''):boolean {
   if(Object.keys(expected).length&&(!actual||typeof actual!=='object'))return false;
   return Object.entries(expected).every(([k,v])=>subset(v,actual?.[k],strictValue||k==='userEnteredValue',k));
 }
-export function blueprintRequestBatches(requests:sheets_v4.Schema$Request[]):sheets_v4.Schema$Request[][] {
-  const batches:sheets_v4.Schema$Request[][]=[];let current:sheets_v4.Schema$Request[]=[],bytes=0;
+export function* iterateBlueprintRequestBatches(requests:Iterable<sheets_v4.Schema$Request>):Generator<sheets_v4.Schema$Request[]> {
+  let current:sheets_v4.Schema$Request[]=[],bytes=0;
   for(const request of requests) {
     const size=new TextEncoder().encode(JSON.stringify(request)).length;
     if(size>1000000)return invalid('WORKSPACE_BLUEPRINT_INVALID');
-    if(current.length&&(current.length>=100||bytes+size>1000000)){batches.push(current);current=[];bytes=0;}
+    if(current.length&&(current.length>=100||bytes+size>1000000)){yield current;current=[];bytes=0;}
     current.push(request);bytes+=size;
   }
-  if(current.length)batches.push(current);return batches;
+  if(current.length)yield current;
 }
-export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:sheets_v4.Schema$Spreadsheet,bindingOnly=false):void {
+export const blueprintRequestBatches=(requests:sheets_v4.Schema$Request[]):sheets_v4.Schema$Request[][]=>[...iterateBlueprintRequestBatches(requests)];
+export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:WorkspaceWorkbookInspection|sheets_v4.Schema$Spreadsheet,bindingOnly=false):void {
   assertBlueprint(blueprint,!bindingOnly);
   if(blueprint.operationalTabOwnershipSchema===1){
     const plan=planOwnedOperationalTabs(blueprint,actual);if(plan.requests.length)invalid('WORKSPACE_STRUCTURE_INVALID');return;
@@ -185,7 +187,7 @@ export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:shee
       for(const [dimension,metadata] of [['rowMetadata',data.rowMetadata],['columnMetadata',data.columnMetadata]] as const) {
         for(const [offset,expected] of (metadata||[]).entries()) {
           const index=offset+(dimension==='rowMetadata'?(data.startRow||0):(data.startColumn||0));
-          const grid=(target.data||[]).find(g=>index>=(dimension==='rowMetadata'?(g.startRow||0):(g.startColumn||0))&&index<(dimension==='rowMetadata'?(g.startRow||0):(g.startColumn||0))+(g[dimension]?.length||0));
+          const grid=(target.data||[]).slice().reverse().find(g=>index>=(dimension==='rowMetadata'?(g.startRow||0):(g.startColumn||0))&&index<(dimension==='rowMetadata'?(g.startRow||0):(g.startColumn||0))+(g[dimension]?.length||0));
           const actualMetadata=grid?.[dimension]?.[index-(dimension==='rowMetadata'?(grid.startRow||0):(grid.startColumn||0))];
           if(Object.keys(expected).length&&!subset(expected,actualMetadata))return invalid('WORKSPACE_STRUCTURE_INVALID');
         }

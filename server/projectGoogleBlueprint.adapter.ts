@@ -1,3 +1,6 @@
+import {createHash} from 'node:crypto';
+import {inspectWorkspaceWorkbook,type InspectionRange} from './workspaceWorkbookInspection';
+import {boundedA1,WORKBOOK_READ_LIMITS as READ_LIMITS,type WorkspaceInitializationStage} from '../src/services/googleWorkspaceBlueprint/inspection';
 import {classifyGoogleProviderFailure} from './workspaceGoogleErrors';
 import {OperationalReportTabRegistry,OperationalTabError,operationalTabHeaders} from '../src/services/operationalReportTabRegistry';
 import {formulaExpansionRequests} from '../src/services/googleWorkspaceBlueprint/expansion';
@@ -14,11 +17,12 @@ import {resolveWorkspaceTemplate,PROFILE_REVIEW_HEADERS} from '../src/services/w
 import {assertBlueprint} from '../src/services/googleWorkspaceBlueprint/contract';
 import { WorkspaceStorageBoundary } from './workspace.isolation';
 import { GoogleWorkspaceCommandError, gwsFail, workspaceOperation, withWorkspaceGenerationDiagnostic, type GoogleBlueprintPort } from '../src/services/projectGoogleWorkspace.server';
-import { blueprintRequests, blueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
+import { iterateBlueprintRequestBatches, verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../src/services/googleWorkspaceBlueprint/contract';
 
 /** Human-user OAuth only. No hidden template access, service account, refresh token or files.copy. */
 export function projectGoogleBlueprintPort(token:string,projectId:string):GoogleBlueprintPort {
   let deliveryFence:()=>Promise<void>=async()=>{};
+  let observe:(stage:WorkspaceInitializationStage,metrics?:Record<string,number>)=>Promise<void>=async()=>{};
   const base=projectGoogleTemplatePort(token,()=>deliveryFence()),operation=workspaceOperation(projectId);
   const auth=new google.auth.OAuth2();auth.setCredentials({access_token:token});
   configureWorkspaceGoogleTransport(auth,()=>deliveryFence());
@@ -43,7 +47,11 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     if(!project.data.parentId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
     await owned(project.data.parentId,version);return project.data.parentId;
   };
-  const normalizedFiles=(files:Array<{name?:string|null;type?:string|null;source?:string|null}>)=>files.map(({name,type,source})=>({name,type,source:String(source||'').replace(/\r\n/g,'\n').trimEnd()})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const scriptMatches=(actual:Array<{name?:string|null;type?:string|null;source?:string|null}>,expected:NonNullable<WorkspaceBlueprint['script']>['files'])=>{
+    if(actual.length!==expected.length||actual.length>100)return false;
+    const fingerprints=(files:typeof actual)=>files.map(f=>({name:f.name,type:f.type,hash:createHash('sha256').update(String(f.source||'').replace(/\r\n/g,'\n').trimEnd()).digest('hex')})).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+    const left=fingerprints(actual),right=fingerprints(expected);return new Set(left.map(f=>f.name)).size===left.length&&left.every((f,i)=>f.name===right[i].name&&f.type===right[i].type&&f.hash===right[i].hash);
+  };
   /** First provisioning validates only the Picker-granted folder. Migration's ancestry
    * proof is a separate contract: drive.file does not grant unselected ancestors. */
   const validateInitialWorkspaceDestination=async(folderId:string,id:string)=>{
@@ -82,19 +90,31 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });},
     async verifyScriptParent(fileId,scriptId,version){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,version)!==fileId)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID',403);});},
     setDeliveryFence(check){deliveryFence=check;},
+    setInitializationObserver(observer){observe=observer|| (async()=>{});},
     async repairWorkbook(fileId,blueprint){return withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
       await owned(fileId,blueprint.version);
-      const before=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
-      const plan=planWorkbookRepair(blueprint,before.data);
-      for(const requests of blueprintRequestBatches(plan.requests))await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',()=>sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests}}));
-      const after=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
-      const remaining=planWorkbookRepair(blueprint,after.data);
-      return {repaired:plan.requests.length>0,conflicts:[...remaining.conflicts,...(remaining.requests.length?['WORKBOOK_REPAIR_INCOMPLETE']:[])]};
+      let inspection=await inspectWorkspaceWorkbook(sheets,fileId,blueprint,undefined,undefined,stage=>observe(stage));
+      await observe('PLAN_REPAIR',inspection.metrics);const plan=planWorkbookRepair(blueprint,inspection),count=plan.requests.length;
+      const affected=new Map<number,InspectionRange[]>();
+      const add=(id:number,range:InspectionRange)=>affected.set(id,[...(affected.get(id)||[]),range]);
+      for(const request of plan.requests){const u=request.updateCells,d=request.updateDimensionProperties;
+        if(u){const start=u.start||u.range!,rows=u.rows?.length||1,columns=Math.max(1,...(u.rows||[]).map(r=>r.values?.length||0));add(start.sheetId!,{row:'rowIndex' in start?start.rowIndex||0:(start as any).startRowIndex||0,column:'columnIndex' in start?start.columnIndex||0:(start as any).startColumnIndex||0,rows,columns});}
+        if(d?.range){const r=d.range;add(r.sheetId!,{row:r.dimension==='ROWS'?r.startIndex||0:0,column:r.dimension==='COLUMNS'?r.startIndex||0:0,rows:r.dimension==='ROWS'?(r.endIndex||1)-(r.startIndex||0):1,columns:r.dimension==='COLUMNS'?(r.endIndex||1)-(r.startIndex||0):1});}
+      }
+      let batchCount=0;
+      for(const requests of iterateBlueprintRequestBatches(plan.requests)){await observe('APPLY_REPAIR',{repairRequestCount:count,batchCount:++batchCount});await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',()=>sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests}}));}
+      if(count){
+        // Reuse unchanged canonical evidence; only changed cell/dimension ranges are read again.
+        const after=await inspectWorkspaceWorkbook(sheets,fileId,blueprint,inspection,affected,stage=>observe(stage));inspection=after;
+      }
+      await observe('VERIFY_REPAIR',{...inspection.metrics,repairRequestCount:count,batchCount});
+      const remaining=planWorkbookRepair(blueprint,inspection);
+      return {repaired:count>0,conflicts:[...remaining.conflicts,...(remaining.requests.length?['WORKBOOK_REPAIR_INCOMPLETE']:[])]};
     });},
     async verifyAutomation(fileId,scriptId,blueprint){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{
       assertBlueprint(blueprint,true);if(await scriptParent(scriptId,blueprint.version)!==fileId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
       const content=await script.projects.getContent({scriptId});
-      if(JSON.stringify(normalizedFiles(content.data.files||[]))!==JSON.stringify(normalizedFiles(blueprint.script!.files)))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
+      if(!scriptMatches(content.data.files||[],blueprint.script!.files))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
     });},
     async projectMasterTabs(fileId,snapshot,tabs){await guarded('MASTER_DATA_SYNC_FAILED',async()=>{
       if(snapshot.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
@@ -123,7 +143,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       return {title:file.data.name||''};
     });},
     async verifyWorkbook(fileId,blueprint){await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
-      await owned(fileId,blueprint.version);const workbook=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});verifyBlueprintWorkbook(blueprint,workbook.data,true);
+      await owned(fileId,blueprint.version);const workbook=await inspectWorkspaceWorkbook(sheets,fileId,blueprint);verifyBlueprintWorkbook(blueprint,workbook,true);
     });},
     async upsert(fileId,input){
       try {await base.upsert(fileId,input);return;}catch(error){
@@ -131,7 +151,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       }
       await guarded('WORKSPACE_EXPANSION_FAILED',async()=>{
         await owned(fileId);
-        const snapshot=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
+        const snapshot=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:false,fields:'sheets.properties'},{maxContentLength:READ_LIMITS.metadataBytes});
         const columns=(c:string)=>[...c].reduce((n,v)=>n*26+v.charCodeAt(0)-64,0)-1;
         const requests=[];
         for(const title of ['Loading Register','Offload Data']){
@@ -139,9 +159,12 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
           const sheet=snapshot.data.sheets?.find(s=>s.properties?.title===title);
           if(!sheet?.properties?.gridProperties?.rowCount)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
           const allowed=title==='Loading Register'?LOADING_WRITABLE:[...OFFLOAD_WRITABLE,'J','K','L'];
-          const cells=new Map((sheet.data||[]).flatMap(g=>(g.rowData||[]).flatMap((row,r)=>(row.values||[]).map((cell,c)=>[`${r+(g.startRow||0)}:${c+(g.startColumn||0)}`,cell] as const))));
           let empty=false;
-          for(let row=1;row<sheet.properties.gridProperties.rowCount;row++)if(allowed.every(c=>!cells.get(`${row}:${columns(c)}`)?.userEnteredValue)){empty=true;break;}
+          for(let start=1;start<sheet.properties.gridProperties.rowCount&&!empty;start+=READ_LIMITS.rows){
+            const rows=Math.min(READ_LIMITS.rows,sheet.properties.gridProperties.rowCount-start);
+            const result=await sheets.spreadsheets.values.get({spreadsheetId:fileId,range:boundedA1(title,start,0,rows,29),valueRenderOption:'FORMULA'},{maxContentLength:READ_LIMITS.responseBytes});
+            for(let row=0;row<rows;row++)if(allowed.every(c=>result.data.values?.[row]?.[columns(c)]===undefined||result.data.values?.[row]?.[columns(c)]==='')){empty=true;break;}
+          }
           if(!empty)requests.push(...formulaExpansionRequests(sheet.properties.sheetId!,sheet.properties.gridProperties.rowCount,200,title==='Loading Register'?LOADING_FORMULAS:OFFLOAD_FORMULAS));
         }
         if(!requests.length)return gwsFail('WORKSPACE_EXPANSION_RECONCILIATION_REQUIRED');
@@ -175,10 +198,9 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });},
     async applyBlueprint(fileId,blueprint){await withWorkspaceGenerationDiagnostic('APPLY_BLUEPRINT',async()=>{
       await owned(fileId,blueprint.version);
-      const snapshot=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});
-      const requests=blueprintRequests(blueprint,snapshot.data,true);
-      for(const batch of blueprintRequestBatches(requests))await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:batch}});
-      await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests:[{updateSpreadsheetProperties:{properties:blueprint.properties,fields:Object.keys(blueprint.properties).join(',')}}]}});
+      const inspection=await inspectWorkspaceWorkbook(sheets,fileId,blueprint),plan=planWorkbookRepair(blueprint,inspection);
+      if(plan.conflicts.length)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
+      for(const requests of iterateBlueprintRequestBatches(plan.requests))await sheets.spreadsheets.batchUpdate({spreadsheetId:fileId,requestBody:{requests}});
     });},
     async createBoundScript(fileId){return withWorkspaceGenerationDiagnostic('CREATE_BOUND_SCRIPT',async()=>{
       await owned(fileId);
@@ -193,11 +215,11 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',()=>owned(fileId,blueprint.version));
       await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,blueprint.version)!==fileId)return gwsFail('WORKSPACE_STRUCTURE_INVALID');});
       await withWorkspaceGenerationDiagnostic('VERIFY_WORKBOOK',async()=>{
-        const workbook=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:true});verifyBlueprintWorkbook(blueprint,workbook.data);
+        const workbook=await inspectWorkspaceWorkbook(sheets,fileId,blueprint);verifyBlueprintWorkbook(blueprint,workbook);
       });
       await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{
         const content=await script.projects.getContent({scriptId});
-        if(JSON.stringify(normalizedFiles(content.data.files||[]))!==JSON.stringify(normalizedFiles(blueprint.script!.files)))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
+        if(!scriptMatches(content.data.files||[],blueprint.script!.files))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
       });
     },
   };

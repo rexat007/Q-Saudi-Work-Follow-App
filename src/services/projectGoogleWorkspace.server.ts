@@ -65,6 +65,7 @@ export interface GoogleBlueprintPort extends GoogleTemplatePort {
   createBoundScript(fileId:string):Promise<string>;
   installScript(scriptId:string,blueprint:WorkspaceBlueprint):Promise<void>;
   verifyGenerated(fileId:string,scriptId:string,blueprint:WorkspaceBlueprint):Promise<void>;
+  setInitializationObserver?(observer?: (stage:'VERIFY_BINDING'|'INSPECT_WORKBOOK_METADATA'|'INSPECT_CANONICAL_RANGES'|'PLAN_REPAIR'|'APPLY_REPAIR'|'VERIFY_REPAIR'|'VERIFY_AUTOMATION',metrics?:Record<string,number>)=>Promise<void>):void;
   repairWorkbook?(fileId:string,blueprint:WorkspaceBlueprint):Promise<{repaired:boolean;conflicts:string[]}>;
   verifyAutomation?(fileId:string,scriptId:string,blueprint:WorkspaceBlueprint):Promise<void>;
 }
@@ -275,24 +276,29 @@ export class ProjectGoogleWorkspaceServer {
   async initializeBound(projectId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     const owner=randomUUID(),claimed=await this.claimSync(projectId,who,owner);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));
-    const ref=continuityRef(this.db,projectId),blueprint=this.resolvedBlueprint(claimed.project,claimed.binding);
+    const ref=continuityRef(this.db,projectId);let blueprint:WorkspaceBlueprint,workbookVerified=false;
     const save=async(patch:Record<string,unknown>,action?:string,dirty=false)=>this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);const snap=await tx.get(ref),s=snap.data();
       if(s?.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now()||s.syncLeaseRevision!==(s.binding?.revision??0)||s.syncLeaseSpreadsheetId!==s.binding?.spreadsheetId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
       if(dirty)await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKBOOK_INITIALIZATION',undefined,this.db);
       tx.set(ref,{...s,...patch});if(action)this.audit(tx,projectId,who.userId,action,{});
     });
+    google.setInitializationObserver?.(async(stage,metrics)=>save({lastInitializationStage:stage,...(metrics?{lastInitializationMetrics:metrics}:{})}));
     const heartbeat=setInterval(()=>{void this.renewSync(projectId,who,owner).catch(()=>{});},30000);heartbeat.unref?.();
     try {
+      blueprint=this.resolvedBlueprint(claimed.project,claimed.binding);
       const state=(await ref.get()).data(),b=state.binding;
       if(await google.subject()!==b.googleSubject)return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
+      await save({lastInitializationStage:'VERIFY_BINDING'});
       await google.verifyBinding(b.destinationRootFolderId,b.projectFolderId,b.spreadsheetId,b.workspaceBlueprintVersion);
       await save({workbookHealth:'REPAIRING'});
       try {
         const result=google.repairWorkbook?await google.repairWorkbook(b.spreadsheetId,blueprint):await google.verifyWorkbook(b.spreadsheetId,blueprint).then(()=>({repaired:false,conflicts:[]}));
-        await save({workbookHealth:result.conflicts.length?'REPAIR_REQUIRED':'HEALTHY',lastWorkbookError:result.conflicts.length?'WORKBOOK_OPERATOR_REVIEW_REQUIRED':null,lastGenerationDiagnostic:null},result.repaired?'WORKBOOK_REPAIRED':undefined,result.repaired||!state.lastSuccessfulSyncAt);
-      } catch(error){await save({workbookHealth:'DEGRADED',lastWorkbookError:error instanceof GoogleWorkspaceCommandError?error.code:'WORKBOOK_REPAIR_FAILED',lastGenerationDiagnostic:error instanceof GoogleWorkspaceCommandError?error.diagnostic||null:null});}
-      try {
+        workbookVerified=result.conflicts.length===0;
+        await save({...(workbookVerified?{}:{state:'SYNC_DEGRADED',lastSyncError:'WORKBOOK_OPERATOR_REVIEW_REQUIRED'}),workbookHealth:result.conflicts.length?'REPAIR_REQUIRED':'HEALTHY',lastWorkbookError:result.conflicts.length?'WORKBOOK_OPERATOR_REVIEW_REQUIRED':null,lastGenerationDiagnostic:null},result.repaired?'WORKBOOK_REPAIRED':undefined,result.repaired||!state.lastSuccessfulSyncAt);
+      } catch(error){await save({state:'SYNC_DEGRADED',lastSyncError:error instanceof GoogleWorkspaceCommandError?error.code:'WORKBOOK_REPAIR_FAILED',workbookHealth:'DEGRADED',lastWorkbookError:error instanceof GoogleWorkspaceCommandError?error.code:'WORKBOOK_REPAIR_FAILED',lastGenerationDiagnostic:error instanceof GoogleWorkspaceCommandError?error.diagnostic||null:null});}
+      if(workbookVerified)try {
+        await save({lastInitializationStage:'VERIFY_AUTOMATION'});
         assertBlueprint(blueprint,true);await google.authorizeProvisioning();
         let current=(await ref.get()).data(),scriptId=current.scriptProjectId||b.scriptProjectId,created=false;
         if(!scriptId){
@@ -317,8 +323,8 @@ export class ProjectGoogleWorkspaceServer {
       const code=error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED';
       await save({state:code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(code)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED',lastSyncError:code});
       throw error;
-    } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
-    if(google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
+    } finally {google.setInitializationObserver?.();clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
+    if(workbookVerified&&google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
   }
   /** No Google I/O. The coordinator and lease claim share this maintenance boundary. */
   private assertPendingOnlyState(project:ProjectEntity,s:any) {

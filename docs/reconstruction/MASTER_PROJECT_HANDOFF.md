@@ -1,4 +1,8 @@
-## Global user-active coordination continuation
+## Bounded-memory Workspace repair continuation
+
+[02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `fff5c313b3276e7c4672f00fad9cce7ae550f4a7` includes the global server coordinator. Current bounded repair replaces production full workbook snapshots with structural metadata, normalized canonical evidence and capped ranges; post-write verification reads only changed evidence. Owned Ops projection pages by verified numeric sheet identity, preserves legacy Dashboard/history and reuses the existing Script identity. See [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for resource limits, master-projection audit and verification evidence. No hosting RAM change, Google resource recreation, scope/asset change or live deployment is performed. One commit/branch push is authorized; owner review/merge/deployment acceptance remain separate. Phase 10 and unrelated work are not started. Older checkpoints below are historical where superseded.
+
+## Historical global user-active coordination implementation continuation
 
 [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Baseline `7dcd4e8489dec84802316c4a222a022adf4de669` merges durable authorization acceptance. Current bounded work retires the root Project retry loop in favor of one Firebase-only server coordinator pass. Server-owned grant/current principal/pending-work proof precedes Google refresh; Project attention and provider failures cannot become global Google 401. Read [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for bounded paging, leases, pending-only delivery and verification. USER_ACTIVE remains the trigger; cron is not required. No OAuth, Picker, Script recovery or workbook repair runs automatically. Owner review remains required after the authorized branch publication; no PR/merge, Phase 10, deployment or live acceptance is implied. Older checkpoints below are historical where superseded.
 
