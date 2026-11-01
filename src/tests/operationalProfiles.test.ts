@@ -17,7 +17,7 @@ describe('4 measurement topologies × 3 independent intake policies',()=>{
   const ready=await new ProjectReadinessService().evaluateProjectReadiness('P1',new Date(),new ProjectReadinessAdminReadContext(x.db));expect(ready.ready).toBe(true);
   await new ProjectActivationService(x.db).activateProject('P1',operationActor);expect(x.store['projects/P1'].status).toBe('ACTIVE');
   const template=resolveWorkspaceTemplate(c);expect(template.templateId).toBe(profile+'_V1');assertBlueprint(template.blueprint);verifyBlueprintWorkbook(template.blueprint,{properties:template.blueprint.properties,sheets:template.blueprint.sheets,namedRanges:template.blueprint.namedRanges});
-  expect(template.scriptBundle).toBe(profile+'_SCRIPT_V1');expect(resolveWorkspaceTemplate(c)).toEqual(template);
+  expect(template.scriptBundle).toBe(profile+'_SCRIPT_V2');expect(resolveWorkspaceTemplate(c)).toEqual(template);
   const service=new TripCommandsServerService(x.db);let seq=0;let tripId:string;const run=async(command:string,payload={})=>service.execute('P1',{command,payload,operationId:'op'+seq++,...(tripId?{tripId}:{})},operationActor);
   let result=await run('DISPATCH_TRIP',{carrierId:'C',truckId:'T',driverId:known?'D':null,materialId:'M',pricingRuleId:'R'});tripId=result.trip.tripId;
   expect(result.trip.operationalSnapshot.profile).toBe(profile);if(!known){expect(result.trip.driverId).toBeNull();expect(result.trip.driverSnapshot).toBeNull();expect(result.trip.operationalSnapshot.driverAtDispatch).toBeNull();}

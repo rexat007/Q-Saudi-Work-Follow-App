@@ -1,3 +1,5 @@
+import {projectOwnedOperationalTable} from './operationalReportSheets';
+import {operationalTabByTitle,OPERATIONAL_TAB_METADATA_KEY,OperationalReportTabRegistry,OperationalTabError,type OperationalTabOwnership} from '../src/services/operationalReportTabRegistry';
 import { WorkspaceStorageBoundary, workspaceError, normalizeStorageId, projectStorage } from './workspace.isolation';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
 import { google, sheets_v4, drive_v3 } from 'googleapis';
@@ -394,6 +396,13 @@ export class ServerWorkspaceService {
   /**
    * Ensures a sheet tab exists with appropriate headers, applying non-destructive migration.
    */
+  private async projectOperationalTable(spreadsheetId:string,title:string,primaryKey:string,records:Record<string,any>[],columns:readonly string[],token:string|undefined,beforeRequest:(()=>Promise<void>)|undefined,ownership:OperationalTabOwnership,snapshot:boolean,preserveUnmapped=false):Promise<UpsertResult> {
+    if(title!==OperationalReportTabRegistry[ownership.tabId]?.title)throw new OperationalTabError('PROFILE_REPORT_TAB_OWNERSHIP_INVALID');
+    const started=Date.now(),auth=this.getAuthClient(token,beforeRequest);if(!auth)throw workspaceError('GOOGLE_ACCESS_TOKEN_REQUIRED',401);
+    const counts=await projectOwnedOperationalTable(google.sheets({version:'v4',auth}),spreadsheetId,ownership,primaryKey,records,columns,snapshot,preserveUnmapped);
+    return {tabKey:'OPERATIONS',tabTitle:title,primaryKey,processedCount:records.length,insertedCount:counts.inserted,updatedCount:counts.updated,deletedCount:counts.deleted,unchangedCount:0,columnsCount:columns.length,durationMs:Date.now()-started};
+  }
+
   private async ensureSheetTabWithHeaders(
     sheets: sheets_v4.Sheets,
     spreadsheetId: string,
@@ -403,6 +412,7 @@ export class ServerWorkspaceService {
     // Read spreadsheet metadata to check if sheet tab exists
     const meta = await sheets.spreadsheets.get({ spreadsheetId });
     const existingSheet = meta.data.sheets?.find(s => s.properties?.title === tabTitle);
+    if(operationalTabByTitle(tabTitle)||existingSheet?.developerMetadata?.some(m=>m.metadataKey===OPERATIONAL_TAB_METADATA_KEY))throw new OperationalTabError('PROFILE_REPORT_TAB_OWNERSHIP_INVALID');
 
     if (!existingSheet) {
       // Add sheet
@@ -487,8 +497,10 @@ export class ServerWorkspaceService {
     bearerToken?: string,
     valueInputOption:'RAW'|'USER_ENTERED'='USER_ENTERED',
     beforeRequest?:()=>Promise<void>,
-    preserveUnmappedColumns=false
+    preserveUnmappedColumns=false,
+    operationalOwnership?:OperationalTabOwnership
   ): Promise<UpsertResult> {
+    if(operationalOwnership)return this.projectOperationalTable(spreadsheetId,tabTitle,primaryKeyName,records,expectedColumns,bearerToken,beforeRequest,operationalOwnership,false,preserveUnmappedColumns);
     const startTime = Date.now();
     const auth = this.getAuthClient(bearerToken,beforeRequest);
     if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});
@@ -663,8 +675,10 @@ export class ServerWorkspaceService {
     expectedColumns: readonly string[] | string[],
     bearerToken?: string,
     valueInputOption?:'RAW'|'USER_ENTERED',
-    beforeRequest?:()=>Promise<void>
+    beforeRequest?:()=>Promise<void>,
+    operationalOwnership?:OperationalTabOwnership
   ): Promise<UpsertResult> {
+    if(operationalOwnership)return this.projectOperationalTable(spreadsheetId,tabTitle,primaryKeyName,authoritativeRecords,expectedColumns,bearerToken,beforeRequest,operationalOwnership,true);
     const startTime = Date.now();
     const auth = this.getAuthClient(bearerToken,beforeRequest);
     if(valueInputOption==='RAW'&&!auth)throw Object.assign(new Error('GOOGLE_ACCESS_TOKEN_REQUIRED'),{code:'GOOGLE_ACCESS_TOKEN_REQUIRED',statusCode:401});

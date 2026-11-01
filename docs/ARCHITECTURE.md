@@ -1,5 +1,7 @@
 ## Adaptive operational and Workspace architecture — current
 
+Operational report projections now use OperationalReportTabRegistry, a reserved Ops namespace and sheet-scoped DOCUMENT ownership metadata. Creation atomically records marker/header; server mutations use verified numeric sheet IDs, and profile Script V2 checks the same markers. Legacy SABIL sheets and unmarked partial V1 tables remain untouched; canonical re-projection into new owned views replaces title-based adoption. Known Script upgrades reuse existing resources. Details and pending live acceptance are in [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
 Exact state is [the ledger](reconstruction/02_PHASE_LEDGER.md); semantics are [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
 
 Project business capabilities → OperationalProfileResolver → immutable Trip operational snapshot → current canonical Trip commands/identity/temporal/pricing authorities → durable metadata-only outbox → authenticated server canonical snapshot → profile-aware RAW Sheet projection and reporting. WorkspaceTemplateRegistry compiles four native profile blueprints and deterministic common/profile automation bundles. Independent Driver intake modes never fabricate identity; existing canonical Fleet onboarding remains authoritative. Measurements, derivations and estimates are separate facts.
