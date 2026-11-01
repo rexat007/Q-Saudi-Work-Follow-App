@@ -1,3 +1,4 @@
+import {AdaptiveOperationsView} from './AdaptiveOperationsView';
 import React, { useState } from 'react';
 import { 
   Scale, 
@@ -243,7 +244,9 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
       )}
 
       {/* Active Station View */}
-      {effectiveTab === 'LOADING_STATION' ? (
+      {projects.find(p=>p.projectId===selectedProjectId)?.operationalConfiguration && effectiveTab!=='DRIVER_VIEW' ? (
+        <AdaptiveOperationsView key={selectedProjectId} project={projects.find(p=>p.projectId===selectedProjectId)!} authContext={currentAuthContext} onManageRoster={onNavigateToWizard}/>
+      ) : effectiveTab === 'LOADING_STATION' ? (
         <LoadingOperatorView
           authContext={currentAuthContext}
           onNotification={handleNotification}

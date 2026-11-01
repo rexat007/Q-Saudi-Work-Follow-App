@@ -1,3 +1,15 @@
+## Operational profile decisions — 2026-11-01
+
+Exact current state: [the ledger](02_PHASE_LEDGER.md). Contract: [adaptive operations](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: one universal dual-weighbridge/roster assumption for newly configured Projects. Two measurement capabilities derive four profiles; three independent intake policies share canonical onboarding authority. First-operation intake may omit Driver without a fabricated identity, while Truck/Carrier/Material relationships and pricing remain validated.
+- RESOLVED_IN_SOURCE: provenance ambiguity. Physical kg and operational tonnes are separate; derived/estimated weights carry explicit basis. Each Trip freezes its configuration/estimate; historical Trips are not reinterpreted. Estimated capacity is never passed to financial settlement as a measurement; missing PER_TON weight remains pending.
+- RESOLVED_IN_SOURCE: unsafe repeated Script creation. Durable stage records preserve confirmed identity before content installation. Uncertain create requires explicit generic parent-proven recovery, never a second blind create.
+- SUPERSEDED_BY_OWNER_DECISION: scheduled worker, offline authorization setup and paid scheduling as current acceptance prerequisites. Current trigger is USER_ACTIVE / REQUEST_DRIVEN. Existing encrypted-grant and worker source remains dormant future capability; an existing valid grant can still serve an authorized request.
+- STILL_OPEN: deployed Google authorization, actual resource/Script recovery and profile-specific live acceptance. Local mocks/transaction models do not prove Google/Firebase production behavior. No owner Script ID or reference workbook bytes are committed as runtime dependencies.
+- STILL_OPEN: existing TypeScript and historical regression debt. Lint remains EXIT 2 / NOT PASS. Dated verification counts are observations, not fixed cardinality contracts.
+- ROUTED_TO_LATER_SCOPE: explicit post-operation template/configuration migrations, scheduled execution, GPS, bidirectional Sheet business writes and unrelated pricing/identity/Smart Import work. No new phase/unit is assigned.
+
 ## Complete Workspace package — 2026-11-01
 
 Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).

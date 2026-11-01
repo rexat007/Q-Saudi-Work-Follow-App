@@ -1,3 +1,14 @@
+## Current operational configuration and recovery commands
+
+Exact state is [the ledger](reconstruction/02_PHASE_LEDGER.md); policy is [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+- `POST /api/projects/:projectId/operational-configuration`: `{configuration, expectedVersion, acknowledgeLegacyDualCompatibility?}` only. Current administrator, lifecycle, optimistic version and post-binding/operation migration fences apply. Explicit legacy dual adoption preserves existing Sheet/Trip history. Arbitrary foundation overposting cannot configure operations.
+- Existing Trip command endpoint adds bounded `COMPLETE_LOADING`, `START_UNLOADING`, `ASSOCIATE_DRIVER` actions under existing origin/destination role policies. No new role or generic arbitrary-update endpoint. Driver null is accepted only by configured non-preloaded domain policy; canonical Truck/Carrier/Material/assignment/allocation/pricing checks still execute. Operational timestamps are server-recorded, never client-authored snapshots.
+- `POST /api/projects/:projectId/workspace/automation/recover`: `{scriptProjectId}` only. Fresh Project administrator, Google subject/grants, current binding/lease and parent proof precede identity persistence/install/readback; no create fallback. Credential-free Workspace status additionally exposes `syncTrigger: USER_ACTIVE` and bounded `automationRecoveryRequired`.
+- Existing `workspace/retry-sync` accepts `{}` only; uses transient Google permission or an existing valid encrypted grant. The active app requests canonical outbox/snapshot/report delivery. No row authority or scheduled-job requirement is added.
+
+New configured provisioning resolves one of four versioned native template factories. Existing unconfigured legacy behavior remains until explicit adoption. Binding-first/independent health supersedes the old structure-before-READY phrasing below. Older GWS1B descriptions are historical where inconsistent.
+
 ## GWS1B — current Workspace provisioning commands
 
 Exact state defers to [the ledger](reconstruction/02_PHASE_LEDGER.md). `POST /api/projects/:projectId/workspace/destination` accepts only `destinationRootFolderId`, freshly authorizes the actor/Project and Google subject/scopes, validates folder writability and the compiled blueprint, and records a scoped approval. `POST /api/workspace/provision` accepts only `projectId` and `destinationRootFolderId`; canonical name/account/lifecycle are loaded server-side, never trusted from a full client Project. Existing bindings are reused without implicit migration. New resources use the owner-local approved SABIL-HAIL-V1 compiled asset. Bound source + manifest readback and structure validation precede READY; no script execution/deployment or trigger-installation endpoint is added.

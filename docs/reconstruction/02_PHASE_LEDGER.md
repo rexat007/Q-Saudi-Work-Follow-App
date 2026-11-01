@@ -1,7 +1,26 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Complete Google Workspace package — 2026-11-01
+
+### Operational profiles and adaptive Workspace engine — 2026-11-01
+
+CURRENT_CODE_BASELINE: `6a7f1973a9737757f1de82f664f375ecb5d65f79` — merged main, PR #74. Branch: `reconstruction/operational-profiles-workspace-engine`.
+
+OPERATIONAL_PROFILE_ENGINE: IMPLEMENTED / LOCAL_VERIFICATION_COMPLETE / AWAITING_OWNER_REVIEW.
+WORKSPACE_TEMPLATE_REGISTRY: IMPLEMENTED — four versioned, configuration-resolved template factories and deterministic common/profile Script bundles.
+SUPPORTED_MEASUREMENT_TOPOLOGIES: 4.
+SUPPORTED_DRIVER_INTAKE_MODES: 3.
+CURRENT_SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN.
+SCHEDULED_BACKGROUND_WORKER: NOT_REQUIRED.
+CRON_JOB: NOT_DEPLOYED (owner decision; no hosting change executed here).
+
+Independent endpoint capabilities derive the profile; intake is independent. New Projects must explicitly configure operations. Each new Trip freezes capabilities, route/shifts/checkpoints and capacity provenance. Old Trips retain their original facts. Canonical identity/participation/temporal and pricing authorities remain in force. Configuration changes after binding/partial provisioning/Trip creation require an explicit migration review; the bounded legacy SABIL dual adoption requires explicit acknowledgment and does not rewrite history.
+
+Q-PRJ-007 is an acceptance fixture only: DUAL_WEIGHBRIDGE, owner-confirmed ON_FIRST_OPERATION. Generic recovery preserves its existing Sheet; no project or recovered Script ID is hardcoded. No live Google recovery, configuration write or deployment acceptance is claimed.
+
+Phase 10, GWS3, PFAG-OPS-01 and unrelated identity/pricing/Smart Import redesign are NOT_STARTED. Source publication does not confer owner acceptance or merge authority. Remaining external gate: deploy/authorize and exercise the four applicable configurations and existing-Sheet recovery against real Google resources. See [operational contract](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md) for scope, verification and limits. Earlier Workspace checkpoints below are historical where superseded.
+
+### Historical complete Google Workspace package — 2026-11-01
 
 Merged GWS2 A+B source baseline: `92cc6c838ab4e823eb691f62a9b56084fb6ab5dc` (PR #73), containing `7fa2332d4aa67bfbb99fb022060e0f276c53eaa0` and `81ccde8df7925d3f5b588e280ab49d09a948d213`. Firestore remains canonical; Sheets is a projection/continuity surface; Apps Script is workbook-local automation. This package supersedes the residual structure-before-binding gate and the prior GWS2-C source deferral.
 

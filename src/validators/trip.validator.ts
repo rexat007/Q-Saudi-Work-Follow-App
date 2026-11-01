@@ -1,3 +1,4 @@
+import {validateOperationalConfiguration,resolveRequiredTripFields} from '../services/operationalProfileResolver';
 import { TripEntity, TripStatus } from '../types/entities';
 import { ValidationResult, ValidationError } from '../types/common';
 import { OperationSourceValidator } from './operationSource.validator';
@@ -39,7 +40,9 @@ export class TripValidator {
       });
     }
 
-    if (!trip.carrierId || !trip.truckId || !trip.driverId || !trip.materialId || !trip.pricingRuleId) {
+    let driverRequired=true;
+    if(trip.operationalSnapshot){try{driverRequired=resolveRequiredTripFields(validateOperationalConfiguration(trip.operationalSnapshot.configuration)).driver;}catch{errors.push({field:'operationalSnapshot',code:'OPERATIONAL_CONFIGURATION_INVALID',messageAr:'OPERATIONAL_CONFIGURATION_INVALID',messageEn:'OPERATIONAL_CONFIGURATION_INVALID'});}}
+    if (!trip.carrierId || !trip.truckId || (driverRequired&&!trip.driverId) || !trip.materialId || !trip.pricingRuleId) {
       errors.push({
         field: 'entities',
         code: 'MISSING_ASSOCIATION',

@@ -1,3 +1,9 @@
+## Adaptive operations continuation
+
+Use [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) for exact state. Merged baseline is `6a7f1973a9737757f1de82f664f375ecb5d65f79` (PR #74). The current operational-profile package implements four independent measurement topologies × three intake modes, immutable Trip provenance, registry-resolved native workbooks/Script bundles, generic existing-Script recovery and canonical operational analytics. See [the current contract](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+Current Google delivery trigger is USER_ACTIVE / REQUEST_DRIVEN; worker/cron is not required or deployed by this unit. Retain dormant source; do not follow older scheduled-worker instructions as the current next step. Q-PRJ-007 uses owner-confirmed ON_FIRST_OPERATION with dual scales and existing-Sheet preservation. No real Google migration/recovery/deployment was performed here. Owner review and applicable live acceptance remain separate; no Phase 10 or unrelated audit starts.
+
 ## Complete Google Workspace package continuation
 
 Exact state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `92cc6c838ab4e823eb691f62a9b56084fb6ab5dc` merges GWS2 A+B through PR #73. The current package adds binding-first structure repair, optional approved automation, server-only encrypted offline authorization and a standalone renewable-leased worker using the existing canonical outbox. GWS2-C is no longer source-deferred. Local verification/publication is separate from external deployment and live acceptance. Q-PRJ-007 has not been mutated here; recover its existing folder/Sheet. Historical uncertain Script creation must remain degraded rather than duplicated. See [sync behavior](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [exact external deployment steps](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). No Phase 10, PFAG-OPS-01 or Sheet-to-Firestore master ingestion starts here. Earlier checkpoints below are historical/superseded where inconsistent.

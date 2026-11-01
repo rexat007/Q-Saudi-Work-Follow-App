@@ -3,9 +3,12 @@ import { Timestamp } from 'firebase/firestore';
 import { BaseAuditedEntity, type UserRole } from './common';
 import { ProjectStorageProfile } from './workspace';
 import type { GlobalTruckType, GlobalMaterialUom } from './globalEntities';
+import type {OperationalConfiguration,TripOperationalSnapshot,OperationalTimeline,OperationalWeights} from './operationalProfile';
 
 // 1. Project Entity
 export interface ProjectEntity extends BaseAuditedEntity {
+  operationalConfiguration?:OperationalConfiguration;
+  operationalConfigurationRequired?:boolean;
   version?: number; // Optimistic profile revision; legacy missing value is zero.
   projectId: string;
   projectCode?: string;
@@ -206,12 +209,15 @@ export type TripStatus =
   | 'CANCELLED';
 
 export interface TripEntity extends BaseAuditedEntity {
+  operationalSnapshot?:TripOperationalSnapshot;
+  operationalTimeline?:OperationalTimeline;
+  operationalWeights?:OperationalWeights;
   tripId: string;
   tripNumber: string; // e.g. "TRP-2026-00100"
   projectId: string;
   carrierId: string;
   truckId: string;
-  driverId: string;
+  driverId: string | null;
   materialId: string;
   pricingRuleId: string;
 
@@ -237,7 +243,7 @@ export interface TripEntity extends BaseAuditedEntity {
     tareWeightKg: number;
     legalPayloadLimitKg: number;
   };
-  driverSnapshot: {
+  driverSnapshot: null | {
     driverId: string;
     fullNameAr: string;
     nationalOrIqamaId: string;

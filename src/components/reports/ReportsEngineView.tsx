@@ -1,3 +1,4 @@
+import {AdaptiveOperationalReports} from './AdaptiveOperationalReports';
 import { hasProjectScope, filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText, presentReportCell } from '../../i18n/analyticsPresentation';
 import { useI18n } from '../../i18n';
@@ -88,7 +89,7 @@ export function computeMergedExceptionsFromProjects(exceptionsByProject: Record<
   return deduplicated;
 }
 
-export const ReportsEngineView: React.FC = () => {
+export const ReportsEngineView: React.FC<{operationalProjectId?:string;operationalConfiguration?:import('../../types/operationalProfile').OperationalConfiguration}> = ({operationalProjectId,operationalConfiguration}) => {
   const { t: translate, isRTL } = useI18n();
   // Navigation
   const [activeCategory, setActiveCategory] = useState<ReportCategory>('OPERATIONAL');
@@ -493,6 +494,8 @@ export const ReportsEngineView: React.FC = () => {
       default: return <FileText className={className} />;
     }
   };
+
+  if(operationalProjectId&&!['PRICING','SETTLEMENT'].includes(activeCategory))return <div className="space-y-4"><button type="button" onClick={()=>{setActiveCategory('PRICING');setSelectedReportType('SETTLEMENT_BY_CARRIER');}}>{translate('op.financial_reports')}</button><AdaptiveOperationalReports key={operationalProjectId} projectId={operationalProjectId} configuration={operationalConfiguration}/></div>;
 
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>

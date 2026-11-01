@@ -36,7 +36,7 @@ export class TripCommandsServerService {
     if (payload.sourceMetadata) exact(payload.sourceMetadata, ['importBatchId', 'sourceFileId', 'sourceFileName', 'sourceSheetName', 'sourceRowId', 'sourceMimeType', 'metadata', 'legacyTripSerial', 'legacyRate', 'legacyStatus']);
     for (const key of ['originTicketNo', 'destinationTicketNo']) if (payload[key] !== undefined && typeof payload[key] !== 'string') return deny('INVALID_TRIP_COMMAND');
     for (const key of ['carrierId', 'truckId', 'driverId', 'materialId', 'pricingRuleId'])
-      if (payload[key] !== undefined && !(command === 'IMPORT_TRIP' && key === 'pricingRuleId' && payload[key] === null) && !validId(payload[key])) return deny('INVALID_TRIP_COMMAND');
+      if (payload[key] !== undefined && !(key==='driverId'&&payload[key]===null)&&!(command === 'IMPORT_TRIP' && key === 'pricingRuleId' && payload[key] === null) && !validId(payload[key])) return deny('INVALID_TRIP_COMMAND');
     if (command === 'REPORT_EXCEPTION' && !validId(payload.exceptionId)) return deny('INVALID_TRIP_COMMAND');
     const creation = ['DISPATCH_TRIP', 'RECORD_LOADING', 'IMPORT_TRIP'].includes(command);
     if (creation ? raw.tripId !== undefined : !validId(raw.tripId)) return deny('INVALID_TRIP_COMMAND');
@@ -95,6 +95,11 @@ export class TripCommandsServerService {
           for (const status of ['AT_ORIGIN', 'LOADING', 'WEIGHED_ORIGIN', 'IN_TRANSIT'] as const)
             current = await tripService.transitionTripStatus(projectId, current.tripId, status, status === 'WEIGHED_ORIGIN' ? payload : {}, actor);
         }
+      } else if(command==='COMPLETE_LOADING'||command==='START_UNLOADING') {
+        current=await tripService.recordOperationalCheckpoint(projectId,raw.tripId,command==='COMPLETE_LOADING'?'loadingCompletedAt':'unloadingStartedAt',actor);
+      } else if(command==='ASSOCIATE_DRIVER') {
+        if(!validId(payload.driverId))return deny('INVALID_TRIP_COMMAND');
+        current=await tripService.associateOperationalDriver(projectId,raw.tripId,payload.driverId,actor);
       } else if (command === 'REPORT_EXCEPTION') {
         // Reuse exception domain validation; persistence is buffered in this same transaction.
         const exceptionPersistence = new ServerExceptionPersistenceAdapter(transaction.db);

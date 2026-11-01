@@ -1,3 +1,11 @@
+## Current operational capability and Trip snapshot representation
+
+Status defers to [the ledger](reconstruction/02_PHASE_LEDGER.md); field/policy details are [the operational contract](reconstruction/OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+Project has optional `operationalConfiguration`, plus the internal `operationalConfigurationRequired` marker for new Projects. Its integer version fences administrative saves. Configuration stores independent measurement modes, Driver intake, route metrics, explicit shift windows, optional capacity policy and required checkpoints. New Trips store `operationalSnapshot` (schemaVersion/configuration/derived profile/configurationVersion/estimatedCapacityTonnes/driverAtDispatch), `operationalTimeline` and `operationalWeights`. Physical canonical weights remain kg; explicitly named operational weights are tonnes. Unknown Driver is null only under configured non-preloaded intake. Old Trips and pricing snapshots are not rewritten.
+
+Configured Trip outbox entries contain projectId/tripId/kind=PROFILE_TRIP/revision/status/updatedAt, not browser rows. Server reads canonical Trip state for delivery and rebuilds app-owned aggregates. Continuity preserves confirmed Script identity before content install; explicit generic parent-proven recovery reuses uncertain existing automation. Resource tags on an explicitly adopted SABIL dual Sheet are preserved while the resolver supplies the current dual views/bundle; no replacement Sheet is created.
+
 ## GWS1B — durable generated Workspace representation
 
 Current reference; [the ledger](reconstruction/02_PHASE_LEDGER.md) owns status. `projects/{projectId}/workspace_destination/current` binds approved destination root, Project, actor and Google subject. `workspace_continuity/current` records immutable blueprint version/root/subject, execution owner and stages, Project folder ID, spreadsheet ID and Script project ID as each external result becomes known. Binding is published atomically with Project compatibility IDs and audit only after validation.

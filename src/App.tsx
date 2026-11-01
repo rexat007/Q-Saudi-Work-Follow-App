@@ -1,3 +1,5 @@
+import {AdaptiveOperationalReports} from './components/reports/AdaptiveOperationalReports';
+import {useUserActiveWorkspaceSync} from './hooks/useUserActiveWorkspaceSync';
 import { batch4RelationText, batch4ReferenceText } from './i18n/batch4Presentation';
 import React, { useState, useEffect } from 'react';
 import { 
@@ -112,6 +114,9 @@ export default function App() {
         linkedDriverId: userProfile?.linkedDriverId,
       }
     : undefined;
+
+  useUserActiveWorkspaceSync(projects,activeAuthContext);
+  const operationalProject=projects.find(project=>project.projectId===selectedProjectId);
 
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
 
@@ -511,14 +516,14 @@ export default function App() {
               <>
                 {/* ================= TAB: OPERATIONS DASHBOARD (STRICT AUTHORIZATION, 7 LAYERS) ================= */}
                 {activeTab === 'OPERATIONS_DASHBOARD' && (
-                  <OperationsDashboardView 
+                  operationalProject?.operationalConfiguration ? <AdaptiveOperationalReports key={selectedProjectId} projectId={selectedProjectId} configuration={operationalProject?.operationalConfiguration}/> : <OperationsDashboardView
                     authContext={activeAuthContext}
                   />
                 )}
 
                 {/* ================= TAB: REPORTS ENGINE (OPERATIONAL, WEIGHBRIDGE, SETTLEMENT, INGESTION) ================= */}
                 {activeTab === 'REPORTS_ENGINE' && (
-                  <ReportsEngineView />
+                  <ReportsEngineView operationalConfiguration={operationalProject?.operationalConfiguration} operationalProjectId={operationalProject?.operationalConfiguration?selectedProjectId:undefined} />
                 )}
 
                 {/* ================= TAB: FIELD OPERATIONS (LOADING, UNLOADING, SUPERVISION, DRIVER) ================= */}

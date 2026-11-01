@@ -1,3 +1,11 @@
+## Current adaptive Workspace and sync policy
+
+Current state is [the ledger](02_PHASE_LEDGER.md); full current semantics are [the operational contract](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md).
+
+Four capability-resolved versioned templates replace one universal SABIL blueprint for newly configured Projects. Shared canonical Arabic master tabs remain. Profile Trip rows retain physical/derived/estimated weight provenance, stable IDs and operator review/formula columns; server rebuilds app-owned operational reports from canonical Firestore. Generic Script recovery accepts a supplied ID only after current canonical Sheet parent proof, then installs/verifies the resolved bundle. Confirmed identity is persisted immediately. Uncertain create still forbids duplication. Explicit compatible dual adoption preserves the existing SABIL resource IDs/tags and historical Trips.
+
+CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN. SCHEDULED_BACKGROUND_WORKER = NOT_REQUIRED. CRON_JOB = NOT_DEPLOYED (owner decision). Authorized app open/focus/online/interaction requests the existing server drain with canonical empty command body and one-minute throttle. Valid transient or existing encrypted grants serve delivery; no automatic consent popup or paid scheduling prerequisite. Earlier scheduled-worker/offline setup requirements below describe a superseded deployment proposal, not the current acceptance gate. Source/local verification remains distinct from deployed/live acceptance.
+
 # Complete Project Google Workspace integration contract
 
 Exact state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). This current contract supersedes structure-before-binding and the prior GWS2-C source deferral. Dated evidence retained below remains historical.

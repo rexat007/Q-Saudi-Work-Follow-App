@@ -1,3 +1,4 @@
+import type {WeightBasis} from '../types/operationalProfile';
 /**
  * Reports Engine Service
  * Authoritative computational engine for Saudi Enterprise Logistics.
@@ -248,10 +249,11 @@ export class ReportsEngineService {
    */
   public resolveDestinationWeightInfo(t: TripRecord): {
     isOriginNetAccepted: boolean;
-    destinationWeightSource: 'DESTINATION_SCALE' | 'ORIGIN_NET_ACCEPTED' | 'PENDING_RECEIPT';
+    destinationWeightSource: WeightBasis | 'DESTINATION_SCALE' | 'ORIGIN_NET_ACCEPTED' | 'PENDING_RECEIPT';
     destinationWeightSourceLabelAr: string;
     unloadDecision: string;
   } {
+    if(t.operationalSnapshot&&t.operationalWeights){const basis=t.operationalWeights.unloadingWeightBasis;return {isOriginNetAccepted:false,destinationWeightSource:basis,destinationWeightSourceLabelAr:`op.${basis}`,unloadDecision:basis};}
     const isOriginNetAccepted = Boolean(
       (t as any).unloadDecision === 'ACCEPT_ORIGIN_NET_AS_DESTINATION' ||
       (t as any).destinationWeightSource === 'ORIGIN_NET_ACCEPTED' ||
@@ -1769,6 +1771,7 @@ export class ReportsEngineService {
     const activeExceptionCount = trip.activeExceptionCount;
 
     return {
+      operationalSnapshot:trip.operationalSnapshot,operationalTimeline:trip.operationalTimeline,operationalWeights:trip.operationalWeights,
       tripId,
       projectId,
       tripSerial,

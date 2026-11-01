@@ -3,6 +3,8 @@ import { REQUIRED_GOOGLE_TABS, LOADING_HEADERS, OFFLOAD_HEADERS, LOADING_WRITABL
 import {WORKSPACE_TABS} from '../../types/workspace';
 
 export interface WorkspaceBlueprint {
+  templateId?:string;
+  requiredTabs?:readonly string[];
   schemaVersion: 1;
   version: string;
   approved: boolean;
@@ -30,12 +32,14 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
   if(!blueprint.approved || !blueprint.capture.complete || blueprint.capture.unaccounted || blueprint.capture.operationalRows || blueprint.capture.sourceReferenceIds.length || blueprint.schemaVersion!==1) return invalid('WORKSPACE_BLUEPRINT_CAPTURE_REQUIRED');
   if(!blueprint.version || blueprint.properties.timeZone!=='Asia/Riyadh' || !blueprint.properties.locale) return invalid();
   const names=blueprint.sheets.map(s=>s.properties?.title),ids=blueprint.sheets.map(s=>s.properties?.sheetId);
-  if(names.length!==7 || new Set(names).size!==7 || new Set(ids).size!==7 || REQUIRED_GOOGLE_TABS.some((name,i)=>names[i]!==name)) return invalid();
+  const expected=blueprint.templateId?blueprint.requiredTabs:REQUIRED_GOOGLE_TABS;
+  if(blueprint.templateId&&!['DUAL_WEIGHBRIDGE_V1','LOADING_SCALE_ONLY_V1','UNLOADING_SCALE_ONLY_V1','NO_WEIGHBRIDGE_V1'].includes(blueprint.templateId))return invalid();
+  if(!expected?.length||expected.length>32||names.length!==expected.length||new Set(names).size!==names.length||new Set(ids).size!==ids.length||expected.some((name,i)=>names[i]!==name)) return invalid();
   for(const sheet of blueprint.sheets) {
     const p=sheet.properties;
     if(!p || !Number.isSafeInteger(p.sheetId) || !p.gridProperties?.rowCount || p.gridProperties.rowCount>50000 || !p.gridProperties.columnCount) return invalid();
-    const tab=names.indexOf(p.title);
-    if(tab<2) {
+    const tab=REQUIRED_GOOGLE_TABS.indexOf(p.title as typeof REQUIRED_GOOGLE_TABS[number]);
+    if(tab>=0&&tab<2) {
       const headers=tab===0?LOADING_HEADERS:OFFLOAD_HEADERS;
       const inputs=(tab===0?LOADING_WRITABLE:[...OFFLOAD_WRITABLE,'J','K','L']).map(columnIndex);
       const cells=cellEntries(sheet);
@@ -179,8 +183,9 @@ export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:shee
         }
       }
     }
-    if(i<2) {
-      const input=(i===0?LOADING_WRITABLE:[...OFFLOAD_WRITABLE,'J','K','L']).map(columnIndex);
+    const legacyInputTab=REQUIRED_GOOGLE_TABS.indexOf(sheet.properties!.title as typeof REQUIRED_GOOGLE_TABS[number]);
+    if(legacyInputTab>=0&&legacyInputTab<2) {
+      const input=(legacyInputTab===0?LOADING_WRITABLE:[...OFFLOAD_WRITABLE,'J','K','L']).map(columnIndex);
       if(cells.some(c=>c.row>0&&input.includes(c.column)&&c.cell.userEnteredValue)) return invalid('BLUEPRINT_OPERATIONAL_DATA_FOUND');
     }
   }

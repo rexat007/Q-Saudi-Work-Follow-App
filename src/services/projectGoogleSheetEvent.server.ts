@@ -22,6 +22,7 @@ export async function enqueueTripGoogleProjection(db:any,trip:TripEntity) {
   const id=createHash('sha256').update(trip.tripId).digest('hex');
   const ref=syncOutboxRef(db,trip.projectId).doc(id), previous=await ref.get();
   const revision=(previous.exists?previous.data().revision:0)+1;
+  if(trip.operationalSnapshot){await ref.set({projectId:trip.projectId,tripId:trip.tripId,kind:'PROFILE_TRIP',revision,status:'PENDING',updatedAt:new Date().toISOString()});return;}
   const input=googleSheetInputFromTrip(trip);
   await ref.set({projectId:trip.projectId,tripId:trip.tripId,revision,input:input?JSON.parse(JSON.stringify(input)):null,status:'PENDING',mappingRequired:!input});
 }

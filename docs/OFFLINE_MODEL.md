@@ -1,3 +1,9 @@
+## Current operational/Workspace clarification
+
+Exact state: [the ledger](reconstruction/02_PHASE_LEDGER.md). This package does not redesign field offline/outbox behavior. New adaptive operational commands require the existing authenticated server authority; immutable server Trip snapshots remain truth. No local estimate becomes a measurement or a financial rate.
+
+Google projection is USER_ACTIVE / REQUEST_DRIVEN using protected canonical outbox drain. No scheduled worker, paid cron or new offline OAuth configuration is required for current acceptance. Existing worker and encrypted-grant source remains dormant future capability, with an existing valid grant reusable for an active request. Missing authorization/network leaves pending work; no autonomous/browser-closed acceptance is claimed. The original specification below remains historical, not proof of these capabilities.
+
 > **HISTORICAL_RECORD — original design/reference specification.** The preserved body may combine implemented behavior with former targets; it is not proof of current routes, schemas, security, deployment or reconstruction status. Current GitHub main takes precedence. For the verified repository overview see [MASTER_PROJECT_HANDOFF.md](reconstruction/MASTER_PROJECT_HANDOFF.md); current state is [02_PHASE_LEDGER.md](reconstruction/02_PHASE_LEDGER.md). No historical target here authorizes product changes.
 
 # Q Saudi Work Follow — نموذج العمل بدون اتصال والمزامنة الميدانية (Offline & Sync Model)
