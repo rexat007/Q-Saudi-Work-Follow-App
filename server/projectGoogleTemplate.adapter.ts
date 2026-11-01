@@ -1,18 +1,10 @@
+import {classifyGoogleProviderFailure} from './workspaceGoogleErrors';
 import { google } from 'googleapis';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
-import {classifyWorkspaceGenerationFailure} from '../src/utils/workspaceGenerationDiagnostics';
 import type { GoogleTemplatePort } from '../src/services/projectGoogleWorkspace.server';
 import { gwsFail, GoogleWorkspaceCommandError } from '../src/services/projectGoogleWorkspace.server';
 import { REQUIRED_GOOGLE_TABS, LOADING_HEADERS, OFFLOAD_HEADERS, LOADING_WRITABLE, OFFLOAD_WRITABLE, sourceCells, writableCells, type OperationalSheetInput } from '../src/services/projectGoogleSheetContract';
 
-function googleError(error:unknown,context:string):never {
-  const e=error as {code?:number;status?:number;response?:{status?:number}};
-  const status=e.response?.status||e.status||e.code;
-  if(status===401) return gwsFail('TOKEN_EXPIRED',401);
-  if(status===403) return gwsFail(context==='TEMPLATE'?'TEMPLATE_ACCESS_DENIED':classifyWorkspaceGenerationFailure(error,'VERIFY_WORKBOOK').diagnostic.category==='SCOPE_DENIED'?'SCOPE_DENIED':'GOOGLE_PERMISSION_DENIED',403);
-  if(status===404) return gwsFail(context==='TEMPLATE'?'TEMPLATE_NOT_FOUND':'PROJECT_WORKSPACE_FILE_MISSING',404);
-  return gwsFail('GOOGLE_NETWORK_OR_SERVICE_ERROR',502);
-}
 export function projectGoogleTemplatePort(token:string,beforeRequest:()=>Promise<void>=async()=>{}):GoogleTemplatePort {
   if(!token?.trim()||token.startsWith('mock_')) return gwsFail('AUTHORIZATION_REQUIRED',401);
   const auth=new google.auth.OAuth2();auth.setCredentials({access_token:token});
@@ -20,7 +12,7 @@ export function projectGoogleTemplatePort(token:string,beforeRequest:()=>Promise
   let accountLabel = '';
   const drive=google.drive({version:'v3',auth}),sheets=google.sheets({version:'v4',auth});
   const guarded=async<T>(context:string,run:()=>Promise<T>):Promise<T>=>{
-    try{return await run();}catch(e){if(e instanceof GoogleWorkspaceCommandError) throw e;return googleError(e,context);}
+    try{return await run();}catch(e){if(e instanceof GoogleWorkspaceCommandError) throw e;const failure=classifyGoogleProviderFailure(e);return gwsFail(failure.code,failure.status);}
   };
   const verify=async(fileId:string,operationId?:string)=>{
     await guarded('FILE',async()=>{

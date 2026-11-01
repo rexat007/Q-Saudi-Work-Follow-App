@@ -41,6 +41,17 @@ const destinationMessages = {
   WORKSPACE_REGISTRY_ACCESS_FAILED:'gws.registry_unavailable',
   SCOPE_DENIED:'gws.scope_denied',
   TOKEN_EXPIRED:'gws.token_expired',
+  AUTHORIZATION_REQUIRED:'gws.authorization_required',
+  HOST_SERVICE_UNAVAILABLE:'gws.host_unavailable',
+  WORKSPACE_REQUEST_FAILED:'gws.action_required',
+  GOOGLE_SERVICE_UNAVAILABLE:'gws.google_service_unavailable',
+  GOOGLE_NETWORK_ERROR:'gws.google_network_error',
+  GOOGLE_RATE_LIMITED:'gws.google_rate_limited',
+  GOOGLE_QUOTA_EXCEEDED:'gws.google_quota_exceeded',
+  GOOGLE_INVALID_REQUEST:'gws.google_invalid_request',
+  GOOGLE_PERMISSION_DENIED:'gws.google_permission_denied',
+  API_ACCESS_DISABLED:'gws.google_api_disabled',
+  PROJECT_WORKSPACE_FILE_MISSING:'gws.bound_file_unavailable',
 } as const;
 export function workspaceDestinationMessageKey(message:string):string|null {
   for(const [code,key] of Object.entries(destinationMessages))if(new RegExp(`\\b${code}\\b`).test(message))return key;

@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "gws.host_unavailable": "ایپ کی خدمت عارضی طور پر دستیاب نہیں۔ دستیاب ہونے پر دوبارہ کوشش کریں۔",
+  "gws.google_service_unavailable": "Google کی خدمت عارضی طور پر دستیاب نہیں۔ ربط اور زیر التوا کام محفوظ ہیں۔",
+  "gws.google_network_error": "Google سے رابطہ منقطع ہوا یا وقت ختم ہوگیا۔ ورک اسپیس دوبارہ بنائے بغیر کوشش کریں۔",
+  "gws.google_rate_limited": "Google درخواستیں محدود کر رہا ہے۔ کچھ دیر بعد کوشش کریں۔",
+  "gws.google_quota_exceeded": "Google کا کوٹہ ختم ہوگیا۔ دوبارہ کوشش سے پہلے منصوبے کا کوٹہ دیکھیں۔",
+  "gws.google_invalid_request": "Google نے درخواست مسترد کردی۔ موجودہ ورک اسپیس برقرار رکھیں اور معاونت کا کوڈ بتائیں۔",
+  "gws.google_permission_denied": "Google اکاؤنٹ کو منسلک وسیلے پر اس عمل کی اجازت نہیں۔ اجازتیں دیکھیں۔",
+  "gws.google_api_disabled": "درکار Google API اس منصوبے کے لیے بند یا دستیاب نہیں ہے۔",
   "op.DRAFT": "مسودہ",
   "op.lastEvent": "آخری ریکارڈ شدہ واقعہ",
   "op.elapsedMinutes": "آخری واقعے سے منٹ",

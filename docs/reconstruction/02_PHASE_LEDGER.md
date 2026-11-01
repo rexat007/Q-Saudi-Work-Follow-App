@@ -1,7 +1,23 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Operational report tab isolation remediation — 2026-11-01
+### Google authorization and provider resilience — 2026-11-01
+
+CURRENT_CODE_BASELINE: `e39cce70d3d8e3d549b99d8f8882908d44555de5` — merged main including operational report isolation. Working branch: `reconstruction/google-auth-provider-resilience`.
+
+GOOGLE_AUTH_PROVIDER_RESILIENCE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+CURRENT_SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN.
+CREDENTIAL_AUTHORITY: SERVER_REFRESH_WHEN_CONNECTED.
+BROWSER_GOOGLE_TOKEN: EPHEMERAL / MEMORY_ONLY.
+CRON: NOT_REQUIRED.
+
+The owner reports live Operational Profile configuration working and Dashboard collision remediated; the active failure is retry-sync provider availability. This unit does not claim a new live Google/Firebase acceptance run or deployment. Browser tokens are never persisted/restored; the legacy storage key is only removed. The same server execution resolver serves initialize, retry-sync and automation recovery. A CONNECTED durable grant refreshes server-side and carries its authorization identity into existing principal/grant/binding/lease/request fences. Identity, scope, revoked-grant and refresh failures cannot silently select a browser token. Without a durable grant, explicit fresh interactive authorization remains available; AUTHORIZATION_REQUIRED needs reauthorization.
+
+One bounded provider classifier distinguishes credential expiry, scope denial, API disabled, permission, missing resource, invalid request, rate/quota, provider service and transport failures. The client separately reports HOST_SERVICE_UNAVAILABLE for empty/non-JSON/malformed hosting responses; raw errors, credentials and personal data are not displayed. Failed sync preserves pending work/binding and releases its owned lease in finally; process disappearance still relies on the existing expiry fence. Measurement, pricing, source assets, OAuth scopes, Drive validation rules and dormant scheduler policy are unchanged. Publication is authorized only for this branch; no PR, merge, GWS2 expansion, PFAG-OPS or Phase 10 work is authorized.
+
+Earlier checkpoints below are historical where superseded. Technical details: [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md), [credential contract](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
+
+### Historical operational report tab isolation implementation — 2026-11-01
 
 CURRENT_CODE_BASELINE: `376904d80095515e7417b8e314e44965721600de` — merged main containing the operational profile engine. Current local branch: `reconstruction/operational-report-tab-isolation`.
 
@@ -87,15 +103,15 @@ By explicit owner decision, initial validation now checks only the Picker-select
 
 ### Current Active State
 ```yaml
-WORKING_BRANCH: reconstruction/gws-complete-project-sync
+WORKING_BRANCH: reconstruction/google-auth-provider-resilience
 ACTIVE_PHASE: PRE_PHASE_10_FOUNDATION_ASSURANCE
 ACTIVE_PHASE_STATUS: IN_PROGRESS
 PHASE_8_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PHASE_9_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 PROJECT_FOUNDATION_ASSURANCE: MERGED / SOURCE_VERIFIED / CLOSED
-ACTIVE_UNIT: COMPLETE_GOOGLE_WORKSPACE_INTEGRATION_PACKAGE
-ACTIVE_UNIT_STATUS: SOURCE_COMPLETE / LOCAL_VERIFIED / AWAITING_OWNER_REVIEW
-ACTIVE_UNIT_TYPE: COHERENT_WORKSPACE_LIFECYCLE_AND_UNATTENDED_SYNC
+ACTIVE_UNIT: GOOGLE_AUTHORIZATION_AND_PROVIDER_RESILIENCE
+ACTIVE_UNIT_STATUS: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW
+ACTIVE_UNIT_TYPE: BOUNDED_CREDENTIAL_AND_PROVIDER_RECOVERY
 P8_B1_SOURCE: MERGED / PRESENT
 P8_B2_SOURCE: MERGED / PRESENT
 P8_B3_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
@@ -137,7 +153,7 @@ GWS1B_TRIGGER_MODEL: SIMPLE_ONEDIT_DISPATCHER / INSTALLABLE_NONE
 GWS_LIVE_01_STATUS: READY_TO_RESUME_AFTER_MERGE_DEPLOY / NOT_YET_PASSED
 GWS_SYNC_AUTONOMY_01: SOURCE_IMPLEMENTED / EXTERNAL_LIVE_CONFIGURATION_REQUIRED
 PFAG_OPS_01: OPEN
-GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: BLOCKED / Q_PRJ_007_RECOVERY_AND_CANONICAL_PROJECTION_NOT_EXECUTED
+GOOGLE_WORKSPACE_LIVE_ACCEPTANCE: OWNER_REPORTED_PROFILE_CONFIGURATION_AND_REPORT_ISOLATION_WORKING / PROVIDER_RETRY_RECOVERY_PENDING
 FOUNDATION_SOURCE_ASSURANCE: PASS_WITH_DEBT
 PFAG_CRITICAL_OPEN: 0
 PFAG_HIGH_OPEN: 0
@@ -174,9 +190,13 @@ P8_B1_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B1_VERIFIED_MERGE: 4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5
 P8_B2_STATUS: MERGED / SOURCE_VERIFIED / CLOSED
 P8_B2_VERIFIED_MERGE: 1f7f3344e65dfc9b6837b10cb5349827da1587eb
-NEXT_UNIT: NONE / COMPLETE_CURRENT_PACKAGE_REVIEW_AND_LIVE_GATES
-NEXT_ACTION: OWNER_REVIEW_COMPLETE_WORKSPACE_PACKAGE_AND_CONFIGURE_DEPLOYMENT_LIVE_GATES
-CURRENT_CODE_BASELINE: 92cc6c838ab4e823eb691f62a9b56084fb6ab5dc
+NEXT_UNIT: NONE / COMPLETE_CURRENT_RESILIENCE_REVIEW_AND_LIVE_GATES
+NEXT_ACTION: OWNER_REVIEW_GOOGLE_AUTH_PROVIDER_RESILIENCE
+CURRENT_CODE_BASELINE: e39cce70d3d8e3d549b99d8f8882908d44555de5
+CURRENT_SYNC_TRIGGER: USER_ACTIVE / REQUEST_DRIVEN
+CREDENTIAL_AUTHORITY: SERVER_REFRESH_WHEN_CONNECTED
+BROWSER_GOOGLE_TOKEN: EPHEMERAL / MEMORY_ONLY
+CRON: NOT_REQUIRED
 EXECUTION_METHOD: STREAMLINED_PHASE_BATCH_METHOD
 EXECUTION_METHOD_AUTHORITY: docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md
 HISTORICAL_USER_ROLE_CONVERGENCE_STATUS: PHASE_3_AUDIT_REQUIRED / NOT_REASSESSED_IN_P8_B3

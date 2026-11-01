@@ -1,6 +1,14 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "gws.host_unavailable": "خدمة التطبيق غير متاحة مؤقتًا. أعد المحاولة عند عودتها.",
+  "gws.google_service_unavailable": "خدمة Google غير متاحة مؤقتًا. الربط والعمل المعلق محفوظان.",
+  "gws.google_network_error": "انتهت مهلة الاتصال بـGoogle أو انقطع. أعد المحاولة دون إعادة إنشاء مساحة العمل.",
+  "gws.google_rate_limited": "Google يقيّد معدل الطلبات. انتظر قليلًا ثم أعد المحاولة.",
+  "gws.google_quota_exceeded": "نفدت حصة Google. راجع حصة المشروع قبل إعادة المحاولة.",
+  "gws.google_invalid_request": "رفضت Google الطلب. احتفظ بمساحة العمل الحالية وأبلغ عن رمز الدعم.",
+  "gws.google_permission_denied": "حساب Google لا يملك صلاحية تنفيذ الإجراء على المورد المرتبط. راجع أذوناته.",
+  "gws.google_api_disabled": "واجهة Google المطلوبة معطلة أو غير متاحة لهذا المشروع.",
   "op.DRAFT": "مسودة",
   "op.lastEvent": "آخر حدث مسجل",
   "op.elapsedMinutes": "الدقائق منذ آخر حدث",

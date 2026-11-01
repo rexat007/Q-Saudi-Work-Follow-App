@@ -1,3 +1,4 @@
+import {resolveWorkspaceExecutionToken} from './workspaceExecutionToken';
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
 import {registerWorkspaceOAuthCallback,registerWorkspaceOAuthCommands} from './workspaceGoogleOAuth.routes';
 import {workspaceOfflineAuthorization} from './workspaceSyncWorker';
@@ -681,17 +682,17 @@ app.post('/api/projects/:projectId/operational-configuration',enforceProjectIsol
 app.post('/api/projects/:projectId/workspace/automation/recover',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
   try {
     if(Object.keys(req.body||{}).some(k=>k!=='scriptProjectId')||typeof req.body?.scriptProjectId!=='string')return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
-    const status=await projectGoogleWorkspaceServer.status(req.params.projectId,req.user);
-    const token=getGoogleAccessToken(req)||(status.backgroundAuthorization==='CONNECTED'?(await workspaceOfflineAuthorization.access(req.params.projectId,req.user)).accessToken:getGoogleAccessToken(req,true));
-    return res.json({success:true,data:await projectGoogleWorkspaceServer.recoverAutomation(req.params.projectId,req.body.scriptProjectId,req.user,projectGoogleBlueprintPort(token,req.params.projectId))});
+    const credential=await resolveWorkspaceExecutionToken(req.params.projectId,req.user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
+    const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
+    return res.json({success:true,data:await execution.recoverAutomation(req.params.projectId,req.body.scriptProjectId,req.user,projectGoogleBlueprintPort(credential.accessToken,req.params.projectId))});
   }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:502).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'AUTOMATION_RECOVERY_FAILED'});}
 });
 app.post('/api/projects/:projectId/workspace/initialize',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
   try {
     if(Object.keys(req.body||{}).length)return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
-    const status=await projectGoogleWorkspaceServer.status(req.params.projectId,req.user);
-    const token=getGoogleAccessToken(req)||(status.backgroundAuthorization==='CONNECTED'?(await workspaceOfflineAuthorization.access(req.params.projectId,req.user)).accessToken:getGoogleAccessToken(req,true));
-    await projectGoogleWorkspaceServer.initializeBound(req.params.projectId,req.user,projectGoogleBlueprintPort(token,req.params.projectId));
+    const credential=await resolveWorkspaceExecutionToken(req.params.projectId,req.user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
+    const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
+    await execution.initializeBound(req.params.projectId,req.user,projectGoogleBlueprintPort(credential.accessToken,req.params.projectId));
     return res.json({success:true,data:await projectGoogleWorkspaceServer.status(req.params.projectId,req.user)});
   }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:502).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED'});}
 });
@@ -703,9 +704,10 @@ app.post('/api/projects/:projectId/workspace/retry-sync', enforceProjectIsolatio
   try {
     if (Object.keys(req.body || {}).length) return res.status(400).json({ success: false, code: 'INVALID_WORKSPACE_COMMAND' });
     const current=await projectGoogleWorkspaceServer.status(req.params.projectId,(req as any).user);
-    const token=getGoogleAccessToken(req)||(current.backgroundAuthorization==='CONNECTED'?(await workspaceOfflineAuthorization.access(req.params.projectId,(req as any).user)).accessToken:getGoogleAccessToken(req,true));
-    const port=current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(token,req.params.projectId):projectGoogleTemplatePort(token);
-    res.json({ success: true, data: await projectGoogleWorkspaceServer.retrySync(req.params.projectId, (req as any).user, port) });
+    const credential=await resolveWorkspaceExecutionToken(req.params.projectId,(req as any).user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
+    const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
+    const port=current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(credential.accessToken,req.params.projectId):projectGoogleTemplatePort(credential.accessToken);
+    res.json({ success: true, data: await execution.retrySync(req.params.projectId, (req as any).user, port) });
   } catch (error: any) { res.status(error.status || 502).json({ success: false, code: error.code || 'SHEET_SYNC_FAILED' }); }
 });
 

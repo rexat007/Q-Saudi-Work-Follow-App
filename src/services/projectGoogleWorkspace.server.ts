@@ -1,3 +1,4 @@
+import {isGoogleProviderCode,classifyGoogleProviderFailure} from '../../server/workspaceGoogleErrors';
 import { assertBlueprint, BlueprintError, type WorkspaceBlueprint } from './googleWorkspaceBlueprint/contract';
 import { activeWorkspaceBlueprint } from './googleWorkspaceBlueprint/sabilHailV1';
 import { createHash, randomUUID } from 'node:crypto';
@@ -22,9 +23,9 @@ export class GoogleWorkspaceCommandError extends Error {
 export const gwsFail = (code: string, status = 409): never => { throw new GoogleWorkspaceCommandError(code,status); };
 export async function withWorkspaceGenerationDiagnostic<T>(operation: WorkspaceGenerationOperation, run: () => Promise<T>): Promise<T> {
   try { return await run(); } catch(error) {
-    if(error instanceof GoogleWorkspaceCommandError && error.diagnostic) throw error;
+    if(error instanceof GoogleWorkspaceCommandError && (error.diagnostic||isGoogleProviderCode(error.code))) throw error;
     const failure=classifyWorkspaceGenerationFailure(error,operation,error instanceof GoogleWorkspaceCommandError || error instanceof BlueprintError ? error.code : undefined);
-    throw new GoogleWorkspaceCommandError(failure.code,502,failure.diagnostic);
+    throw new GoogleWorkspaceCommandError(failure.code,isGoogleProviderCode(failure.code)?classifyGoogleProviderFailure(error).status:502,failure.diagnostic);
   }
 }
 export interface TemplateConfiguration { id: string; version: string }
@@ -78,6 +79,9 @@ function publicBinding(raw: ProjectGoogleBinding): ProjectGoogleBinding {
 export class ProjectGoogleWorkspaceServer {
   constructor(private database?: any, private template: ()=>TemplateConfiguration = configuredTemplate, private blueprint:()=>WorkspaceBlueprint = activeWorkspaceBlueprint,private backgroundGrantId?:string) {}
   private get db() { return this.database || adminDb; }
+  forExecutionAuthorization(authorizationId?:string):ProjectGoogleWorkspaceServer {
+    return authorizationId?new ProjectGoogleWorkspaceServer(this.database,this.template,this.blueprint,authorizationId):this;
+  }
   private resolvedBlueprint(project:ProjectEntity,binding?:ProjectGoogleBinding) {
     if(!project.operationalConfiguration){if(project.operationalConfigurationRequired)return gwsFail('OPERATIONAL_CONFIGURATION_REQUIRED');return this.blueprint();}
     if(binding?.workspaceBlueprintVersion==='SABIL-HAIL-V1'&&resolveOperationalProfile(project.operationalConfiguration)==='DUAL_WEIGHBRIDGE')return {...resolveWorkspaceTemplate(project.operationalConfiguration).blueprint,version:'SABIL-HAIL-V1'}; // Explicit legacy-dual adoption preserves resource tags/IDs and adds safe profile views.
@@ -507,8 +511,8 @@ export class ProjectGoogleWorkspaceServer {
     } catch(error) {
       const code=error instanceof GoogleWorkspaceCommandError?error.code:'SHEET_SYNC_FAILED';
       await this.finishSync(projectId,who,owner,code);
-      throw new GoogleWorkspaceCommandError(code,502);
-    } finally {clearInterval(heartbeat);}
+      throw new GoogleWorkspaceCommandError(code,error instanceof GoogleWorkspaceCommandError?error.status:502);
+    } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
     return this.status(projectId,who);
   }
   private async finishSync(projectId:string,who:AuthUserContext,owner:string,error:string|null) {

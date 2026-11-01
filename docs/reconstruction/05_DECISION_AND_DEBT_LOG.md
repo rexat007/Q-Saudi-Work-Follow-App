@@ -1,3 +1,17 @@
+## Google authorization and provider resilience — 2026-11-01
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Implementation baseline `e39cce70d3d8e3d549b99d8f8882908d44555de5`.
+
+- RESOLVED_IN_SOURCE: stale browser Google token persistence/restoration. MEMORY_ONLY credentials are account-bound; credential failures clear memory; legacy session key removal never reads its value.
+- RESOLVED_IN_SOURCE: browser-header priority over connected durable grants. One server resolver refreshes canonical encrypted authorization first, carries its grant ID into existing execution fences, and cannot silently fall back after identity/scope/refresh/revocation failure. Missing durable grant permits explicit fresh interactive authorization.
+- RESOLVED_IN_SOURCE: coarse provider/network errors and blind JSON decoding. One closed provider classifier and bounded client decoder separate host/proxy availability, Google service/transport, expiry, scopes, API access, permission, missing resource, bad request and rate/quota. Raw payloads/credentials/PII are not output.
+- RESOLVED_IN_SOURCE: sync-finalization/audit failure could prevent deterministic lease release. Finally releases only the current owner; expiry and active-lease blocking remain in force. Pending work and binding survive transient delivery failure.
+- PRESERVED_OWNER_DECISION: CURRENT_SYNC_TRIGGER = USER_ACTIVE / REQUEST_DRIVEN; CREDENTIAL_AUTHORITY = SERVER_REFRESH_WHEN_CONNECTED; BROWSER_GOOGLE_TOKEN = EPHEMERAL / MEMORY_ONLY; CRON = NOT_REQUIRED. Dormant scheduled-worker deployment is not a prerequisite.
+- OWNER_REPORTED_LIVE_EVIDENCE: operational configuration works and legacy Dashboard collision is remediated after merge. This does not claim this unit's new live Google/provider recovery has been deployed or accepted.
+- STILL_OPEN: deployment/live transient-provider recovery verification, recorded TypeScript/historical test debt and cross-provider non-atomicity. No raw Firestore/Google cleanup, wider scopes, Cloud configuration, new phase or business authority is introduced.
+
+Earlier entries below preserve their implementation-time findings and acceptance gates where superseded by this record.
+
 ## Operational report tab ownership correction — 2026-11-01
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `376904d80095515e7417b8e314e44965721600de`.

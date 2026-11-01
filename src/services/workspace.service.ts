@@ -1,3 +1,4 @@
+import {workspaceFetch,decodeWorkspaceResponse} from '../utils/workspaceHttp';
 import {CLIENT_BUILD_ID,ensureRuntimeGeneration,assertRuntimeGeneration} from '../runtime/runtimeGeneration';
 import {workspaceFailureCode} from '../utils/workspaceGenerationErrors';
 import { selectWorkspaceDestinationFolder } from './googleTemplatePicker';
@@ -59,27 +60,26 @@ export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripPro
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export class ClientWorkspaceService {
-  private currentAccessToken: string | null = null;
-
-  public getAccessToken(): string | null {
+  private currentAccessToken:string|null=null;
+  private tokenIdentity:string|null=null;
+  private identity(){const user=auth.currentUser;return user?`${user.uid}:${user.providerData?.find(p=>p.providerId==='google.com')?.uid||''}`:null;}
+  public getAccessToken():string|null {
+    if(this.tokenIdentity!==this.identity()){this.currentAccessToken=null;this.tokenIdentity=null;}
     return this.currentAccessToken;
   }
-
-  public setAccessToken(token: string | null): void {
-    this.currentAccessToken = token;
-    if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
-      if (token) {
-        sessionStorage.setItem('q_saudi_google_token', token);
-      } else {
-        sessionStorage.removeItem('q_saudi_google_token');
-      }
-    }
+  public setAccessToken(token:string|null):void {this.currentAccessToken=token;this.tokenIdentity=token?this.identity():null;}
+  constructor(){
+    // Purge the retired legacy key without reading/restoring its credential. Storage may be disabled.
+    try{if(typeof window!=='undefined')window.sessionStorage.removeItem('q_saudi_google_token');}catch{/* Memory-only operation does not depend on browser storage. */}
   }
-
-  constructor() {
-    if (typeof window !== 'undefined') {
-      const saved = sessionStorage.getItem('q_saudi_google_token');
-      if (saved) this.currentAccessToken = saved;
+  private async decodeResponse(response:Response):Promise<any>{
+    try {
+      const result=await decodeWorkspaceResponse(response);
+      if(['TOKEN_EXPIRED','AUTHORIZATION_REQUIRED','GOOGLE_ACCESS_TOKEN_REQUIRED'].includes(result.code))this.setAccessToken(null);
+      return result;
+    } catch(error) {
+      if(error instanceof Error&&['TOKEN_EXPIRED','AUTHORIZATION_REQUIRED','GOOGLE_ACCESS_TOKEN_REQUIRED'].includes(error.message))this.setAccessToken(null);
+      throw error;
     }
   }
 
@@ -106,6 +106,7 @@ export class ClientWorkspaceService {
     } else {
       try {
         const idToken = await currentUser.getIdToken();
+        if(auth.currentUser?.uid!==currentUser.uid)throw Error('WORKSPACE_IDENTITY_CHANGED');
         if (idToken) {
           headers['Authorization'] = `Bearer ${idToken}`;
         } else if (requireAuth) {
@@ -113,7 +114,7 @@ export class ClientWorkspaceService {
         }
       } catch (err: any) {
         if (requireAuth) {
-          throw new Error(`فشل استخراج رمز تعريف المستخدم: ${err.message || 'Firebase ID Token retrieval failed'}`);
+          throw new Error(err?.message === 'WORKSPACE_IDENTITY_CHANGED' ? 'WORKSPACE_IDENTITY_CHANGED' : 'Firebase ID Token retrieval failed');
         }
       }
     }
@@ -160,33 +161,33 @@ export class ClientWorkspaceService {
     if (!token) throw new Error('AUTHORIZATION_DENIED');
     const destinationRootFolderId = await selectWorkspaceDestinationFolder(token);
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/destination`, {
+    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/destination`, {
       method:'POST',headers,body:JSON.stringify({destinationRootFolderId}),
     });
-    const result=await response.json();
+    const result=await this.decodeResponse(response);
     if(!response.ok)throw new Error(workspaceFailureCode(result.code||'DESTINATION_FOLDER_INVALID'));
     return result.data.destinationRootFolderId;
   }
 
   public async getGoogleWorkspaceStatus(projectId: string): Promise<ProjectGoogleStatus> {
     const headers = await this.getWorkspaceHeaders({}, true);
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers });
-    const result = await response.json();
+    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers });
+    const result = await this.decodeResponse(response);
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
   }
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
-    await ensureRuntimeGeneration();const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({scriptProjectId})});
-    const result=await response.json();if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
+    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({scriptProjectId})});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
   }
   public async drainPendingWorkspace(projectId:string):Promise<void> {
-    if(!auth.currentUser)return;const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
-    if(!response.ok)throw Error('WORKSPACE_SYNC_DEFERRED');
+    if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_SYNC_DEFERRED');
   }
   public async initializeWorkspace(projectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();
-    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
-    const result=await response.json();if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
+    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
   public async connectBackgroundAuthorization(projectId:string,isCurrent:()=>boolean):Promise<void> {
@@ -195,8 +196,8 @@ export class ClientWorkspaceService {
     let listener:(event:MessageEvent)=>void=()=>{},timer:ReturnType<typeof setTimeout>|undefined,poll:ReturnType<typeof setInterval>|undefined;
     try {
       await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
-      const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({automation:true})});
-      const result=await response.json();if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
+      const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({automation:true})});
+      const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
       const url=new URL(result.url);if(url.origin!=='https://accounts.google.com')throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
       await new Promise<void>((resolve,reject)=>{
         listener=(event:MessageEvent)=>{
@@ -212,8 +213,8 @@ export class ClientWorkspaceService {
   }
   public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
     await ensureRuntimeGeneration();
-    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
-    const result=await response.json();if(!response.ok)throw new Error(workspaceFailureCode(result.code||'WORKSPACE_RECOVERY_REQUIRED'));
+    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
+    const result=await this.decodeResponse(response);if(!response.ok)throw new Error(workspaceFailureCode(result.code||'WORKSPACE_RECOVERY_REQUIRED'));
     const binding=result.data;return {spreadsheetId:binding.spreadsheetId,projectFolderId:binding.projectFolderId};
   }
 
@@ -222,9 +223,9 @@ export class ClientWorkspaceService {
    */
   public async fetchMigrationPlan(): Promise<SchemaMigrationPlan> {
     try {
-      const res = await fetch('/api/workspace/migration-plan');
+      const res = await workspaceFetch('/api/workspace/migration-plan');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
+      const json = await this.decodeResponse(res);
       return json.data;
     } catch (err) {
       // Fallback local representation
@@ -261,18 +262,18 @@ export class ClientWorkspaceService {
     await ensureRuntimeGeneration();
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch('/api/workspace/provision', {
+    const res = await workspaceFetch('/api/workspace/provision', {
       method: 'POST',
       headers,
       body: JSON.stringify({projectId:project.projectId,destinationRootFolderId}),
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(workspaceFailureCode(err.code || err.error || 'PROVISIONING_FAILED'));
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     const structure: GoogleDriveProjectStructure = data.data;
 
     // Server provisioning commits only Workspace linkage, with current settings and atomic audit.
@@ -295,7 +296,7 @@ export class ClientWorkspaceService {
 
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch('/api/workspace/sync/initial', {
+    const res = await workspaceFetch('/api/workspace/sync/initial', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -305,11 +306,11 @@ export class ClientWorkspaceService {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشلت المزامنة والإسقاط الأولي لمساحة العمل');
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return data.data;
   }
 
@@ -435,7 +436,7 @@ export class ClientWorkspaceService {
       },
     ];
 
-    const res = await fetch('/api/workspace/sync/sheets', {
+    const res = await workspaceFetch('/api/workspace/sync/sheets', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -451,11 +452,11 @@ export class ClientWorkspaceService {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشلت المزامنة مع Google Sheets');
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return data.data;
   }
 
@@ -470,7 +471,7 @@ export class ClientWorkspaceService {
   ): Promise<{ fileId: string; webViewLink: string; uploadedAt: string }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch('/api/workspace/upload', {
+    const res = await workspaceFetch('/api/workspace/upload', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -482,11 +483,11 @@ export class ClientWorkspaceService {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل رفع الملف إلى Google Drive');
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return data.data;
   }
 
@@ -503,16 +504,16 @@ export class ClientWorkspaceService {
     const params = new URLSearchParams({ projectId });
     if (folderId) params.append('folderId', folderId);
 
-    const res = await fetch(`/api/workspace/drive/files?${params.toString()}`, {
+    const res = await workspaceFetch(`/api/workspace/drive/files?${params.toString()}`, {
       headers,
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل استعراض ملفات Google Drive');
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return {
       files: data.files || [],
       folderId: data.folderId,
@@ -529,16 +530,16 @@ export class ClientWorkspaceService {
   ): Promise<{ buffer: ArrayBuffer; fileName: string; mimeType: string; size: number }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await fetch(`/api/workspace/drive/files/${encodeURIComponent(fileId)}/content`, {
+    const res = await workspaceFetch(`/api/workspace/drive/files/${encodeURIComponent(fileId)}/content`, {
       headers,
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل تحميل محتوى الملف من Google Drive');
     }
 
-    const json = await res.json();
+    const json = await this.decodeResponse(res);
     const base64 = json.contentBase64 || '';
     const binaryString = atob(base64);
     const len = binaryString.length;
@@ -573,16 +574,16 @@ export class ClientWorkspaceService {
   }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/sheets/spreadsheets?projectId=${encodeURIComponent(projectId)}`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/sheets/spreadsheets?projectId=${encodeURIComponent(projectId)}`, {
       headers,
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل استعراض جداول بيانات Google Sheets للمشروع');
     }
 
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return {
       spreadsheets: data.spreadsheets || [],
       totalCount: data.totalCount || 0,
@@ -601,16 +602,16 @@ export class ClientWorkspaceService {
   }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/metadata`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/metadata`, {
       headers,
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل استخراج بيانات ورقات العمل في جدول البيانات');
     }
 
-    return res.json();
+    return this.decodeResponse(res);
   }
 
   /**
@@ -631,14 +632,14 @@ export class ClientWorkspaceService {
     const headers = await this.getWorkspaceHeaders({}, true);
 
     const url = `${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/values?sheetName=${encodeURIComponent(sheetName)}`;
-    const res = await fetch(url, { headers });
+    const res = await workspaceFetch(url, { headers });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل قراءة بيانات ورقة العمل من جدول البيانات');
     }
 
-    return res.json();
+    return this.decodeResponse(res);
   }
 
   // ====================================================
@@ -657,7 +658,7 @@ export class ClientWorkspaceService {
   ): Promise<DestinationValidationResult> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/validate-destination`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/validate-destination`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -669,7 +670,7 @@ export class ClientWorkspaceService {
       }),
     });
 
-    const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+    const data = await this.decodeResponse(res);
     if (!res.ok) {
       return {
         valid: false,
@@ -704,13 +705,13 @@ export class ClientWorkspaceService {
   }): Promise<{ success: boolean; job: MigrationJob }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/migrate/start`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/migrate/start`, {
       method: 'POST',
       headers,
       body: JSON.stringify(params),
     });
 
-    const data = await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }));
+    const data = await this.decodeResponse(res);
     if (!res.ok) {
       throw new Error(data.error || 'فشلت عملية النقل إلى المكان المستهدف');
     }
@@ -734,14 +735,14 @@ export class ClientWorkspaceService {
   }): Promise<void> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/archive/download`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/archive/download`, {
       method: 'POST',
       headers,
       body: JSON.stringify(params),
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      const err = await this.decodeResponse(res);
       throw new Error(err.error || 'فشل إنشاء وتحميل ملف الأرشيف الكامل للمشروع');
     }
 
@@ -770,7 +771,7 @@ export class ClientWorkspaceService {
   ): Promise<{ resolvedFileId: string; isHistorical: boolean; sourceHistoryId?: string }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await fetch(`${getApiBase()}/api/workspace/resolve-file`, {
+    const res = await workspaceFetch(`${getApiBase()}/api/workspace/resolve-file`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ projectId, fileId, historyRecords }),
@@ -779,7 +780,7 @@ export class ClientWorkspaceService {
     if (!res.ok) {
       return { resolvedFileId: fileId, isHistorical: false };
     }
-    const data = await res.json();
+    const data = await this.decodeResponse(res);
     return data.data;
   }
 }
