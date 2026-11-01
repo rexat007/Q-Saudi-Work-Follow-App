@@ -10,9 +10,6 @@ export async function resolveWorkspaceExecutionToken(projectId:string,user:AuthU
  if(status.backgroundAuthorization==='CONNECTED'){
   const grant=await dependencies.access(projectId,user);if(!grant.accessToken?.trim()||!grant.authorizationId)return gwsFail('AUTHORIZATION_REQUIRED',401);return {accessToken:grant.accessToken,authorizationId:grant.authorizationId};
  }
- if(status.backgroundAuthorization==='AUTHORIZATION_REQUIRED')return gwsFail('AUTHORIZATION_REQUIRED',401);
- const value=request.headers['x-google-access-token'];const token=typeof value==='string'?value:Array.isArray(value)&&typeof value[0]==='string'?value[0]:undefined;
- if(!token?.trim())return gwsFail('AUTHORIZATION_REQUIRED',401);
- // Browser fallback is ephemeral. The Google port still proves subject, scope and binding.
- return {accessToken:token.trim()};
+ // Bound execution never consults browser Google credentials. Provisioning has a separate entry point.
+ return gwsFail('AUTHORIZATION_REQUIRED',401);
 }

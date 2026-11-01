@@ -227,7 +227,7 @@ export const enTranslations: TranslationDictionary = {
   "gws.provisioning": "Provisioning workbook",
   "gws.ready": "Workbook ready",
   "gws.degraded": "Synchronization needs attention",
-  "gws.authorization_required": "Reconnect required",
+  "gws.authorization_required": "Google synchronization authorization is required",
   "gws.failed": "Workspace unavailable",
   "gws.purpose": "Connect your Google account and choose the folder where Project files should be saved. The system creates the Project folder and operational workbook automatically. Application data remains canonical.",
   "gws.state": "Google continuity status",
@@ -4687,7 +4687,8 @@ export const enTranslations: TranslationDictionary = {
   "gws.authorization_retry_later": "Google is temporarily unavailable. Retry later; your stored authorization remains intact.",
   "gws.authorization_diagnosis_unavailable": "Authorization status could not be checked. Retry later.",
   "gws.grant_automation_permission": "Grant Apps Script permission",
-  "gws.connect_durable_authorization": "Authorize Google for future user-active sync",
+  "gws.connect_durable_authorization": "Enable Google authorization for sync",
+  "gws.durable_authorization_required": "The Workspace is linked. Enable durable Google authorization for future synchronization.",
 };
 
 

@@ -9,7 +9,7 @@ function setup(automation=false){
  const x=commandDatabase({'users/actor':accountProfile(),'projects/P1':{projectId:'P1',nameAr:'Project',status:'SETUP',settings:{}}});setTestDbOverride(x.db);
  const p={subject:vi.fn(async()=> 'subject'),authorizeBinding:vi.fn(async()=>{}),authorizeProvisioning:vi.fn(async()=>{if(!automation)throw new GoogleWorkspaceCommandError('SCOPE_DENIED:script.projects',403)}),validateDestination:vi.fn(async()=>{}),findResource:vi.fn(async()=>[]),createProjectFolder:vi.fn(async()=> 'folder'),createProjectSpreadsheet:vi.fn(async()=> 'file'),verifyBinding:vi.fn(async()=>({title:'Project Sheet'})),verifyWorkbook:vi.fn(async()=>{}),repairWorkbook:vi.fn(async()=>({repaired:true,conflicts:[] as string[]})),applyBlueprint:vi.fn(async()=>{}),createBoundScript:vi.fn(async()=> 'script'),installScript:vi.fn(async()=>{}),verifyAutomation:vi.fn(async()=>{}),projectMasterTabs:vi.fn(async()=>{}),upsert:vi.fn(async()=>{})};
  const service=new ProjectGoogleWorkspaceServer(x.db,undefined,()=>blueprintFixture());
- return {...x,p,service,approve:()=>service.approveDestination('P1','root',who,p as unknown as GoogleBlueprintPort),provision:()=>service.provision('P1','root',who,p as unknown as GoogleBlueprintPort)};
+ return {...x,p,service,approve:()=>service.approveDestination('P1','root',who,p as unknown as GoogleBlueprintPort),provision:async()=>{const binding=await service.provision('P1','root',who,p as unknown as GoogleBlueprintPort);await service.initializeBound('P1',who,p as unknown as GoogleBlueprintPort);return binding;}};
 }
 describe('complete Workspace lifecycle with independent health models',()=>{
  it('persists binding before repair, connects without Script and immediately projects Firestore data',async()=>{
@@ -25,7 +25,7 @@ describe('complete Workspace lifecycle with independent health models',()=>{
  it('recovers Q-PRJ-007-shaped SCRIPT_REQUESTED evidence with zero new folder/Sheet creates',async()=>{
   const x=setup(true);await x.approve();x.store[path]={projectId:'P1',folderId:'folder',fileId:'file',destinationRootFolderId:'root',googleSubject:'subject',workspaceBlueprintVersion:'TEST-V1',operationId:workspaceOperation('P1'),stage:'SCRIPT_REQUESTED',state:'FAILED',leaseUntil:0};
   x.p.validateDestination.mockRejectedValueOnce(new GoogleWorkspaceCommandError('DESTINATION_NOT_WRITABLE',403));
-  await x.service.resume('P1',who,x.p as unknown as GoogleBlueprintPort);
+  await x.service.resume('P1',who,x.p as unknown as GoogleBlueprintPort);await x.service.initializeBound('P1',who,x.p as unknown as GoogleBlueprintPort);
   expect(x.p.createProjectFolder).not.toHaveBeenCalled();expect(x.p.createProjectSpreadsheet).not.toHaveBeenCalled();expect(x.p.createBoundScript).not.toHaveBeenCalled();expect(x.p.projectMasterTabs).toHaveBeenCalledOnce();
   expect(x.p.validateDestination).toHaveBeenCalledOnce();expect(x.p.verifyBinding).toHaveBeenCalledWith('root','folder','file','TEST-V1');
   expect(await x.service.status('P1',who)).toMatchObject({workspaceState:'CONNECTED',automationState:'DEGRADED',workbookHealth:'HEALTHY'});expect(x.store[path].lastAutomationError).toBe('AUTOMATION_RECOVERY_REQUIRED');
@@ -56,4 +56,10 @@ describe('complete Workspace lifecycle with independent health models',()=>{
   const x=setup();await x.approve();x.p.projectMasterTabs.mockImplementationOnce(async()=>{x.store[path].binding.revision++;});await x.provision();
   expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');expect(x.store['projects/P1/workspace_projection_state/current'].dirtyTabs).toHaveLength(4);
  });
+});
+
+it('initial browser provisioning stops at binding with pending work and cannot initialize or create Script implicitly',async()=>{
+ const x=setup(true);await x.approve();const binding=await x.service.provision('P1','root',who,x.p as unknown as GoogleBlueprintPort);
+ expect(binding.spreadsheetId).toBe('file');expect(x.store[path]).toMatchObject({workspaceState:'CONNECTED',workbookHealth:'REPAIR_REQUIRED'});expect(x.p.repairWorkbook).not.toHaveBeenCalled();expect(x.p.projectMasterTabs).not.toHaveBeenCalled();expect(x.p.createBoundScript).not.toHaveBeenCalled();expect(x.p.authorizeProvisioning).not.toHaveBeenCalled();expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');
+ const calls=x.p.subject.mock.calls.length;expect(await x.service.provision('P1','root',who,x.p as unknown as GoogleBlueprintPort)).toEqual(binding);expect(x.p.subject).toHaveBeenCalledTimes(calls);expect(x.p.createProjectSpreadsheet).toHaveBeenCalledOnce();
 });

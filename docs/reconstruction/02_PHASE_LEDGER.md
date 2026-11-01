@@ -1,7 +1,23 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Workspace bounded-memory inspection and repair — 2026-11-01
+### Workspace authorization entry-point convergence — 2026-11-02
+
+CURRENT_CODE_BASELINE: `79b5df8abecd23c70e2bbd74d6072d4d4d84d291` — merged bounded-memory repair, including `0f991fbd1a0df8abe8b43f36b8277f9881542f22`. Working branch: `reconstruction/workspace-auth-entrypoint-convergence`.
+
+WORKSPACE_AUTH_ENTRYPOINT_CONVERGENCE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+BOUND_WORKSPACE_GOOGLE_AUTHORITY: DURABLE_SERVER_GRANT.
+BROWSER_GOOGLE_TOKEN: PROVISIONING_ONLY / MEMORY_ONLY.
+CLIENT_CACHED_WORKSPACE_STATUS: NOT_AUTHORIZATION_AUTHORITY.
+OAUTH_SUCCESS: SERVER_READBACK_REQUIRED.
+
+Owner live evidence reports Q-PRJ-007 binding/structure/sync healthy but AUTH_GRANT_MISSING and automation degraded. This is missing durable execution authorization, not a broken Sheet binding. Source confirmed pre-status browser consent, cached-status routing, server fallback and a compatibility initial-projection bypass. The canonical bound initialize/retry/repair/automation/master/profile flows now use Firebase-only browser requests and server durable refresh. The resolver never reads a browser Google header. Canonical GET precedes client routing; missing grant routes only to explicit durable consent. Callback completion requires CONNECTED plus CONNECTED_VALID/AUTOMATION_SCOPE_REQUIRED read-back before execution. Transient availability retries the existing grant; binding/account drift remains review-required.
+
+Initial Picker/resource creation is a separate pre-binding authorization. Binding commits with pending work and ends the provisioning credential; no implicit repair/projection/Script runs with it. The UI exposes the durable-consent step explicitly, keeps the same Sheet visible and initializes only after server confirmation. Automation-only permission remains separate from valid Sheets/Drive authorization. Existing Project/principal/grant/binding/version/provider/lease fences and memory-bounded repair stay intact. No resource replacement, manual Firestore change, scopes/Cloud/Drive/blueprint/Script-asset change or later-domain activation.
+
+Local consolidated verification: 51 files, 948/949 PASS; only TBC-B4 is independently reproduced on this merged baseline. New failures/removals/skips 0. Build PASS; lint EXIT 2 / NOT PASS, diagnostics 440→440 (added/removed 0); diff check PASS. These are dated observations, not permanent count contracts. One commit/branch push is authorized after verification; no PR/merge or deployed/live acceptance is claimed. Exact behavior/evidence: [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md), [credential contract](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). Earlier checkpoints are historical where superseded.
+
+### Historical bounded-memory inspection and repair implementation — 2026-11-01
 
 CURRENT_CODE_BASELINE: `fff5c313b3276e7c4672f00fad9cce7ae550f4a7` — merged main, including global user-active coordinator `a4900f8fadd86dff657faf4307d1663c043e9ea3`. Working branch: `reconstruction/workspace-bounded-memory-repair`.
 

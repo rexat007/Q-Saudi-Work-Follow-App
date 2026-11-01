@@ -606,9 +606,10 @@ app.post('/api/projects/:projectId/foundation', enforceProjectIsolation, enforce
 // ----------------------------------------------------
 app.post('/api/workspace/provision', enforceProjectIsolation, enforceAdminOnly, workspaceGenerationFence, async (req, res) => {
   try {
-    const googleToken = getGoogleAccessToken(req, true);
     const { projectId, destinationRootFolderId } = req.body;
     if (!projectId || !destinationRootFolderId || Object.keys(req.body).some(key=>!['projectId','destinationRootFolderId'].includes(key))) return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    if((await projectGoogleWorkspaceServer.status(projectId,(req as any).user)).binding)throw new GoogleWorkspaceCommandError('AUTHORIZATION_REQUIRED',401);
+    const googleToken=getGoogleAccessToken(req,true);
     const binding = await projectGoogleWorkspaceServer.provision(projectId, destinationRootFolderId, (req as any).user, projectGoogleBlueprintPort(googleToken,projectId));
     const structure = { projectId, spreadsheetId:binding.spreadsheetId,spreadsheetUrl:binding.spreadsheetUrl,projectFolderId:binding.projectFolderId,projectFolderName:projectId,subfolders:{},provisionedAt:binding.provisionedAt,status:'PROVISIONED' };
 
@@ -673,6 +674,7 @@ app.post('/api/projects/:projectId/workspace/destination', enforceProjectIsolati
 app.post('/api/projects/:projectId/workspace/resume', enforceProjectIsolation, enforceAdminOnly, workspaceGenerationFence, async (req,res)=>{
   try {
     if(Object.keys(req.body||{}).some(key=>key!=='projectId')||(req.body?.projectId!==undefined&&req.body.projectId!==req.params.projectId))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    if((await projectGoogleWorkspaceServer.status(req.params.projectId,(req as any).user)).binding)throw new GoogleWorkspaceCommandError('AUTHORIZATION_REQUIRED',401);
     const data=await projectGoogleWorkspaceServer.resume(req.params.projectId,(req as any).user,projectGoogleBlueprintPort(getGoogleAccessToken(req,true),req.params.projectId));
     return res.json({success:true,data});
   } catch(error:any){return res.status(error.status||502).json({success:false,code:error.code||'WORKSPACE_RECOVERY_REQUIRED'});}
@@ -777,7 +779,9 @@ app.use('/api/workspace/sync/initial', enforceAdminOnly, async (req, res, next) 
     if (templateProjectId && (await continuityRef(adminDb, templateProjectId).get()).data()?.binding) {
       const current = await projectGoogleWorkspaceServer.status(templateProjectId, (req as any).user);
       if (req.body.spreadsheetId !== current.binding?.spreadsheetId) return res.status(403).json({ success: false, code: 'WORKSPACE_BINDING_CONFLICT' });
-      const data = await projectGoogleWorkspaceServer.retrySync(templateProjectId, (req as any).user, current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(getGoogleAccessToken(req,true),templateProjectId):projectGoogleTemplatePort(getGoogleAccessToken(req, true)));
+      const credential=await resolveWorkspaceExecutionToken(templateProjectId,(req as any).user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
+      const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
+      const data = await execution.retrySync(templateProjectId, (req as any).user, current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(credential.accessToken,templateProjectId):projectGoogleTemplatePort(credential.accessToken));
       return res.json({ success: true, data });
     }
     return next();

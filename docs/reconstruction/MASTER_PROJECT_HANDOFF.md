@@ -1,4 +1,8 @@
-## Bounded-memory Workspace repair continuation
+## Workspace authorization convergence continuation
+
+[02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `79b5df8abecd23c70e2bbd74d6072d4d4d84d291` includes bounded-memory repair. Bound execution now requires durable server authorization; browser Google permission ends at initial resource binding. Canonical GET overrides stale client state, consent requires server read-back, and failed consent cannot fall back or initialize. Missing grant preserves the healthy Sheet and exposes one activation action; optional Script permission stays separate. See [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [credential](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) contracts. Source verification is not deployment/live recovery; no replacement resources/manual Firestore changes, PR/merge, GWS2 expansion or Phase 10. Older continuation checkpoints are historical where superseded.
+
+## Historical bounded-memory Workspace repair implementation continuation
 
 [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `fff5c313b3276e7c4672f00fad9cce7ae550f4a7` includes the global server coordinator. Current bounded repair replaces production full workbook snapshots with structural metadata, normalized canonical evidence and capped ranges; post-write verification reads only changed evidence. Owned Ops projection pages by verified numeric sheet identity, preserves legacy Dashboard/history and reuses the existing Script identity. See [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) for resource limits, master-projection audit and verification evidence. No hosting RAM change, Google resource recreation, scope/asset change or live deployment is performed. One commit/branch push is authorized; owner review/merge/deployment acceptance remain separate. Phase 10 and unrelated work are not started. Older checkpoints below are historical where superseded.
 

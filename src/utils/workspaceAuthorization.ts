@@ -59,8 +59,27 @@ export function workspaceAuthorizationMessageKey(diagnosis?: WorkspaceAuthorizat
 
 export function workspaceNeedsReauthorization(status:{backgroundAuthorization?:string;authorizationDiagnostic?:WorkspaceAuthorizationDiagnosis}|null|undefined):boolean {
   const diagnosis=status?.authorizationDiagnostic;
-  if(!diagnosis)return status?.backgroundAuthorization==='AUTHORIZATION_REQUIRED';
-  // A project which has never connected a durable grant retains explicit browser fallback.
-  if(diagnosis.reason==='AUTH_GRANT_MISSING'&&status?.backgroundAuthorization==='NOT_CONNECTED')return false;
+  if(diagnosis&&['GRANT_BINDING_STALE','ACCOUNT_MISMATCH'].includes(diagnosis.result))return false;
+  if(status?.backgroundAuthorization==='NOT_CONNECTED'||status?.backgroundAuthorization==='AUTHORIZATION_REQUIRED')return true;
+  if(!diagnosis)return status?.backgroundAuthorization==='AUTHORIZATION_REQUIRED'||status?.backgroundAuthorization==='NOT_CONNECTED';
   return diagnosis.result==='REAUTHORIZATION_REQUIRED';
+}
+
+/** Success is proved by canonical status, never by a popup or a cached React value. */
+export function assertDurableWorkspaceAuthorization(status:import('../types/projectGoogleWorkspace').ProjectGoogleStatus,projectId:string):void {
+ if(status.binding?.projectId!==projectId||status.backgroundAuthorization!=='CONNECTED'||!['CONNECTED_VALID','AUTOMATION_SCOPE_REQUIRED'].includes(status.authorizationDiagnostic?.result||''))throw Error('DURABLE_AUTHORIZATION_REQUIRED');
+}
+export async function authorizeBoundWorkspaceExecution(projectId:string,port:{getGoogleWorkspaceStatus:(id:string)=>Promise<import('../types/projectGoogleWorkspace').ProjectGoogleStatus>;connectBackgroundAuthorization:(id:string,current:()=>boolean)=>Promise<void>},current:()=>boolean,automation=false) {
+ const status=await port.getGoogleWorkspaceStatus(projectId);if(!current())throw Error('WORKSPACE_IDENTITY_CHANGED');
+ if(status.binding?.projectId!==projectId)throw Error('WORKSPACE_NOT_PROVISIONED');
+ const diagnosis=status.authorizationDiagnostic;
+ if(diagnosis&&['GRANT_BINDING_STALE','ACCOUNT_MISMATCH'].includes(diagnosis.result))throw Error(diagnosis.result==='ACCOUNT_MISMATCH'?'WORKSPACE_GOOGLE_ACCOUNT_MISMATCH':'WORKSPACE_BINDING_CONFLICT');
+ // A transient outage is retried through the accepted durable grant, without asking for consent again.
+ if(status.backgroundAuthorization==='CONNECTED'&&diagnosis?.result==='PROVIDER_TEMPORARILY_UNAVAILABLE')return status;
+ if(status.backgroundAuthorization==='CONNECTED'&&(diagnosis?.result==='CONNECTED_VALID'||!automation&&diagnosis?.result==='AUTOMATION_SCOPE_REQUIRED'))return status;
+ await port.connectBackgroundAuthorization(projectId,current);if(!current())throw Error('WORKSPACE_IDENTITY_CHANGED');
+ const confirmed=await port.getGoogleWorkspaceStatus(projectId);if(!current())throw Error('WORKSPACE_IDENTITY_CHANGED');
+ assertDurableWorkspaceAuthorization(confirmed,projectId);
+ if(confirmed.binding?.spreadsheetId!==status.binding.spreadsheetId||confirmed.binding?.revision!==status.binding.revision)throw Error('WORKSPACE_IDENTITY_CHANGED');
+ return confirmed;
 }

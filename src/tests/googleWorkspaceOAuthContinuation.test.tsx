@@ -194,15 +194,15 @@ beforeEach(() => {
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
 
 
-const status=(id:string,bound=false)=>({state:bound?'READY':'NOT_CONNECTED',binding:bound?{projectId:id,spreadsheetId:'new-sheet',spreadsheetUrl:'https://docs.google.com/spreadsheets/d/new-sheet/edit',googleAccountLabel:'SAME-ACCOUNT'}:null,pendingSyncCount:0,lastSuccessfulSyncAt:bound?'2026-10-31T00:00:00Z':null,lastSyncError:null});
+const status=(id:string,bound=false)=>({backgroundAuthorization:bound?'CONNECTED':'NOT_CONNECTED',authorizationDiagnostic:{result:bound?'CONNECTED_VALID':'REAUTHORIZATION_REQUIRED',metadataOnly:true},state:bound?'READY':'NOT_CONNECTED',binding:bound?{projectId:id,spreadsheetId:'new-sheet',spreadsheetUrl:'https://docs.google.com/spreadsheets/d/new-sheet/edit',googleAccountLabel:'SAME-ACCOUNT'}:null,pendingSyncCount:0,lastSuccessfulSyncAt:bound?'2026-10-31T00:00:00Z':null,lastSyncError:null});
 const unbound={...mockProject,settings:{...mockProject.settings,googleDriveFolderId:undefined,googleSpreadsheetId:undefined}};
-beforeEach(()=>{vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>status(id) as any);vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockResolvedValue('destination-root');vi.mocked(clientWorkspaceService.requestGoogleScopes).mockResolvedValue('fixture');});
+beforeEach(()=>{vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockReset();vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockReset();vi.mocked(clientWorkspaceService.requestGoogleScopes).mockReset();vi.mocked(clientWorkspaceService.syncInitialProjectWorkspace).mockReset().mockResolvedValue({} as any);vi.mocked(clientWorkspaceService.initializeWorkspace).mockReset().mockResolvedValue({} as any);vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockImplementation(async id=>{const before=await clientWorkspaceService.getGoogleWorkspaceStatus(id);vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...before,backgroundAuthorization:'CONNECTED',authorizationDiagnostic:{result:'CONNECTED_VALID',metadataOnly:true}});});vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>status(id) as any);vi.mocked(clientWorkspaceService.selectProjectWorkspaceDestination).mockResolvedValue('destination-root');vi.mocked(clientWorkspaceService.requestGoogleScopes).mockResolvedValue('fixture');});
 describe('GWS-LIVE-01A actual Wizard context and continuation',()=>{
  it('keeps a successfully bound sheet visible when initial projection fails',async()=>{
   let bound=false;vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>({...status(id,bound),state:bound?'SYNC_DEGRADED':'NOT_CONNECTED'}) as any);
   vi.mocked(clientWorkspaceService.provisionProjectDrive).mockImplementationOnce(async()=>{bound=true;return {spreadsheetId:'new-sheet',projectFolderId:'new-folder'} as any});
   vi.mocked(clientWorkspaceService.syncInitialProjectWorkspace).mockRejectedValueOnce(Error('SHEET_SYNC_FAILED'));
-  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('projects.labels.initialize_workspace_sync');await click('gws.retry_sync');expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledOnce();
   expect(container.textContent).toContain('gws.sheet_connected');expect(container.textContent).toContain('gws.bound_sync_degraded');expect(container.textContent).toContain('gws.retry_sync');expect(container.textContent).not.toContain(uiKey('projects.labels.initialize_workspace_sync'));expect(container.querySelector('a')?.href).toContain('new-sheet');
  });
  it.each(['absent','stale','incomplete'])('resumes a partial binding without Picker despite %s compatibility IDs',async mode=>{
@@ -309,14 +309,14 @@ describe('complete Workspace minimal controls',()=>{
  it('reconnects background authorization without another Picker, folder or Sheet',async()=>{
   const bound={...status(unbound.projectId,true),workbookHealth:'HEALTHY',backgroundAuthorization:'AUTHORIZATION_REQUIRED',state:'AUTHORIZATION_REQUIRED'} as any;
   vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);vi.mocked(clientWorkspaceService.initializeWorkspace).mockResolvedValue({...bound,backgroundAuthorization:'CONNECTED',state:'READY'});
-  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.reauthorize');
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.connect_durable_authorization');
   expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledWith(unbound.projectId,expect.any(Function));expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(unbound.projectId);
   expect(clientWorkspaceService.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();
  });
  it('shows configuration guidance while preserving an existing binding',async()=>{
   vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue({...status(unbound.projectId,true),workbookHealth:'HEALTHY',backgroundAuthorization:'NOT_CONNECTED'} as any);
   vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockRejectedValueOnce(Error('GOOGLE_OFFLINE_CONFIGURATION_REQUIRED'));
-  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.enable_background');
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.connect_durable_authorization');
   expect(container.textContent).toContain('gws.offline_configuration_required');expect(container.textContent).toContain('gws.sheet_connected');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
  });
 });
@@ -328,16 +328,16 @@ describe('user-active Workspace credential choice',()=>{
   vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);
   const notice=vi.fn();
   await executeProjectWorkspaceSyncOrchestration({project:mockProject,isSyncingGoogle:false,setIsSyncingGoogle:vi.fn(),setSyncNotice:notice,workspaceStatus:bound});
-  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledTimes(connected?0:1);
-  expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
+  expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();
+  if(connected)expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');else {expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledOnce();expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(mockProject.projectId);}
   expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
   expect(notice).toHaveBeenLastCalledWith(expect.objectContaining({type:'success'}));
  });
- it('cannot use another Project cached durable status to bypass interactive authorization',async()=>{
+ it('ignores another Project cached status and uses only canonical current-Project durable authorization',async()=>{
   vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(status(mockProject.projectId,true) as any);
   await executeProjectWorkspaceSyncOrchestration({project:mockProject,isSyncingGoogle:false,setIsSyncingGoogle:vi.fn(),setSyncNotice:vi.fn(),workspaceStatus:{...status('OTHER',true),backgroundAuthorization:'CONNECTED'} as any});
-  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledOnce();
-  expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
+  expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();
+  expect(clientWorkspaceService.getGoogleWorkspaceStatus).toHaveBeenCalledWith(mockProject.projectId);expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'new-sheet');
  });
 });
 
@@ -362,9 +362,27 @@ describe('durable authorization self-diagnosis in actual Wizard',()=>{
  });
 });
 
- it('missing durable authorization preserves explicit fresh-browser fallback while offering one-time durable consent',async()=>{
+ it('missing durable authorization offers one canonical durable action and never a browser-token fallback',async()=>{
   const bound={...status(unbound.projectId,true),pendingSyncCount:1,backgroundAuthorization:'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',authorizationDiagnostic:{result:'REAUTHORIZATION_REQUIRED',reason:'AUTH_GRANT_MISSING',metadataOnly:true}} as any;
   vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);
-  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.connect_durable_authorization');await click('gws.retry_sync');
-  expect(clientWorkspaceService.requestGoogleScopes).toHaveBeenCalledOnce();expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(unbound.projectId,'new-sheet');
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');expect(container.textContent).toContain('gws.durable_authorization_required');expect(Array.from(container.querySelectorAll('button')).filter(b=>b.textContent?.includes('gws.connect_durable_authorization'))).toHaveLength(1);await click('gws.connect_durable_authorization');
+  expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledOnce();expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(unbound.projectId);
  });
+
+ it('stale unbound client presentation cannot select browser authorization for a canonically bound Project',async()=>{
+  let live=false;vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>live?({...status(id,true),backgroundAuthorization:'NOT_CONNECTED',authorizationDiagnostic:{result:'REAUTHORIZATION_REQUIRED',reason:'AUTH_GRANT_MISSING',metadataOnly:true}} as any):status(id) as any);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');live=true;await click('projects.labels.initialize_workspace_sync');
+  expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledOnce();expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();expect(clientWorkspaceService.initializeWorkspace).toHaveBeenCalledWith(unbound.projectId);
+ });
+ it('popup success without a usable canonical grant cannot initialize or sync',async()=>{
+  const bound={...status(unbound.projectId,true),backgroundAuthorization:'NOT_CONNECTED',authorizationDiagnostic:{result:'REAUTHORIZATION_REQUIRED',reason:'AUTH_GRANT_MISSING',metadataOnly:true}} as any;
+  vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(bound);vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockResolvedValueOnce(undefined);
+  await render(unbound.projectId,[unbound]);await click('projects.batch4.layer_workspace');await click('gws.connect_durable_authorization');expect(clientWorkspaceService.connectBackgroundAuthorization).toHaveBeenCalledOnce();expect(clientWorkspaceService.initializeWorkspace).not.toHaveBeenCalled();expect(clientWorkspaceService.syncInitialProjectWorkspace).not.toHaveBeenCalled();expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(container.textContent).toContain('gws.durable_authorization_required');
+ });
+
+it('the fresh canonical binding supplies the execution target instead of an earlier status snapshot',async()=>{
+ const old=status(mockProject.projectId,true),fresh={...old,binding:{...old.binding,spreadsheetId:'current-sheet'}};
+ vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValueOnce(old as any).mockResolvedValue(fresh as any);
+ await executeProjectWorkspaceSyncOrchestration({project:mockProject,isSyncingGoogle:false,setIsSyncingGoogle:vi.fn(),setSyncNotice:vi.fn(),workspaceStatus:old as any});
+ expect(clientWorkspaceService.syncInitialProjectWorkspace).toHaveBeenCalledWith(mockProject.projectId,'current-sheet');expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(clientWorkspaceService.connectBackgroundAuthorization).not.toHaveBeenCalled();
+});
