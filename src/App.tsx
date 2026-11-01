@@ -115,7 +115,7 @@ export default function App() {
       }
     : undefined;
 
-  useUserActiveWorkspaceSync(projects,activeAuthContext);
+  useUserActiveWorkspaceSync(activeAuthContext);
   const operationalProject=projects.find(project=>project.projectId===selectedProjectId);
 
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());

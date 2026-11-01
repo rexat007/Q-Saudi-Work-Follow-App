@@ -1,3 +1,7 @@
+## Global user-active Workspace sync — current
+
+POST `/api/workspace/user-active-sync` is behind Firebase authentication and precedes Project-specific Workspace routing. Body must be `{}`: no Project/list/resource/row fields or Google token header. The server discovers owned grants and current eligible pending work. A completed pass returns `{success:true,examined,eligible,attempted,delivered,skipped,deferred}` and HTTP 200 even if a Project requires Google authorization or is deferred. No Project/Script IDs, provider payload, email or credentials are returned. Firebase authentication alone may return global 401; malformed commands return 400 and unexpected pass availability failure is bounded WORKSPACE_COORDINATOR_UNAVAILABLE/503. Existing manual Project retry/repair/reauthorization/recovery endpoints remain unchanged. Exact state: [ledger](reconstruction/02_PHASE_LEDGER.md); semantics: [sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## Durable Google authorization diagnosis — current
 
 Exact state: [phase ledger](reconstruction/02_PHASE_LEDGER.md); semantics: [credential contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).

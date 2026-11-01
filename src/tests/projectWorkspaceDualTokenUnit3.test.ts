@@ -231,7 +231,12 @@ describe('Project Google Workspace Dual-Token Auth Boundary Convergence (Unit 3)
       ts.forEachChild(node,visit);
     };
     visit(source);
-    expect(fs.readFileSync(path.resolve(__dirname,'../../server/workspaceSyncWorker.ts'),'utf8')).toContain('service.retrySync');
+    const worker=fs.readFileSync(path.resolve(__dirname,'../../server/workspaceSyncWorker.ts'),'utf8');
+    expect(worker).toMatch(/new WorkspaceSyncCoordinator\([^)]*\)\.runScheduled\(\)/);
+    const coordinator=ts.createSourceFile('workspaceSyncCoordinator.ts',fs.readFileSync(path.resolve(__dirname,'../../server/workspaceSyncCoordinator.ts'),'utf8'),ts.ScriptTarget.Latest,true);
+    let canonicalDelivery=false;
+    const inspect=(node:ts.Node)=>{if(ts.isCallExpression(node)&&ts.isPropertyAccessExpression(node.expression)&&node.expression.expression.getText(coordinator)==='service'&&node.expression.name.text==='retrySync')canonicalDelivery=true;ts.forEachChild(node,inspect);};
+    inspect(coordinator);expect(canonicalDelivery).toBe(true);
     expect(workspaceClientContent).not.toContain('onSnapshot');
   });
 

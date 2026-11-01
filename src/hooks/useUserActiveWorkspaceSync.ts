@@ -1,16 +1,20 @@
-import {useEffect} from 'react';
-import type {ProjectEntity} from '../types/entities';
+import {useEffect,useRef} from 'react';
 import type {AuthUserContext} from '../types/common';
 import {clientWorkspaceService} from '../services/workspace.service';
-/** Request-driven only. No popup, client rows, worker or new authorization authority. */
-export function useUserActiveWorkspaceSync(projects:ProjectEntity[],context?:AuthUserContext){
- const scope=JSON.stringify(projects.filter(p=>context?.role==='SUPER_ADMIN'||context?.assignedProjectIds?.includes(p.projectId)).map(p=>p.projectId).sort());
+/** Activity requests one bounded server pass. Projects/grants/work are never client authority. */
+export function useUserActiveWorkspaceSync(context?:AuthUserContext){
+ const flight=useRef(false),last=useRef<{key:string;at:number}|null>(null),wake=useRef<(()=>void)|null>(null);
  useEffect(()=>{
   if(!context||!['SUPER_ADMIN','PROJECT_ADMIN'].includes(context.role))return;
-  let disposed=false,running=false,last=0;
-  async function drain(){if(disposed||running||document.visibilityState==='hidden'||!navigator.onLine||Date.now()-last<60000)return;running=true;last=Date.now();try{for(const id of JSON.parse(scope)){if(disposed)break;await clientWorkspaceService.drainPendingWorkspace(id).catch(()=>{/* Deferred authorization/lease/network remains visible through canonical Workspace status. */});}}finally{running=false;}}
-  void drain();const listener=()=>{void drain();};
-  window.addEventListener('focus',listener);window.addEventListener('online',listener);window.addEventListener('pointerdown',listener);window.addEventListener('keydown',listener);document.addEventListener('visibilitychange',listener);
-  return()=>{disposed=true;window.removeEventListener('focus',listener);window.removeEventListener('online',listener);window.removeEventListener('pointerdown',listener);window.removeEventListener('keydown',listener);document.removeEventListener('visibilitychange',listener);};
- },[scope,context?.userId,context?.role]);
+  const key=`${context.userId}:${context.role}`;let disposed=false;
+  async function drain(){
+   if(disposed||flight.current||document.visibilityState==='hidden'||!navigator.onLine||last.current?.key===key&&Date.now()-last.current.at<60000)return;
+   flight.current=true;last.current={key,at:Date.now()};
+   try{await clientWorkspaceService.requestUserActiveWorkspaceSync();}catch{/* Bounded host failures wait for the next activity; Project failures remain server state. */}
+   finally{flight.current=false;if(disposed)wake.current?.();}
+  }
+  const listener=()=>{void drain();};wake.current=listener;void drain();
+  window.addEventListener('focus',listener);window.addEventListener('online',listener);document.addEventListener('visibilitychange',listener);
+  return()=>{disposed=true;if(wake.current===listener)wake.current=null;window.removeEventListener('focus',listener);window.removeEventListener('online',listener);document.removeEventListener('visibilitychange',listener);};
+ },[context?.userId,context?.role]);
 }

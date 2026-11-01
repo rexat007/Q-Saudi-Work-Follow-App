@@ -1,3 +1,9 @@
+## Server-owned Workspace coordination metadata — current
+
+`workspace_sync_coordinators/{actor-hash|scheduled}` stores only a grant-document cursor, opaque pass owner and numeric expiresAt; actor keys hash the authenticated UID. It is protected by existing default-deny browser rules, not a new public DTO. Cursor paging examines actor-owned grant metadata, filters ACTIVE and progresses over no-work/inactive records; a two-minute lease serializes same-actor passes with stale-owner-safe cursor/release writes. No credentials, business rows, Project selection list or canonical identity is stored here. The dormant scheduled entry uses the same engine with its distinct maintenance policy.
+
+Canonical PENDING outbox entries/master dirty markers remain work authority. Dirty-marker-only recovery reestablishes MASTER_DATA metadata at its existing mutation revision; acknowledgment remains current-revision/Project/principal/grant/lease-fenced. Global HTTP exposes only aggregate counters. Exact state: [ledger](reconstruction/02_PHASE_LEDGER.md); policy: [sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## Durable Google authorization lifecycle metadata — current
 
 State: [phase ledger](reconstruction/02_PHASE_LEDGER.md); authority: [credential contract](reconstruction/GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md).
