@@ -38,7 +38,7 @@ function fixture(){
  const port=projectGoogleBlueprintPort('private-access-token','P1');
  // This suite isolates generation/provider diagnostics from projection HTTP I/O.
  port.projectMasterTabs=vi.fn(async()=>{});port.authorizeProvisioning=vi.fn(async()=>{throw new Error('optional grant absent')});
- return {records,options,port,approve:()=>service.approveDestination('P1','root',actor,port),provision:()=>service.provision('P1','root',actor,port)};
+ return {records,options,port,approve:()=>service.approveDestination('P1','root',actor,port),provision:async()=>{const binding=await service.provision('P1','root',actor,port);await service.initializeBound('P1',actor,port);return binding;}};
 }
 function provider(reason?:string){return {
  response:{status:403,data:{error:{code:403,message:'private user@example.test subject token',status:'PERMISSION_DENIED',

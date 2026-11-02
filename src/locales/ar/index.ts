@@ -227,7 +227,7 @@ export const arTranslations: TranslationDictionary = {
   "gws.provisioning": "جارٍ تهيئة الملف",
   "gws.ready": "الملف جاهز",
   "gws.degraded": "المزامنة تحتاج متابعة",
-  "gws.authorization_required": "يلزم إعادة الربط",
+  "gws.authorization_required": "يلزم تفويض Google للمزامنة",
   "gws.failed": "مساحة العمل غير متاحة",
   "gws.purpose": "اربط حساب Google واختر المجلد الذي تريد حفظ ملفات المشروع بداخله. سيُنشئ النظام مجلد المشروع وملف Google Sheets التشغيلي تلقائيًا. تبقى بيانات التطبيق المرجع المعتمد.",
   "gws.state": "حالة استمرارية Google",
@@ -4687,7 +4687,8 @@ export const arTranslations: TranslationDictionary = {
   "gws.authorization_retry_later": "خدمة Google غير متاحة مؤقتًا. أعد المحاولة لاحقًا؛ التفويض المحفوظ لم يُلغَ.",
   "gws.authorization_diagnosis_unavailable": "تعذر التحقق من حالة التفويض الآن. أعد المحاولة لاحقًا.",
   "gws.grant_automation_permission": "منح إذن Apps Script",
-  "gws.connect_durable_authorization": "تفويض Google للمزامنة بطلب المستخدم لاحقًا",
+  "gws.connect_durable_authorization": "تفعيل تفويض Google للمزامنة",
+  "gws.durable_authorization_required": "مساحة العمل مرتبطة. يلزم تفعيل تفويض Google المستمر للمزامنة المستقبلية.",
 };
 
 

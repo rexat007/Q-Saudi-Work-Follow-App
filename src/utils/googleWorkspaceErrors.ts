@@ -31,6 +31,8 @@ export function continuityStateLabel(state: string, t: (key: string)=>string): s
 
 /** Bounded operator guidance; preserves support codes and does not alter validation. */
 const destinationMessages = {
+  GOOGLE_OFFLINE_CONFIGURATION_REQUIRED:'gws.offline_configuration_required',
+  DURABLE_AUTHORIZATION_REQUIRED:'gws.durable_authorization_required',
   DESTINATION_NOT_WRITABLE:'gws.destination_not_writable',
   STORAGE_TARGET_CONFLICT:'gws.destination_conflict',
   CURRENT_STORAGE_DESTINATION:'gws.destination_is_current',

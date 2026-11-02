@@ -1,3 +1,15 @@
+## Bound Workspace authorization convergence — 2026-11-02
+
+State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `79b5df8abecd23c70e2bbd74d6072d4d4d84d291`.
+
+- RESOLVED_IN_SOURCE: stale UI/cache and pre-status browser consent no longer choose bound credentials. Fresh canonical status selects exactly durable execution or explicit durable consent; failures stop execution.
+- RESOLVED_IN_SOURCE: initialize/retry/automation and compatibility initial projection cannot use a browser-token fallback. Server refresh/grant fences remain authoritative; automatic user-active delivery already requires owned durable grants.
+- RESOLVED_IN_SOURCE: popup CONNECTED alone cannot report authorization success. Client read-back requires CONNECTED plus CONNECTED_VALID/AUTOMATION_SCOPE_REQUIRED, current intent and unchanged Project/resource/revision. Missing/inactive/invalid grants stop initialization.
+- RESOLVED_IN_SOURCE: first provisioning no longer implicitly initializes with its browser credential after binding. Separate visible consent preserves pending work/resource identity; only confirmed durable execution can continue. Missing grant has one precise activation action, not a relink/retry instruction.
+- PRESERVED: optional Script permission, current principal/Project isolation, durable refresh validation, consent/revocation/version/lease/request fences, resource identity, bounded repair, canonical master/profile semantics and historical debt.
+- STILL_OPEN: owner deployment and one actual durable authorization/read-back for the existing Q-PRJ-007 resources. Owner-reported healthy live binding is evidence supplied by the owner, not a local live test. No Google Console/manual Firestore/resource recreation performed.
+- PRESERVED_DEBT: existing TypeScript/lint and baseline translation guard failures remain truthful; no new domain/Phase 10 activation. Legacy unrelated storage-administration/import APIs are not redesigned by this bound-command unit.
+
 ## Workbook bounded-memory repair — 2026-11-01
 
 Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); merged baseline `fff5c313b3276e7c4672f00fad9cce7ae550f4a7`.

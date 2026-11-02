@@ -1,4 +1,4 @@
-import {isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
+import {assertDurableWorkspaceAuthorization,isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
 import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceFetch,decodeWorkspaceResponse} from '../utils/workspaceHttp';
 import {CLIENT_BUILD_ID,ensureRuntimeGeneration,assertRuntimeGeneration} from '../runtime/runtimeGeneration';
@@ -86,7 +86,7 @@ export class ClientWorkspaceService {
   }
 
   /**
-   * Builds the dual-token headers for Google Workspace requests:
+   * Builds Firebase identity headers; canonical bound commands disable Google-header transport:
    * 1. Authorization: Bearer <Firebase ID Token> (for application auth, RBAC, project isolation)
    * 2. X-Google-Access-Token: <Google OAuth Access Token> (for Google Drive & Sheets APIs)
    *
@@ -122,7 +122,7 @@ export class ClientWorkspaceService {
       }
     }
 
-    // 2. Google OAuth Access Token (X-Google-Access-Token: <Google OAuth Token>)
+    // 2. Canonical bound commands pass includeGoogleToken=false; provisioning retains the ephemeral header.
     headers['X-App-Build']=CLIENT_BUILD_ID;
     const googleToken = includeGoogleToken ? this.getAccessToken() : null;
     if (googleToken) {
@@ -173,14 +173,14 @@ export class ClientWorkspaceService {
   }
 
   public async getGoogleWorkspaceStatus(projectId: string): Promise<ProjectGoogleStatus> {
-    const headers = await this.getWorkspaceHeaders({}, true);
+    const headers = await this.getWorkspaceHeaders({}, true,false);
     const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers });
     const result = await this.decodeResponse(response);
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
   }
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
-    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({scriptProjectId})});
+    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({scriptProjectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
   }
   /** Firebase-only application request. No Project list, Google token or consent popup. */
@@ -189,12 +189,12 @@ export class ClientWorkspaceService {
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_COORDINATOR_UNAVAILABLE');
   }
   public async drainPendingWorkspace(projectId:string):Promise<void> {
-    if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_SYNC_DEFERRED');
   }
   public async initializeWorkspace(projectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();
-    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:'{}'});
+    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
@@ -204,7 +204,7 @@ export class ClientWorkspaceService {
     let listener:(event:MessageEvent)=>void=()=>{},timer:ReturnType<typeof setTimeout>|undefined,poll:ReturnType<typeof setInterval>|undefined;
     try {
       await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
-      const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({automation:true})});
+      const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true})});
       const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
       const url=new URL(result.url);if(url.origin!=='https://accounts.google.com')throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
       await new Promise<void>((resolve,reject)=>{
@@ -220,13 +220,18 @@ export class ClientWorkspaceService {
         poll=setInterval(()=>{if(!isCurrent()||popup.closed)reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));},500);
         popup.location.href=url.href;
       });
+      if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
+      const confirmed=await this.getGoogleWorkspaceStatus(projectId);
+      if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
+      assertDurableWorkspaceAuthorization(confirmed,projectId);
+      this.setAccessToken(null); // Provisioning credential has no role in bound execution.
     } finally {window.removeEventListener('message',listener);clearTimeout(timer);clearInterval(poll);popup.close();}
   }
   public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
     await ensureRuntimeGeneration();
     const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw new Error(workspaceFailureCode(result.code||'WORKSPACE_RECOVERY_REQUIRED'));
-    const binding=result.data;return {spreadsheetId:binding.spreadsheetId,projectFolderId:binding.projectFolderId};
+    const binding=result.data;this.setAccessToken(null);return {spreadsheetId:binding.spreadsheetId,projectFolderId:binding.projectFolderId};
   }
 
   /**
@@ -286,6 +291,7 @@ export class ClientWorkspaceService {
 
     const data = await this.decodeResponse(res);
     const structure: GoogleDriveProjectStructure = data.data;
+    this.setAccessToken(null); // Provisioning authority ends at the committed resource binding.
 
     // Server provisioning commits only Workspace linkage, with current settings and atomic audit.
 
@@ -305,7 +311,7 @@ export class ClientWorkspaceService {
       throw new Error('معرف المشروع وشيت المزامنة مطلوبان لإتمام الإسقاط الأولي');
     }
 
-    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true,false);
 
     const res = await workspaceFetch('/api/workspace/sync/initial', {
       method: 'POST',

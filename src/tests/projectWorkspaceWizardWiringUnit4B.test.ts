@@ -7,7 +7,9 @@ import path from 'path';
 
 describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Tests', () => {
   // Helper to construct mock workspace service
-  const createMockWorkspaceService = () => ({
+  const createMockWorkspaceService = () => {
+    let durable=false;
+    const service={
     selectProjectWorkspaceDestination: vi.fn().mockResolvedValue('destination-root'),
     requestGoogleScopes: vi.fn().mockResolvedValue(undefined),
     provisionProjectDrive: vi.fn().mockResolvedValue({
@@ -20,6 +22,9 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
         printableDocsFolderId: 'sub_3',
       },
     }),
+    initializeWorkspace:vi.fn().mockResolvedValue({}),
+    connectBackgroundAuthorization:vi.fn(async()=>{durable=true;}),
+    getGoogleWorkspaceStatus:vi.fn(),
     syncInitialProjectWorkspace: vi.fn().mockResolvedValue({
       success: true,
       processedCount: 4,
@@ -27,7 +32,16 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
       auditMessage: 'تمت مزامنة 4 شيتات بنجاح',
       tabs: [],
     }),
-  });
+    };
+    service.getGoogleWorkspaceStatus.mockImplementation(async(id:string)=>{
+      const existing=id.startsWith('proj_existing');
+      const result=service.provisionProjectDrive.mock.results.at(-1);
+      const created=result?.type==='return'?await result.value:null;
+      const spreadsheetId=existing?(id==='proj_existing_fail'?'sheet_exist':'sheet_existing_222'):created?.spreadsheetId;
+      return {binding:spreadsheetId?{projectId:id,spreadsheetId,revision:1}:null,state:spreadsheetId?'READY':'NOT_CONNECTED',backgroundAuthorization:existing||durable?'CONNECTED':'NOT_CONNECTED',authorizationDiagnostic:{result:existing||durable?'CONNECTED_VALID':'REAUTHORIZATION_REQUIRED',metadataOnly:true},pendingSyncCount:0,lastSyncError:null,lastSuccessfulSyncAt:null};
+    });
+    return service;
+  };
 
   // Test 1: first-time flow requests Google scopes
   it('1. first-time flow requests Google scopes before provisioning or sync', async () => {
@@ -77,7 +91,7 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
   });
 
   // Test 3: first-time flow uses returned spreadsheetId directly
-  it('3. first-time flow uses returned spreadsheetId directly without waiting for React state', async () => {
+  it('3. first-time binding read-back exposes the exact new spreadsheet without waiting for React state', async () => {
     const mockService = createMockWorkspaceService();
     mockService.provisionProjectDrive.mockResolvedValueOnce({
       projectFolderId: 'fld_fresh_999',
@@ -87,7 +101,7 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     });
 
     const setIsSyncingGoogle = vi.fn();
-    const setSyncNotice = vi.fn();
+    const setSyncNotice = vi.fn();const observed=vi.fn();
 
     const project = {
       projectId: 'proj_first_time',
@@ -102,17 +116,15 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
       isSyncingGoogle: false,
       setIsSyncingGoogle,
       setSyncNotice,
-      workspaceService: mockService as any,
+      workspaceService: mockService as any,onWorkspaceStatus:observed,
     });
 
-    expect(mockService.syncInitialProjectWorkspace).toHaveBeenCalledWith(
-      'proj_first_time',
-      'sheet_fresh_888' // Used returned value directly
-    );
+    expect(observed).toHaveBeenLastCalledWith(expect.objectContaining({binding:expect.objectContaining({spreadsheetId:'sheet_fresh_888'})}));
+    expect(mockService.syncInitialProjectWorkspace).not.toHaveBeenCalled();
   });
 
   // Test 4: first-time flow invokes syncInitialProjectWorkspace after provision
-  it('4. first-time flow invokes syncInitialProjectWorkspace after provision and reports success', async () => {
+  it('4. first-time flow waits for explicit durable authorization before initialize and success', async () => {
     const mockService = createMockWorkspaceService();
     const setIsSyncingGoogle = vi.fn();
     const setSyncNotice = vi.fn();
@@ -130,13 +142,12 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
       workspaceService: mockService as any,
     });
 
-    expect(mockService.syncInitialProjectWorkspace).toHaveBeenCalledTimes(1);
-    expect(setSyncNotice).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'success',
-        text: expect.stringContaining('إسقاط بيانات المشروع الأولية'),
-      })
-    );
+    expect(mockService.syncInitialProjectWorkspace).not.toHaveBeenCalled();
+    expect(mockService.connectBackgroundAuthorization).not.toHaveBeenCalled();
+    expect(setSyncNotice).toHaveBeenLastCalledWith({type:'error',text:'DURABLE_AUTHORIZATION_REQUIRED'});
+    await executeProjectWorkspaceSyncOrchestration({project,isSyncingGoogle:false,setIsSyncingGoogle,setSyncNotice,workspaceService:mockService as any});
+    expect(mockService.connectBackgroundAuthorization).toHaveBeenCalledOnce();expect(mockService.initializeWorkspace).toHaveBeenCalledWith(project.projectId);
+    expect(setSyncNotice).toHaveBeenLastCalledWith(expect.objectContaining({type:'success'}));
   });
 
   // Test 5: initial projection occurs only after provisioning succeeds
@@ -255,8 +266,9 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
   });
 
   // Test 9: folder-only inconsistent state fails closed
-  it('9. folder-only inconsistent state fails closed without calling Google APIs', async () => {
+  it('9. canonical inconsistency with folder-only cached state fails closed before Google APIs', async () => {
     const mockService = createMockWorkspaceService();
+    mockService.getGoogleWorkspaceStatus.mockRejectedValueOnce(Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة'));
     const setIsSyncingGoogle = vi.fn();
     const setSyncNotice = vi.fn();
 
@@ -288,8 +300,9 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
   });
 
   // Test 10: spreadsheet-only inconsistent state fails closed
-  it('10. spreadsheet-only inconsistent state fails closed without calling Google APIs', async () => {
+  it('10. canonical inconsistency with spreadsheet-only cached state fails closed before Google APIs', async () => {
     const mockService = createMockWorkspaceService();
+    mockService.getGoogleWorkspaceStatus.mockRejectedValueOnce(Error('WORKSPACE_BINDING_INCOMPLETE: معرفات Google Workspace للمشروع غير مكتملة أو غير متطابقة'));
     const setIsSyncingGoogle = vi.fn();
     const setSyncNotice = vi.fn();
 
@@ -321,9 +334,9 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
   });
 
   // Test 11: projection failure after successful first-time provisioning does not report full success
-  it('11. projection failure after successful first-time provisioning does not report full success', async () => {
+  it('11. projection failure after provisioning and durable consent does not report full success', async () => {
     const mockService = createMockWorkspaceService();
-    mockService.syncInitialProjectWorkspace.mockRejectedValueOnce(
+    mockService.initializeWorkspace.mockRejectedValueOnce(
       new Error('Firestore read failed during initial projection')
     );
 
@@ -343,12 +356,13 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
       workspaceService: mockService as any,
     });
 
+    await executeProjectWorkspaceSyncOrchestration({project,isSyncingGoogle:false,setIsSyncingGoogle,setSyncNotice,workspaceService:mockService as any});
     expect(mockService.provisionProjectDrive).toHaveBeenCalledTimes(1);
-    expect(mockService.syncInitialProjectWorkspace).toHaveBeenCalledTimes(1);
+    expect(mockService.initializeWorkspace).toHaveBeenCalledTimes(1);
     expect(setSyncNotice).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'error',
-        text: expect.stringContaining('تعذر إكمال إسقاط البيانات الأولية'),
+        text: expect.stringContaining('Firestore read failed during initial projection'),
       })
     );
   });
@@ -394,11 +408,11 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
     // Button uses onClick={handleSyncGoogleWorkspace}
-    const buttonMatches = wizardContent.match(/onClick=\{handleSyncGoogleWorkspace\}/g) || [];
+    const buttonMatches = wizardContent.match(/onClick=\{\(\)=>void handleSyncGoogleWorkspace\(\)\}/g) || [];
     expect(buttonMatches.length).toBe(1);
 
     // Dynamic button label based on both IDs presence
-    expect(wizardContent).toContain("googleContinuity?.binding || (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')");
+    expect(wizardContent).toContain("workspaceNeedsReauthorization(googleContinuity)?t('gws.connect_durable_authorization')");
     expect(wizardContent).toContain("t('projects.labels.update_workspace_sync')");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['projects.labels.update_workspace_sync'];
@@ -447,7 +461,8 @@ describe('Project Workspace Wizard Initial Projection Orchestration (Unit 4B) Te
 
     // One shared two-argument call receives the durable binding first, legacy IDs only as fallback.
     expect(wizardContent).toMatch(/workspaceService\.syncInitialProjectWorkspace\s*\(\s*project\.projectId\s*,\s*spreadsheetId\s*\)/);
-    expect(wizardContent).toContain('status?.binding?.spreadsheetId || project.settings?.googleSpreadsheetId');
+    expect(wizardContent).toContain('let spreadsheetId = status.binding?.spreadsheetId');
+    expect(wizardContent).toContain('authorizeBoundWorkspaceExecution(project.projectId,workspaceService,isCurrent');
 
     // Confirm no client-side master-data arrays are passed within the call arguments
     expect(wizardContent).not.toMatch(/syncInitialProjectWorkspace\s*\([^)]*drivers/);

@@ -109,6 +109,7 @@ vi.mock('../services/projectCanonicalRefresh.service', () => ({
 vi.mock('../services/workspace.service', () => ({
   clientWorkspaceService: {
     getGoogleWorkspaceStatus: vi.fn(),
+    connectBackgroundAuthorization:vi.fn(),
     requestGoogleScopes: vi.fn().mockResolvedValue(undefined),
     provisionProjectDrive: vi.fn().mockResolvedValue({
       spreadsheetId: 'spread-123',
@@ -188,7 +189,7 @@ beforeEach(() => {
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.clearAllMocks(); });
 
-const status=(id:string)=>({state:'READY',binding:{projectId:id,spreadsheetId:'sheet-'+id,spreadsheetUrl:'https://docs.google.com/spreadsheets/d/sheet-'+id+'/edit',googleAccountLabel:'fixture-account'},pendingSyncCount:2,lastSuccessfulSyncAt:'2026-10-31T00:00:00Z',lastSyncError:null});
+const status=(id:string)=>({backgroundAuthorization:'NOT_CONNECTED',authorizationDiagnostic:{result:'REAUTHORIZATION_REQUIRED',reason:'AUTH_GRANT_MISSING',metadataOnly:true},state:'READY',binding:{projectId:id,spreadsheetId:'sheet-'+id,spreadsheetUrl:'https://docs.google.com/spreadsheets/d/sheet-'+id+'/edit',googleAccountLabel:'fixture-account'},pendingSyncCount:2,lastSuccessfulSyncAt:'2026-10-31T00:00:00Z',lastSyncError:null});
 beforeEach(()=>{vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(async id=>status(id) as any)});
 describe('PFAG-GWS1 actual Project Setup Wizard — controlled DOM',()=>{
  it('renders continuity purpose, account, sync status and one workbook-open action',async()=>{
@@ -197,9 +198,9 @@ describe('PFAG-GWS1 actual Project Setup Wizard — controlled DOM',()=>{
    const links=[...container.querySelectorAll('a')].filter(a=>a.textContent==='gws.open');expect(links).toHaveLength(1);expect(links[0].href).toContain('sheet-'+mockProject.projectId);
  });
  it('surfaces actionable popup guidance without asserting an unseen Google error',async()=>{
-   vi.mocked(clientWorkspaceService.requestGoogleScopes).mockRejectedValueOnce(new Error('POPUP_CLOSED'));
-   await render(mockProject.projectId);await click('projects.batch4.layer_workspace');await click('gws.retry_sync');
-   expect(container.textContent).toContain('gws.popup_closed');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
+   vi.mocked(clientWorkspaceService.connectBackgroundAuthorization).mockRejectedValueOnce(new Error('POPUP_CLOSED'));
+   await render(mockProject.projectId);await click('projects.batch4.layer_workspace');await click('gws.connect_durable_authorization');
+   expect(clientWorkspaceService.requestGoogleScopes).not.toHaveBeenCalled();expect(container.textContent).toContain('gws.popup_closed');expect(clientWorkspaceService.provisionProjectDrive).not.toHaveBeenCalled();
  });
  it('late A continuity status never overwrites current B',async()=>{
    const a=deferred<any>();vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockImplementation(id=>id===mockProject.projectId?a.promise:Promise.resolve({...status(id),binding:{...status(id).binding,googleAccountLabel:'ACCOUNT-B'}} as any));

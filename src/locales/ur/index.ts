@@ -227,7 +227,7 @@ export const urTranslations: TranslationDictionary = {
   "gws.provisioning": "ورک بک تیار ہو رہی ہے",
   "gws.ready": "ورک بک تیار ہے",
   "gws.degraded": "مطابقت کو توجہ درکار ہے",
-  "gws.authorization_required": "دوبارہ جوڑنا ضروری ہے",
+  "gws.authorization_required": "Google ہم وقت سازی کی اجازت درکار ہے",
   "gws.failed": "ورک اسپیس دستیاب نہیں",
   "gws.purpose": "اپنا Google اکاؤنٹ جوڑیں اور پروجیکٹ فائلوں کے لیے فولڈر منتخب کریں۔ نظام پروجیکٹ فولڈر اور عملی ورک بک خود بنائے گا۔ ایپ کا ڈیٹا مستند رہے گا۔",
   "gws.state": "Google تسلسل کی حالت",
@@ -4687,7 +4687,8 @@ export const urTranslations: TranslationDictionary = {
   "gws.authorization_retry_later": "Google عارضی طور پر دستیاب نہیں۔ بعد میں کوشش کریں؛ محفوظ اجازت برقرار ہے۔",
   "gws.authorization_diagnosis_unavailable": "اجازت کی حالت کی جانچ نہیں ہو سکی۔ بعد میں کوشش کریں۔",
   "gws.grant_automation_permission": "Apps Script کی اجازت دیں",
-  "gws.connect_durable_authorization": "آئندہ صارف کی درخواست پر ہم وقت سازی کے لیے Google کی اجازت دیں",
+  "gws.connect_durable_authorization": "ہم وقت سازی کے لیے Google کی اجازت فعال کریں",
+  "gws.durable_authorization_required": "ورک اسپیس منسلک ہے۔ آئندہ ہم وقت سازی کے لیے Google کی مستقل اجازت فعال کریں۔",
 };
 
 
