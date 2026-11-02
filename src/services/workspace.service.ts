@@ -1,3 +1,4 @@
+import type {WorkspaceEnsureStatus} from '../types/workspaceProvisioning';
 import {WORKSPACE_OAUTH_CHANNEL,WORKSPACE_OAUTH_MESSAGE,WORKSPACE_OAUTH_TIMEOUT_MS,isWorkspaceOAuthCorrelation} from '../utils/workspaceOAuthCompletion';
 import {assertDurableWorkspaceAuthorization,isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
 import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
@@ -63,6 +64,7 @@ export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripPro
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export class ClientWorkspaceService {
+  private ensureConsentPopup?:Window;
   private cancelWorkspaceOAuth?:()=>void;
   private currentAccessToken:string|null=null;
   private tokenIdentity:string|null=null;
@@ -181,6 +183,20 @@ export class ClientWorkspaceService {
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
   }
+  /** Reserve the optional consent window during the actual user gesture, before server I/O. */
+  public prepareEnsureInteraction():()=>void {
+    let popup:Window|null=null;try{popup=window.open('about:blank','qsaudi-workspace-authorization','popup,width=560,height=720');}catch{/* Consent will report an actionable browser denial if required. */}
+    if(popup)this.ensureConsentPopup=popup;
+    return ()=>{if(this.ensureConsentPopup===popup){this.ensureConsentPopup=undefined;try{popup?.close();}catch{/* Optional window cleanup never grants authorization. */}}};
+  }
+  public async observeWorkspaceProvisioning(projectId:string,signal?:AbortSignal):Promise<WorkspaceEnsureStatus>{
+    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{headers:await this.getWorkspaceHeaders({},true,false),signal});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');return result.data;
+  }
+  public async ensureWorkspace(projectId:string):Promise<WorkspaceEnsureStatus>{
+    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');return result.data;
+  }
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({scriptProjectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
@@ -200,9 +216,9 @@ export class ClientWorkspaceService {
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
-  public async connectBackgroundAuthorization(projectId:string,isCurrent:()=>boolean):Promise<void> {
+  public async connectBackgroundAuthorization(projectId:string,isCurrent:()=>boolean,operationId?:string):Promise<void> {
     this.cancelWorkspaceOAuth?.();
-    const popup=window.open('about:blank','qsaudi-workspace-authorization','popup,width=560,height=720');
+    const popup=this.ensureConsentPopup||window.open('about:blank','qsaudi-workspace-authorization','popup,width=560,height=720');this.ensureConsentPopup=undefined;
     if(!popup)throw Error('POPUP_BLOCKED');
     const controller=new AbortController();
     let listener:(event:MessageEvent)=>void=()=>{},channel:BroadcastChannel|undefined,timer:ReturnType<typeof setTimeout>|undefined,intentGuard:ReturnType<typeof setInterval>|undefined;
@@ -218,7 +234,7 @@ export class ClientWorkspaceService {
     try {
       await Promise.race([interrupted,(async()=>{
         await ensureRuntimeGeneration();check();
-        const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true}),signal:controller.signal});
+        const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true,...(operationId?{operationId}:{})}),signal:controller.signal});
         const result=await this.decodeResponse(response);check();if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
         const url=new URL(result.url);if(url.origin!=='https://accounts.google.com'||!isWorkspaceOAuthCorrelation(result.correlationId))throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');correlationId=result.correlationId;
         await new Promise<void>((resolve,reject)=>{
@@ -234,7 +250,7 @@ export class ClientWorkspaceService {
           check();popup.location.href=url.href;
         });
         check();const confirmed=await this.getGoogleWorkspaceStatus(projectId,controller.signal);check();
-        assertDurableWorkspaceAuthorization(confirmed,projectId);
+        if(operationId&&!confirmed.binding){if(confirmed.provisioningOperationId!==operationId||confirmed.backgroundAuthorization!=='CONNECTED'||!['CONNECTED_VALID','AUTOMATION_SCOPE_REQUIRED'].includes(confirmed.authorizationDiagnostic?.result||''))throw Error('DURABLE_AUTHORIZATION_REQUIRED');}else assertDurableWorkspaceAuthorization(confirmed,projectId);
         this.setAccessToken(null);
       })()]);
     } finally {cleanup();if(this.cancelWorkspaceOAuth===cancel)this.cancelWorkspaceOAuth=undefined;}

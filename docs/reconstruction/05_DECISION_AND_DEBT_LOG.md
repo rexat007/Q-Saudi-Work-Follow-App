@@ -1,3 +1,9 @@
+## GWS-ONE convergence and accepted provider exception — 2026-11-02
+
+RESOLVED_IN_SOURCE: fragmented normal Workspace commands are converged through server ensure; stable continuity/grants/receipts/leases are reused. SUPERSEDED: ordinary users manually initialize/retry/repair/recover/maintain or type Script IDs. ACCEPTED_PROVIDER_EXCEPTION: SCRIPT_CREATE_IDENTITY_UNCERTAIN remains ATTENTION_REQUIRED with no automatic second create until independently proven advanced recovery/migration. RESOLVED_IN_SOURCE: fresh Dual no longer inherits seven historical SABIL compatibility tabs/routines; all profiles resolve owned manifests deterministically. STILL_OPEN: deployed clean-project Google acceptance. RESET_TEST_PROJECTS remains NOT_EXECUTED and separately owner-reviewed, including disposable old Beta2 Project cleanup while preserving users/auth/infrastructure and approved global identities. No live historical-project alteration or later-phase activation.
+
+Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Automation maintenance and clean acceptance debt — 2026-11-02
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0`.

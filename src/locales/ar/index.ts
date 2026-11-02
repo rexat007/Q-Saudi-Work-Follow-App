@@ -4692,6 +4692,21 @@ export const arTranslations: TranslationDictionary = {
   "gws.repair_automation": "إصلاح أتمتة الملف",
   "gws.automation_maintenance_required": "أتمتة Google Sheets تحتاج إلى إصلاح",
   "gws.automation_maintenance_complete": "تم إصلاح أتمتة الملف والتحقق منها.",
+  "gws.one.not_configured": "لم يتم إعداد مساحة Google",
+  "gws.one.preparing": "جارٍ إعداد مساحة Google...",
+  "gws.one.action_required": "مطلوب إجراء من المستخدم",
+  "gws.one.ready": "مساحة Google جاهزة",
+  "gws.one.attention_required": "مساحة Google تحتاج مراجعة من مسؤول النظام",
+  "gws.one.prepare": "إعداد ومزامنة Google",
+  "gws.one.verify": "تحقق ومزامنة Google",
+  "gws.one.diagnostics": "أدوات التشخيص",
+  "gws.one.progress": "تقدم إعداد مساحة Google",
+  "gws.one.phase_authorization": "ربط حساب Google",
+  "gws.one.phase_binding": "مساحة المشروع",
+  "gws.one.phase_workbook": "ملف التشغيل",
+  "gws.one.phase_master_data": "بيانات المشروع",
+  "gws.one.phase_script": "أتمتة الملف",
+  "gws.one.phase_final_verify": "التحقق النهائي",
 };
 
 

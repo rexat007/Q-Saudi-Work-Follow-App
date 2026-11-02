@@ -1,5 +1,5 @@
 import {isWorkspaceOAuthCorrelation} from '../utils/workspaceOAuthCompletion';
-import {AUTH_TRANSIENT_CODES,isWorkspaceAuthReason,workspaceGrantFailure,workspaceAuthResult,type WorkspaceAuthReason,type WorkspaceAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
+import {workspaceGrantBinding,AUTH_TRANSIENT_CODES,isWorkspaceAuthReason,workspaceGrantFailure,workspaceAuthResult,type WorkspaceAuthReason,type WorkspaceAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 import {classifyGoogleProviderFailure,isGoogleProviderCode} from '../../server/workspaceGoogleErrors';
 import {createCipheriv,createDecipheriv,createHash,randomBytes,randomUUID} from 'node:crypto';
 import {adminDb,adminAuth} from '../firebase/admin';
@@ -64,15 +64,25 @@ export class WorkspaceGoogleOfflineAuthorization {
       return {s,id,grant};
     });
   }
-  async begin(projectId:string,who:AuthUserContext,automation:boolean) {
-    const c=this.configuration(),{s}=await this.snapshot(projectId,who),b=s.binding;
-    if(!b)return gwsFail('WORKSPACE_NOT_PROVISIONED');
-    const subject=await this.googleSubject(who.userId);if(subject!==b.googleSubject)return gwsFail('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH',403);
+  async begin(projectId:string,who:AuthUserContext,automation:boolean,operationId?:string) {
+    const c=this.configuration(),{s}=await this.snapshot(projectId,who);
+    const subject=await this.googleSubject(who.userId);
+    if(operationId&&s.ensureOperation?.operationId!==operationId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+    if(!s.binding){
+      if(!operationId||s.ensureOperation?.actorId!==who.userId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
+      await this.database.runTransaction(async(tx:any)=>{
+        await this.workspace.authorized(tx,projectId,who);const ref=continuityRef(this.database,projectId),current=(await tx.get(ref)).data();
+        if(current?.binding||current?.ensureOperation?.operationId!==operationId||current.provisioningAuthorization?.googleSubject&&current.provisioningAuthorization.googleSubject!==subject)return gwsFail('WORKSPACE_BINDING_CONFLICT');
+        tx.set(ref,{...current,provisioningAuthorization:{operationId,googleSubject:subject}});
+      });
+    }
+    const b=s.binding||{projectId,googleSubject:subject,spreadsheetId:'',revision:0};
+    if(subject!==b.googleSubject)return gwsFail('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH',403);
     const correlationId=randomBytes(24).toString('base64url'),state=randomBytes(32).toString('base64url'),browser=randomBytes(32).toString('base64url'),verifier=randomBytes(48).toString('base64url'),nonce=randomBytes(32).toString('base64url'),id=hash(state),scopes=automation?REQUIRED_WORKSPACE_SCOPES:BINDING_WORKSPACE_SCOPES;
     await this.database.runTransaction(async(tx:any)=>{
       await this.workspace.authorized(tx,projectId,who);const snap=await tx.get(continuityRef(this.database,projectId)),current=snap.data();
-      if(current?.binding?.spreadsheetId!==b.spreadsheetId||current?.binding?.googleSubject!==subject||current?.binding?.revision!==b.revision)return gwsFail('WORKSPACE_BINDING_CONFLICT');
-      tx.set(this.database.collection(TRANSACTIONS).doc(id),{projectId,correlationId,actorId:who.userId,subject,spreadsheetId:b.spreadsheetId,bindingRevision:b.revision,authorizationVersion:current.authorizationVersion||0,previousAuthorizationId:current.backgroundAuthorizationId||null,automation,browserHash:hash(browser),nonceHash:hash(nonce),verifier:sealWorkspaceSecret(verifier,`oauth:${id}:${projectId}`,c),expiresAt:Date.now()+600000,usedAt:null});
+      if(workspaceGrantBinding(current)?.spreadsheetId!==b.spreadsheetId||workspaceGrantBinding(current)?.googleSubject!==subject||workspaceGrantBinding(current)?.revision!==b.revision)return gwsFail('WORKSPACE_BINDING_CONFLICT');
+      tx.set(this.database.collection(TRANSACTIONS).doc(id),{projectId,correlationId,...(operationId?{operationId}:{}),actorId:who.userId,subject,spreadsheetId:b.spreadsheetId,bindingRevision:b.revision,authorizationVersion:current.authorizationVersion||0,previousAuthorizationId:current.backgroundAuthorizationId||null,automation,browserHash:hash(browser),nonceHash:hash(nonce),verifier:sealWorkspaceSecret(verifier,`oauth:${id}:${projectId}`,c),expiresAt:Date.now()+600000,usedAt:null});
     });
     return {url:this.provider(c).authorizationUrl({state,challenge:hash(verifier),nonce,scopes:['openid','email',...scopes]}),browser,correlationId,expiresIn:600};
   }
@@ -89,7 +99,9 @@ export class WorkspaceGoogleOfflineAuthorization {
     });
   }
   private checkPendingBinding(s:any,pending:any) {
-    if(s?.binding?.projectId!==pending.projectId||s?.binding?.spreadsheetId!==pending.spreadsheetId||s?.binding?.googleSubject!==pending.subject||s?.binding?.revision!==pending.bindingRevision)return gwsFail('WORKSPACE_BINDING_CONFLICT');
+    if(pending.operationId&&s?.ensureOperation?.operationId!==pending.operationId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+    const b=workspaceGrantBinding(s);
+    if(b?.projectId!==pending.projectId||b?.spreadsheetId!==pending.spreadsheetId||b?.googleSubject!==pending.subject||b?.revision!==pending.bindingRevision)return gwsFail('WORKSPACE_BINDING_CONFLICT');
     if((s.authorizationVersion||0)!==(pending.authorizationVersion||0)||(s.backgroundAuthorizationId||null)!==pending.previousAuthorizationId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
   }
   /** This exact provider refresh/subject/scope proof is shared by callback acceptance and access(). */
@@ -155,7 +167,7 @@ export class WorkspaceGoogleOfflineAuthorization {
       const accepted=await this.database.runTransaction(async(tx:any)=>{
         const candidate=await tx.get(ar),current=(await tx.get(continuityRef(this.database,pending.projectId))).data();
         // A lost transaction acknowledgment is recovered from the committed proof, not another consent.
-        if(current?.backgroundAuthorizationId===authorizationId&&candidate.data()?.refreshValidatedAt&&!workspaceGrantFailure(candidate.data(),current.binding,pending.projectId,pending.actorId)){await this.workspace.authorized(tx,pending.projectId,who);return true;}
+        if(current?.backgroundAuthorizationId===authorizationId&&candidate.data()?.refreshValidatedAt&&!workspaceGrantFailure(candidate.data(),workspaceGrantBinding(current),pending.projectId,pending.actorId)){await this.workspace.authorized(tx,pending.projectId,who);return true;}
         if(candidate.data()?.status==='PENDING_VALIDATION')tx.delete(ar);
         const reason=this.reason(error),providerCode=this.transientCode(error);
         this.audit(tx,pending.projectId,pending.actorId,'GOOGLE_AUTH_VALIDATION_FAILED',{...(reason?{reason}:{}),...(providerCode?{providerCode}:{}),result:'CANDIDATE_DISCARDED'});return false;
@@ -186,7 +198,7 @@ export class WorkspaceGoogleOfflineAuthorization {
   }
   /** Server-only: never route this return value to the browser. */
   async access(projectId:string,who:AuthUserContext) {
-    const {s,id,grant}=await this.snapshot(projectId,who),reason=workspaceGrantFailure(grant,s.binding,projectId,who.userId);
+    const {s,id,grant}=await this.snapshot(projectId,who),reason=workspaceGrantFailure(grant,workspaceGrantBinding(s),projectId,who.userId);
     if(reason){await this.recordFailure(projectId,who,id,reason);return this.failure(reason);}
     if(await this.googleSubject(who.userId)!==grant.subject){await this.recordFailure(projectId,who,id,'AUTH_PROVIDER_SUBJECT_CHANGED');return this.failure('AUTH_PROVIDER_SUBJECT_CHANGED');}
     const c=this.configuration(),token=openWorkspaceSecret(grant.secret,this.aad(projectId,grant.subject,id),c);
@@ -202,7 +214,7 @@ export class WorkspaceGoogleOfflineAuthorization {
     try {await this.database.runTransaction(async(tx:any)=>{
       await this.workspace.authorized(tx,projectId,who);const cr=continuityRef(this.database,projectId),current=(await tx.get(cr)).data(),fresh=(await tx.get(this.credentialRef(id))).data();
       if(current?.backgroundAuthorizationId!==id)return gwsFail('WORKSPACE_EXECUTION_FENCED');
-      const changed=workspaceGrantFailure(fresh,current.binding,projectId,who.userId);if(changed)return this.failure(changed);
+      const changed=workspaceGrantFailure(fresh,workspaceGrantBinding(current),projectId,who.userId);if(changed)return this.failure(changed);
       const diagnosis:WorkspaceAuthorizationDiagnosis={result:refreshed.automation?'CONNECTED_VALID':'AUTOMATION_SCOPE_REQUIRED',...(!refreshed.automation?{reason:'AUTH_AUTOMATION_SCOPE_MISSING' as const}:{}),metadataOnly:true};
       tx.set(this.credentialRef(id),{...fresh,scopes:refreshed.scopes,automationAuthorized:refreshed.automation,refreshValidatedAt:Date.now(),lastFailureReason:null,updatedAt:Date.now()});
       tx.set(cr,{...current,backgroundAuthorization:'CONNECTED',authorizationDiagnostic:diagnosis});
@@ -212,7 +224,7 @@ export class WorkspaceGoogleOfflineAuthorization {
   /** Metadata/Firebase principal inspection only: no refresh, decryption or provider API call. */
   async diagnoseWorkspaceAuthorization(projectId:string,who:AuthUserContext):Promise<WorkspaceAuthorizationDiagnosis> {
     const {s,id,grant}=await this.snapshot(projectId,who);
-    let reason=workspaceGrantFailure(grant,s.binding,projectId,who.userId);
+    let reason=workspaceGrantFailure(grant,workspaceGrantBinding(s),projectId,who.userId);
     if((!reason||reason==='AUTH_GRANT_MISSING')&&s.binding?.googleSubject&&await this.googleSubject(who.userId)!==s.binding.googleSubject)reason='AUTH_PROVIDER_SUBJECT_CHANGED';
     if(reason){
       const persisted=grant?.lastFailureReason||s.authorizationDiagnostic?.reason;

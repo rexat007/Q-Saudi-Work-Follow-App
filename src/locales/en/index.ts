@@ -4692,6 +4692,21 @@ export const enTranslations: TranslationDictionary = {
   "gws.repair_automation": "Repair workbook automation",
   "gws.automation_maintenance_required": "Google Sheets automation needs repair",
   "gws.automation_maintenance_complete": "Workbook automation was repaired and verified.",
+  "gws.one.not_configured": "Google Workspace is not configured",
+  "gws.one.preparing": "Preparing Google Workspace...",
+  "gws.one.action_required": "Your action is required",
+  "gws.one.ready": "Google Workspace is ready",
+  "gws.one.attention_required": "Google Workspace needs administrator review",
+  "gws.one.prepare": "Set up and sync Google",
+  "gws.one.verify": "Verify and sync Google",
+  "gws.one.diagnostics": "Advanced diagnostics",
+  "gws.one.progress": "Google Workspace setup progress",
+  "gws.one.phase_authorization": "Google account",
+  "gws.one.phase_binding": "Project workspace",
+  "gws.one.phase_workbook": "Operational workbook",
+  "gws.one.phase_master_data": "Project data",
+  "gws.one.phase_script": "Workbook automation",
+  "gws.one.phase_final_verify": "Final verification",
 };
 
 

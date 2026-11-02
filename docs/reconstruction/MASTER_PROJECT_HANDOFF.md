@@ -1,4 +1,10 @@
-## Automation maintenance continuation
+## GWS-ONE continuation
+
+Baseline c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71; branch reconstruction/gws-one-click-provisioning-engine. Current unit converges ordinary Workspace setup/verify to one server ensure action, durable operation-bound consent/resume, strict composite readiness and intentional fresh manifests. Technical recovery stays advanced; uncertain Script create has the owner-approved fail-safe exception. Source verification precedes the authorized branch publication; owner review/merge remain separate. No PR/merge/reset/live acceptance. Exact state belongs only to the ledger; earlier continuation checkpoints are historical where superseded.
+
+Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
+## Historical automation maintenance continuation
 
 [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0` merges the callback fix. Known-ID degraded/uninstalled automation now has a server-derived maintenance flag and explicit repair action, independent of healthy workbook/sync. It uses durable authorization and an existing-ID precondition, shares canonical Script verification/installation, never creates resources or drains data, and requires unchanged-ID READY read-back. See [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [template policy](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md). CLEAN_PROJECT_TEMPLATE_ACCEPTANCE and RESET_TEST_PROJECTS are future separately authorized acceptance debt, not executed. No PR/merge, live repair/reset, template redesign or later-phase implementation. Earlier checkpoints remain historical where superseded.
 

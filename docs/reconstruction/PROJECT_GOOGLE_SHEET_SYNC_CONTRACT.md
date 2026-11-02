@@ -1,3 +1,9 @@
+## One-click ensure — current
+
+WORKSPACE_PRODUCT_ENTRYPOINT = ONE_CLICK_ENSURE; WORKSPACE_ORCHESTRATION_AUTHORITY = SERVER; NORMAL_WORKSPACE_BUTTONS = ONE_PRIMARY_ACTION; MANUAL_SCRIPT_ID = RETIRED_FROM_NORMAL_UX. Current ensure supersedes separate normal initialize/retry/recovery/maintenance actions described in earlier checkpoints. The existing authorities remain advanced/internal. Strict READY includes final canonical projection/resource/Script/auth proof. Known historical resources are preserved; only fresh V2 uses the intentional profile manifest. User-active coordination remains pending-only; CRON = NOT_REQUIRED.
+
+Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Known-Script automation maintenance — current
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Canonical status derives automationMaintenanceRequired for a bound known Script in DEGRADED/NOT_INSTALLED state, separately from automationRecoveryRequired for missing/uncertain identity. Explicitly permitted first-time creation remains its own initialization path. Known identity from continuity/binding is normalized into public binding.scriptProjectId; conflicting IDs fail closed. automationDiagnostic exposes only a closed maintenance/recovery/scope code, never raw provider errors or credentials.

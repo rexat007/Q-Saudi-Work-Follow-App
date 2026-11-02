@@ -1,3 +1,4 @@
+import {WorkspaceProvisioningOrchestrator} from '../src/services/workspaceProvisioning.server';
 import {registerUserActiveWorkspaceSync} from './workspaceSyncCoordinator.routes';
 import {resolveWorkspaceExecutionToken} from './workspaceExecutionToken';
 import {runtimeVersionHandler,workspaceGenerationFence} from './runtimeVersion';
@@ -682,6 +683,16 @@ app.post('/api/projects/:projectId/workspace/resume', enforceProjectIsolation, e
 app.post('/api/projects/:projectId/operational-configuration',enforceProjectIsolation,enforceAdminOnly,async(req:any,res)=>{
   try {const {projectCommandsServerService}=await import('../src/services/projectCommands.server');return res.json({success:true,data:await projectCommandsServerService.configureOperations(req.params.projectId,req.body,req.user)});}
   catch(error:any){return res.status(error.status||error.statusCode||409).json({success:false,code:error.code||'OPERATIONAL_CONFIGURATION_INVALID'});}
+});
+const workspaceProvisioning=new WorkspaceProvisioningOrchestrator(adminDb,projectGoogleWorkspaceServer,workspaceOfflineAuthorization,projectGoogleBlueprintPort);
+app.get('/api/projects/:projectId/workspace/ensure',enforceProjectIsolation,enforceAdminOnly,async(req:any,res)=>{
+ res.setHeader('Cache-Control','no-store');try{return res.json({success:true,data:await workspaceProvisioning.observe(req.params.projectId,req.user)});}catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:503).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_ENSURE_FAILED'});}
+});
+app.post('/api/projects/:projectId/workspace/ensure',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
+ res.setHeader('Cache-Control','no-store');try{
+  if(Object.keys(req.body||{}).some(k=>k!=='destinationRootFolderId')||req.body?.destinationRootFolderId!==undefined&&(typeof req.body.destinationRootFolderId!=='string'||!(/^[A-Za-z0-9_-]{1,128}$/).test(req.body.destinationRootFolderId)))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+  return res.json({success:true,data:await workspaceProvisioning.ensure(req.params.projectId,req.user,req.body||{})});
+ }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:503).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_ENSURE_FAILED'});}
 });
 app.post('/api/projects/:projectId/workspace/automation/recover',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
   try {
