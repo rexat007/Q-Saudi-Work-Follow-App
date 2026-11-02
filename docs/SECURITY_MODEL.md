@@ -1,3 +1,9 @@
+## Managed roots and binding handoff proof
+
+Application roots use drive.file over app-created resources, exact owner/schema/subject-hash/role tags, canonical IDs and parent/write proof. Root records are server-only under existing default client denial. Account-shared root leases compose with Project/principal/grant/operation fences. Canonical handoff adoption cannot revive/reassign credentials or attach foreign identities. Session reload hints are navigation-only, scoped to current actor and authorized Project inventory; stale intents cannot overwrite them. No Google scope, Cloud setting, browser-token execution fallback, credential encryption, Firestore rule or RBAC change.
+
+Current authority: [ledger](reconstruction/02_PHASE_LEDGER.md); details: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Operation-bound provisioning security
 
 Fresh consent is explicitly bound to the canonical Project/ensure operation, actor, Google subject, authorization version and browser transaction before resource binding. The existing encrypted credential lifecycle validates refresh proof; binding commit atomically promotes the same grant to the actual Spreadsheet/revision. Nested provider/ack fences preserve both outer ensure ownership and current inner resource/sync leases. Server-only Script identity claims supplement mandatory parent/current binding proof. No client phases/resource adoption, expanded OAuth scopes, browser bound-execution credentials or client Firestore authority. Unknown Script-create identity cannot cause a second create.

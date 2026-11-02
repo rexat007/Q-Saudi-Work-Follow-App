@@ -1,4 +1,10 @@
-## GWS-ONE continuation
+## Zero-Picker live closure continuation
+
+Current baseline 870a6a8813eab20cff7e354a1a3d9df221757b63; branch reconstruction/gws-one-live-closure. Normal entry is one ensure action with one durable OAuth flow, application-managed root, atomic handoff and automatic reload/resume. Picker/custom destination and technical repair remain advanced only. Source verification/branch publication do not claim deployed acceptance; no manual Q-PRJ-009 repair/reset/PR/merge or Phase 10. Exact current state belongs to the ledger. Earlier continuation checkpoints are historical where superseded.
+
+Current authority: [ledger](02_PHASE_LEDGER.md); details: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
+## Historical initial GWS-ONE continuation
 
 Baseline c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71; branch reconstruction/gws-one-click-provisioning-engine. Current unit converges ordinary Workspace setup/verify to one server ensure action, durable operation-bound consent/resume, strict composite readiness and intentional fresh manifests. Technical recovery stays advanced; uncertain Script create has the owner-approved fail-safe exception. Source verification precedes the authorized branch publication; owner review/merge remain separate. No PR/merge/reset/live acceptance. Exact state belongs only to the ledger; earlier continuation checkpoints are historical where superseded.
 

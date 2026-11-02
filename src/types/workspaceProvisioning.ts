@@ -18,6 +18,7 @@ export interface WorkspaceProvisioningOperation {
     projectId: string;
     actorId: string;
     configurationHash: string;
+    managedRootKey?: string;
     bindingRevision: number;
     spreadsheetId: string | null;
     profile: string;

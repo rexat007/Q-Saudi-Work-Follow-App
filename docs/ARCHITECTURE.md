@@ -1,6 +1,12 @@
+## Zero-Picker Workspace closure
+
+Normal ensure uses one durable OAuth flow and an application-owned My Drive root/Projects namespace. Shared account root receipts/leases and atomic Drive ownership tags prevent title-based adoption/duplicate roots. Project continuity remains the sole operation/binding authority. A shared adoption proof plus post-commit read-back owns the unbound→bound grant/fence transition. Expected contention joins canonical state with 200; raced build mismatch invokes the existing guarded PWA updater and actor-scoped Project restoration. The 13-tab fresh manifest and Script ambiguity fail-safe are unchanged.
+
+Current authority: [ledger](reconstruction/02_PHASE_LEDGER.md); details: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## One-click Google Workspace authority
 
-WorkspaceProvisioningOrchestrator now owns one durable ensure lifecycle in canonical continuity. The normal client starts/resumes/observes and handles declared consent/destination only; privileged technical tools are closed Advanced diagnostics. Existing resource receipts, encrypted grants, binding and inner leases remain authorities. Fresh profiles use a deterministic owned manifest, distinct from historical SABIL compatibility. The owner-accepted ambiguous bound-Script create boundary fails closed without duplicate creation or false READY.
+WorkspaceProvisioningOrchestrator now owns one durable ensure lifecycle in canonical continuity. The normal client starts/resumes/observes and handles declared Google consent only; default destination is application-managed; privileged technical tools are closed Advanced diagnostics. Existing resource receipts, encrypted grants, binding and inner leases remain authorities. Fresh profiles use a deterministic owned manifest, distinct from historical SABIL compatibility. The owner-accepted ambiguous bound-Script create boundary fails closed without duplicate creation or false READY.
 
 Current state: [ledger](reconstruction/02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
 

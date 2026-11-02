@@ -12,10 +12,10 @@ function client() { return { ensureWorkspace: vi.fn<WorkspaceEnsureClient['ensur
 let root: Root | undefined;
 afterEach(async () => { if (root)
     await act(async () => root!.unmount()); root = undefined; document.body.innerHTML = ''; });
-it('one normal product click automatically continues through consent and destination to strict READY', async () => {
+it('one normal product click automatically continues through one consent and zero Picker to strict READY', async () => {
     const c = { ...client(), prepareEnsureInteraction: vi.fn(() => finish) };
     const finish = vi.fn();
-    c.ensureWorkspace.mockResolvedValueOnce(state('ACTION_REQUIRED', 'GOOGLE_AUTHORIZATION')).mockResolvedValueOnce(state('ACTION_REQUIRED', 'DESTINATION')).mockResolvedValueOnce(state('READY'));
+    c.ensureWorkspace.mockResolvedValueOnce(state('ACTION_REQUIRED', 'GOOGLE_AUTHORIZATION')).mockResolvedValueOnce(state('READY'));
     const box = document.createElement('div');
     document.body.append(box);
     root = createRoot(box);
@@ -25,8 +25,8 @@ it('one normal product click automatically continues through consent and destina
     expect(box.querySelector('input')).toBeNull();
     await act(async () => box.querySelector('button')!.click());
     expect(c.connectBackgroundAuthorization).toHaveBeenCalledWith('P1', expect.any(Function), 'operation');
-    expect(c.selectProjectWorkspaceDestination).toHaveBeenCalledWith('P1');
-    expect(c.ensureWorkspace).toHaveBeenCalledTimes(3);
+    expect(c.selectProjectWorkspaceDestination).not.toHaveBeenCalled();expect(c.requestGoogleScopes).not.toHaveBeenCalled();
+    expect(c.ensureWorkspace).toHaveBeenCalledTimes(2);
     expect(ready).toHaveBeenCalledOnce();
     expect(c.prepareEnsureInteraction).toHaveBeenCalledOnce();
     expect(finish).toHaveBeenCalledOnce();
@@ -53,12 +53,7 @@ it('actual React primary action drives the real durable engine, refresh grant, r
             expect(operationId).toBe(x.store['projects/P1/workspace_continuity/current'].ensureOperation.operationId);
             await x.grant();
         },
-        requestGoogleScopes: async () => undefined,
-        selectProjectWorkspaceDestination: async () => {
-            x.port.setDeliveryFence(async () => {});
-            await x.service().approveDestination('P1', 'root', operationActor, x.port as any);
-            return 'root';
-        }
+
     };
     const box = document.createElement('div'); root = createRoot(box); const ready = vi.fn();
     await act(async () => root!.render(<WorkspaceEnsurePanel projectId="P1" service={service} t={key => key} onReady={ready}/>));

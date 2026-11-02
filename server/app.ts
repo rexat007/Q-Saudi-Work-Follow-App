@@ -690,9 +690,9 @@ app.get('/api/projects/:projectId/workspace/ensure',enforceProjectIsolation,enfo
 });
 app.post('/api/projects/:projectId/workspace/ensure',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
  res.setHeader('Cache-Control','no-store');try{
-  if(Object.keys(req.body||{}).some(k=>k!=='destinationRootFolderId')||req.body?.destinationRootFolderId!==undefined&&(typeof req.body.destinationRootFolderId!=='string'||!(/^[A-Za-z0-9_-]{1,128}$/).test(req.body.destinationRootFolderId)))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
-  return res.json({success:true,data:await workspaceProvisioning.ensure(req.params.projectId,req.user,req.body||{})});
- }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:503).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_ENSURE_FAILED'});}
+  if(Object.keys(req.body||{}).length)return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+  return res.json({success:true,data:await workspaceProvisioning.ensure(req.params.projectId,req.user)});
+ }catch(error){let cause=error;try{const canonical=await workspaceProvisioning.reconcileConflict(req.params.projectId,req.user,error);if(canonical)return res.json({success:true,data:canonical});}catch(failure){cause=failure;}return res.status(cause instanceof GoogleWorkspaceCommandError?cause.status:503).json({success:false,code:cause instanceof GoogleWorkspaceCommandError?cause.code:'WORKSPACE_ENSURE_FAILED'});}
 });
 app.post('/api/projects/:projectId/workspace/automation/recover',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
   try {

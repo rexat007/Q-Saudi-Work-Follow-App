@@ -1,3 +1,5 @@
+import {rememberWorkspaceContinuation,clearWorkspaceContinuation} from '../runtime/workspaceProvisioningResume';
+import {recoverWorkspaceRuntimeGeneration} from '../runtime/runtimeGeneration';
 import type {WorkspaceEnsureStatus} from '../types/workspaceProvisioning';
 import {WORKSPACE_OAUTH_CHANNEL,WORKSPACE_OAUTH_MESSAGE,WORKSPACE_OAUTH_TIMEOUT_MS,isWorkspaceOAuthCorrelation} from '../utils/workspaceOAuthCompletion';
 import {assertDurableWorkspaceAuthorization,isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
@@ -64,6 +66,7 @@ export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripPro
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export class ClientWorkspaceService {
+  private ensureOperationIds=new Map<string,string>();
   private ensureConsentPopup?:Window;
   private cancelWorkspaceOAuth?:()=>void;
   private currentAccessToken:string|null=null;
@@ -191,11 +194,23 @@ export class ClientWorkspaceService {
   }
   public async observeWorkspaceProvisioning(projectId:string,signal?:AbortSignal):Promise<WorkspaceEnsureStatus>{
     const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{headers:await this.getWorkspaceHeaders({},true,false),signal});
-    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');return result.data;
+    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');if(result.data.operationId)this.ensureOperationIds.set(projectId,result.data.operationId);return result.data;
   }
-  public async ensureWorkspace(projectId:string):Promise<WorkspaceEnsureStatus>{
-    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
-    const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');return result.data;
+  public async ensureWorkspace(projectId:string,isCurrent:()=>boolean=()=>true):Promise<WorkspaceEnsureStatus>{
+    if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
+    rememberWorkspaceContinuation(auth.currentUser?.uid||'',projectId,this.ensureOperationIds.get(projectId)||null);
+    try{
+      await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+      const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');if(result.data.operationId)this.ensureOperationIds.set(projectId,result.data.operationId);return result.data;
+    }catch(error){
+      if(!isCurrent()){clearWorkspaceContinuation(auth.currentUser?.uid||'',projectId);throw Error('WORKSPACE_IDENTITY_CHANGED');}
+      if(error instanceof Error&&error.message==='APP_UPDATE_REQUIRED'){
+        if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
+        rememberWorkspaceContinuation(auth.currentUser?.uid||'',projectId,this.ensureOperationIds.get(projectId)||null);
+        await recoverWorkspaceRuntimeGeneration();
+      }
+      throw error;
+    }
   }
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({scriptProjectId})});

@@ -1,3 +1,9 @@
+## Zero-Picker normal ensure — current
+
+NORMAL_DESTINATION_POLICY = APPLICATION_MANAGED_DRIVE_ROOT; GOOGLE_PICKER_NORMAL_FLOW = RETIRED; NORMAL_GOOGLE_INTERACTIONS = ONE_OAUTH_FLOW. Root creation/reuse is server-owned under durable drive.file grants and immutable ownership receipts, not a browser Picker action. UNBOUND_TO_BOUND_AUTHORIZATION = ATOMIC_GRANT_ADOPTION with explicit post-commit proof. Ordinary contention returns canonical 200 progress; APP_UPDATE_DURING_PROVISIONING = RELOAD_AND_RESUME through existing guarded PWA convergence. WORKBOOK_REPAIR_NORMAL_FLOW / DURABLE_AUTH_REPAIR_NORMAL_FLOW = INTERNAL. Older normal destination/Picker descriptions are superseded; advanced compatibility tools remain separate.
+
+Current authority: [ledger](02_PHASE_LEDGER.md); details: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## One-click ensure — current
 
 WORKSPACE_PRODUCT_ENTRYPOINT = ONE_CLICK_ENSURE; WORKSPACE_ORCHESTRATION_AUTHORITY = SERVER; NORMAL_WORKSPACE_BUTTONS = ONE_PRIMARY_ACTION; MANUAL_SCRIPT_ID = RETIRED_FROM_NORMAL_UX. Current ensure supersedes separate normal initialize/retry/recovery/maintenance actions described in earlier checkpoints. The existing authorities remain advanced/internal. Strict READY includes final canonical projection/resource/Script/auth proof. Known historical resources are preserved; only fresh V2 uses the intentional profile manifest. User-active coordination remains pending-only; CRON = NOT_REQUIRED.

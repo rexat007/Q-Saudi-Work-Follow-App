@@ -1,3 +1,9 @@
+## Managed Google root metadata
+
+workspace_drive_roots/<subject-derived hash> is server-owned shared infrastructure metadata: applicationRootId/projectsRootId, create-intent receipts, subjectHash, owner/expiry/revision and bounded status/error. Drive appProperties owner/resourceRole/schemaVersion/subjectHash are external ownership evidence. Project workspace_continuity retains ensureOperation, managedRootKey pointer and canonical Project folder/Sheet/Script/binding identities. Active pre-binding grants carry provisioningOperationId and are atomically promoted to actual Spreadsheet/revision with binding/operation. No business-data schema or Sheet-as-canonical-database transition is introduced.
+
+Current authority: [ledger](reconstruction/02_PHASE_LEDGER.md); details: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Server-owned Workspace coordination metadata — current
 
 `workspace_sync_coordinators/{actor-hash|scheduled}` stores only a grant-document cursor, opaque pass owner and numeric expiresAt; actor keys hash the authenticated UID. It is protected by existing default-deny browser rules, not a new public DTO. Cursor paging examines actor-owned grant metadata, filters ACTIVE and progresses over no-work/inactive records; a two-minute lease serializes same-actor passes with stale-owner-safe cursor/release writes. No credentials, business rows, Project selection list or canonical identity is stored here. The dormant scheduled entry uses the same engine with its distinct maintenance policy.

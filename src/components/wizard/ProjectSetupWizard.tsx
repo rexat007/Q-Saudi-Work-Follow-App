@@ -1,3 +1,4 @@
+import {readWorkspaceContinuation} from '../../runtime/workspaceProvisioningResume';
 import {WorkspaceEnsurePanel} from './WorkspaceEnsurePanel';
 import {workspaceAutomationNeedsScope,authorizeBoundWorkspaceExecution,workspaceNeedsReauthorization,workspaceAuthorizationMessageKey} from '../../utils/workspaceAuthorization';
 import {OperationalConfigurationForm} from './OperationalConfigurationForm';
@@ -562,6 +563,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Google Sync Action state
   const [isSyncingGoogle, setIsSyncingGoogle] = useState(false);
   const workspaceIntent = useRef<WorkspaceAuthorizationIntent | null>(null);
+  useEffect(()=>{if(editingProjectId&&readWorkspaceContinuation(authContext.userId)?.projectId===editingProjectId)setActiveSetupLayer('WORKSPACE');},[editingProjectId,authContext.userId]);
   const workspaceContext = useRef({userId:authContext.userId,projectId:editingProjectId,scope:projectScopeKey,layer:activeSetupLayer});
   workspaceContext.current = {userId:authContext.userId,projectId:editingProjectId,scope:projectScopeKey,layer:activeSetupLayer};
   const [googleAuthorizationReady, setGoogleAuthorizationReady] = useState(false);
@@ -4051,7 +4053,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 2: WORKSPACE ================= */}
             {activeSetupLayer === 'WORKSPACE' && project && (
               <div className="space-y-6 text-xs text-stone-300">
-                {isOperationallyMutable && ['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <WorkspaceEnsurePanel key={`${project.projectId}:${googleContinuity?.binding?.scriptProjectId||''}`} projectId={project.projectId} t={t} onReady={()=>{void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}} />}
+                {isOperationallyMutable && ['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <WorkspaceEnsurePanel key={`${project.projectId}:${googleContinuity?.binding?.scriptProjectId||''}`} projectId={project.projectId} actorId={authContext.userId} t={t} onReady={()=>{void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}} />}
                 {['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <details><summary>{t('gws.one.diagnostics')}</summary>
                   {/* Google Workspace Setup card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">

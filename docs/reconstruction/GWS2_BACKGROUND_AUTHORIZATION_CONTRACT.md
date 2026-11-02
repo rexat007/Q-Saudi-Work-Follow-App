@@ -1,3 +1,9 @@
+## True single-consent normal provisioning
+
+A fresh normal ensure needs at most one durable OAuth interaction. Root/Projects/Project folder and Spreadsheet use the server grant; no GIS token request or Picker follows callback. The same active provisioning grant/operation/Google subject is atomically adopted to the real binding revision/Spreadsheet and re-read before Workbook work. Missing grant/scope still requires genuine Google consent; no bound fallback to X-Google-Access-Token. Build-update navigation hints do not grant authority or bypass refreshed principal/subject/operation checks.
+
+Current authority: [ledger](02_PHASE_LEDGER.md); details: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Ensure-operation authorization — current
 
 The same encrypted refresh-validation authority now supports a fresh operation-bound descriptor before binding. OAuth start requires an existing authorized ensure operation; callback fences the operation/actor/subject/browser/authorization version. No fake Spreadsheet binding is created. The binding transaction atomically promotes the active grant to real Spreadsheet/revision. Client callback read-back accepts the matching operation-bound proof and automatically resumes ensure; after binding, durable server grants remain the sole execution authority. Previous instructions requiring a separate manual post-binding consent click are historical for the normal ensure UX.
