@@ -1,6 +1,6 @@
 import { GoogleSheetsImportParser } from './googleSheetsParser.service';
 import { buildRosterCanonicalIntent, canAcceptRosterIntent } from './rosterCanonicalIntent.service';
-import { revalidateCanonicalRow } from './canonicalResolution';
+import { revalidateCanonicalRow, withCanonicalResolutionIndex } from './canonicalResolution';
 import { validateRosterFile, RosterSourceError } from './rosterSourceContract';
 import { UnifiedImportPipelineService } from './unifiedImportPipeline.service';
 import { ExcelImportParser } from './excelParser.service';
@@ -56,6 +56,7 @@ export class DriverTruckPipelineService {
     context: PipelineContext,
     options?: ProcessDriverTruckFileOptions
   ): Promise<UnifiedImportBatch> {
+    context = withCanonicalResolutionIndex(context);
     // 1. File Intake Validation
     const intakeValidation = validateRosterFile({ name: fileName, size: fileSize, type: mimeType });
     const mappingIssue = options?.customMappings && validateRosterMapping(Object.keys(options.customMappings), options.customMappings);
@@ -98,6 +99,7 @@ export class DriverTruckPipelineService {
 
   /** Source adapter only: the same Roster stages and reviewed authority are used. */
   public static async processSheetsToReview(values: any[][], source: ImportSource, context: PipelineContext, options: ProcessDriverTruckFileOptions): Promise<UnifiedImportBatch> {
+    context = withCanonicalResolutionIndex(context);
     if (source.sourceType !== 'GOOGLE_SHEETS' || !source.sourceFileId || !source.sourceSheetName || !Array.isArray(values)) throw new RosterSourceError('FILE_EMPTY');
     const issue = validateRosterMapping(Object.keys(options.customMappings || {}), options.customMappings || {});
     if (issue) throw new RosterSourceError(issue);
@@ -105,6 +107,7 @@ export class DriverTruckPipelineService {
   }
 
   private static async reviewSource(source: ImportSource, inputData: any, context: PipelineContext, options: ProcessDriverTruckFileOptions, parser: any): Promise<UnifiedImportBatch> {
+    context = withCanonicalResolutionIndex(context);
     // Instantiate appropriate parser
 
     // Use our custom driver/truck stages with approved customMappings
@@ -215,20 +218,17 @@ export class DriverTruckPipelineService {
       throw new Error(`Zero matching rows found for group key: ${normalizedSourceKey}`);
     }
 
-    let updatedBatch = { ...batch };
-
-    matchingRowNumbers.forEach((rowNumber) => {
-      updatedBatch = ExcelCsvPipelineService.applyEntityResolutionDecision(
-        updatedBatch,
-        rowNumber,
-        entityTypeKey,
-        decision,
-        candidate,
-        context,
-        actorId,
-        updated => ({ ...updated, rows: updated.rows.map(row => row.rowNumber === rowNumber ? { ...row, entityResolutions: { ...row.entityResolutions, [entityTypeKey]: { ...row.entityResolutions![entityTypeKey], decision } } } : row) })
-      );
-    });
+    const selected = new Set(matchingRowNumbers);
+    // A decision is row-local. Apply that same authority to one-row views, then validate once.
+    // Repeated carriers previously cloned/scanned the entire roster for every occurrence.
+    const updatedBatch = {...batch, rows: batch.rows.map(row => {
+      if(!selected.has(row.rowNumber)) return row;
+      const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
+        {...batch,rows:[row]},row.rowNumber,entityTypeKey,decision,candidate,context,actorId,
+        value => value
+      ).rows[0];
+      return {...updated,entityResolutions:{...updated.entityResolutions,[entityTypeKey]:{...updated.entityResolutions![entityTypeKey],decision}}};
+    })};
 
     return this.revalidateRosterBatch(updatedBatch, context);
   }
@@ -477,6 +477,7 @@ export class DriverTruckPipelineService {
     batch: UnifiedImportBatch,
     context: PipelineContext
   ): UnifiedImportBatch {
+    context = withCanonicalResolutionIndex(context);
     if(context.resolutionContext&&batch.projectId!==context.projectId)throw Error('PROJECT_CONTEXT_STALE');
     const validator = new DriverTruckImportValidator();
     const duplicateChecker = new DriverTruckImportDuplicateChecker();
@@ -626,16 +627,18 @@ export class DriverTruckPipelineService {
 
     const semantic = context.resolutionContext ? buildRosterCanonicalIntent({ ...batch, rows:evaluatedRows, issues:allRowIssues },context) : undefined;
     const prior = batch.metadata?.reviewedCanonicalIntent;
+    const blockedRows = new Set(semantic?.blockers.flatMap(b=>b.rowNumbers)||[]);
+    const conflictRows = new Set(semantic?.blockers.filter(b=>b.code.startsWith('CROSS_ROW_')||b.code==='PREPARED_ENTITY_CONFLICT').flatMap(b=>b.rowNumbers)||[]);
     const stillReviewed = semantic && prior?.acceptedSignature === semantic.signature && canAcceptRosterIntent(semantic, prior.displacementApprovedSignature);
     return {
       ...batch,
       metadata: semantic ? { ...batch.metadata, canonicalIntent: semantic, reviewedCanonicalIntent: stillReviewed ? prior : undefined } : batch.metadata,
-      rows: evaluatedRows.map(row => semantic?.blockers.some(b => (b.code.startsWith('CROSS_ROW_') || b.code === 'PREPARED_ENTITY_CONFLICT') && b.rowNumbers.includes(row.rowNumber)) ? {...row, reviewStatus:'requires_review' as const} : row),
+      rows: evaluatedRows.map(row => conflictRows.has(row.rowNumber) ? {...row, reviewStatus:'requires_review' as const} : row),
       issues: allRowIssues,
-      validRows: semantic ? evaluatedRows.filter(r => r.status === 'VALID' && !semantic.blockers.some(b => b.rowNumbers.includes(r.rowNumber))).length : validRows,
+      validRows: semantic ? evaluatedRows.filter(r => r.status === 'VALID' && !blockedRows.has(r.rowNumber)).length : validRows,
       warningRows,
       errorRows,
-      requiresReviewRows: semantic ? evaluatedRows.filter(r => r.status !== 'REJECTED' && r.status !== 'COMMITTED' && (r.reviewStatus === 'requires_review' || semantic.blockers.some(b => b.rowNumbers.includes(r.rowNumber)))).length : requiresReviewRows,
+      requiresReviewRows: semantic ? evaluatedRows.filter(r => r.status !== 'REJECTED' && r.status !== 'COMMITTED' && (r.reviewStatus === 'requires_review' || blockedRows.has(r.rowNumber))).length : requiresReviewRows,
       validationStatus,
       commitStatus: batch.commitStatus === 'COMMITTED' ? 'COMMITTED' : semantic && !stillReviewed ? 'AWAITING_REVIEW' : commitStatus,
     };

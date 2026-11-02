@@ -1,3 +1,4 @@
+import {IMPORT_OVERLAY_LEVEL} from '../components/import/ImportOverlay';
 const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
 const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
@@ -212,10 +213,13 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
     expect(contextualCreation).toContain('entityId:result.carrierId');
   });
 
-  it('14. Smart Import CarrierEditorModal renders at z-60 above parent Carrier Resolution layer z-50', () => {
+  it('14. Smart Import CarrierEditorModal uses the owned editor layer above the workflow', () => {
     expect(wizardContent).toContain('key={`Carrier:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`}');
     expect(contextualCreation).toContain('<CarrierEditorModal open mode="CREATE"');
-    expect(contextualCreation).toContain('zIndexClass="z-60"');
+    const editor=fs.readFileSync(path.resolve(__dirname,'../components/masterData/CarrierEditorModal.tsx'),'utf8');
+    expect(editor).toContain('<ImportOverlay');
+    expect(wizardContent).toContain('<ImportOverlay level="WORKFLOW"');
+    expect(IMPORT_OVERLAY_LEVEL.EDITOR).toBeGreaterThan(IMPORT_OVERLAY_LEVEL.WORKFLOW);
   });
 
   it('15. Candidate Accept Scenario: ACCEPT_CANDIDATE converts group status to AUTO_RESOLVED', () => {

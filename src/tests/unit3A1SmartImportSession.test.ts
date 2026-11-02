@@ -863,7 +863,7 @@ describe('UNIT 3A.1 & 3A.1a — Smart Import Session Persistence & Hardening Sui
     const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
     const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-    expect(wizardContent).toContain('onClick={handleCancelRosterImport}');
+    expect(wizardContent).toContain('onClick={() => void requestRosterCancellation()}');
   });
 
   it('Hotfix-G: mapping cancel failure preserves local state and returns false', () => {

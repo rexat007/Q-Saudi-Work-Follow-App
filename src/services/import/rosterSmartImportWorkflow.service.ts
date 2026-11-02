@@ -135,6 +135,9 @@ export class RosterSmartImportWorkflowService {
     const targetIdx = this.getStageIndex(targetStage);
     const currentIdx = this.getStageIndex(currentStage);
 
+    if (targetIdx < 0 || currentIdx < 0) return false;
+    if (currentStage === 'COMMIT_RESULT') return targetStage === 'COMMIT_RESULT' && Boolean(context.hasImportBatch && context.isCommitAttemptedOrCompleted);
+
     // Initial stage is always accessible
     if (targetStage === 'SOURCE_DISCOVERY') {
       return true;
@@ -201,7 +204,7 @@ export class RosterSmartImportWorkflowService {
     const targetIdx = this.getStageIndex(targetStage);
     const currentIdx = this.getStageIndex(currentStage);
 
-    if (targetIdx > currentIdx + 1) {
+    if (!this.canEnterStage(targetStage,context,currentStage)) {
       throw new Error(
         `ILLEGAL_STAGE_JUMP: Cannot jump directly from ${currentStage} to ${targetStage}. Stages must be resolved in sequence.`
       );

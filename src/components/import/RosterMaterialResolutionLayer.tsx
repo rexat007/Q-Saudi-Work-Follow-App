@@ -1,3 +1,5 @@
+import {useImportGroupPage} from './ImportGroupPage';
+import {useImportConfirmation} from './ImportConfirmation';
 import type { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
 import type { RelationshipContext } from '../../types/dataQuality';
@@ -16,6 +18,8 @@ export interface ProjectMaterialOption {
 }
 
 export interface RosterMaterialResolutionLayerProps {
+  onCanonicalSelect?: (group: RosterEntityReviewGroup, id: string) => Promise<void>;
+  beginCommand?: () => (() => void) | null;
   receipts?: ContextualPrerequisiteReceipts;
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
@@ -64,7 +68,7 @@ export const checkMaterialResolutionReadiness = (batch: UnifiedImportBatch): boo
 };
 
 export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLayerProps> = ({
-  importBatch, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
+  importBatch, beginCommand, onCanonicalSelect, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectMaterials = [],
   onAcceptCandidate,
   onSelectAlternate,
@@ -76,6 +80,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   embeddedInWorkflowHost = false,
 }) => {
   const { t } = useI18n();
+  const cancellation = useImportConfirmation(`${importBatch.projectId}:${importBatch.importBatchId}`);
   const [selectedAlternateMaterial, setSelectedAlternateMaterial] = useState<Record<string, string>>({});
 
   const reviewGroups = useMemo(() => {
@@ -95,6 +100,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
   const legacyComplete = materialGroups.length > 0 && unresolvedCount === 0;
   const isMaterialLayerComplete = canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.materialName && !r.canonical?.materialCode && !r.canonical?.materialId) || Boolean(r.entityResolutions?.material?.matchedId)) : legacyComplete && checkMaterialResolutionReadiness(importBatch);
 
+  const materialGroupsPage=useImportGroupPage(materialGroups);
   const panelContent = (
     <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-3xl shadow-2xl max-h-[85vh]'}`}>
       {/* Header */}
@@ -172,7 +178,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                 <span className="text-[10px] font-mono">{t('entityResolution.labels.unique_items_count', { count: materialGroups.length })}</span>
               </div>
 
-              {materialGroups.map((group) => {
+              {materialGroupsPage.pager}
+                {materialGroupsPage.visible.map((group) => {
                 const isResolved = group.status === 'AUTO_RESOLVED';
                 const isConflict = group.status === 'CONFLICT';
                 const isReviewRequired = group.status === 'REVIEW_REQUIRED';
@@ -224,7 +231,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
                       </div>
                     </div>
 
-                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateMaterial(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision beginCommand={beginCommand} receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onCanonicalSelect?onCanonicalSelect(group,id):onSelectAlternate?.(group,id)} onCreate={()=>onCreateMaterial(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
                     {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -333,8 +340,8 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
             {onCancelImport ? (
               <button
                 type="button"
-                onClick={() => {
-                  if (window.confirm(t('entityResolution.messages.confirm_cancel_import'))) {
+                onClick={async () => {
+                  if (await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))) {
                     onCancelImport();
                   }
                 }}
@@ -359,12 +366,12 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
     );
 
   if (embeddedInWorkflowHost) {
-    return panelContent;
+    return <>{panelContent}{cancellation.dialog}</>;
   }
 
   return (
     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      {panelContent}
+      {panelContent}{cancellation.dialog}
     </div>
   );
 };

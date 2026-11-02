@@ -37,7 +37,11 @@ export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, a
   const openAction = (next: Action) => { if (context) editorContext.current = context; setAction(next); };
   const load = async () => {
     const request = life.capture(), readId = Symbol('setup-read'); latestRead.current = readId; setError(false); setLoading(true);
-    try { const snapshot=canonicalContext!==undefined?await projectCanonicalRefreshService.refresh(projectId,{isCurrent:()=>life.isCurrent(request)}):null;const data=snapshot?snapshot.setup!:await canonicalProjectRead<SetupFleetContext>(projectId, 'setup-context'); if (life.isCurrent(request) && latestRead.current === readId){if(snapshot)apply(snapshot);setContext(data);} }
+    try { const snapshot=canonicalContext!==undefined?await projectCanonicalRefreshService.refresh(projectId,{isCurrent:()=>life.isCurrent(request)}):null;const data=snapshot?snapshot.setup:await canonicalProjectRead<SetupFleetContext>(projectId, 'setup-context');
+      // A missing/mismatched coherent setup is a read failure, not a new parent revision.
+      // Publishing it made the Roster host reload forever (revision -> load -> revision).
+      if(!data || data.projectId!==projectId)throw Error('CONTEXT_UNAVAILABLE');
+      if (life.isCurrent(request) && latestRead.current === readId){if(snapshot)apply(snapshot);setContext(data);} }
     catch { if (life.isCurrent(request) && latestRead.current === readId) { setContext(null); setError(true); } }
     finally { if (life.isCurrent(request) && latestRead.current === readId) setLoading(false); }
   };

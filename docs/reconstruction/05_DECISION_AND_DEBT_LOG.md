@@ -1,3 +1,19 @@
+## Smart Import assurance — 2026-11-02
+
+Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); evidence/acceptance: [assurance contract](SMART_IMPORT_ASSURANCE_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: shared owned portal hierarchy, parent inertness, topmost keyboard/pointer/focus, focus restoration, body-scroll lifecycle, consistent creation → pending/retry dialog. Dismissing an in-flight editor retires its local lifetime; it does not roll back canonical server mutations.
+- RESOLVED_IN_SOURCE: synchronous UI command ownership, import-generation plus Project fencing, scoped cleanup, explicit cancellation ACK, checkpoint read-only convergence retry, visible retry/version-conflict feedback, immutable reviewed-intent preservation on rejected back navigation.
+- RESOLVED_IN_SOURCE: missing coherent Fleet setup cannot publish a new parent revision and trigger an endless read loop. Exact canonical/source semantics remain fail-closed.
+- RESOLVED_IN_SOURCE: repeated grouped decisions no longer clone the full roster per row; pass-local canonical indexes and sets preserve resolution/ambiguity rules; bounded pages/search avoid rendering the full groups × canonical-options cross product. Full-batch gates/counts/signatures remain authoritative.
+- SUPERSEDED: native confirm/alert and distributed numeric z-index assumptions in current Roster UX/tests. Compatibility assertions now prove owned confirmation/inline feedback and the explicit hierarchy; test counts are preserved. Failed test teardown must unmount React roots before deleting portal DOM.
+- STILL_OPEN: independent deployed desktop/tablet/mobile/RTL hit-testing and complete fresh Q-PRJ-010 acceptance. No live acceptance is claimed. Large-fixture timings are observations, not a production latency SLO.
+- STILL_OPEN: independently reproduced historical tests and 440 TypeScript diagnostics; no waiver or lint PASS. Full baseline evidence remains in the verification record below.
+- PRESERVED: P8-B1/B2/B3/B4 persistence/intent/journal/receipts/fences; natural-ID and current Project authority; Material remains optional; contextual Master Data creation survives import cancellation; PREPARED_NEW is distinct; shared GWS behavior unchanged.
+- RETAINED_HISTORICAL_TEST_AUTHORITY: five uncalled Wizard helpers are not deletion targets in this unit. No parallel production raw-row execution flow is activated.
+
+Verification observation: 65 new cases PASS; final closure command 134/134 PASS and P8-B1/B2/B3/B4 41/41, 50/50, 30/30, 14/14 PASS. Across 91 selected files, latest per-file results are 2328/2499 PASS with 171 baseline-existing failing cases, two historical empty-suite errors and historical unhandled rejections. Baseline comparison has zero new failures, removals or skips; 25 previously failed cases now pass. Build PASS; lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0. Detailed remaining debt and exact changed paths are recorded in the assurance contract; these observations do not retire historical suites or waive any domain assertion.
+
 ## GWS-ONE live closure decisions — 2026-11-02
 
 SUPERSEDED: normal Picker/destination/browser-token stages after async ensure. RESOLVED_IN_SOURCE: account-owned root/Projects receipts and tags; same-operation grant/fence adoption proof/read-back; stale pre-binding cleanup cannot downgrade a completed binding; canonical HTTP joins replace ordinary 409; build-update checkpoint/reload/resume preserves authorized Project context. PRESERVED: 13-tab fresh manifest, 4×3 profile/intake matrix, user-active sync, strict READY, scope/encryption/security and ambiguous Script-create exception. STILL_OPEN: deployed acceptance on a fresh clean Project after owner deployment. Q-PRJ-009 was not manually repaired; no Project reset, PR, merge or later-phase work is performed.

@@ -1,7 +1,23 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### GWS-ONE live closure — zero Picker — 2026-11-02
+### Smart Import assurance and hardening — 2026-11-02
+
+CURRENT_CODE_BASELINE: `4d193d96791425c4d3c3bcaa60f06175036efdfb` — verified merged PR #85 (GWS-ONE live closure).
+WORKING_BRANCH: `reconstruction/smart-import-assurance-hardening`.
+SMART_IMPORT_ASSURANCE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+SCOPE: existing Smart Roster Import and directly shared canonical editors; no new reconstruction phase, Trips/Reports redesign or Workspace provisioning change.
+NEXT_ACTION: complete the expressly authorized single branch commit/publication, then stop for owner review; no PR or merge. Live Q-PRJ-010 acceptance remains separate and NOT_PERFORMED.
+
+One Roster journey remains authoritative: source/discovery → explicit mapping → Carrier → optional Material resolution → Driver/Truck → reviewed canonical intent → server execution journal/result. Phase-8 source closure is preserved; this is an assurance package, not a reopened Phase-8 batch. Domain identity, participation, temporal authorities, durable reviewed-intent binding and per-consequence execution receipts remain unchanged.
+
+Closed structurally: inconsistent pending/retry portals; missing shared pointer/focus/scroll ownership; browser-native cancellation/alert dependency in the active Roster journey; state-only double-click gates; same-Project/new-session stale completions; checkpoint success followed by failed convergence losing its read-only retry; stale cancellation/commit cleanup; incoherent Fleet snapshot triggering parent-revision reload loops; repeated whole-roster decision copies and semantic scans; unbounded resolution/review DOM and alternate lists. Five dead historical Wizard handlers remain uncalled and retained for historical test authority; no legacy raw-row commit is revived.
+
+See [the assurance contract, reachability map and acceptance matrix](SMART_IMPORT_ASSURANCE_CONTRACT.md). Local fixtures/DOM/transaction models are not browser hit-testing, live Firebase or owner acceptance. Existing diagnostic/test debt is reported against this exact baseline, not relabelled PASS. Current GWS policy/identities/scopes/blueprint/Script assets remain intact.
+
+Local verification observation: 65/65 new behavioral cases; final closure selection 134/134 PASS; retained P8-B1/B2/B3/B4 suites 41/41, 50/50, 30/30 and 14/14 PASS. Consolidated latest result per file: 91 files, 2328/2499 PASS, 171 independently baseline-existing failing cases; baseline had 196 failing cases out of 2434. The same two empty historical suite errors and historical unhandled rejections remain reported, so the broad selection is NOT all green. New failures, removed cases and skipped cases: 0. Build PASS; lint EXIT 2 / NOT PASS, diagnostics 440→440, added/removed 0. Locale keys AR/EN/UR: 4688 each, five append-only keys, no duplicate/parity/empty-value gaps or unrelated value edits. Scope: 40 files (22 production/helpers, three locales, ten tests, five documents), no package/config/workflow/rules/server/Workspace-asset changes; diff check PASS. Counts are dated observations, not permanent cardinality contracts.
+
+### Historical GWS-ONE live closure — zero Picker — 2026-11-02
 
 CURRENT_CODE_BASELINE: `870a6a8813eab20cff7e354a1a3d9df221757b63` — merged initial GWS-ONE engine.
 WORKING_BRANCH: `reconstruction/gws-one-live-closure`.

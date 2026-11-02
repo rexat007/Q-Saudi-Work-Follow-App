@@ -1,4 +1,8 @@
-## Zero-Picker live closure continuation
+## Smart Import assurance continuation
+
+Exact state is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Merged baseline `4d193d96791425c4d3c3bcaa60f06175036efdfb` contains PR #85. The assurance package retains the seven-stage Roster/Phase-8 architecture and adds consistent portal/input/focus ownership, synchronous command gates, session-generation fencing, read-only convergence retry, fail-closed snapshot handling and bounded large-roster presentation. No GWS provisioning changes, new phase, Trips/Reports work or live Project mutation. Verification and manual acceptance matrix: [SMART_IMPORT_ASSURANCE_CONTRACT.md](SMART_IMPORT_ASSURANCE_CONTRACT.md). One branch commit/push is authorized after local verification; PR/merge and live acceptance remain separate. Older checkpoints are historical.
+
+## Historical zero-Picker live closure continuation
 
 Current baseline 870a6a8813eab20cff7e354a1a3d9df221757b63; branch reconstruction/gws-one-live-closure. Normal entry is one ensure action with one durable OAuth flow, application-managed root, atomic handoff and automatic reload/resume. Picker/custom destination and technical repair remain advanced only. Source verification/branch publication do not claim deployed acceptance; no manual Q-PRJ-009 repair/reset/PR/merge or Phase 10. Exact current state belongs to the ledger. Earlier continuation checkpoints are historical where superseded.
 

@@ -1,3 +1,4 @@
+import {ImportOverlay} from '../import/ImportOverlay';
 import { resolutionErrorKey } from '../../i18n/importResolution';
 import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
 import { setupErrorKey } from '../../i18n/setupErrors';
@@ -5,7 +6,6 @@ import type { GlobalMaterialUom } from '../../types/globalEntities';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { Layers, X, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import {
   materialManagementClientService,
@@ -305,12 +305,9 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
 
   const modalContent = (
     <div
-      className={`fixed inset-0 ${zIndexClass} flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto`}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="material-modal-title"
+      className="w-full flex items-center justify-center"
     >
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg max-h-[90vh] shadow-2xl overflow-hidden flex flex-col text-slate-100 animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg max-h-[90dvh] shadow-2xl overflow-hidden flex flex-col text-slate-100 animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
           <div className="flex items-center gap-3">
@@ -330,7 +327,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={isSubmitting && !beforeCreate}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
             aria-label={t('shared.actions.close')}
           >
@@ -479,7 +476,7 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isSubmitting && !beforeCreate}
               className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors disabled:opacity-50"
             >
               {t('shared.actions.cancel')}
@@ -529,5 +526,5 @@ export const MaterialEditorModal: React.FC<MaterialEditorModalProps> = ({
     </div>
   );
 
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
+  return <ImportOverlay label={t(isEditMode ? 'materials.labels.editMaterial' : 'entityResolution.labels.add_material')} busy={isSubmitting} allowDismissWhileBusy={Boolean(beforeCreate)} onDismiss={onClose}>{modalContent}</ImportOverlay>;
 };

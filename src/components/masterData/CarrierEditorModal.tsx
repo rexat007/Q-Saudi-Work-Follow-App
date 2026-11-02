@@ -1,10 +1,10 @@
+import {ImportOverlay} from '../import/ImportOverlay';
 import { resolutionErrorKey } from '../../i18n/importResolution';
 import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
 import { setupErrorKey } from '../../i18n/setupErrors';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { Truck, X, AlertCircle, Loader2 } from 'lucide-react';
 import {
   carrierManagementClientService,
@@ -329,10 +329,10 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
 
   const modalContent = (
     <div
-      className={`fixed inset-0 bg-stone-950/80 backdrop-blur-xs ${zIndexClass} flex items-center justify-center p-4 animate-in fade-in duration-200`}
+      className={`w-full flex-1 backdrop-blur-xs ${zIndexClass} flex items-center justify-center p-4 animate-in fade-in duration-200`}
       dir={direction}
     >
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90dvh]">
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-2.5">
@@ -353,7 +353,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            disabled={isSubmitting}
+            disabled={isSubmitting && !beforeCreate}
             className="p-1.5 text-stone-400 hover:text-white hover:bg-stone-800 rounded-lg transition-colors"
             aria-label={t('shared.actions.close')}
           >
@@ -506,7 +506,7 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isSubmitting && !beforeCreate}
               className="px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold rounded-xl text-xs transition-colors"
             >
               {t('shared.actions.cancel')}
@@ -537,5 +537,5 @@ export const CarrierEditorModal: React.FC<CarrierEditorModalProps> = ({
     </div>
   );
 
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : modalContent;
+  return <ImportOverlay label={t(isEditMode ? 'entityResolution.labels.edit_carrier' : 'projects.labels.add_carrier')} busy={isSubmitting} allowDismissWhileBusy={Boolean(beforeCreate)} onDismiss={onClose}>{modalContent}</ImportOverlay>;
 };

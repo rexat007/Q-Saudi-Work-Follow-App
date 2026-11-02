@@ -1,8 +1,6 @@
-## Current Workspace continuation
+## Current Smart Import continuation
 
-Read the ledger first. GWS-ONE live closure on 870a6a8813eab20cff7e354a1a3d9df221757b63 is the current bounded engineering unit: one server ensure action, one durable OAuth flow, application-managed root (zero Picker), atomic binding adoption, guarded reload/resume and profile-owned fresh manifests. Earlier maintenance/popup handoffs remain historical source evidence. Do not reset Projects, alter historical Google resources or start Phase 10. Owner review/live clean acceptance remains separate from local verification/publication.
-
-Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first. Verified main `4d193d96791425c4d3c3bcaa60f06175036efdfb` merges GWS-ONE live closure (PR #85). The current bounded package assures the existing Smart Roster journey, owned nested dialogs, async/session ownership, canonical resolution, durable recovery and scale. See [SMART_IMPORT_ASSURANCE_CONTRACT.md](SMART_IMPORT_ASSURANCE_CONTRACT.md). No Trips/Reports/new phase, live Project mutation, PR or merge is authorized. Deployed Q-PRJ-010 acceptance remains NOT_PERFORMED.
 
 # Q-SAUDI WORK FOLLOW — RECONSTRUCTION PROGRAM
 ## WORK START HERE & OPERATIONAL DIRECTIVES
@@ -17,9 +15,9 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-10-31
+### Current Continuation Checkpoint — 2026-11-02
 
-- **Verified implementation baseline**: `093b75b6889ec2b592d9af022f38f15ad039da3e` (RB2 merged and source-verified).
+- **Verified merged baseline**: `4d193d96791425c4d3c3bcaa60f06175036efdfb` (GWS-ONE live closure, PR #85).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.
 - **Phase 1**: VERIFIED / CLOSED.
 - **Phase 2**: VERIFIED / CLOSED.
@@ -31,9 +29,9 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: MERGED / SOURCE_VERIFIED / CLOSED.
   - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
   - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
-- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns state; baseline `870a6a8813eab20cff7e354a1a3d9df221757b63` merges initial GWS-ONE. Current unit is its zero-Picker live closure; see [engine contract](GWS_ONE_PROVISIONING_ENGINE.md). Existing phase closures and external acceptance gates remain.
+- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns state; baseline `4d193d96791425c4d3c3bcaa60f06175036efdfb` merges GWS-ONE live closure. Current bounded work is Smart Import assurance; see [assurance contract](SMART_IMPORT_ASSURANCE_CONTRACT.md). Existing phase closures and external acceptance gates remain.
 - **P8-B3**: MERGED / SOURCE_VERIFIED / CLOSED.
-- **Next action**: owner review/deployment of zero-Picker closure, then independently verified fresh-Project acceptance. Normal flow is one OAuth followed by server-managed roots and strict READY; a build change reloads once and restores authorized Project context. Preserve the Script-create ambiguity exception and USER_ACTIVE/no-cron policy. No manual Q-PRJ-009 repair, reset or Phase 10.
+- **Next action**: complete the authorized Smart Import assurance branch publication and stop for owner review; no PR/merge. Deployed Q-PRJ-010 acceptance is a separate unperformed gate. Preserve the existing zero-Picker, durable-grant, strict READY, Script-create ambiguity and USER_ACTIVE/no-cron Workspace contracts; no manual Project repair/reset or Phase 10.
 - **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
 - **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
 - **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.

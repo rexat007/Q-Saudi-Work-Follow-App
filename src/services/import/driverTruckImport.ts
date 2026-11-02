@@ -407,6 +407,7 @@ export class DriverTruckImportDuplicateChecker {
   public checkDuplicates(rows: ImportRow[], context: PipelineContext): ImportRow[] {
     const seenPlates = new Map<string, ImportRow>();
     const seenDriverIds = new Map<string, ImportRow>();
+    const knownPlates=new Set(context.knownEntities?.trucks?.map(t=>normalizePlate(t.plate))||[]), knownDriverIds=new Set(context.knownEntities?.drivers?.map(d=>d.idNumber)||[]);
 
     return rows.map((row) => {
       const canonical = row.canonical || row.raw || {};
@@ -442,9 +443,7 @@ export class DriverTruckImportDuplicateChecker {
         }
 
         // Firestore database duplicate check
-        const dbDup = context.knownEntities?.trucks?.some(
-          (t) => normalizePlate(t.plate) === normPlate && !row.entityResolutions?.truck?.matchedId
-        );
+        const dbDup = !row.entityResolutions?.truck?.matchedId && knownPlates.has(normPlate);
         if (dbDup) {
           validationIssues.push({
             issueId: `ISSUE-${row.rowNumber}-DUP-TRK-DB`,
@@ -490,9 +489,7 @@ export class DriverTruckImportDuplicateChecker {
         }
 
         // Firestore database duplicate check
-        const dbDup = context.knownEntities?.drivers?.some(
-          (d) => d.idNumber === normId && !row.entityResolutions?.driver?.matchedId
-        );
+        const dbDup = !row.entityResolutions?.driver?.matchedId && knownDriverIds.has(normId);
         if (dbDup) {
           validationIssues.push({
             issueId: `ISSUE-${row.rowNumber}-DUP-DRV-DB`,
