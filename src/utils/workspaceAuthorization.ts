@@ -76,10 +76,16 @@ export async function authorizeBoundWorkspaceExecution(projectId:string,port:{ge
  if(diagnosis&&['GRANT_BINDING_STALE','ACCOUNT_MISMATCH'].includes(diagnosis.result))throw Error(diagnosis.result==='ACCOUNT_MISMATCH'?'WORKSPACE_GOOGLE_ACCOUNT_MISMATCH':'WORKSPACE_BINDING_CONFLICT');
  // A transient outage is retried through the accepted durable grant, without asking for consent again.
  if(status.backgroundAuthorization==='CONNECTED'&&diagnosis?.result==='PROVIDER_TEMPORARILY_UNAVAILABLE')return status;
- if(status.backgroundAuthorization==='CONNECTED'&&(diagnosis?.result==='CONNECTED_VALID'||!automation&&diagnosis?.result==='AUTOMATION_SCOPE_REQUIRED'))return status;
+ if(status.backgroundAuthorization==='CONNECTED'&&(!automation||!workspaceAutomationNeedsScope(status))&&(diagnosis?.result==='CONNECTED_VALID'||diagnosis?.result==='AUTOMATION_SCOPE_REQUIRED'))return status;
  await port.connectBackgroundAuthorization(projectId,current);if(!current())throw Error('WORKSPACE_IDENTITY_CHANGED');
  const confirmed=await port.getGoogleWorkspaceStatus(projectId);if(!current())throw Error('WORKSPACE_IDENTITY_CHANGED');
  assertDurableWorkspaceAuthorization(confirmed,projectId);
  if(confirmed.binding?.spreadsheetId!==status.binding.spreadsheetId||confirmed.binding?.revision!==status.binding.revision)throw Error('WORKSPACE_IDENTITY_CHANGED');
  return confirmed;
+}
+
+/** Presentation/consent predicate over canonical server diagnostics, never a client-side grant. */
+export function workspaceAutomationNeedsScope(status:Pick<import('../types/projectGoogleWorkspace').ProjectGoogleStatus,'authorizationDiagnostic'|'automationDiagnostic'>|null|undefined):boolean {
+ if(status?.authorizationDiagnostic?.result==='CONNECTED_VALID')return false; // Fresh canonical grant proof outranks an old automation error.
+ return status?.authorizationDiagnostic?.result==='AUTOMATION_SCOPE_REQUIRED'||status?.automationDiagnostic?.code==='AUTOMATION_SCOPE_REQUIRED';
 }

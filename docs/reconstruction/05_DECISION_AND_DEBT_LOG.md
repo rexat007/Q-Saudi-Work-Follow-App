@@ -1,3 +1,15 @@
+## Automation maintenance and clean acceptance debt — 2026-11-02
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0`.
+
+- RESOLVED_IN_SOURCE: known-Script DEGRADED/NOT_INSTALLED automation was hidden behind healthy workbook/sync. Canonical maintenance flag/diagnosis and one repair action now select maintenance instead of ordinary projection.
+- RESOLVED_IN_SOURCE: automation-only maintenance shares the canonical reconciliation authority and verifies/installs/re-verifies the same known Script. Expected-ID checks fence stale/conflicting identities; no Script creation, tab repair or data drain is permitted in that mode.
+- RESOLVED_IN_SOURCE: automation errors cannot downgrade unrelated healthy domains or acknowledge pending work. They remain bounded/degraded maintenance evidence; leases release. Optional Script-scope absence is separate from usable Sheets/Drive authorization; content degradation alone never causes OAuth consent. Fresh CONNECTED_VALID proof outranks stale scope-error presentation.
+- PRESERVED: durable authorization/read-back and popup protocol, principal/Project/grant/binding/version/lease/provider/parent fences, resource identities, canonical business data and tab ownership. Initial explicitly authorized first creation and uncertain-ID recovery remain separate.
+- STILL_OPEN: actual deployed Q-PRJ-007 repair/READY acceptance with its exact existing Script ID. Owner-reported healthy binding/auth/sync is supplied evidence, not a local live run.
+- FUTURE_ACCEPTANCE / NOT_EXECUTED: CLEAN_PROJECT_TEMPLATE_ACCEPTANCE — fresh database/Project fixtures for each operational profile; verify exact generated folder/Sheet/Script/tab set, zero duplicate owned tabs and idempotent reinitialize. No tab-count redesign in this unit.
+- FUTURE_ACCEPTANCE / REQUIRES_SEPARATE_OWNER_AUTHORIZATION: RESET_TEST_PROJECTS — delete historical disposable test Projects only, preserve users/authentication/infrastructure, then create fresh Projects for each profile and perform CLEAN_PROJECT_TEMPLATE_ACCEPTANCE. Exact disposable targets/deletion evidence must be reviewed separately. No reset/cleanup or live data deletion is performed or authorized for execution by this implementation.
+
 ## OAuth popup/callback transport — 2026-11-02
 
 Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); merged baseline `adc7ea93acec86a09c5111c7f8d6c539d4f9f293`.

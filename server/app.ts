@@ -693,10 +693,12 @@ app.post('/api/projects/:projectId/workspace/automation/recover',enforceProjectI
 });
 app.post('/api/projects/:projectId/workspace/initialize',enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence,async(req:any,res)=>{
   try {
-    if(Object.keys(req.body||{}).length)return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+    if(Object.keys(req.body||{}).some(key=>key!=='scriptProjectId')||(req.body?.scriptProjectId!==undefined&&(typeof req.body.scriptProjectId!=='string'||!(/^[A-Za-z0-9_-]{1,128}$/).test(req.body.scriptProjectId))))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
     const credential=await resolveWorkspaceExecutionToken(req.params.projectId,req.user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
     const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
-    await execution.initializeBound(req.params.projectId,req.user,projectGoogleBlueprintPort(credential.accessToken,req.params.projectId));
+    const port=projectGoogleBlueprintPort(credential.accessToken,req.params.projectId);
+    if(req.body?.scriptProjectId)await execution.maintainAutomation(req.params.projectId,req.body.scriptProjectId,req.user,port);
+    else await execution.initializeBound(req.params.projectId,req.user,port);
     return res.json({success:true,data:await projectGoogleWorkspaceServer.status(req.params.projectId,req.user)});
   }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:502).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED'});}
 });

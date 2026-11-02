@@ -1,3 +1,7 @@
+## Known-ID automation maintenance precondition
+
+The optional initialize Script-ID field is an expected existing identity, never permission to attach, replace or create a Script. The server checks current canonical identity, conflicting continuity/binding IDs, principal/Project/grant and lease/revision before provider requests and acknowledgments; parent/content proof remains in the same adapter. Maintenance cannot enter createBoundScript or business projection paths. Current valid durable authorization requires no consent; actual missing optional Script scope stays separate from Sheets authority. Public automation diagnosis is closed-code-only. No RBAC, scope, secret, Cloud, rule or global OAuth isolation change. See [sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
 ## Correlated OAuth completion
 
 The authenticated start returns only consent URL plus an independent opaque public correlation, not state/cookie/PKCE/nonce/credentials. The server derives callback Project/correlation only from a fresh state/browser-bound transaction; denial consumes only that attempt. Existing exchange/refresh/principal/binding/version activation checks remain. Only accepted ACTIVE grants can cause CONNECTED. Callback results exclude token/code/state/email/provider payload; nonce CSP/no-store/no-referrer and exact fallback origin remain.

@@ -1,4 +1,4 @@
-import {authorizeBoundWorkspaceExecution,workspaceNeedsReauthorization,workspaceAuthorizationMessageKey} from '../../utils/workspaceAuthorization';
+import {workspaceAutomationNeedsScope,authorizeBoundWorkspaceExecution,workspaceNeedsReauthorization,workspaceAuthorizationMessageKey} from '../../utils/workspaceAuthorization';
 import {OperationalConfigurationForm} from './OperationalConfigurationForm';
 import {WorkspaceAutomationRecovery} from './WorkspaceAutomationRecovery';
 import {workspaceFailureCode,visiblePreviousWorkspaceError} from '../../utils/workspaceGenerationErrors';
@@ -240,13 +240,21 @@ export async function executeProjectWorkspaceSyncOrchestration(
     const authorized=await authorizeBoundWorkspaceExecution(project.projectId,workspaceService,isCurrent,params.requestAutomationScope);
     if(!isCurrent())return;params.onWorkspaceStatus?.(authorized);
     spreadsheetId=authorized.binding!.spreadsheetId;
-    if((params.requestAutomationScope||status.backgroundAuthorization!=='CONNECTED'||authorized.workbookHealth&&authorized.workbookHealth!=='HEALTHY')&&workspaceService.initializeWorkspace)await workspaceService.initializeWorkspace(project.projectId);
+    const maintenance=authorized.automationMaintenanceRequired===true;
+    const scriptId=authorized.binding!.scriptProjectId;
+    if(maintenance){
+      if(!scriptId||status.binding?.scriptProjectId&&status.binding.scriptProjectId!==scriptId)throw Error('SCRIPT_IDENTITY_CONFLICT');
+      if(workspaceAutomationNeedsScope(authorized)&&!params.requestAutomationScope)throw Error('AUTOMATION_SCOPE_REQUIRED');
+    }
+    if(maintenance&&authorized.workbookHealth==='HEALTHY')await workspaceService.initializeWorkspace(project.projectId,scriptId);
+    else if((params.requestAutomationScope||status.backgroundAuthorization!=='CONNECTED'||authorized.workbookHealth&&authorized.workbookHealth!=='HEALTHY'||maintenance)&&workspaceService.initializeWorkspace)await workspaceService.initializeWorkspace(project.projectId);
     else await workspaceService.syncInitialProjectWorkspace(project.projectId, spreadsheetId);
     if (!isCurrent()) return;
-    if (workspaceService.getGoogleWorkspaceStatus) {
-      const latest = await workspaceService.getGoogleWorkspaceStatus(project.projectId);
-      if (!isCurrent()) return;
-      params.onWorkspaceStatus?.(latest);
+    const latest=await workspaceService.getGoogleWorkspaceStatus(project.projectId);if(!isCurrent())return;params.onWorkspaceStatus?.(latest);
+    if(maintenance){
+      if(latest.binding?.scriptProjectId!==scriptId)throw Error('SCRIPT_IDENTITY_CONFLICT');
+      if(latest.automationState!=='READY'||latest.automationMaintenanceRequired)throw Error(workspaceAutomationNeedsScope(latest)?'AUTOMATION_SCOPE_REQUIRED':'AUTOMATION_MAINTENANCE_REQUIRED');
+      setSyncNotice({type:'success',text:'AUTOMATION_MAINTENANCE_COMPLETE'});return;
     }
     setSyncNotice({type:'success',text:provisionSucceeded
       ? 'تمت تهيئة مساحة العمل في Google بنجاح وإسقاط بيانات المشروع الأولية في جدول البيانات'
@@ -4081,7 +4089,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {googleContinuity.binding&&<p>{t(googleContinuity.state==='AUTHORIZATION_REQUIRED'?'gws.bound_authorization_required':googleContinuity.state==='BOUND_FILE_UNAVAILABLE'?'gws.bound_file_unavailable':googleContinuity.state==='SYNC_DEGRADED'?'gws.bound_sync_degraded':googleContinuity.pendingSyncCount||!googleContinuity.lastSuccessfulSyncAt?'gws.sync_pending':'gws.sync_healthy')}</p>}
                     {googleContinuity.binding?.spreadsheetTitle&&<p>{googleContinuity.binding.spreadsheetTitle}</p>}
                     {googleContinuity.binding&&googleContinuity.workbookHealth&&<p>{t(googleContinuity.workbookHealth==='HEALTHY'?'gws.workbook_healthy':googleContinuity.workbookHealth==='REPAIR_REQUIRED'?'gws.workbook_repair_required':'gws.workbook_degraded')}</p>}
-                    {googleContinuity.binding&&googleContinuity.automationState&&googleContinuity.automationState!=='NOT_REQUIRED'&&<p>{t(googleContinuity.automationState==='READY'?'gws.automation_ready':googleContinuity.automationState==='INSTALLING'?'gws.automation_installing':googleContinuity.automationState==='DEGRADED'?'gws.automation_degraded':'gws.automation_not_installed')}</p>}
+                    {googleContinuity.binding&&googleContinuity.automationState&&googleContinuity.automationState!=='NOT_REQUIRED'&&<p>{t(googleContinuity.automationMaintenanceRequired?'gws.automation_maintenance_required':googleContinuity.automationState==='READY'?'gws.automation_ready':googleContinuity.automationState==='INSTALLING'?'gws.automation_installing':googleContinuity.automationState==='DEGRADED'?'gws.automation_degraded':'gws.automation_not_installed')}</p>}
                     {googleContinuity.recoveryAvailable&&<p>{t('gws.partial_resume')}</p>}
                     {googleContinuity.binding&&googleContinuity.authorizationDiagnostic?.reason==='AUTH_GRANT_MISSING'?<p role="status">{t('gws.durable_authorization_required')}</p>:workspaceAuthorizationMessageKey(googleContinuity.authorizationDiagnostic)&&<p role="status">{t(workspaceAuthorizationMessageKey(googleContinuity.authorizationDiagnostic)!)}</p>}
                     <p>{t('gws.destination')}: {googleContinuity.binding?.destinationRootFolderId || t('projects.batch4.not_configured')}</p>
@@ -4092,15 +4100,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     {googleContinuity.binding && <a className="text-amber-400 underline" target="_blank" rel="noopener noreferrer" href={googleContinuity.binding.spreadsheetUrl}>{t('gws.open')}</a>}
                   </div>}
                   {googleContinuity?.automationRecoveryRequired && isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && <WorkspaceAutomationRecovery key={project.projectId} projectId={project.projectId} onRecovered={()=>{if(projectContext.isCurrent(renderedContext,editingProjectId))void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}}/>}
-                  {googleContinuity?.authorizationDiagnostic?.result==='AUTOMATION_SCOPE_REQUIRED'&&isOperationallyMutable&&['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role)&&<button type="button" disabled={isSyncingGoogle} onClick={()=>void handleSyncGoogleWorkspace(true)}>{t('gws.grant_automation_permission')}</button>}
+                  {!workspaceNeedsReauthorization(googleContinuity)&&workspaceAutomationNeedsScope(googleContinuity)&&isOperationallyMutable&&['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role)&&<button type="button" disabled={isSyncingGoogle} onClick={()=>void handleSyncGoogleWorkspace(true)}>{t('gws.grant_automation_permission')}</button>}
                   <div className="pt-2 flex justify-end">
-                    {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && (!googleContinuity?.binding||workspaceNeedsReauthorization(googleContinuity)||googleContinuity.syncTrigger!=='USER_ACTIVE'&&['NOT_CONNECTED','AUTHORIZATION_REQUIRED'].includes(googleContinuity.backgroundAuthorization||'')||googleContinuity.workbookHealth&&googleContinuity.workbookHealth!=='HEALTHY'||googleContinuity.pendingSyncCount>0||!googleContinuity.lastSuccessfulSyncAt||['SYNC_DEGRADED','AUTHORIZATION_REQUIRED'].includes(googleContinuity.state)) && <button
+                    {isOperationallyMutable && ['PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role) && (!googleContinuity?.automationMaintenanceRequired||!workspaceAutomationNeedsScope(googleContinuity)||workspaceNeedsReauthorization(googleContinuity)) && (!googleContinuity?.binding||googleContinuity.automationMaintenanceRequired||workspaceNeedsReauthorization(googleContinuity)||googleContinuity.syncTrigger!=='USER_ACTIVE'&&['NOT_CONNECTED','AUTHORIZATION_REQUIRED'].includes(googleContinuity.backgroundAuthorization||'')||googleContinuity.workbookHealth&&googleContinuity.workbookHealth!=='HEALTHY'||googleContinuity.pendingSyncCount>0||!googleContinuity.lastSuccessfulSyncAt||['SYNC_DEGRADED','AUTHORIZATION_REQUIRED'].includes(googleContinuity.state)) && <button
                       onClick={()=>void handleSyncGoogleWorkspace()}
                       disabled={isSyncingGoogle || ['GRANT_BINDING_STALE','ACCOUNT_MISMATCH'].includes(googleContinuity?.authorizationDiagnostic?.result||'') || (!googleContinuity?.binding&&!googleAuthorizationReady)}
                       className="bg-amber-600 hover:bg-amber-700 text-white font-black text-xs px-4 py-2 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
                     >
                       {isSyncingGoogle ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <FolderSync className="w-4 h-4" />}
-                      <span>{googleContinuity?.binding?workspaceNeedsReauthorization(googleContinuity)?t('gws.connect_durable_authorization'):googleContinuity.syncTrigger!=='USER_ACTIVE'&&googleContinuity.backgroundAuthorization==='NOT_CONNECTED'?t('gws.enable_background'):googleContinuity.workbookHealth&&googleContinuity.workbookHealth!=='HEALTHY'?t('gws.repair_workbook'):t('gws.retry_sync'):googleContinuity?.recoveryAvailable?t('gws.resume_setup'): (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
+                      <span>{googleContinuity?.binding?workspaceNeedsReauthorization(googleContinuity)?t('gws.connect_durable_authorization'):googleContinuity.syncTrigger!=='USER_ACTIVE'&&googleContinuity.backgroundAuthorization==='NOT_CONNECTED'?t('gws.enable_background'):googleContinuity.workbookHealth&&googleContinuity.workbookHealth!=='HEALTHY'?t('gws.repair_workbook'):googleContinuity.automationMaintenanceRequired?t('gws.repair_automation'):t('gws.retry_sync'):googleContinuity?.recoveryAvailable?t('gws.resume_setup'): (project.settings?.googleSpreadsheetId && project.settings?.googleDriveFolderId) ? t('projects.labels.update_workspace_sync') : t('projects.labels.initialize_workspace_sync')}</span>
                     </button>}
                   </div>
                 </div>

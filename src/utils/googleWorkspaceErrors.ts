@@ -31,6 +31,10 @@ export function continuityStateLabel(state: string, t: (key: string)=>string): s
 
 /** Bounded operator guidance; preserves support codes and does not alter validation. */
 const destinationMessages = {
+  AUTOMATION_MAINTENANCE_REQUIRED:'gws.automation_maintenance_required',
+  AUTOMATION_MAINTENANCE_COMPLETE:'gws.automation_maintenance_complete',
+  AUTOMATION_SCOPE_REQUIRED:'gws.authorization_automation_scope',
+  AUTOMATION_INSTALL_FAILED:'gws.automation_degraded',
   GOOGLE_OFFLINE_CONFIGURATION_REQUIRED:'gws.offline_configuration_required',
   DURABLE_AUTHORIZATION_REQUIRED:'gws.durable_authorization_required',
   DESTINATION_NOT_WRITABLE:'gws.destination_not_writable',

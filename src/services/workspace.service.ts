@@ -194,9 +194,9 @@ export class ClientWorkspaceService {
     if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_SYNC_DEFERRED');
   }
-  public async initializeWorkspace(projectId:string):Promise<ProjectGoogleStatus> {
+  public async initializeWorkspace(projectId:string,scriptProjectId?:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();
-    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify(scriptProjectId?{scriptProjectId}:{})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */

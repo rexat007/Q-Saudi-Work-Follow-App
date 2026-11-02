@@ -1,3 +1,7 @@
+## Automation maintenance authorization
+
+State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Known-ID maintenance uses the existing durable execution resolver and current Project/grant/binding/lease fences. Degraded content is not a consent condition. Fresh CONNECTED_VALID metadata permits maintenance without a popup; only canonical missing Script permission offers the existing explicit automation-consent action. An old automation scope error cannot override current valid grant proof. Sheets/Drive authorization remains usable when optional Script scope is missing. Same Script identity and canonical READY status are rechecked before success; OAuth callback/read-back semantics are unchanged. No browser-token fallback, new scope, Cloud setting or credential protocol is introduced.
+
 ## Popup completion protocol — current
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). OAUTH_POPUP_COMPLETION = BROADCAST_CHANNEL_PRIMARY (`qsaudi-workspace-oauth`); WINDOW_OPENER = OPTIONAL_FALLBACK; POPUP_CLOSED_POLLING = RETIRED; CALLBACK_ROUTE = DEDICATED_MINIMAL_HTML; OAUTH_SUCCESS = SERVER_READBACK_REQUIRED.

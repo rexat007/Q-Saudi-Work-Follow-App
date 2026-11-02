@@ -1,3 +1,13 @@
+## Template ownership, maintenance and clean acceptance
+
+Current state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). **Operational tabs are idempotent by developer-metadata ownership.** Repeated initialize reuses the proven numeric sheet identity and must not duplicate owned tabs; title alone never authorizes adoption. Existing legacy history/Dashboard and unknown tabs stay preserved.
+
+Fresh DUAL_WEIGHBRIDGE provisioning uses the base SABIL-HAIL workbook structure plus owned operational Ops tabs. LOADING_SCALE_ONLY, UNLOADING_SCALE_ONLY and NO_WEIGHBRIDGE use their profile-specific operational template. Shared canonical master tabs come from their existing projection authority. Existing/partial dual workbooks are preserved, not rebuilt as pristine templates. This maintenance unit changes neither counts nor layout.
+
+Known Script + DEGRADED/NOT_INSTALLED is maintenance, not identity recovery. The explicit action uses durable authorization and the same existing-ID canonical bundle authority, without creating any Script, Sheet or folder. Automation-only failures leave unrelated healthy state intact. Details: [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).
+
+Future checkpoint **CLEAN_PROJECT_TEMPLATE_ACCEPTANCE** will verify exact complete generated resources/tabs for fresh Projects in each profile, zero duplicate tabs and idempotent reinitialize. **RESET_TEST_PROJECTS** is recorded prerequisite acceptance debt: separately reviewed deletion of historical disposable test Projects, preserving all user/auth/infrastructure, followed by fresh profile fixtures. No reset/deletion or live resource test is executed in this unit.
+
 ## Bounded inspection and owned-table delivery
 
 Current state belongs to [the ledger](02_PHASE_LEDGER.md); exact limits are in [the sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md). Profile structure repair uses metadata only for preserved legacy/owned tabs, never historical grids. Existing sheet-scoped ownership and numeric-ID mutations remain. Ops delivery reads capped exact pages, retains keys/row coordinates, streams bounded writes and fails closed at explicit inventory/response limits. Audit verification reads headers only. Structure inspection is separate from canonical data projection; generic master paging is not implemented. Existing Script parent/identity and normalized-source fingerprints stay authoritative. No profile, measurement/intake, source asset, authorization or Google resource identity is redesigned. Controlled large-workbook testing is not live Google/Render acceptance.
