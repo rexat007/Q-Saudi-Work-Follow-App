@@ -39,6 +39,8 @@ export interface ProjectGoogleStatus {
   workbookHealth?: WorkbookHealth;
   backgroundAuthorization?: 'CONNECTED'|'AUTHORIZATION_REQUIRED'|'NOT_CONNECTED';
   automationRecoveryRequired?:boolean;
+  automationMaintenanceRequired?:boolean;
+  automationDiagnostic?:{code:'AUTOMATION_RECOVERY_REQUIRED'|'AUTOMATION_MAINTENANCE_REQUIRED'|'AUTOMATION_SCOPE_REQUIRED'}|null;
   syncTrigger?:'USER_ACTIVE';
   authorizationDiagnostic?:WorkspaceAuthorizationDiagnosis;
 }

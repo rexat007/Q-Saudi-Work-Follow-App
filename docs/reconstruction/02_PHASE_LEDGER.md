@@ -1,7 +1,25 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Google OAuth popup callback convergence — 2026-11-02
+### Workspace automation maintenance entrypoint — 2026-11-02
+
+CURRENT_CODE_BASELINE: `3c6f74013fe9afcd4211955770039d6f860bfaf0` — merged popup callback convergence, including `c80b0d4e7f1ed962eb537ea26c489f18eb833d52`. Working branch: `reconstruction/workspace-automation-maintenance-entrypoint`.
+
+WORKSPACE_AUTOMATION_MAINTENANCE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+AUTOMATION_RECOVERY: MISSING_OR_UNCERTAIN_SCRIPT_IDENTITY.
+AUTOMATION_MAINTENANCE: KNOWN_SCRIPT_CONTENT_OR_STATE_REPAIR.
+SCRIPT_IDENTITY: PRESERVE_EXISTING / NO_CREATE_IN_MAINTENANCE.
+AUTOMATION_SCOPE: ADDITIONAL_CONSENT_ONLY_FOR_CANONICAL_MISSING_PERMISSION.
+
+Owner live evidence reports Q-PRJ-007 binding/workbook/sync/durable authorization healthy with zero pending work, but known-Script automation degraded. This source correction exposes server-derived automationMaintenanceRequired separately from recovery, safe bounded diagnosis and one contextual repair action. Fresh canonical status/durable proof precede execution. initialize accepts an optional existing Script-ID precondition to select automation-only maintenance; normal initialization remains separate. Both paths share the same Script reconciliation authority. Known-ID maintenance verifies/installs only a mismatched canonical bundle/re-verifies the same identity, never creates a Script, repairs tabs or drains canonical data.
+
+Automation failures retain degraded maintenance state and preserve unrelated binding/workbook/sync/pending facts. Actual missing Script scope offers the existing permission action; a current CONNECTED_VALID grant outranks a stale automation error and requires no new consent. Script/Project/grant/binding/lease/provider fences and canonical read-back remain. No scopes/Cloud/Drive/blueprint/Apps Script source/package/config/rules change, reset, new resources or later-domain activation.
+
+Operational tabs remain idempotent by developer-metadata ownership. Fresh DUAL_WEIGHBRIDGE uses the base SABIL-HAIL structure plus owned Ops tabs; other profiles use their profile-specific operational template. Counts/layout are not redesigned. CLEAN_PROJECT_TEMPLATE_ACCEPTANCE and RESET_TEST_PROJECTS are recorded future owner-authorized acceptance debt only; no cleanup/reset is executed. One verified commit/branch push is authorized, no PR/merge or new live acceptance claim. See [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [profile/template policy](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md). Earlier checkpoints remain historical where superseded.
+
+Local verification observation: 56 files, 1026/1027 PASS; only TBC-B4 checkpoint_partial_failure source-anchor failure, independently reproduced on a clean archive of merged baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0` (25/26). The broad command exits nonzero, not all green. Focused maintenance/Wizard/HTTP set 75/75 PASS (overlapping cases); new failures/removals/skips 0. Build PASS. Lint EXIT 2 / NOT PASS; baseline/final diagnostics 440→440, added/removed 0. AR/EN/UR each 4668 keys, three new keys each, duplicate definitions/parity gaps/empty values 0. Diff check PASS. These are local observations, not live Google/Render acceptance or frozen test-count rules.
+
+### Historical Google OAuth popup callback convergence implementation — 2026-11-02
 
 CURRENT_CODE_BASELINE: `adc7ea93acec86a09c5111c7f8d6c539d4f9f293` — merged authorization entry-point convergence, including `29c526947a796484b21e1a851f7183e475ecef5b`. Working branch: `reconstruction/google-oauth-popup-callback`.
 

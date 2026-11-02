@@ -1,3 +1,9 @@
+## Automation maintenance status and initialize precondition
+
+`GET /api/projects/:projectId/workspace` adds derived automationMaintenanceRequired alongside automationRecoveryRequired/automationState, plus a closed automationDiagnostic code (AUTOMATION_MAINTENANCE_REQUIRED, AUTOMATION_RECOVERY_REQUIRED or AUTOMATION_SCOPE_REQUIRED). Known Script identity is normalized in binding.scriptProjectId. These fields expose no raw provider data/credentials.
+
+`POST /api/projects/:projectId/workspace/initialize` retains `{}` for normal initialization and accepts optional `{scriptProjectId}` for automation-only maintenance of that exact existing identity. It is a precondition, not a replacement/adoption field. The same Firebase/principal/Project/durable credential boundary applies. Mismatch/conflicting identity fails closed before install/create. Maintenance reuses canonical verify/install/re-verify authority, never creates a Script or drains data/repairs grids; failure preserves unrelated health. Missing optional scope returns bounded AUTOMATION_SCOPE_REQUIRED. Client canonical read-back must prove unchanged ID + READY before success. [Ledger](reconstruction/02_PHASE_LEDGER.md) owns current state.
+
 ## OAuth popup completion metadata
 
 `POST /api/projects/:projectId/workspace/authorization` retains its bounded `{automation:boolean}` request and HttpOnly/Secure browser-cookie transaction; response adds public 32-character correlationId beside success/url. It is independent of OAuth state/PKCE and grants no authority. `/workspace/google/callback` always terminates in dedicated minimal HTML before API authentication/SPA fallback, and is excluded from Workbox app-shell navigation. It never returns the application bundle or redirects into it.

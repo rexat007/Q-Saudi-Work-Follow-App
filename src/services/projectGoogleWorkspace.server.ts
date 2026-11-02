@@ -1,3 +1,4 @@
+import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceGrantFailure,boundedAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 import {isGoogleProviderCode,classifyGoogleProviderFailure} from '../../server/workspaceGoogleErrors';
 import { assertBlueprint, BlueprintError, type WorkspaceBlueprint } from './googleWorkspaceBlueprint/contract';
@@ -75,7 +76,7 @@ export function continuityRef(db: any, projectId: string) { return db.collection
 export function syncOutboxRef(db: any, projectId: string) { return db.collection('projects').doc(projectId).collection('workspace_sync_outbox'); }
 
 function publicBinding(raw: ProjectGoogleBinding): ProjectGoogleBinding {
-  return { projectId:raw.projectId,provider:'GOOGLE',spreadsheetId:raw.spreadsheetId,driveFileId:raw.driveFileId,spreadsheetUrl:raw.spreadsheetUrl,...(raw.spreadsheetTitle?{spreadsheetTitle:raw.spreadsheetTitle}:{}),templateId:raw.templateId,templateVersion:raw.templateVersion,...(raw.workspaceBlueprintVersion?{destinationRootFolderId:raw.destinationRootFolderId,projectFolderId:raw.projectFolderId,workspaceBlueprintVersion:raw.workspaceBlueprintVersion,appsScriptBlueprintVersion:raw.appsScriptBlueprintVersion,...(raw.scriptProjectId?{scriptProjectId:raw.scriptProjectId}:{})}:{}),googleSubject:raw.googleSubject,googleAccountLabel:raw.googleAccountLabel||raw.googleSubject,provisionedAt:raw.provisionedAt,provisionedBy:raw.provisionedBy,revision:raw.revision };
+  return { projectId:raw.projectId,provider:'GOOGLE',spreadsheetId:raw.spreadsheetId,driveFileId:raw.driveFileId,spreadsheetUrl:raw.spreadsheetUrl,...(raw.spreadsheetTitle?{spreadsheetTitle:raw.spreadsheetTitle}:{}),templateId:raw.templateId,templateVersion:raw.templateVersion,...(raw.workspaceBlueprintVersion?{destinationRootFolderId:raw.destinationRootFolderId,projectFolderId:raw.projectFolderId,workspaceBlueprintVersion:raw.workspaceBlueprintVersion,appsScriptBlueprintVersion:raw.appsScriptBlueprintVersion}:{}),...(raw.scriptProjectId?{scriptProjectId:raw.scriptProjectId}:{}),googleSubject:raw.googleSubject,googleAccountLabel:raw.googleAccountLabel||raw.googleSubject,provisionedAt:raw.provisionedAt,provisionedBy:raw.provisionedBy,revision:raw.revision };
 }
 /** One canonical server authority; Google port is transient authorization, never a credential DTO. */
 export class ProjectGoogleWorkspaceServer {
@@ -123,7 +124,12 @@ export class ProjectGoogleWorkspaceServer {
     });
     const jobs=await syncOutboxRef(this.db,projectId).get();
     const pending=jobs.docs.filter((d:any)=>d.data().status!=='DELIVERED').length;
-    return {authorizationDiagnostic:boundedAuthorizationDiagnosis(state.authorizationDiagnostic),state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding(state.binding):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:!state.scriptProjectId&&!state.binding?.scriptProjectId&&(state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)),recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
+    const scriptId=state.scriptProjectId||state.binding?.scriptProjectId,knownScript=validId(scriptId)?scriptId:undefined;
+    const automationState=state.automationState||'NOT_INSTALLED';
+    const recovery=Boolean(state.binding&&!knownScript&&automationState!=='NOT_REQUIRED'&&(!state.automationCreationAllowed||state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)));
+    const maintenance=Boolean(state.binding&&knownScript&&['DEGRADED','NOT_INSTALLED'].includes(automationState));
+    const automationScope=state.lastAutomationError==='AUTOMATION_SCOPE_REQUIRED'||/^SCOPE_DENIED(?::script\.projects)?$/.test(state.lastAutomationError||'');
+    return {authorizationDiagnostic:boundedAuthorizationDiagnosis(state.authorizationDiagnostic),state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding({...state.binding,...(knownScript?{scriptProjectId:knownScript}:{})}):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:recovery,automationMaintenanceRequired:maintenance,automationDiagnostic:recovery?{code:'AUTOMATION_RECOVERY_REQUIRED'}:maintenance?{code:automationScope?'AUTOMATION_SCOPE_REQUIRED':'AUTOMATION_MAINTENANCE_REQUIRED'}:null,recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
   }
   async approveDestination(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);
@@ -287,9 +293,24 @@ export class ProjectGoogleWorkspaceServer {
       } catch(error){await save({state:'SYNC_DEGRADED',lastSyncError:error instanceof GoogleWorkspaceCommandError?error.code:'WORKBOOK_REPAIR_FAILED',workbookHealth:'DEGRADED',lastWorkbookError:error instanceof GoogleWorkspaceCommandError?error.code:'WORKBOOK_REPAIR_FAILED',lastGenerationDiagnostic:error instanceof GoogleWorkspaceCommandError?error.diagnostic||null:null});}
       if(workbookVerified)try {
         await save({lastInitializationStage:'VERIFY_AUTOMATION'});
+        await this.reconcileAutomation(projectId,google,blueprint,b,save);
+      } catch(error){
+        await save({automationState:'DEGRADED',lastAutomationError:error instanceof GoogleWorkspaceCommandError?error.code:'AUTOMATION_INSTALL_FAILED',lastAutomationDiagnostic:error instanceof GoogleWorkspaceCommandError?error.diagnostic||null:null});
+      }
+    } catch(error){
+      const code=error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED';
+      await save({state:code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(code)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED',lastSyncError:code});
+      throw error;
+    } finally {google.setInitializationObserver?.();clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
+    if(workbookVerified&&google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
+  }
+  private async reconcileAutomation(projectId:string,google:GoogleBlueprintPort,blueprint:WorkspaceBlueprint,b:ProjectGoogleBinding,save:(patch:Record<string,unknown>,action?:string,dirty?:boolean)=>Promise<any>,expectedScriptId?:string) {
+        let current=(await continuityRef(this.db,projectId).get()).data(),scriptId=current.scriptProjectId||b.scriptProjectId,created=false;
+        if(current.scriptProjectId&&b.scriptProjectId&&current.scriptProjectId!==b.scriptProjectId)return gwsFail('SCRIPT_IDENTITY_CONFLICT');
+        if(expectedScriptId&&scriptId!==expectedScriptId)return gwsFail('SCRIPT_IDENTITY_CONFLICT');
         assertBlueprint(blueprint,true);await google.authorizeProvisioning();
-        let current=(await ref.get()).data(),scriptId=current.scriptProjectId||b.scriptProjectId,created=false;
         if(!scriptId){
+          if(expectedScriptId)return gwsFail('AUTOMATION_RECOVERY_REQUIRED');
           // There is no Apps Script get-by-parent API. Uncertain historical creates
           // cannot be converted into proof of non-existence by an empty Drive list.
           if(!current.automationCreationAllowed||['SCRIPT_REQUESTED','CREATE_REQUESTED'].includes(current.automationStage))return gwsFail('AUTOMATION_RECOVERY_REQUIRED');
@@ -304,15 +325,31 @@ export class ProjectGoogleWorkspaceServer {
         if(!install)try{await verify();}catch(error){if(error instanceof GoogleWorkspaceCommandError&&error.code.endsWith('SCRIPT_CONTENT_INSTALL_FAILED'))install=true;else throw error;}
         if(install){await save({automationStage:'CONTENT_INSTALLING'});await google.installScript(scriptId,blueprint);await save({automationStage:'CONTENT_INSTALLED'});await verify();}
         await save({automationState:'READY',automationStage:'VERIFIED',lastAutomationError:null,binding:{...b,scriptProjectId:scriptId,appsScriptBlueprintVersion:blueprint.script!.version}},'AUTOMATION_INSTALLED');
-      } catch(error){
-        await save({automationState:'DEGRADED',lastAutomationError:error instanceof GoogleWorkspaceCommandError?error.code:'AUTOMATION_INSTALL_FAILED',lastAutomationDiagnostic:error instanceof GoogleWorkspaceCommandError?error.diagnostic||null:null});
-      }
-    } catch(error){
-      const code=error instanceof GoogleWorkspaceCommandError?error.code:'WORKSPACE_INITIALIZATION_FAILED';
-      await save({state:code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(code)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED',lastSyncError:code});
-      throw error;
-    } finally {google.setInitializationObserver?.();clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
-    if(workbookVerified&&google.projectMasterTabs)await this.retrySync(projectId,who,google,true).catch(()=>{});
+  }
+  /** Known-ID maintenance shares content authority but never repairs grids or projects data. */
+  async maintainAutomation(projectId:string,scriptId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
+    if(!validId(scriptId))return gwsFail('SCRIPT_IDENTITY_CONFLICT');
+    const owner=randomUUID(),claimed=await this.claimSync(projectId,who,owner),ref=continuityRef(this.db,projectId);
+    const save=async(patch:Record<string,unknown>,action?:string)=>this.db.runTransaction(async(tx:any)=>{
+      await this.authorized(tx,projectId,who);const s=(await tx.get(ref)).data();
+      if(s?.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now()||s.syncLeaseRevision!==(s.binding?.revision??0)||s.syncLeaseSpreadsheetId!==s.binding?.spreadsheetId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+      if((s.scriptProjectId||s.binding?.scriptProjectId)!==scriptId||s.scriptProjectId&&s.binding?.scriptProjectId&&s.scriptProjectId!==s.binding.scriptProjectId)return gwsFail('SCRIPT_IDENTITY_CONFLICT');
+      tx.set(ref,{...s,...patch});if(action)this.audit(tx,projectId,who.userId,action,{});
+    });
+    google.setDeliveryFence?.(async()=>{await this.renewSync(projectId,who,owner);await save({});});
+    const heartbeat=setInterval(()=>{void this.renewSync(projectId,who,owner).catch(()=>{});},30000);heartbeat.unref?.();
+    try {
+      await save({});const b=claimed.binding;
+      if(await google.subject()!==b.googleSubject)return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
+      await google.verifyBinding(b.destinationRootFolderId!,b.projectFolderId!,b.spreadsheetId,b.workspaceBlueprintVersion!);
+      await this.reconcileAutomation(projectId,google,this.resolvedBlueprint(claimed.project,b),b,save,scriptId);
+    } catch(error) {
+      const original=error instanceof GoogleWorkspaceCommandError?boundedWorkspaceHttpCode(error.code):null;
+      const code=original&&/^SCOPE_DENIED(?::script\.projects)?$/.test(original)?'AUTOMATION_SCOPE_REQUIRED':original||'AUTOMATION_INSTALL_FAILED';
+      await save({automationState:'DEGRADED',lastAutomationError:code});
+      throw new GoogleWorkspaceCommandError(code,error instanceof GoogleWorkspaceCommandError?error.status:502);
+    } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
+    return this.status(projectId,who);
   }
   /** No Google I/O. The coordinator and lease claim share this maintenance boundary. */
   private assertPendingOnlyState(project:ProjectEntity,s:any) {

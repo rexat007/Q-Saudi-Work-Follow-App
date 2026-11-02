@@ -20,10 +20,16 @@ beforeEach(async()=>{vi.clearAllMocks();const x=commandDatabase({'projects/P1/wo
 afterEach(async()=>{if(server?.listening)await new Promise<void>((resolve,reject)=>server.close(e=>e?reject(e):resolve()));});
 it.each([
  ['/api/projects/P1/workspace/initialize',{}],
+ ['/api/projects/P1/workspace/initialize',{scriptProjectId:'known-script'}],
  ['/api/projects/P1/workspace/retry-sync',{}],
  ['/api/projects/P1/workspace/automation/recover',{scriptProjectId:'script'}],
  ['/api/workspace/sync/initial',{projectId:'P1',spreadsheetId:'file'}],
 ] as const)('real HTTP %s rejects browser-token substitution before any provider or execution',async(path,body)=>{
  const result=await new Promise<{status:number;body:string}>((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port:(server.address() as AddressInfo).port,path,method:'POST',headers:{Authorization:'Bearer fixture-firebase','Content-Type':'application/json','X-Google-Access-Token':'fixture-rejected-browser'}},res=>{let text='';res.on('data',c=>text+=c);res.on('end',()=>resolve({status:res.statusCode!,body:text}));});req.on('error',reject);req.end(JSON.stringify(body));});
  expect(result.status).toBe(401);expect(JSON.parse(result.body)).toMatchObject({success:false,code:'AUTHORIZATION_REQUIRED'});expect(result.body).not.toContain('fixture-rejected-browser');expect(f.access).not.toHaveBeenCalled();expect(f.provider).not.toHaveBeenCalled();expect(f.execute).not.toHaveBeenCalled();
+});
+
+it('real initialize HTTP dispatches an explicit known-ID maintenance request through durable authorization',async()=>{
+ f.status.mockResolvedValue({binding:{projectId:'P1',spreadsheetId:'file',scriptProjectId:'known-script'},backgroundAuthorization:'CONNECTED',automationMaintenanceRequired:false,automationState:'READY'});f.access.mockResolvedValue({accessToken:'server-only',authorizationId:'G'});const maintain=vi.fn(async()=>{}),initialize=vi.fn();f.execute.mockReturnValue({maintainAutomation:maintain,initializeBound:initialize});f.provider.mockReturnValue({marker:'port'});
+ const response=await new Promise<{status:number;body:string}>((resolve,reject)=>{const req=http.request({host:'127.0.0.1',port:(server.address() as AddressInfo).port,path:'/api/projects/P1/workspace/initialize',method:'POST',headers:{Authorization:'Bearer fixture-firebase','Content-Type':'application/json'}},res=>{let body='';res.on('data',c=>body+=c);res.on('end',()=>resolve({status:res.statusCode!,body}));});req.on('error',reject);req.end(JSON.stringify({scriptProjectId:'known-script'}));});expect(response.status).toBe(200);expect(maintain).toHaveBeenCalledWith('P1','known-script',expect.objectContaining({userId:'actor'}),{marker:'port'});expect(initialize).not.toHaveBeenCalled();expect(f.provider).toHaveBeenCalledWith('server-only','P1');expect(response.body).not.toContain('server-only');
 });

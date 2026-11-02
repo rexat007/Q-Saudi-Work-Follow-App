@@ -4689,6 +4689,9 @@ export const urTranslations: TranslationDictionary = {
   "gws.grant_automation_permission": "Apps Script کی اجازت دیں",
   "gws.connect_durable_authorization": "ہم وقت سازی کے لیے Google کی اجازت فعال کریں",
   "gws.durable_authorization_required": "ورک اسپیس منسلک ہے۔ آئندہ ہم وقت سازی کے لیے Google کی مستقل اجازت فعال کریں۔",
+  "gws.repair_automation": "ورک بک کی خودکاری درست کریں",
+  "gws.automation_maintenance_required": "Google Sheets کی خودکاری کی مرمت درکار ہے",
+  "gws.automation_maintenance_complete": "ورک بک کی خودکاری درست اور تصدیق ہو گئی ہے۔",
 };
 
 

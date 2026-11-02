@@ -1,4 +1,8 @@
-## OAuth popup callback continuation
+## Automation maintenance continuation
+
+[02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0` merges the callback fix. Known-ID degraded/uninstalled automation now has a server-derived maintenance flag and explicit repair action, independent of healthy workbook/sync. It uses durable authorization and an existing-ID precondition, shares canonical Script verification/installation, never creates resources or drains data, and requires unchanged-ID READY read-back. See [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [template policy](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md). CLEAN_PROJECT_TEMPLATE_ACCEPTANCE and RESET_TEST_PROJECTS are future separately authorized acceptance debt, not executed. No PR/merge, live repair/reset, template redesign or later-phase implementation. Earlier checkpoints remain historical where superseded.
+
+## Historical OAuth popup callback implementation continuation
 
 [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `adc7ea93acec86a09c5111c7f8d6c539d4f9f293` includes bound durable-only authorization. Current correction replaces opener-only completion/closed polling with correlated same-origin BroadcastChannel and bounded cleanup. Dedicated callback HTML plus a narrow Workbox navigation exclusion prevents a second app window; opener/self-close remain best-effort. Canonical read-back, full durable grant acceptance and resource identity remain mandatory. See [credential](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) and [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) contracts. No live Google/Render acceptance, PR/merge, resource recreation or later-phase work. Older checkpoints below are historical where superseded.
 

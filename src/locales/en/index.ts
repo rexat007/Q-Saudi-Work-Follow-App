@@ -4689,6 +4689,9 @@ export const enTranslations: TranslationDictionary = {
   "gws.grant_automation_permission": "Grant Apps Script permission",
   "gws.connect_durable_authorization": "Enable Google authorization for sync",
   "gws.durable_authorization_required": "The Workspace is linked. Enable durable Google authorization for future synchronization.",
+  "gws.repair_automation": "Repair workbook automation",
+  "gws.automation_maintenance_required": "Google Sheets automation needs repair",
+  "gws.automation_maintenance_complete": "Workbook automation was repaired and verified.",
 };
 
 

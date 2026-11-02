@@ -4689,6 +4689,9 @@ export const arTranslations: TranslationDictionary = {
   "gws.grant_automation_permission": "منح إذن Apps Script",
   "gws.connect_durable_authorization": "تفعيل تفويض Google للمزامنة",
   "gws.durable_authorization_required": "مساحة العمل مرتبطة. يلزم تفعيل تفويض Google المستمر للمزامنة المستقبلية.",
+  "gws.repair_automation": "إصلاح أتمتة الملف",
+  "gws.automation_maintenance_required": "أتمتة Google Sheets تحتاج إلى إصلاح",
+  "gws.automation_maintenance_complete": "تم إصلاح أتمتة الملف والتحقق منها.",
 };
 
 
