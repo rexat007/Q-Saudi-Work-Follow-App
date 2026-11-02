@@ -71,7 +71,21 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(info.data.capabilities?.canAddChildren!==true)return gwsFail('DESTINATION_NOT_WRITABLE',403);
     });
   };
+  const rootTags=(subjectHash:string,resourceRole:string)=>({owner:'Q_SAUDI_WORK_FOLLOW',schemaVersion:'1',subjectHash,resourceRole});
   return {...base,
+    async findManagedFolders(subjectHash,role){return guarded('WORKSPACE_ROOT_RECOVERY_REQUIRED',async()=>{
+      if(!/^[a-f0-9]{64}$/.test(subjectHash))return gwsFail('WORKSPACE_ROOT_IDENTITY_CONFLICT');
+      const result=await drive.files.list({q:`trashed = false and mimeType = 'application/vnd.google-apps.folder' and appProperties has { key='owner' and value='Q_SAUDI_WORK_FOLLOW' } and appProperties has { key='schemaVersion' and value='1' } and appProperties has { key='subjectHash' and value='${subjectHash}' } and appProperties has { key='resourceRole' and value='${role}' }`,fields:'files(id),nextPageToken',pageSize:100});
+      if(result.data.nextPageToken)return gwsFail('WORKSPACE_ROOT_IDENTITY_CONFLICT');return (result.data.files||[]).map(f=>({id:f.id!}));
+    });},
+    async createManagedFolder(name,parentId,subjectHash,role){return guarded('WORKSPACE_ROOT_ENSURE_FAILED',async()=>{
+      const result=await drive.files.create({requestBody:{name,mimeType:'application/vnd.google-apps.folder',...(parentId?{parents:[parentId]}:{}),appProperties:rootTags(subjectHash,role)},fields:'id'});return result.data.id||gwsFail('WORKSPACE_ROOT_RECOVERY_REQUIRED');
+    });},
+    async verifyManagedFolder(id,subjectHash,role,parentId){return guarded('WORKSPACE_ROOT_IDENTITY_CONFLICT',async()=>{
+      const result=await drive.files.get({fileId:id,fields:'id,trashed,mimeType,parents,appProperties,capabilities(canAddChildren)'}),d=result.data,tags=rootTags(subjectHash,role);
+      if(d.trashed||d.mimeType!=='application/vnd.google-apps.folder'||Object.entries(tags).some(([k,v])=>d.appProperties?.[k]!==v)||parentId&&!d.parents?.includes(parentId))return gwsFail('WORKSPACE_ROOT_IDENTITY_CONFLICT');
+      if(d.capabilities?.canAddChildren!==true)return gwsFail('DESTINATION_NOT_WRITABLE',403);
+    });},
     async projectProfileReports(fileId,report){
       if(report.rows.some(row=>row.projectId!==projectId)||!report.configuration)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       await guarded('PROFILE_REPORT_SYNC_FAILED',()=>owned(fileId));

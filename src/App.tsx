@@ -1,7 +1,8 @@
+import {readWorkspaceContinuation} from './runtime/workspaceProvisioningResume';
 import {AdaptiveOperationalReports} from './components/reports/AdaptiveOperationalReports';
 import {useUserActiveWorkspaceSync} from './hooks/useUserActiveWorkspaceSync';
 import { batch4RelationText, batch4ReferenceText } from './i18n/batch4Presentation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Building2, 
   Truck, 
@@ -156,6 +157,10 @@ export default function App() {
       setSelectedProjectId('');
     }
   }, [projects, activeTab]);
+
+  const resumedWorkspaceNavigation=useRef<string|null>(null);
+  // Resume navigation only after the current server-scoped Project inventory authorizes it.
+  useEffect(()=>{if(!user?.uid||loadingProjects)return;const saved=readWorkspaceContinuation(user.uid);if(saved&&resumedWorkspaceNavigation.current!==`${saved.actorId}:${saved.createdAt}`&&projects.some(p=>p.projectId===saved.projectId)){resumedWorkspaceNavigation.current=`${saved.actorId}:${saved.createdAt}`;setSelectedProjectId(saved.projectId);setActiveTab('WIZARD');}},[user?.uid,loadingProjects,projects]);
 
   // Runtime referenced navigation labels to ensure 100% translation coverage
   const _navigationLabels = [

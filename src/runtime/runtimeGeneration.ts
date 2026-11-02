@@ -21,10 +21,14 @@ export function createRuntimeGeneration(clientId:string,fetchVersion:()=>Promise
 }
 let requestUpdate:(target:string)=>Promise<unknown>=async()=>{};
 export function setRuntimeUpdater(update:typeof requestUpdate){requestUpdate=update;}
-const generation=createRuntimeGeneration(CLIENT_BUILD_ID,async()=>{
+async function fetchRuntimeVersion():Promise<RuntimeVersion>{
  const response=await fetch('/api/runtime-version',{cache:'no-store',credentials:'same-origin',signal:AbortSignal.timeout(5000)});
  if(!response.ok)throw Error('APP_VERSION_UNAVAILABLE');return response.json();
-},target=>requestUpdate(target));
+}
+const generation=createRuntimeGeneration(CLIENT_BUILD_ID,fetchRuntimeVersion,target=>requestUpdate(target));
+/** A command may race a deployment after its preflight check; retain the generation fence and reuse the guarded PWA updater. */
+export async function recoverWorkspaceRuntimeGeneration(){const server=await fetchRuntimeVersion();if(!server.buildId||server.buildId==='UNAVAILABLE'||server.workspaceContract!=='GWS1B')throw Error('APP_VERSION_UNAVAILABLE');await requestUpdate(server.buildId);}
+
 export const ensureRuntimeGeneration=generation.check;
 /** Synchronous validated snapshot keeps the OAuth popup in the original click gesture.
  * Preparation/startup checks and online/30s checks refresh it; every later command rechecks. */

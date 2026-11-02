@@ -1,3 +1,9 @@
+## GWS-ONE live closure decisions — 2026-11-02
+
+SUPERSEDED: normal Picker/destination/browser-token stages after async ensure. RESOLVED_IN_SOURCE: account-owned root/Projects receipts and tags; same-operation grant/fence adoption proof/read-back; stale pre-binding cleanup cannot downgrade a completed binding; canonical HTTP joins replace ordinary 409; build-update checkpoint/reload/resume preserves authorized Project context. PRESERVED: 13-tab fresh manifest, 4×3 profile/intake matrix, user-active sync, strict READY, scope/encryption/security and ambiguous Script-create exception. STILL_OPEN: deployed acceptance on a fresh clean Project after owner deployment. Q-PRJ-009 was not manually repaired; no Project reset, PR, merge or later-phase work is performed.
+
+Current authority: [ledger](02_PHASE_LEDGER.md); details: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## GWS-ONE convergence and accepted provider exception — 2026-11-02
 
 RESOLVED_IN_SOURCE: fragmented normal Workspace commands are converged through server ensure; stable continuity/grants/receipts/leases are reused. SUPERSEDED: ordinary users manually initialize/retry/repair/recover/maintain or type Script IDs. ACCEPTED_PROVIDER_EXCEPTION: SCRIPT_CREATE_IDENTITY_UNCERTAIN remains ATTENTION_REQUIRED with no automatic second create until independently proven advanced recovery/migration. RESOLVED_IN_SOURCE: fresh Dual no longer inherits seven historical SABIL compatibility tabs/routines; all profiles resolve owned manifests deterministically. STILL_OPEN: deployed clean-project Google acceptance. RESET_TEST_PROJECTS remains NOT_EXECUTED and separately owner-reviewed, including disposable old Beta2 Project cleanup while preserving users/auth/infrastructure and approved global identities. No live historical-project alteration or later-phase activation.

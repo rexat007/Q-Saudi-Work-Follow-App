@@ -1,7 +1,29 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### GWS-ONE — One-click provisioning engine — 2026-11-02
+### GWS-ONE live closure — zero Picker — 2026-11-02
+
+CURRENT_CODE_BASELINE: `870a6a8813eab20cff7e354a1a3d9df221757b63` — merged initial GWS-ONE engine.
+WORKING_BRANCH: `reconstruction/gws-one-live-closure`.
+GWS_ONE_LIVE_CLOSURE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+NORMAL_DESTINATION_POLICY = APPLICATION_MANAGED_DRIVE_ROOT.
+GOOGLE_PICKER_NORMAL_FLOW = RETIRED.
+NORMAL_GOOGLE_INTERACTIONS = ONE_OAUTH_FLOW.
+UNBOUND_TO_BOUND_AUTHORIZATION = ATOMIC_GRANT_ADOPTION.
+APP_UPDATE_DURING_PROVISIONING = RELOAD_AND_RESUME.
+NORMAL_409_CONFLICT = ZERO (concurrency/fence joining; generation mismatch remains an internal reload signal).
+WORKBOOK_REPAIR_NORMAL_FLOW = INTERNAL.
+DURABLE_AUTH_REPAIR_NORMAL_FLOW = INTERNAL.
+
+Owner-reported Q-PRJ-009 live evidence exposed the late GIS/Picker popup, repeated ensure conflicts and post-create continuation failures. The source closure removes destination/Drive-token actions from the normal client, creates/reuses account-scoped application/Projects roots through durable server grants, preserves the accepted 13-tab manifest and Script-create ambiguity exception. Existing atomic binding/grant updates are strengthened with explicit operation/subject/identity adoption proof and post-commit re-read. Proven interrupted same-operation handoffs can converge transactionally; unrelated identities cannot be adopted. A stale pre-binding request cannot downgrade a completed binding.
+
+The generation fence is retained. A raced APP_UPDATE_REQUIRED records actor/Project/operation navigation context, invokes the existing guarded PWA updater once per target, stops old-page ensure continuation and resumes from server state after reload. Project navigation restoration requires the current authorized inventory. Concurrency/stale-owner HTTP handling reads canonical ownership instead of surfacing ordinary 409s. Root receipts have independent shared-account lease/ownership proof; Project continuity remains binding/operation authority. No manual Q-PRJ-009 mutation, live Google/Firebase/Render acceptance, scopes/Cloud/config/rules/package/source-asset change, reset, PR/merge or later-phase work. See [the current engine contract](GWS_ONE_PROVISIONING_ENGINE.md).
+
+Local closure acceptance: 91/91 PASS across the engine/profile matrix, actual React/client-to-engine path, root/native Drive adapter, reload/context and localhost HTTP suites. The 4×3 configuration matrix remains deterministic; normal client Picker/browser Drive-token requests are zero, OAuth at most once, and roots/Project folder/Sheet/Script remain stable across 20 repeat commands. Managed-root pointer persistence, bound-root proof/lost-receipt recovery, atomic/legacy handoff proof, stale-owner cleanup, preflight and raced-POST generation reload, current-Project fencing and canonical 200 contention are covered.
+
+Affected verification, consolidated latest result per file: 81 files, 1471/1503 PASS, 32 historical failing cases independently reproduced on a clean archive of this exact baseline, plus the same two empty historical suite errors. Broad command NOT all green. New failures/removals/skips 0. Build PASS. Lint EXIT 2 / NOT PASS, 440→440, added/removed 0; diff check PASS. No locale/package/config/lockfile/workflow/rule/blueprint/Script-asset/generated changes. Counts are observations, not frozen gates. Local controlled provider/DOM/HTTP evidence is not deployed Google/Firebase/Render acceptance. One branch commit/push is authorized; no PR/merge or live reset/repair.
+
+### Historical initial GWS-ONE — One-click provisioning engine — 2026-11-02
 
 CURRENT_CODE_BASELINE: `c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71` — merged Workspace automation maintenance, PR #83.
 WORKING_BRANCH: `reconstruction/gws-one-click-provisioning-engine`.

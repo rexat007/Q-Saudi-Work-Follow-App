@@ -1,3 +1,4 @@
+import {workspaceBindingAdoption} from './workspaceBindingHandoff';
 import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceGrantBinding,workspaceGrantFailure,boundedAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 import {isGoogleProviderCode,classifyGoogleProviderFailure} from '../../server/workspaceGoogleErrors';
@@ -49,6 +50,9 @@ export interface GoogleTemplatePort {
   upsert(fileId: string, input: OperationalSheetInput): Promise<void>;
 }
 export interface GoogleBlueprintPort extends GoogleTemplatePort {
+  findManagedFolders?(subjectHash:string,role:import('./workspaceManagedRoot.server').ManagedFolderRole):Promise<Array<{id:string}>>;
+  createManagedFolder?(name:string,parentId:string|null,subjectHash:string,role:import('./workspaceManagedRoot.server').ManagedFolderRole):Promise<string>;
+  verifyManagedFolder?(id:string,subjectHash:string,role:import('./workspaceManagedRoot.server').ManagedFolderRole,parentId:string|null):Promise<void>;
   verifyScriptParent?(fileId:string,scriptId:string,version:string):Promise<void>;
   projectProfileTrip?(fileId:string,trip:import('../types/entities').TripEntity,blueprint:WorkspaceBlueprint):Promise<void>;
   projectProfileReports?(fileId:string,report:ReturnType<typeof import('./operationalReporting').buildOperationalReport>):Promise<void>;
@@ -238,7 +242,7 @@ export class ProjectGoogleWorkspaceServer {
       return matches[0].id;
     };
     try {
-      const name=`${state.project.nameAr} — ${state.project.projectCode||projectId}`;
+      const name=this.ensureOwner?`${state.project.projectCode||projectId} — ${state.project.nameAr}`:`${state.project.nameAr} — ${state.project.projectCode||projectId}`;
       if(!state.folderId) {
         let folderId:string;
         if(state.stage==='FOLDER_REQUESTED')folderId=await reconcile('FOLDER',rootId);
@@ -260,20 +264,28 @@ export class ProjectGoogleWorkspaceServer {
         if(snap.data()?.owner!==owner||snap.data()?.binding)return gwsFail('WORKSPACE_EXECUTION_FENCED');
         const grantRef=this.backgroundGrantId?this.db.collection('workspace_google_authorizations').doc(this.backgroundGrantId):null;
         const grant=grantRef?(await tx.get(grantRef)).data():null;
+        const adoption=this.ensureOwner&&this.backgroundGrantId?workspaceBindingAdoption(snap.data(),binding,grant,this.backgroundGrantId,who.userId):null;
+        if(this.ensureOwner&&!adoption)return gwsFail('WORKSPACE_BINDING_CONFLICT');
         await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKSPACE_CONNECTED',undefined,this.db);
-        if(grantRef&&grant)tx.set(grantRef,{...grant,spreadsheetId:binding.spreadsheetId,bindingRevision:binding.revision,updatedAt:Date.now()});
-        tx.set(ref,{...snap.data(),...(this.ensureOwner?{ensureOperation:{...snap.data().ensureOperation,bindingRevision:binding.revision,spreadsheetId:binding.spreadsheetId}}:{}),binding,state:'READY',workspaceState:'CONNECTED',workbookHealth:'REPAIR_REQUIRED',automationState:snap.data()?.automationState||'NOT_INSTALLED',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
+        if(grantRef&&grant)tx.set(grantRef,adoption?.grant||{...grant,spreadsheetId:binding.spreadsheetId,bindingRevision:binding.revision,updatedAt:Date.now()});
+        tx.set(ref,{...snap.data(),...(adoption?{ensureOperation:adoption.operation}:{}),binding,state:'READY',workspaceState:'CONNECTED',workbookHealth:'REPAIR_REQUIRED',automationState:snap.data()?.automationState||'NOT_INSTALLED',stage:'BOUND',leaseUntil:0,lastSyncError:null,lastGenerationDiagnostic:null});
         tx.update(this.db.collection('projects').doc(projectId),{settings:{...project.settings,googleDriveFolderId:binding.projectFolderId,googleSpreadsheetId:binding.spreadsheetId,googleDriveProvisioning:{enabled:true,status:'PROVISIONED',rootFolderName:name,spreadsheetTitle:name}},updatedBy:who.userId,updatedAt:new Date().toISOString()});
         this.audit(tx,projectId,who.userId,'WORKSPACE_BOUND',{fileId:binding.spreadsheetId,workspaceBlueprintVersion:blueprint.version,...(binding.scriptProjectId?{scriptProjectId:binding.scriptProjectId}:{})});
       }));
-      // The browser provisioning grant ends at binding. Durable consent/execution is a separate command.
+      // Re-read the committed handoff. A real Firestore transaction need not update prior local snapshots.
+      if(this.ensureOwner)await this.verifyEnsureBindingHandoff(projectId,who);
       return binding;
     } catch(error) {
       const code=(error as {code?:string}).code||'SPREADSHEET_GENERATION_FAILED';
       const diagnostic=error instanceof GoogleWorkspaceCommandError ? error.diagnostic : undefined;
-      await this.db.runTransaction(async(tx:any)=>{const snap=await tx.get(ref),s=snap.data();if(s?.owner===owner)tx.set(ref,{...s,state:s.binding?(s.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'SYNC_DEGRADED'):'FAILED',lastSyncError:code,leaseUntil:0,lastGenerationDiagnostic:diagnostic||null});});
+      await this.db.runTransaction(async(tx:any)=>{const snap=await tx.get(ref),s=snap.data();if(s?.owner===owner&&!s.binding)tx.set(ref,{...s,state:s.binding?(s.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':code==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'SYNC_DEGRADED'):'FAILED',lastSyncError:code,leaseUntil:0,lastGenerationDiagnostic:diagnostic||null});});
       throw new GoogleWorkspaceCommandError(code,502,diagnostic);
     }
+  }
+  async verifyEnsureBindingHandoff(projectId:string,who:AuthUserContext) {
+    return this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const s=(await tx.get(continuityRef(this.db,projectId))).data(),op=s?.ensureOperation,g=this.backgroundGrantId?(await tx.get(this.db.collection('workspace_google_authorizations').doc(this.backgroundGrantId))).data():null;
+      if(!this.ensureOwner||!s?.binding||op?.bindingRevision!==s.binding.revision||op.spreadsheetId!==s.binding.spreadsheetId||g?.spreadsheetId!==s.binding.spreadsheetId||g.bindingRevision!==s.binding.revision||g.subject!==s.binding.googleSubject||g.provisioningOperationId&&g.provisioningOperationId!==op.operationId)return gwsFail('WORKSPACE_BINDING_CONFLICT');return s.binding as ProjectGoogleBinding;
+    });
   }
   /** Post-binding initialization never revokes a valid resource binding. One expiring
    * execution lease also serializes repair, automation and projection requests. */

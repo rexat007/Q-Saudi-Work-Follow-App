@@ -1,3 +1,50 @@
+## Zero-Picker live closure — current
+
+State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Closure baseline `870a6a8813eab20cff7e354a1a3d9df221757b63`. Q-PRJ-009 symptoms are owner-provided evidence; this source unit does not manually repair or mutate that Project.
+
+NORMAL_DESTINATION_POLICY = APPLICATION_MANAGED_DRIVE_ROOT; GOOGLE_PICKER_NORMAL_FLOW = RETIRED; NORMAL_GOOGLE_INTERACTIONS = ONE_OAUTH_FLOW. One primary action may obtain one durable OAuth grant, then the server ensures Q Saudi Work Follow / Projects / <projectCode> — <projectName>, Sheet, binding, workbook, data, Script and strict READY. No requestGoogleScopes, browser Drive token, Picker or destination selection occurs in runWorkspaceEnsureJourney. Optional custom destinations remain explicit advanced compatibility tooling, outside normal ensure. POST ensure now accepts only `{}`. Legacy pending DESTINATION is translated into canonical resume/Google authorization, not another Picker request.
+
+### Managed root identity and permissions
+
+The existing drive.file scope permits creation/access of these application-created folders. No broader Drive permission is requested. Native Drive creation atomically attaches appProperties owner=Q_SAUDI_WORK_FOLLOW, schemaVersion=1, subjectHash and resourceRole WORKSPACE_ROOT/PROJECTS_ROOT. Lookups use those exact ownership tags with bounded listings, never a title. IDs are verified for MIME/trashed/write capability; Projects must have the canonical application parent. Names alone cannot authorize adoption or replacement.
+
+Server-only workspace_drive_roots/<account hash> holds applicationRootId, projectsRootId, per-resource create intent, owner/expiry/revision and bounded state/error. It is shared infrastructure per authorized Google account, not a second Project binding registry. Project continuity stores only its managedRootKey pointer plus its existing Project resource receipts/binding. Shared-root and Project leases compose at provider boundaries. Concurrent Projects join an active root operation. A lost root-create response reconciles tagged ownership; an unresolved create intent never causes another create merely because a listing is empty. Only an acknowledged provider rejection proving non-creation clears that attempt’s intent for a later command; no automatic retry is added. The managedRootKey survives repeated claims; bound Workspaces verify the same root identities/parent and cannot create replacement roots when their receipt/evidence is missing. Foreign/duplicate tags or wrong parents fail closed. Historical bound/partial Project resource identities remain unchanged; no forced root migration is performed.
+
+### Handoff source diagnosis and closure
+
+Initial merged GWS-ONE already wrote binding, operation fence and grant together. This unit does not pretend those writes were absent. A shared pure adoption proof now validates Project, operation, actor, active grant pointer, Google subject, recorded folder/Sheet, binding revision and provisioning actor. The same transaction commits continuity.binding, ensureOperation bindingRevision/spreadsheetId and active grant bindingRevision/spreadsheetId/provisioningOperationId. A fresh transaction then verifies committed identity and refresh proof before Workbook execution. No second OAuth is required solely for revision 0→1 or empty→real Spreadsheet.
+
+A valid legacy partial handoff can be reconciled on the same ensure command only with that full durable proof; it cannot attach another Project, subject or credential. The same helper owns first commit and compatibility adoption. A stale provision request no longer writes a degraded state over an already committed binding after another owner completed the operation. This is a generic source migration, not a manual Q-PRJ-009 patch.
+
+### HTTP conflict and generation classification
+
+| Condition | Normal handling |
+|---|---|
+| Active ensure/resource/shared-root lease | 200 PREPARING; observe that canonical owner |
+| Stale owner/fence, valid progressing owner | Read canonical state; 200 join/READY |
+| Expired valid operation | Canonical canResume, same ensure command |
+| Impossible binding/subject/ownership identity | ATTENTION_REQUIRED; no adoption/recreation |
+| APP_UPDATE_REQUIRED before/at POST | Keep the generation fence; save bounded navigation hint, guarded PWA update/reload, then observe/resume |
+| Auth/scope denial | Existing Google-consent boundary; no browser-token fallback |
+
+No catch-and-ignore 409 or additional retry/sleep mechanism is introduced. Every command invocation, including after consent, consults canonical state after a fence failure. Continuation is saved before the preflight generation check can initiate an immediate reload, and updated for a raced POST mismatch. A genuine generation mismatch stops the old-page journey and blocks its automatic continuation instead of repeatedly posting ensure. Project navigation changes clear the old hint; actual browser reload preserves it. Successful READY consumes it. Session hints contain only actor/Project/operation/time, expire, grant no authority and cannot restore a Project outside the current server-scoped inventory. Restoration is once per page; the current Project/intent guard prevents stale requests replacing the navigation hint. Existing PWA per-target reload/worker-version checks and offline-cache policy remain.
+
+NORMAL_409_CONFLICT = ZERO for legitimate concurrency/join paths. A generation race may still produce one internal APP_UPDATE_REQUIRED 409; it initiates reload rather than appearing as an operator error. True non-normal security/identity refusals retain their boundaries. Workbook and durable-authorization repair remain internal phases, never separate required normal buttons.
+
+The accepted 4×3 matrix, 13 fresh tabs, metadata ownership, bounded-memory repair, user-active sync/no cron and ambiguous Script-create ATTENTION_REQUIRED/no-duplicate exception remain. Source/local fixtures do not claim deployed acceptance. After owner deployment use a new fresh Project unless Q-PRJ-009 identities are independently proven clean. RESET_TEST_PROJECTS remains a separate future owner-reviewed operation, not executed here.
+
+### Local zero-Picker closure verification — 2026-11-02
+
+91/91 focused cases PASS. Coverage includes all 12 measurement/intake combinations, one effective root/Projects/Project-folder/Spreadsheet/Script set after 20 repeated commands, zero Picker/GIS/Drive-token requests in the normal journey, one durable OAuth at most, real React/client/engine continuation, 13 fresh tabs, atomic five-field handoff and committed read-back, proven legacy partial handoff, no foreign adoption, and no stale request downgrading a completed binding. Native Drive fixtures assert drive.file authorization, atomic appProperties, tag-filtered bounded discovery, parent/write proof and incomplete-list fail-closed behavior. Root receipt loss, ambiguous creation, acknowledged quota rejection, duplicate/foreign ownership, shared leases and bound-root identity loss remain safe.
+
+Reload fixtures cover both preflight and raced-POST build changes, actor/Project/operation hints before immediate reload, per-target reload-once across page instances, current-scope navigation restoration, actual remount resuming the durable operation with unchanged IDs, and stale Project requests unable to replace the hint. The actual generation fence is unchanged; concurrency HTTP tests return 200 canonical progress, while a build race retains its internal APP_UPDATE_REQUIRED signal and never creates a normal-user 409 loop. Legacy pending destination state migrates to managed-root resume/Google authorization, not Picker. No new ordinary button or manual Script/destination input is introduced.
+
+Affected regression selection: 81 files, consolidated latest results 1471/1503 PASS, skipped/pending 0. All 32 failed assertions were reproduced independently on untouched merged 870a6a8813eab20cff7e354a1a3d9df221757b63. They remain the seven historical files listed in the initial-engine observation below. workspaceConvergence.test.ts and workspaceIntegration.test.ts retain identical baseline empty-suite errors. The broad command is nonzero / NOT all green. No new failing case/suite error, test removal or skip is hidden. Existing engine/UI cases remain 43/8; existing HTTP cases are preserved and extended from 10 to 14. Counts describe these observations only.
+
+Build PASS; baseline/final lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0 using a multiset normalized only for positions/equivalent quoted-union display order. Diff check PASS. No Google scopes/Cloud settings, locale, dependency/config/workflow/rules, blueprint/Script assets, generated artifacts or business/API-domain changes outside the Workspace closure. Source/controlled fixtures do not prove live Google/Render acceptance. No Q-PRJ-009 patch, reset, PR, merge or Phase 10; use independently clean identities or a new Project after owner deployment.
+
+## Initial engine architecture, retained contracts
+
 # GWS-ONE — one-click provisioning engine
 
 Current phase/unit authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71`. This contract describes local source; live Google/deployment acceptance remains separate.
@@ -6,7 +53,7 @@ Current phase/unit authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline
 
 WORKSPACE_PRODUCT_ENTRYPOINT = ONE_CLICK_ENSURE; WORKSPACE_ORCHESTRATION_AUTHORITY = SERVER; NORMAL_WORKSPACE_BUTTONS = ONE_PRIMARY_ACTION. Normal UI exposes NOT_CONFIGURED, PREPARING, ACTION_REQUIRED, READY, ATTENTION_REQUIRED. It displays translated progress and one prepare/verify control. Manual Script ID, initialize, retry, repair, recover and maintenance controls are retired from ordinary UX and remain within closed privileged Advanced diagnostics.
 
-`POST /api/projects/:projectId/workspace/ensure` accepts `{}` or a user-selected destinationRootFolderId; `GET` on the same path observes the canonical operation. Neither accepts resource identities/phase/state/credential claims. Firebase authentication, live Project role/scope/mutability and generation fences remain. Only server-declared authorization/destination actions may interrupt the client journey. After accepted OAuth callback/read-back, the same journey automatically invokes ensure again. Correlation binds consent to Project, operation, browser transaction, authorization version and binding version. A pending operation is discoverable after browser refresh; active work is observed and expired work resumes. The client observes bounded progress; it does not choose creation/repair/sync phases. Google interactions still require browser user consent/Picker permission where genuinely needed.
+`POST /api/projects/:projectId/workspace/ensure` accepts `{}`; `GET` on the same path observes the canonical operation. Neither accepts resource identities/phase/state/credential claims. Firebase authentication, live Project role/scope/mutability and generation fences remain. Only server-declared Google authorization may interrupt the normal client journey; destination management is internal. After accepted OAuth callback/read-back, the same journey automatically invokes ensure again. Correlation binds consent to Project, operation, browser transaction, authorization version and binding version. A pending operation is discoverable after browser refresh; active work is observed and expired work resumes. The client observes bounded progress; it does not choose creation/repair/sync phases. Normal provisioning uses durable consent only; Picker is advanced compatibility tooling.
 
 ## Responsibility convergence
 
@@ -79,7 +126,7 @@ Canonical Firestore business data is projected, never imported back as a second 
 
 The executable `workspaceOneClickProvisioning` fixtures use the real orchestrator, encrypted grant lifecycle, binding promotion, canonical projection builder and request-interpreting workbook model. They are deterministic provider emulation, not actual Google/Firebase/Render acceptance. Owner live clean acceptance remains CLEAN_PROJECT_TEMPLATE_ACCEPTANCE after merge/verification. RESET_TEST_PROJECTS is NOT_EXECUTED: a separate owner-reviewed operation may delete disposable historical Projects including the old Beta2 Project, preserve users/auth/infrastructure and approved global identities, then create fresh Projects for all profiles and verify exact resources/tabs/idempotence. No Q-PRJ-007/Q-PRJ-008 mutation or deletion is part of this source unit.
 
-## Local verification observation — 2026-11-02
+## Historical initial-engine verification observation — 2026-11-02
 
 GWS-ONE engine + React journey: 51/51 PASS. This includes the actual React primary control driving the real orchestrator, encrypted grant/callback validation, binding promotion, resource receipts, canonical projection builder and workbook mutation interpreter from one click. The 12-configuration matrix repeats ensure 20 times per configuration with one folder, one Spreadsheet, one Script and 13 uniquely owned tabs. An empty fresh Project produces neutral canonical references without fabricated rows. Double-click joins, folder/Sheet lost responses, before-create failure, persisted identities, process lease expiry/stale owner fencing, content install/verification interruption, every major temporary-provider phase, revoked grants, wrong operations and untrusted payload sanitization are covered. The ambiguous Script-create result is an accepted PASS only when attention is durable and additional create calls remain zero.
 

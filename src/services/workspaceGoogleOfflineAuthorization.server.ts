@@ -145,7 +145,7 @@ export class WorkspaceGoogleOfflineAuthorization {
     await this.database.runTransaction(async(tx:any)=>{
       await this.workspace.authorized(tx,pending.projectId,who);
       this.checkPendingBinding((await tx.get(continuityRef(this.database,pending.projectId))).data(),pending);
-      tx.set(ar,{authorizationId,projectId:pending.projectId,actorId:pending.actorId,subject:grant.subject,spreadsheetId:pending.spreadsheetId,bindingRevision:pending.bindingRevision,scopes:grant.scopes,status:'PENDING_VALIDATION',automationRequested:pending.automation,secret,updatedAt:Date.now(),expiresAt:Date.now()+600000});
+      tx.set(ar,{authorizationId,...(pending.operationId?{provisioningOperationId:pending.operationId}:{}),projectId:pending.projectId,actorId:pending.actorId,subject:grant.subject,spreadsheetId:pending.spreadsheetId,bindingRevision:pending.bindingRevision,scopes:grant.scopes,status:'PENDING_VALIDATION',automationRequested:pending.automation,secret,updatedAt:Date.now(),expiresAt:Date.now()+600000});
     });
     try {
       const refreshed=await this.refreshProof(openWorkspaceSecret(secret,this.aad(pending.projectId,grant.subject,authorizationId),c),pending.subject,c);
