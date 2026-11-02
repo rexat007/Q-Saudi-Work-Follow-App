@@ -21,20 +21,21 @@ export function contextualAction(group: RosterEntityReviewGroup, canMutate: bool
 /** Working host receipt only. No persistence, replay journal or Phase-8 lifecycle. */
 export class ContextualPrerequisiteReceipts {
   private receipts=new Map<string,{result:unknown;converged:boolean}>();
-  private busy=new Set<string>();
+  private busy=new Map<string,symbol>();
+  clear(){this.receipts.clear();this.busy.clear();}
   hasPending(key:string){const receipt=this.receipts.get(key);return Boolean(receipt&&!receipt.converged);}
   pending(key:string){const receipt=this.receipts.get(key);return receipt&&!receipt.converged?receipt.result:undefined;}
   record(key:string,result:unknown){if(!this.receipts.has(key))this.receipts.set(key,{result,converged:false});}
   async converge<T>(key:string,command:()=>Promise<T>,refresh:(result:T)=>Promise<void>,isCurrent:()=>boolean){
     if(this.busy.has(key)||!isCurrent())return false;
-    this.busy.add(key);
+    const owner=Symbol('contextual-convergence');this.busy.set(key,owner);
     try {
       let receipt=this.receipts.get(key);
       if(!receipt){const result=await command();if(!isCurrent())return false;this.record(key,result);receipt=this.receipts.get(key)!;}
       await refresh(receipt.result as T);
       if(!isCurrent())return false;
       receipt.converged=true;return true;
-    }finally{this.busy.delete(key);}
+    }finally{if(this.busy.get(key)===owner)this.busy.delete(key);}
   }
 }
 export function contextualReceiptKey(projectId:string,batchId:string,group:Pick<RosterEntityReviewGroup,'normalizedSourceKey'>,action:string){return JSON.stringify([projectId,batchId,group.normalizedSourceKey,action]);}

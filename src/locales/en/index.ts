@@ -1,6 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "import.assurance.search": "Search by name, ID or natural identity",
+  "import.assurance.previous": "Previous",
+  "import.assurance.next": "Next",
+  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.options": "Refine the search to find another identity ({count} shown)",
   "gws.host_unavailable": "The application service is temporarily unavailable. Retry when it is reachable.",
   "gws.google_service_unavailable": "Google is temporarily unavailable. Your binding and pending work are preserved.",
   "gws.google_network_error": "The connection to Google timed out or was interrupted. Retry without recreating the workspace.",

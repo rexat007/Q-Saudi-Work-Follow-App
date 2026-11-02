@@ -21,17 +21,20 @@ const blockingResolution = (r: NonNullable<ImportRow['entityResolutions']>[strin
 /** One pure authority for selected-ID coherence and consequences. Never performs commands. */
 export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: PipelineContext): RosterCanonicalIntent {
   const intent: RosterCanonicalIntent = { projectId: batch.projectId, sourceRows: batch.rows.map(row => row.sourceLocation ? {...row.sourceLocation} : {sourceType:batch.source.sourceType, sourceSheetName:batch.source.sourceSheetName, internalRowNumber:row.rowNumber}), rowDecisions: [], entities: [], assignmentIntents: [], allocationIntents: [], entityConsequences: [], blockers: [], warnings: [], requiresDisplacementApproval: false, signature: '' };
-  const block = (code: string, rows: number[]) => { const existing = intent.blockers.find(i => i.code === code && stable(i.rowNumbers) === stable(sortedNumbers(rows))); if (!existing) intent.blockers.push({ code, rowNumbers: sortedNumbers(rows) }); };
+  const blockerKeys = new Set<string>();
+  const block = (code: string, rows: number[]) => {const numbers=sortedNumbers(rows), key=code+':'+numbers.join(',');if(!blockerKeys.has(key)){blockerKeys.add(key);intent.blockers.push({code,rowNumbers:numbers});}};
   const ctx = context.resolutionContext;
   const available = ctx && ctx.projectId === batch.projectId && context.projectId === batch.projectId;
   if (!available) block('RELATIONSHIP_CONTEXT_UNAVAILABLE', batch.rows.filter(r => r.status !== 'REJECTED').map(r => r.rowNumber));
   const entities = new Map<string, IntentEntity>();
   const conflictingPrepared = new Set<string>();
   const canonical = new Map<string, ImportResolutionEntity>();
+  const naturalIdentities=new Set<string>(), invalidNaturalKinds=new Set<string>();
   for (const e of ctx?.entities || []) {
     const key = `${e.kind}:${e.id}`;
     if (canonical.has(key)) block('CANONICAL_INTEGRITY_ERROR', batch.rows.map(r => r.rowNumber));
     canonical.set(key, e);
+    if(e.naturalKey)try{naturalIdentities.add(`${e.kind}:${normalizeNaturalKey(e.kind,e.naturalKey)}`);}catch{invalidNaturalKinds.add(e.kind);}
   }
   const assignments = new Map<string, AssignmentIntent>();
   const allocations = new Map<string, AllocationIntent>();
@@ -57,7 +60,7 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
         if (!plan || !natural || !plan.carrierId || key === 'driver' && !r.preparedDriverPlan?.driverName.trim()) { block('PREPARED_ENTITY_CONFLICT', [row.rowNumber]); invalid = true; continue; }
         try {
           normalizeNaturalKey(key === 'driver' ? 'DRIVER' : 'TRUCK', natural);
-          if (ctx?.entities.some(e => e.kind === key.toUpperCase() && e.naturalKey && normalizeNaturalKey(e.kind, e.naturalKey) === natural)) { block('PREPARED_ENTITY_CONFLICT', [row.rowNumber]); invalid = true; continue; }
+          if (naturalIdentities.has(`${key.toUpperCase()}:${natural}`)||invalidNaturalKinds.has(key.toUpperCase())) { block('PREPARED_ENTITY_CONFLICT', [row.rowNumber]); invalid = true; continue; }
         } catch { block('PREPARED_ENTITY_CONFLICT', [row.rowNumber]); invalid = true; continue; }
         const normalized = key === 'driver' ? { ...plan, driverName: normalizeName(r.preparedDriverPlan!.driverName), residencyId: natural, phone: normalizePhone(r.preparedDriverPlan!.phone || '') } : { ...plan, plateNumber: natural };
         entity = { key: `prepared:${key}:${natural}`, kind: key.toUpperCase() as IntentEntity['kind'], label: key === 'driver' ? r.preparedDriverPlan!.driverName : r.preparedTruckPlan!.plateNumber, prepared: true, carrierId: plan.carrierId, plan: normalized, rowNumbers: [row.rowNumber] };
@@ -73,7 +76,7 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
       const mapKey = `${entity.kind}:${entity.key}`, existing = entities.get(mapKey);
       if (existing) {
         if (stable(existing.plan) !== stable(entity.plan) || existing.carrierId !== entity.carrierId) conflictingPrepared.add(mapKey);
-        existing.rowNumbers = sortedNumbers([...existing.rowNumbers, row.rowNumber]);
+        existing.rowNumbers.push(row.rowNumber);
       } else entities.set(mapKey, entity);
     }
     decision.entities = ids;
@@ -93,6 +96,7 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
       else allocations.set(pair, { truckId: ids.truck, materialId: ids.material, action: 'ALLOCATE', displaced: null, rowNumbers: [row.rowNumber] });
     }
   }
+  for (const entity of entities.values()) entity.rowNumbers = sortedNumbers(entity.rowNumbers);
   for (const key of conflictingPrepared) block('PREPARED_ENTITY_CONFLICT', entities.get(key)!.rowNumbers);
   const conflict = <T extends { rowNumbers: number[] }>(items: T[], source: (item: T) => string, target: (item: T) => string, code: string) => {
     const groups = new Map<string, T[]>();
@@ -136,13 +140,15 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
     }
     if (displayEntity && !intent.entityConsequences.some(c => c.key === receipt.key && c.action === receipt.action)) intent.entityConsequences.push({ key: receipt.key, action: receipt.action, completed: true, rowNumbers: receipt.rowNumbers || displayEntity.rowNumbers });
   }
-  for (const e of ctx?.entities || []) {
-    if (!intent.entities.some(i => i.kind === e.kind && i.key === e.id) && (intent.assignmentIntents.some(a => a.displaced.some(d => e.kind === 'DRIVER' && d.driverId === e.id || e.kind === 'TRUCK' && d.truckId === e.id)) || intent.allocationIntents.some(a => e.kind === 'MATERIAL' && a.displaced?.materialId === e.id))) intent.entities.push({ key: e.id, kind: e.kind, label: e.name, prepared: false, rowNumbers: [] });
-  }
+  const included = new Set(intent.entities.map(e=>`${e.kind}:${e.key}`)), displaced = new Set<string>();
+  for(const a of intent.assignmentIntents)for(const d of a.displaced){displaced.add(`DRIVER:${d.driverId}`);displaced.add(`TRUCK:${d.truckId}`);}
+  for(const a of intent.allocationIntents)if(a.displaced)displaced.add(`MATERIAL:${a.displaced.materialId}`);
+  for(const e of ctx?.entities || [])if(!included.has(`${e.kind}:${e.id}`)&&displaced.has(`${e.kind}:${e.id}`))intent.entities.push({key:e.id,kind:e.kind,label:e.name,prepared:false,rowNumbers:[]});
   intent.requiresDisplacementApproval = intent.assignmentIntents.some(a => a.action === 'REASSIGN') || intent.allocationIntents.some(a => a.action === 'REALLOCATE');
   intent.blockers.sort((a, b) => stable(a).localeCompare(stable(b)));
   // Include labels/plans, row decisions, and current relation IDs: a changed review never retains approval.
-  intent.signature = stable({ ...intent, signature: undefined, sourceEvidence: batch.rows.map(r => ({ rowNumber: r.rowNumber, status: r.status === 'REJECTED' ? 'EXCLUDED' : 'INCLUDED', canonical: r.canonical, raw: r.raw })), current: (ctx?.entities || []).filter(e => intent.entities.some(i => i.kind === e.kind && i.key === e.id)).map(e => ({ kind: e.kind, id: e.id, assignment: e.assignment, allocation: e.allocation, affiliation: e.affiliation, issue: e.issue })).sort((a, b) => stable(a).localeCompare(stable(b))) });
+  const includedEntities = new Set(intent.entities.map(e=>`${e.kind}:${e.key}`));
+  intent.signature = stable({ ...intent, signature: undefined, sourceEvidence: batch.rows.map(r => ({ rowNumber: r.rowNumber, status: r.status === 'REJECTED' ? 'EXCLUDED' : 'INCLUDED', canonical: r.canonical, raw: r.raw })), current: (ctx?.entities || []).filter(e => includedEntities.has(`${e.kind}:${e.id}`)).map(e => ({ kind: e.kind, id: e.id, assignment: e.assignment, allocation: e.allocation, affiliation: e.affiliation, issue: e.issue })).sort((a, b) => stable(a).localeCompare(stable(b))) });
   return intent;
 }
 export function canAcceptRosterIntent(intent: RosterCanonicalIntent, displacementSignature?: string): boolean {

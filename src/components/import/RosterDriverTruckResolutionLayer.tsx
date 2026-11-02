@@ -1,3 +1,5 @@
+import {useImportGroupPage} from './ImportGroupPage';
+import {useImportConfirmation} from './ImportConfirmation';
 import { CanonicalFleetIdentityEditor } from '../masterData/CanonicalFleetIdentityEditor';
 import { contextualFleetDefaults, type ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
@@ -40,6 +42,8 @@ export interface NewTruckFormData {
 }
 
 export interface RosterDriverTruckResolutionLayerProps {
+  onCanonicalSelect?: (group: RosterEntityReviewGroup, id: string) => Promise<void>;
+  beginCommand?: () => (() => void) | null;
   receipts?: ContextualPrerequisiteReceipts;
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
@@ -78,7 +82,7 @@ export function extractGroupCarrierContext(group: RosterEntityReviewGroup): stri
 }
 
 export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolutionLayerProps> = ({
-  importBatch, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
+  importBatch, beginCommand, onCanonicalSelect, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectDrivers = [],
   projectTrucks = [],
   onAcceptCandidate,
@@ -96,6 +100,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   embeddedInWorkflowHost = false,
 }) => {
   const { t } = useI18n();
+  const cancellation = useImportConfirmation(`${importBatch.projectId}:${importBatch.importBatchId}`);
   const [selectedAlternateDriver, setSelectedAlternateDriver] = useState<Record<string, string>>({});
   const [selectedAlternateTruck, setSelectedAlternateTruck] = useState<Record<string, string>>({});
 
@@ -137,8 +142,11 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
   const creatingGroup=creatingDriverGroup||creatingTruckGroup;
   const defaults=creatingGroup?contextualFleetDefaults(importBatch,creatingGroup):undefined;
   const creationCarriers=(canonicalContext?.importResolution?.entities||[]).filter(e=>e.kind==='CARRIER'&&e.membershipStatus==='ACTIVE'&&e.globalStatus==='ACTIVE'&&!e.issue);
+  const driverGroupsPage=useImportGroupPage(driverGroups);
+  const truckGroupsPage=useImportGroupPage(truckGroups);
   const panelContent = (
     <>
+      {cancellation.dialog}
       <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-4xl shadow-2xl max-h-[90vh]'}`}>
       {/* Header */}
       <div className="p-5 border-b border-stone-800 bg-stone-950 flex justify-between items-center shrink-0">
@@ -266,7 +274,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               </div>
 
               <div className="space-y-3">
-                {driverGroups.map((group) => {
+                {driverGroupsPage.pager}
+                {driverGroupsPage.visible.map((group) => {
                   const isResolved = group.status === 'AUTO_RESOLVED';
                   const isConflict = group.status === 'CONFLICT';
                   const isReviewRequired = group.status === 'REVIEW_REQUIRED';
@@ -334,7 +343,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
-                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenDriverCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision beginCommand={beginCommand} receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onCanonicalSelect?onCanonicalSelect(group,id):onSelectAlternate?.(group,id)} onCreate={()=>handleOpenDriverCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                       {/* Action Controls for Unresolved Driver Groups */}
                       {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -431,7 +440,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
               </div>
 
               <div className="space-y-3">
-                {truckGroups.map((group) => {
+                {truckGroupsPage.pager}
+                {truckGroupsPage.visible.map((group) => {
                   const isResolved = group.status === 'AUTO_RESOLVED';
                   const isConflict = group.status === 'CONFLICT';
                   const isReviewRequired = group.status === 'REVIEW_REQUIRED';
@@ -499,7 +509,7 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                         </div>
                       </div>
 
-                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>handleOpenTruckCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                      {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision beginCommand={beginCommand} receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} carrierId={extractGroupCarrierContext(group)} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onCanonicalSelect?onCanonicalSelect(group,id):onSelectAlternate?.(group,id)} onCreate={()=>handleOpenTruckCreation(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                       {/* Action Controls for Unresolved Truck Groups */}
                       {!canonicalContext && !isResolved && (
                         <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -604,8 +614,8 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
             {onCancelImport ? (
               <button
                 type="button"
-                onClick={() => {
-                  if (window.confirm(t('entityResolution.messages.confirm_cancel_import'))) {
+                onClick={async () => {
+                  if (await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))) {
                     onCancelImport();
                   }
                 }}

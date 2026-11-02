@@ -1,5 +1,11 @@
+import {classifyImportFailure} from '../services/import/rosterInteractionAuthority';
 export function resolutionErrorKey(error: unknown): string {
   const code=typeof error==='object'&&error ? String((error as any).code || (error as any).message || '') : String(error||'');
+  if(code==='CONTEXT_UNAVAILABLE')return 'import.resolution.context';
+  const category=classifyImportFailure(error);
+  if(code.includes('VERSION_CONFLICT'))return 'projects.batch4.import_version_conflict';
+  if(code.includes('CHECKPOINT'))return 'projects.batch4.checkpoint_persistence_failed';
+  if(category==='RETRYABLE_TRANSIENT')return 'import.resolution.refresh';
   if(code.includes('MUTATION_REFRESH_PENDING'))return 'import.resolution.refresh';
   if(code.includes('INVALID_NATURAL_KEY'))return 'import.resolution.identity';
   if(code.includes('STALE'))return 'import.resolution.stale';

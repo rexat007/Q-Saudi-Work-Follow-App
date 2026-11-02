@@ -4,10 +4,28 @@ import { normalizeName, normalizeIdNumber, normalizePlate, normalizeCode } from 
 import { evaluateGlobalEligibility, normalizeNaturalKey } from '../../utils/globalIdentityPolicy';
 export type ResolutionKey = 'carrier' | 'material' | 'driver' | 'truck';
 const idKeys = { carrier:'carrierId', material:'materialId', driver:'driverId', truck:'truckId' } as const;
+const indexKey=Symbol('roster-resolution-index');
+type Lookup=Map<string,Entity[]>;
+interface ResolutionIndex {groups:Record<ResolutionKey,Entity[]>;ids:Record<ResolutionKey,Lookup>;natural:Record<ResolutionKey,Lookup>;names:Record<ResolutionKey,Lookup>;validNatural:Record<ResolutionKey,Map<string,number>>;order:Map<Entity,number>}
+const naturalValue=(key:ResolutionKey,value:string)=>key==='driver'||key==='carrier'?normalizeIdNumber(value):key==='truck'?normalizePlate(value):normalizeCode(value);
+/** One immutable read snapshot per pass, never a cache surviving a canonical refresh. */
+export function withCanonicalResolutionIndex(context:PipelineContext):PipelineContext {
+ if(!context.resolutionContext)return context;
+ const index:ResolutionIndex={groups:{} as ResolutionIndex['groups'],ids:{} as ResolutionIndex['ids'],natural:{} as ResolutionIndex['natural'],names:{} as ResolutionIndex['names'],validNatural:{} as ResolutionIndex['validNatural'],order:new Map()};
+ const add=(map:Lookup,key:string,e:Entity)=>{const values=map.get(key)||[];values.push(e);map.set(key,values);};
+ for(const key of ['carrier','material','driver','truck'] as ResolutionKey[]){
+  const values=context.resolutionContext.entities.filter(e=>e.kind===key.toUpperCase());index.groups[key]=values;index.ids[key]=new Map();index.natural[key]=new Map();index.names[key]=new Map();index.validNatural[key]=new Map();
+  for(const entity of values){index.order.set(entity,index.order.size);add(index.ids[key],entity.id,entity);for(const name of new Set([normalizeName(entity.name),...(entity.aliases||[]).map(normalizeName)]))add(index.names[key],name,entity);
+   if(entity.naturalKey){add(index.natural[key],naturalValue(key,entity.naturalKey),entity);try{const value=normalizeNaturalKey(entity.kind,entity.naturalKey);index.validNatural[key].set(value,(index.validNatural[key].get(value)||0)+1);}catch{/* Existing resolution reports malformed identity; indexing never repairs it. */}}
+  }
+ }
+ return Object.assign({...context},{[indexKey]:index});
+}
+const resolutionIndex=(context:PipelineContext)=>(context as PipelineContext & {[indexKey]?:ResolutionIndex})[indexKey];
 export function resolutionEntities(context: PipelineContext, key: ResolutionKey): Entity[] {
   if (context.resolutionContext) {
     if (context.resolutionContext.projectId !== context.projectId) throw Error('PROJECT_CONTEXT_STALE');
-    return context.resolutionContext.entities.filter(e=>e.kind===key.toUpperCase());
+    return resolutionIndex(context)?.groups[key] || context.resolutionContext.entities.filter(e=>e.kind===key.toUpperCase());
   }
   // Compatibility for pre-existing pure test/Trip contexts. Production import hosts require
   // the server's expanded context; this does not fetch or invent missing Global identities.
@@ -19,7 +37,7 @@ export function selectedResolution(entity: Entity, source: string, carrierId: st
   let reason=entity.issue?'CANONICAL_INTEGRITY_ERROR':!policy.CAN_USE_OPERATIONALLY?'GLOBAL_ENTITY_INELIGIBLE':entity.membershipStatus===null?'MEMBERSHIP_MISSING':entity.membershipStatus!=='ACTIVE'?'MEMBERSHIP_STATE_CONFLICT':undefined;
   if (!reason && (entity.kind==='DRIVER'||entity.kind==='TRUCK')) {
     if (!entity.affiliation || entity.affiliation.status!=='ACTIVE'|| !carrierId || entity.affiliation.carrierId!==carrierId) reason='AFFILIATION_CONFLICT';
-    if (carrierId && !resolutionEntities(context,'carrier').some(c=>c.id===carrierId&&c.membershipStatus==='ACTIVE'&&c.globalStatus==='ACTIVE'&&!c.issue)) reason='AFFILIATION_CONFLICT';
+    if (carrierId && !(resolutionIndex(context)?.ids.carrier.get(carrierId)||resolutionEntities(context,'carrier')).some(c=>c.id===carrierId&&c.membershipStatus==='ACTIVE'&&c.globalStatus==='ACTIVE'&&!c.issue)) reason='AFFILIATION_CONFLICT';
   }
   return {entityType:entity.kind,originalValue:source,sourceValue:source,matchedId:entity.id,matchedName:entity.name,entityId:entity.id,matchedValue:entity.name,confidence:1,isExact:true,isAuthorized:!reason,matchMethod:'EXACT',recommendation:reason?'REVIEW':'ACCEPT',riskLevel:reason?'CRITICAL':'LOW',relationshipStatus:reason?(reason==='AFFILIATION_CONFLICT'&&entity.kind==='DRIVER'?'DRIVER_CARRIER_CONFLICT':'RELATIONSHIP_CONFLICT'):'VALID',canonicalState:entity,resolutionReason:reason,decision:'REUSE_ACTIVE'};
 }
@@ -28,35 +46,35 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
   for(const key of ['carrier','material','driver','truck'] as ResolutionKey[]){
     const source=String(key==='carrier'?row.carrierName||row.carrierId||row.commercialRegistrationNo||'':key==='material'?row.materialName||row.materialCode||row.materialId||'':key==='driver'?row.driverName||row.driverIdentity||'':row.truckPlate||'');
     if(!source && !(key==='material'&&row.materialId) && !(key==='carrier'&&row.carrierId))continue;
-    const entities=resolutionEntities(context,key),old=previous?.[key];
+    const entities=resolutionEntities(context,key),old=previous?.[key],index=resolutionIndex(context);
     const natural=(v:string)=>key==='driver'?normalizeIdNumber(v):key==='truck'?normalizePlate(v):key==='material'?normalizeCode(v):normalizeIdNumber(v);
     const rawNatural=key==='driver'?row.driverIdentity:key==='truck'?row.truckPlate:key==='material'?row.materialCode:row.commercialRegistrationNo || (/^[0-9]{10}$/.test(normalizeIdNumber(source)) && /^[0-9٠-٩\s-]+$/.test(source) ? source : undefined);
     let candidates:Entity[]=[],reason:string|undefined,method:Resolution['matchMethod']='EXACT',evidenceConflict=false;
     const explicit=old?.decision==='SELECT_ALTERNATE'||old?.decision==='ACCEPT_CANDIDATE'||old?.decision==='REUSE_ACTIVE' ? old.matchedId : undefined;
     const exactId=key==='carrier'?row.carrierId||source:key==='material'?row.materialId:undefined;
     if(rawNatural){
-      const matches=entities.filter(e=>e.naturalKey&&natural(e.naturalKey)===natural(String(rawNatural)));
+      const matches=index?index.natural[key].get(natural(String(rawNatural)))||[]:entities.filter(e=>e.naturalKey&&natural(e.naturalKey)===natural(String(rawNatural)));
       if(matches.length>1) {candidates=matches;reason='CANONICAL_INTEGRITY_ERROR';}
       else candidates=matches;
       if(key==='material'&&row.materialName){
-        const names=entities.filter(e=>normalizeName(e.name)===normalizeName(row.materialName));
+        const names=(index?index.names[key].get(normalizeName(row.materialName))||[]:entities).filter(e=>normalizeName(e.name)===normalizeName(row.materialName));
         if(reason!=='CANONICAL_INTEGRITY_ERROR' && names.length && (!matches.length||!names.some(e=>e.id===matches[0]?.id))){candidates=[...new Map([...matches,...names].map(e=>[e.id,e])).values()];reason='IDENTITY_AMBIGUITY';evidenceConflict=true;}
       }
     } else {
-      candidates=exactId?entities.filter(e=>e.id===exactId):[];
-      if(!candidates.length&&source){candidates=entities.filter(e=>normalizeName(e.name)===normalizeName(source)||e.aliases?.some(a=>normalizeName(a)===normalizeName(source))||key==='carrier'&&e.naturalKey===source);method='NORMALIZED';}
+      candidates=exactId?(index?index.ids[key].get(exactId)||[]:entities.filter(e=>e.id===exactId)):[];
+      if(!candidates.length&&source){candidates=index?[...new Set([...(index.names[key].get(normalizeName(source))||[]),...(key==='carrier'?(index.natural[key].get(natural(source))||[]).filter(e=>e.naturalKey===source):[])])].sort((a,b)=>index.order.get(a)!-index.order.get(b)!):entities.filter(e=>normalizeName(e.name)===normalizeName(source)||e.aliases?.some(a=>normalizeName(a)===normalizeName(source))||key==='carrier'&&e.naturalKey===source);method='NORMALIZED';}
       if(!candidates.length&&normalizeName(source)){candidates=entities.filter(e=>normalizeName(e.name).includes(normalizeName(source))||normalizeName(source).includes(normalizeName(e.name)));if(candidates.length){reason='IDENTITY_AMBIGUITY';method='FUZZY';}}
       if(candidates.length===1&&(key==='carrier'||key==='material')&&candidates[0].name===source)method='EXACT';
       if(candidates.length>1)reason='IDENTITY_AMBIGUITY';
     }
     if (explicit && rawNatural && reason !== 'CANONICAL_INTEGRITY_ERROR') {
-      const selected = entities.find(e => e.id === explicit);
+      const selected = index?index.ids[key].get(explicit)?.[0]:entities.find(e => e.id === explicit);
       if (!selected?.naturalKey || natural(selected.naturalKey) !== natural(String(rawNatural))) {
         reason = 'IDENTITY_AMBIGUITY'; evidenceConflict = true;
       }
     }
     if(explicit&&reason!=='CANONICAL_INTEGRITY_ERROR'&&!evidenceConflict){
-      const selected=entities.filter(e=>e.id===explicit);
+      const selected=index?index.ids[key].get(explicit)||[]:entities.filter(e=>e.id===explicit);
       if(selected.length===1){candidates=selected;reason=undefined;method='EXACT';}else reason='CANONICAL_INTEGRITY_ERROR';
     }
     if(old?.decision==='LEAVE_UNRESOLVED'&&reason!=='CANONICAL_INTEGRITY_ERROR'&&!evidenceConflict){
@@ -65,7 +83,7 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
     if(candidates.length===1&&candidates[0].naturalKey){
       try {
         const selected=candidates[0], keyValue=normalizeNaturalKey(selected.kind,selected.naturalKey);
-        if(entities.filter(e=>{try{return e.naturalKey&&normalizeNaturalKey(e.kind,e.naturalKey)===keyValue}catch{return false}}).length!==1)reason='CANONICAL_INTEGRITY_ERROR';
+        if((index?index.validNatural[key].get(keyValue):entities.filter(e=>{try{return e.naturalKey&&normalizeNaturalKey(e.kind,e.naturalKey)===keyValue}catch{return false}}).length)!==1)reason='CANONICAL_INTEGRITY_ERROR';
       }catch{reason='CANONICAL_INTEGRITY_ERROR';}
     }
     if(candidates.length===1&&!reason){

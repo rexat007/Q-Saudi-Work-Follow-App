@@ -8,19 +8,26 @@ import { ContextualPrerequisiteReceipts, contextualAction, contextualReceiptKey,
 import { useProjectEditorLifetime } from '../wizard/useProjectEditorLifetime';
 import { resolutionErrorKey } from '../../i18n/importResolution';
 export interface CanonicalDecisionProps {
+  beginCommand?: () => (() => void) | null;
   receipts?: ContextualPrerequisiteReceipts; receiptScope?: string;
   projectId: string; context: RelationshipContext; group: RosterEntityReviewGroup;
   onSelect: (id: string) => Promise<void>|void; onCreate: () => void;
   onVerified: (context: RelationshipContext, id: string, prerequisite?: string) => Promise<void>|void;
   isCurrent: () => boolean; canMutate?: boolean; carrierId?: string; disabled?: boolean;
 }
-export function CanonicalResolutionDecision({projectId,context,group,onSelect,onCreate,onVerified,isCurrent,carrierId,disabled,canMutate=true,receipts,receiptScope='working'}:CanonicalDecisionProps){
+export function CanonicalResolutionDecision({projectId,context,group,onSelect,onCreate,onVerified,isCurrent,carrierId,disabled,canMutate=true,receipts,receiptScope='working',beginCommand}:CanonicalDecisionProps){
+  const lock=useRef(false);
+  const [query,setQuery]=useState('');
   const {t}=useI18n();const [selected,setSelected]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState<string|null>(null);
   const localReceipts=useRef(new ContextualPrerequisiteReceipts()).current;
   const ledger=receipts||localReceipts, life=useProjectEditorLifetime(projectId,true,isCurrent);
   const entity=context.importResolution?.entities.find(e=>e.kind===group.entityType.toUpperCase()&&e.id===(group.matchedId||group.currentResolution?.matchedId||group.currentResolution?.canonicalState?.id)),reason=group.currentResolution?.resolutionReason;
   const options=context.importResolution?.entities.filter(e=>e.kind===group.entityType.toUpperCase())||[];
   const candidates=[...new Map([...options,...group.candidates.map(c=>c.canonicalState).filter(Boolean)].map(e=>[e.id,e])).values()];
+  const search=query.trim().toLocaleLowerCase();
+  const filtered=candidates.filter(e=>!search||`${e.name} ${e.id} ${e.naturalKey||''}`.toLocaleLowerCase().includes(search));
+  const visibleCandidates=filtered.slice(0,100);
+  const chosen=candidates.find(e=>e.id===selected);if(chosen&&!visibleCandidates.includes(chosen))visibleCandidates.push(chosen);
   const state=contextualAction(entity?{...group,currentResolution:{...group.currentResolution!,canonicalState:entity}}:group,canMutate,carrierId);
   const action=state==='ENROLL_EXISTING'?'ENROLL':state==='REACTIVATE_MEMBERSHIP'?'REACTIVATE':state==='SET_AFFILIATION'?'SET_AFFILIATION':state==='REACTIVATE_AFFILIATION'?'REACTIVATE_AFFILIATION':null;
   const key=contextualReceiptKey(projectId,receiptScope,{normalizedSourceKey:entity?`${entity.kind}:${entity.id}`:group.normalizedSourceKey},action||'NONE');
@@ -28,7 +35,8 @@ export function CanonicalResolutionDecision({projectId,context,group,onSelect,on
   const choose=Boolean(selected&&state!=='BLOCKED_BY_INTEGRITY');
   const create=state==='CREATE_NEW'&&!selected;
   const run=async()=>{
-    if(busy||disabled||!isCurrent()||state==='BLOCKED_BY_INTEGRITY'||(!choose&&!canMutate))return;
+    if(lock.current||busy||disabled||!isCurrent()||state==='BLOCKED_BY_INTEGRITY'||(!choose&&!canMutate))return;
+    const release=beginCommand?.(); if(beginCommand&&!release)return; lock.current=true;
     const request=life.capture(),current=()=>life.isCurrent(request);
     setBusy(true);setError(null);
     try{
@@ -45,7 +53,7 @@ export function CanonicalResolutionDecision({projectId,context,group,onSelect,on
         if(current())await onVerified(fresh,entity.id,action==='SET_AFFILIATION'?'AFFILIATE':action);
       },current);
     }catch(e){if(current())setError(ledger.hasPending(key)?'import.resolution.refresh':resolutionErrorKey(e));}
-    finally{if(current())setBusy(false);}
+    finally{lock.current=false;release?.();if(current())setBusy(false);}
   };
   const currentName=(id:string)=>context.importResolution?.entities.find(e=>e.id===id)?.name||id;
   return <div className="space-y-2 rounded-lg border border-stone-700 bg-stone-900 p-3 text-xs text-stone-100">
@@ -57,7 +65,8 @@ export function CanonicalResolutionDecision({projectId,context,group,onSelect,on
       {entity.assignment&&<p>{t('setup.assignment')}: {currentName(entity.assignment.driverId)} → {currentName(entity.assignment.truckId)}</p>}
       {entity.allocation&&<p>{t('setup.allocation')}: {currentName(entity.allocation.materialId)}</p>}
     </div>}
-    {!committed&&candidates.length>0&&<select aria-label={t('import.resolution.candidate')} className="w-full min-w-0 rounded border border-stone-700 bg-stone-950 p-2" value={selected} disabled={busy||disabled||state==='BLOCKED_BY_INTEGRITY'} onChange={e=>setSelected(e.target.value)}><option value="">{t('setup.choose')}</option>{candidates.map(e=><option key={e.id} value={e.id}>{e.name} · {e.id}</option>)}</select>}
+    {!committed&&candidates.length>100&&<label>{t('import.assurance.search')}<input type="search" value={query} onChange={e=>setQuery(e.target.value)} className="w-full min-w-0 bg-stone-950 p-2"/><small>{t('import.assurance.options',{count:visibleCandidates.length})}</small></label>}
+    {!committed&&candidates.length>0&&<select aria-label={t('import.resolution.candidate')} className="w-full min-w-0 rounded border border-stone-700 bg-stone-950 p-2" value={selected} disabled={busy||disabled||state==='BLOCKED_BY_INTEGRITY'} onChange={e=>setSelected(e.target.value)}><option value="">{t('setup.choose')}</option>{visibleCandidates.map(e=><option key={e.id} value={e.id}>{e.name} · {e.id}</option>)}</select>}
     {(choose||create||action||committed)&&<button type="button" disabled={busy||disabled||(!choose&&!canMutate)} className="rounded bg-amber-700 px-3 py-2 disabled:opacity-50" onClick={()=>void run()}>{t(busy?'shared.status.loading':committed?'setup.retry':choose?(selected===entity?.id?'entityResolution.labels.accept_suggested_match':'entityResolution.labels.choose_alternative'):create?'import.resolution.identify':action==='ENROLL'?'import.resolution.enroll':action==='REACTIVATE'?'import.resolution.reactivate':'import.resolution.affiliation')}</button>}
     {error&&<p role="alert">{t(error)}</p>}
   </div>;

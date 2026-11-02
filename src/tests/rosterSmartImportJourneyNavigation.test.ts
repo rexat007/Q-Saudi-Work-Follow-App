@@ -47,12 +47,12 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   // B. CANCEL PATHS & CLEAN SOURCE RESET
   it('11. Cancel at Mapping returns cleanly to SOURCE_DISCOVERY', () => {
-    expect(wizardContent).toContain('onClick={handleCancelRosterImport}');
+    expect(wizardContent).toContain('onClick={() => void requestRosterCancellation()}');
   });
 
   it('12. Cancel at Carrier calls onCancelImport (handleCancelRosterImport)', () => {
     expect(carrierLayerContent).toContain('onCancelImport');
-    expect(carrierLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    expect(carrierLayerContent).toContain("await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
       expect(typeof template).toBe('string');
@@ -64,7 +64,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('13. Cancel at Material calls onCancelImport (handleCancelRosterImport)', () => {
     expect(materialLayerContent).toContain('onCancelImport');
-    expect(materialLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    expect(materialLayerContent).toContain("await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
       expect(typeof template).toBe('string');
@@ -76,7 +76,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('14. Cancel at Driver/Truck calls onCancelImport (handleCancelRosterImport)', () => {
     expect(driverTruckLayerContent).toContain('onCancelImport');
-    expect(driverTruckLayerContent).toContain("window.confirm(t('entityResolution.messages.confirm_cancel_import'))");
+    expect(driverTruckLayerContent).toContain("await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))");
     for (const locale of ['ar', 'en', 'ur'] as const) {
       const template = dictionaries[locale]['entityResolution.messages.confirm_cancel_import'];
       expect(typeof template).toBe('string');
@@ -180,8 +180,8 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
     expect(wizardContent).toContain('setSmartImportCommitError');
   });
 
-  it('26. Blocked progression provides user-visible alert feedback', () => {
-    expect(wizardContent).toContain("alert(presentBatch4Message(t('projects.batch4.final_review_pending'), t))");
+  it('26. Blocked progression provides owned inline alert feedback', () => {
+    expect(wizardContent).toContain("setImportError(presentBatch4Message(t('projects.batch4.final_review_pending'), t))");
     expectCanonicalBatch4Source(wizardContent, 'projects.batch4.final_review_pending');
   });
 
@@ -232,7 +232,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   // G. COMMIT TERMINALITY
   it('32-36. Commit result layer is strictly terminal with single Finish action; repeat commit blocked only on full success', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 600);
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('// C5 Smart Import: Final Review Blocker', fnIdx));
     expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
     expect(fnBlock).toMatch(/if \(smartImportCommitResult !== null && smartImportCommitResult.success\) \{\s*setSmartImportCommitError\(\s*t\('entityResolution.messages.already_committed'\)\s*\);\s*return;/);
     for (const locale of ['ar', 'en', 'ur'] as const) {

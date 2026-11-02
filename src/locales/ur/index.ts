@@ -1,6 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "import.assurance.search": "نام، شناخت کنندہ یا قدرتی شناخت سے تلاش کریں",
+  "import.assurance.previous": "پچھلا",
+  "import.assurance.next": "اگلا",
+  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.options": "دوسری شناخت کے لیے تلاش محدود کریں ({count} دکھائی گئی ہیں)",
   "gws.host_unavailable": "ایپ کی خدمت عارضی طور پر دستیاب نہیں۔ دستیاب ہونے پر دوبارہ کوشش کریں۔",
   "gws.google_service_unavailable": "Google کی خدمت عارضی طور پر دستیاب نہیں۔ ربط اور زیر التوا کام محفوظ ہیں۔",
   "gws.google_network_error": "Google سے رابطہ منقطع ہوا یا وقت ختم ہوگیا۔ ورک اسپیس دوبارہ بنائے بغیر کوشش کریں۔",

@@ -1,3 +1,4 @@
+import {ImportOverlay} from './ImportOverlay';
 import React,{useMemo,useState} from 'react';
 import {useI18n} from '../../i18n';
 import {CarrierEditorModal} from '../masterData/CarrierEditorModal';
@@ -44,12 +45,13 @@ export function ContextualCanonicalCreation({projectId,batch,group,context,recei
   if(!canMutate)throw Error('FORBIDDEN');if(group.currentResolution?.ambiguous||group.currentResolution?.resolutionReason==='CANONICAL_INTEGRITY_ERROR')throw Error('CANONICAL_INTEGRITY_ERROR');
   const request=life.capture(),current=()=>life.isCurrent(request);
   const lookup=await inspectContextualIdentity(projectId,kind,natural,current);
+  if(!current())return false;
   if(lookup.id){await onVerified(lookup.context,lookup.id);if(current())onClose();return false;}return current();
  };
  if(!canMutate)return <p>{t('import.context.noPermission')}</p>;
- if(pending)return <div role="dialog" aria-modal="true" aria-label={t('setup.retry')} className="fixed inset-0 z-60 flex items-center justify-center bg-stone-950/80 p-4"><div className="w-full max-w-lg rounded-xl bg-stone-900 p-4 text-stone-100 space-y-3"><p>{t('import.resolution.refresh')}</p>{error&&<p role="alert">{t(error)}</p>}<button disabled={busy} onClick={()=>void converge(pending).catch(()=>{})}>{t('setup.retry')}</button><button disabled={busy} onClick={onClose}>{t('shared.actions.close')}</button></div></div>;
- if(kind==='CARRIER')return <CarrierEditorModal open mode="CREATE" projectId={projectId} zIndexClass="z-60" initialName={prefill.name} initialCreateValues={prefill} isCurrent={isCurrent} beforeCreate={beforeCreate} onClose={onClose} onCreated={async result=>{if(!result.success||result.projectId!==projectId)throw Error('CONTEXT_UNAVAILABLE');await converge({kind,entityId:result.carrierId});}}/>;
- if(kind==='MATERIAL')return <MaterialEditorModal open mode="CREATE" projectId={projectId} zIndexClass="z-60" initialName={prefill.name} initialCreateValues={prefill} isCurrent={isCurrent} beforeCreate={beforeCreate} onClose={onClose} onCreated={async result=>{if(!result.success||result.projectId!==projectId)throw Error('CONTEXT_UNAVAILABLE');await converge({kind,entityId:result.materialId});}}/>;
+ if(pending)return <ImportOverlay label={t('setup.retry')} busy={busy} allowDismissWhileBusy onDismiss={onClose}><div className="w-full max-w-lg rounded-xl bg-stone-900 p-4 text-stone-100 space-y-3"><p>{t('import.resolution.refresh')}</p>{error&&<p role="alert">{t(error)}</p>}<button disabled={busy} onClick={()=>void converge(pending).catch(()=>{})}>{t('setup.retry')}</button><button onClick={onClose}>{t('shared.actions.close')}</button></div></ImportOverlay>;
+ if(kind==='CARRIER')return <CarrierEditorModal open mode="CREATE" projectId={projectId} initialName={prefill.name} initialCreateValues={prefill} isCurrent={isCurrent} beforeCreate={beforeCreate} onClose={onClose} onCreated={async result=>{if(!result.success||result.projectId!==projectId)throw Error('CONTEXT_UNAVAILABLE');await converge({kind,entityId:result.carrierId});}}/>;
+ if(kind==='MATERIAL')return <MaterialEditorModal open mode="CREATE" projectId={projectId} initialName={prefill.name} initialCreateValues={prefill} isCurrent={isCurrent} beforeCreate={beforeCreate} onClose={onClose} onCreated={async result=>{if(!result.success||result.projectId!==projectId)throw Error('CONTEXT_UNAVAILABLE');await converge({kind,entityId:result.materialId});}}/>;
  const defaults=contextualFleetDefaults(batch,group);
  const carriers=(context.importResolution?.entities||[]).filter(e=>e.kind==='CARRIER'&&e.globalStatus==='ACTIVE'&&e.membershipStatus==='ACTIVE'&&!e.issue);
  return <CanonicalFleetIdentityEditor projectId={projectId} kind={kind as 'DRIVER'|'TRUCK'} initialValues={defaults} conflicts={defaults.conflicts} carriers={carriers} isCurrent={isCurrent} onClose={onClose} planned={Boolean(onPrepare)} onSubmit={async data=>{

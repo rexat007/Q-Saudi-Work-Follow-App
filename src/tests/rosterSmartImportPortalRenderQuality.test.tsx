@@ -2,7 +2,9 @@
 import { I18nProvider } from '../i18n';
 import { canonicalBatch4Label } from './batch4I18nTestSupport';
 import React, { act } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot as createReactRoot } from 'react-dom/client';
+const mountedRoots = new Set<ReturnType<typeof createReactRoot>>();
+const createRoot = (...args: Parameters<typeof createReactRoot>) => {const root=createReactRoot(...args);mountedRoots.add(root);return root;};
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { CarrierEditorModal } from '../components/masterData/CarrierEditorModal';
 import { MaterialEditorModal } from '../components/masterData/MaterialEditorModal';
@@ -21,7 +23,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     document.body.appendChild(container);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Even a failed assertion must release portal focus/pointer ownership before the next test.
+    await act(async () => {for(const root of mountedRoots)root.unmount();});
+    mountedRoots.clear();
     if (container && container.parentNode) {
       container.parentNode.removeChild(container);
     }

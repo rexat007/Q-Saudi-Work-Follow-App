@@ -1,3 +1,4 @@
+import {IMPORT_OVERLAY_LEVEL} from '../components/import/ImportOverlay';
 const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
 const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
@@ -317,10 +318,13 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
     expect(materialLayerContent).toContain('materialGroups.length > 0 && unresolvedCount === 0');
   });
 
-  it('19. Smart Import MaterialEditorModal renders at z-60 above parent Material Resolution layer z-50', () => {
+  it('19. Smart Import MaterialEditorModal uses the owned editor layer above the workflow', () => {
     expect(wizardContent).toContain('key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`}');
     expect(contextualCreation).toContain('<MaterialEditorModal open mode="CREATE"');
-    expect(contextualCreation).toContain('zIndexClass="z-60"');
+    const editor=fs.readFileSync(path.resolve(__dirname,'../components/masterData/MaterialEditorModal.tsx'),'utf8');
+    expect(editor).toContain('<ImportOverlay');
+    expect(wizardContent).toContain('<ImportOverlay level="WORKFLOW"');
+    expect(IMPORT_OVERLAY_LEVEL.EDITOR).toBeGreaterThan(IMPORT_OVERLAY_LEVEL.WORKFLOW);
   });
 });
 

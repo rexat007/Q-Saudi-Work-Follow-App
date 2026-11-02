@@ -1,6 +1,11 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "import.assurance.search": "ابحث بالاسم أو المعرّف أو الهوية",
+  "import.assurance.previous": "السابق",
+  "import.assurance.next": "التالي",
+  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.options": "ضيّق البحث للعثور على هوية أخرى ({count} معروضة)",
   "gws.host_unavailable": "خدمة التطبيق غير متاحة مؤقتًا. أعد المحاولة عند عودتها.",
   "gws.google_service_unavailable": "خدمة Google غير متاحة مؤقتًا. الربط والعمل المعلق محفوظان.",
   "gws.google_network_error": "انتهت مهلة الاتصال بـGoogle أو انقطع. أعد المحاولة دون إعادة إنشاء مساحة العمل.",

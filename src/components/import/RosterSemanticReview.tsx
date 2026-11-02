@@ -1,3 +1,4 @@
+import {useImportGroupPage} from './ImportGroupPage';
 import React, { useState } from 'react';
 import { useI18n } from '../../i18n';
 import type { RosterCanonicalIntent } from '../../types/rosterCanonicalIntent';
@@ -14,9 +15,12 @@ export interface RosterSemanticReviewProps {
 export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, error }: RosterSemanticReviewProps) {
   const { t } = useI18n();
   const [approved, setApproved] = useState<string>();
-  const label = (kind: string, key: string) => intent.entities.find(e => e.kind === kind && e.key === key)?.label || key;
+  const identities=new Map(intent.entities.map(e=>[`${e.kind}:${e.key}`,e]));
+  const label = (kind: string, key: string) => identities.get(`${kind}:${key}`)?.label || key;
+  const identityPage=useImportGroupPage(intent.entityConsequences), assignmentPage=useImportGroupPage(intent.assignmentIntents), allocationPage=useImportGroupPage(intent.allocationIntents);
   const rows = (values: number[]) => {
-    const locations = (intent.sourceRows || []).filter(row => values.includes(row.internalRowNumber) && row.sourceRowNumber !== undefined);
+    const included=new Set(values);
+    const locations = (intent.sourceRows || []).filter(row => included.has(row.internalRowNumber) && row.sourceRowNumber !== undefined);
     return <span className="text-xs text-stone-400 break-words">{t('intent.rows')}: {values.join(', ')}{locations.length > 0 && <> · {t('intent.sourceRows')}: {locations.map(row => `${row.sourceSheetName ? `${row.sourceSheetName}: ` : ''}${row.sourceRowNumber}`).join(', ')}</>}</span>;
   };
   const action = (value: string) => t(`intent.action.${value}`);
@@ -29,16 +33,16 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
     </dl>
     <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">{counts.map(item => <div key={item.action}><dt>{action(item.action)}</dt><dd className="font-bold">{item.count}</dd></div>)}</dl>
     <div className="grid sm:grid-cols-2 gap-3">
-      <section><h4 className="font-bold">{t('intent.identities')}</h4>{intent.entityConsequences.map((c, i) => {
-        const e = intent.entities.find(e => `${e.kind}:${e.key}` === c.key)!;
+      <section><h4 className="font-bold">{t('intent.identities')}</h4>{identityPage.pager}{identityPage.visible.map((c, i) => {
+        const e = identities.get(c.key)!;
         return <div key={`${c.key}:${c.action}:${i}`} className="p-3 border-b border-stone-700 break-words"><span className="font-semibold">{e.label}</span> · {action(c.action)}{e.prepared && <span> · {t(`intent.new.${e.kind}`)}</span>}<p>{rows(c.rowNumbers)}{c.completed && <> · {t('intent.completed')}</>}</p></div>;
       })}</section>
       <section><h4 className="font-bold">{t('intent.relationships')}</h4>
-        {intent.assignmentIntents.map(a => <article key={`assignment:${a.driverId}:${a.truckId}`} className="p-3 border-b border-stone-700 break-words">
+        {assignmentPage.pager}{assignmentPage.visible.map(a => <article key={`assignment:${a.driverId}:${a.truckId}`} className="p-3 border-b border-stone-700 break-words">
           <p className="font-semibold">{action(a.action)}</p><p>{t('intent.driver')}: {label('DRIVER', a.driverId)}</p><p>{t('intent.truck')}: {label('TRUCK', a.truckId)}</p>{rows(a.rowNumbers)}
           {a.displaced.map(d => <p key={d.assignmentId} className="mt-2 text-amber-300">{t('intent.displaced')}: {t('intent.driver')} {label('DRIVER', d.driverId)}; {t('intent.truck')} {label('TRUCK', d.truckId)}</p>)}
         </article>)}
-        {intent.allocationIntents.map(a => <article key={`allocation:${a.truckId}:${a.materialId}`} className="p-3 border-b border-stone-700 break-words">
+        {allocationPage.pager}{allocationPage.visible.map(a => <article key={`allocation:${a.truckId}:${a.materialId}`} className="p-3 border-b border-stone-700 break-words">
           <p className="font-semibold">{action(a.action)}</p><p>{t('intent.truck')}: {label('TRUCK', a.truckId)}</p><p>{t('intent.material')}: {label('MATERIAL', a.materialId)}</p>{rows(a.rowNumbers)}
           {a.displaced && <p className="mt-2 text-amber-300">{t('intent.currentMaterial')}: {label('MATERIAL', a.displaced.materialId)}</p>}
         </article>)}

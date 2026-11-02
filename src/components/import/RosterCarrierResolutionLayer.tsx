@@ -1,3 +1,5 @@
+import {useImportGroupPage} from './ImportGroupPage';
+import {useImportConfirmation} from './ImportConfirmation';
 import type { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
 import { CanonicalResolutionDecision } from './CanonicalResolutionDecision';
 import type { RelationshipContext } from '../../types/dataQuality';
@@ -14,6 +16,8 @@ export interface ProjectCarrierOption {
 }
 
 export interface RosterCarrierResolutionLayerProps {
+  onCanonicalSelect?: (group: RosterEntityReviewGroup, id: string) => Promise<void>;
+  beginCommand?: () => (() => void) | null;
   receipts?: ContextualPrerequisiteReceipts;
   canManageParticipation?: boolean;
   canonicalContext?: RelationshipContext;
@@ -63,7 +67,7 @@ export const checkCarrierResolutionReadiness = (batch: UnifiedImportBatch): bool
 };
 
 export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayerProps> = ({
-  importBatch, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
+  importBatch, beginCommand, onCanonicalSelect, canManageParticipation = true, receipts, canonicalContext, onCanonicalVerified, isCurrent = () => true,
   projectCarriers = [],
   onAcceptCandidate,
   onSelectAlternate,
@@ -75,6 +79,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
   embeddedInWorkflowHost = false,
 }) => {
   const { t } = useI18n();
+  const cancellation = useImportConfirmation(`${importBatch.projectId}:${importBatch.importBatchId}`);
   const [selectedAlternateCarrier, setSelectedAlternateCarrier] = useState<Record<string, string>>({});
 
   const reviewGroups = useMemo(() => {
@@ -95,6 +100,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
     return canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) || Boolean(r.entityResolutions?.carrier?.matchedId)) : checkCarrierResolutionReadiness(importBatch);
   }, [importBatch, canonicalContext]);
 
+  const carrierGroupsPage=useImportGroupPage(carrierGroups);
   const panelContent = (
     <div className={`bg-stone-900 border border-stone-800 rounded-2xl w-full overflow-hidden flex flex-col ${embeddedInWorkflowHost ? 'flex-1 min-h-0' : 'max-w-3xl shadow-2xl max-h-[85vh]'}`}>
       {/* Header */}
@@ -172,7 +178,8 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                 <span className="text-[10px] font-mono">{t('entityResolution.labels.unique_items_count', { count: carrierGroups.length })}</span>
               </div>
 
-              {carrierGroups.map((group) => {
+              {carrierGroupsPage.pager}
+                {carrierGroupsPage.visible.map((group) => {
                 const isResolved = group.status === 'AUTO_RESOLVED';
                 const isConflict = group.status === 'CONFLICT';
                 const isReviewRequired = group.status === 'REVIEW_REQUIRED';
@@ -224,7 +231,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
                       </div>
                     </div>
 
-                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
+                    {canonicalContext&&onCanonicalVerified&&<CanonicalResolutionDecision beginCommand={beginCommand} receipts={receipts} receiptScope={importBatch.importBatchId} canMutate={canManageParticipation} projectId={importBatch.projectId} context={canonicalContext} group={group} isCurrent={isCurrent} disabled={isProcessing} onSelect={id=>onCanonicalSelect?onCanonicalSelect(group,id):onSelectAlternate?.(group,id)} onCreate={()=>onCreateCarrier(group)} onVerified={(ctx,id,prerequisite)=>onCanonicalVerified(group,ctx,id,prerequisite)}/>}
                     {/* Action Controls for Unresolved / Review Groups */}
                     {!canonicalContext && !isResolved && (
                       <div className="pt-2 border-t border-stone-900 flex flex-wrap items-center justify-between gap-2">
@@ -333,8 +340,8 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
             {onCancelImport ? (
               <button
                 type="button"
-                onClick={() => {
-                  if (window.confirm(t('entityResolution.messages.confirm_cancel_import'))) {
+                onClick={async () => {
+                  if (await cancellation.ask(t('entityResolution.messages.confirm_cancel_import'))) {
                     onCancelImport();
                   }
                 }}
@@ -359,12 +366,12 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
     );
 
   if (embeddedInWorkflowHost) {
-    return panelContent;
+    return <>{panelContent}{cancellation.dialog}</>;
   }
 
   return (
     <div className="fixed inset-0 bg-stone-950/80 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-      {panelContent}
+      {panelContent}{cancellation.dialog}
     </div>
   );
 };
