@@ -1,3 +1,9 @@
+## Operation-bound provisioning security
+
+Fresh consent is explicitly bound to the canonical Project/ensure operation, actor, Google subject, authorization version and browser transaction before resource binding. The existing encrypted credential lifecycle validates refresh proof; binding commit atomically promotes the same grant to the actual Spreadsheet/revision. Nested provider/ack fences preserve both outer ensure ownership and current inner resource/sync leases. Server-only Script identity claims supplement mandatory parent/current binding proof. No client phases/resource adoption, expanded OAuth scopes, browser bound-execution credentials or client Firestore authority. Unknown Script-create identity cannot cause a second create.
+
+Current state: [ledger](reconstruction/02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Known-ID automation maintenance precondition
 
 The optional initialize Script-ID field is an expected existing identity, never permission to attach, replace or create a Script. The server checks current canonical identity, conflicting continuity/binding IDs, principal/Project/grant and lease/revision before provider requests and acknowledgments; parent/content proof remains in the same adapter. Maintenance cannot enter createBoundScript or business projection paths. Current valid durable authorization requires no consent; actual missing optional Script scope stays separate from Sheets authority. Public automation diagnosis is closed-code-only. No RBAC, scope, secret, Cloud, rule or global OAuth isolation change. See [sync contract](reconstruction/PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md).

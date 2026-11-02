@@ -1,3 +1,9 @@
+## Current Workspace continuation
+
+Read the ledger first. GWS-ONE on c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71 is the current bounded engineering unit: one server ensure action, operation-bound durable consent, resume and profile-owned fresh manifests. Earlier maintenance/popup handoffs remain historical source evidence. Do not reset Projects, alter historical Google resources or start Phase 10. Owner review/live clean acceptance remains separate from local verification/publication.
+
+Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 # Q-SAUDI WORK FOLLOW — RECONSTRUCTION PROGRAM
 ## WORK START HERE & OPERATIONAL DIRECTIVES
 
@@ -25,9 +31,9 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Phase 8 — Smart Import Persistence, Resume & Commit Integrity**: MERGED / SOURCE_VERIFIED / CLOSED.
   - P8-B1 — Durable Session & Reviewed Intent Authority: MERGED / SOURCE VERIFIED / CLOSED — PR #57, merge `4fa203fd1ef67d03e393bb1f75fb12a4a10f00d5`.
   - P8-B2 — Server Commit Authority & Prepared Identity Materialization: MERGED / SOURCE VERIFIED / CLOSED — PR #58, merge `1f7f3344e65dfc9b6837b10cb5349827da1587eb`.
-- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns current state; baseline `3c6f74013fe9afcd4211955770039d6f860bfaf0` includes merged popup callback convergence. [Adaptive operational profiles](OPERATIONAL_PROFILES_WORKSPACE_ENGINE_CONTRACT.md) remain canonical; Workspace automation maintenance entrypoint is the current bounded review unit; RB1/RB2 closure and outstanding external rules/live gates are preserved.
+- **Continuation**: [the ledger](02_PHASE_LEDGER.md) owns current state; baseline `c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71` includes merged automation maintenance. GWS-ONE one-click provisioning is the current owner-review unit; exact contract: [GWS_ONE_PROVISIONING_ENGINE.md](GWS_ONE_PROVISIONING_ENGINE.md). Existing phase closures and external acceptance gates remain.
 - **P8-B3**: MERGED / SOURCE_VERIFIED / CLOSED.
-- **Next action**: owner review of automation maintenance entrypoint, then separately authorized live recovery acceptance. Full workbook grid fetches are prohibited; no hosting RAM upgrade is required. BOUND_WORKSPACE_GOOGLE_AUTHORITY = DURABLE_SERVER_GRANT; BROWSER_GOOGLE_TOKEN = PROVISIONING_ONLY / MEMORY_ONLY. Canonical status precedes routing; OAuth completion uses correlated BroadcastChannel, not opener/closed polling, and still requires server read-back. Callback must remain minimal HTML outside the PWA app-shell fallback. Current synchronization is USER_ACTIVE / SERVER_COORDINATOR; client Project loops are retired and Google reauthorization remains Project-scoped; no paid scheduling/offline setup prerequisite. Q-PRJ-007 intake is owner-confirmed ON_FIRST_OPERATION. Known-ID automation degradation has an explicit maintenance action; content repair needs no extra consent with current valid authorization. CLEAN_PROJECT_TEMPLATE_ACCEPTANCE / RESET_TEST_PROJECTS remain future separately authorized debt; do not execute reset here. Do not start Phase 10.
+- **Next action**: owner review of the GWS-ONE branch, then separately authorized live clean-project acceptance. Normal setup uses one server ensure action and durable checkpoints; Script identity uncertainty fails closed in administrator review, never duplicate creation. USER_ACTIVE coordinator/no cron, bounded workbook memory and Q-PRJ-007 ON_FIRST_OPERATION remain. RESET_TEST_PROJECTS is future separately reviewed cleanup only. Do not start Phase 10.
 - **Current TypeScript diagnostics baseline**: 440 after P8-B2; new diagnostics added by P8-B2: 0.
 - **Lint**: EXIT 2 / NOT PASS remains historical debt, not a new P8-B2 regression.
 - **Remaining focused Smart Import test debt**: historical C5 cases 38, 61, 62 and 67; no new P8-B2 failures.

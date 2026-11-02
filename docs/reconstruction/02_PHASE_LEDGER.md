@@ -1,7 +1,32 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Workspace automation maintenance entrypoint — 2026-11-02
+### GWS-ONE — One-click provisioning engine — 2026-11-02
+
+CURRENT_CODE_BASELINE: `c1dc6254773b5d8e74c8067d4ce96f3f0e98ad71` — merged Workspace automation maintenance, PR #83.
+WORKING_BRANCH: `reconstruction/gws-one-click-provisioning-engine`.
+GWS_ONE: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+
+WORKSPACE_PRODUCT_ENTRYPOINT = ONE_CLICK_ENSURE.
+WORKSPACE_ORCHESTRATION_AUTHORITY = SERVER.
+MANUAL_SCRIPT_ID = RETIRED_FROM_NORMAL_UX.
+NORMAL_WORKSPACE_BUTTONS = ONE_PRIMARY_ACTION.
+RESOURCE_CREATION = IDEMPOTENT / AMBIGUOUS_CREATE_FAILS_CLOSED.
+PROVISIONING_RESUME = DURABLE_CHECKPOINT.
+CONCURRENT_ENSURE = JOIN_EXISTING_OPERATION.
+WORKSPACE_READY = STRICT_COMPOSITE_GATE.
+CRON = NOT_REQUIRED; SYNC_TRIGGER = USER_ACTIVE.
+FRESH_TEMPLATE_AUTHORITY = PROFILE_MANIFEST; HISTORICAL_TABS != FRESH_TEMPLATE.
+
+The existing continuity record owns the ensure operation and bounded timeline; canonical resource receipts, binding, encrypted grants and inner sync leases retain their authorities. One normal action handles server-declared consent/destination and automatic continuation. Recovery/maintenance and technical identities remain privileged, closed Advanced diagnostics. Fresh profile V2 uses the deterministic 13-tab manifest (9 owned Ops, 4 owned canonical master references), without the seven historical SABIL compatibility tabs/Script routines. Historical resources are preserved; no reset/migration is executed. PRE_REGISTERED/HYBRID product terminology maps to existing PRELOADED_ROSTER/MIXED configuration values; no vocabulary/schema rewrite.
+
+Owner acceptance exception: SCRIPT_CREATE_INTENT disables further creation before external I/O; SCRIPT_IDENTITY_RECORDED persists the returned ID before install. A possible provider success without a durably known ID yields ATTENTION_REQUIRED / SCRIPT_CREATE_IDENTITY_UNCERTAIN indefinitely until independently proven advanced recovery or explicit migration. It never duplicates or fakes READY. All recorded-identity boundaries resume automatically. Known historical foreign-resource permission failure is isolated, never a reason to replace a Script. No live Google/Firebase/Render acceptance, disposable-project reset, PR/merge or later-phase work is claimed. Full contract: [GWS_ONE_PROVISIONING_ENGINE.md](GWS_ONE_PROVISIONING_ENGINE.md). Earlier implementation checkpoints are historical where superseded.
+
+Local acceptance observation: core engine + actual React journey 51/51 PASS, including a single primary click wired to the real durable engine/refresh-grant lifecycle/receipts/request-interpreting workbook fixture. Four profiles × three intake modes each converge with stable resources after 20 repeat calls. Focused seven-file closure selection, latest result per file: 164/164 PASS (overlapping the broader results). Bounded adapter checks include locale/timezone repair, pristine Sheet1 removal, metadata-owned rename, foreign ownership rejection and idempotence.
+
+Broader affected verification, latest result per file: 77 files / 1439 of 1471 cases PASS; 32 historical failures independently reproduced on a clean archive of this exact baseline, plus two unchanged empty historical suite errors. The broad command is NOT all green. New failures/removals/skips 0. Build PASS; lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0; diff check PASS. AR/EN/UR each 4683 keys, 15 new keys per locale, duplicates/parity gaps/empty values 0. Counts are observations, not frozen cardinality gates. Tests are controlled local provider/DOM/HTTP evidence, not live Google/Firebase/Render acceptance. One branch commit/push is authorized; no PR, merge or reset.
+
+### Historical Workspace automation maintenance entrypoint — 2026-11-02
 
 CURRENT_CODE_BASELINE: `3c6f74013fe9afcd4211955770039d6f860bfaf0` — merged popup callback convergence, including `c80b0d4e7f1ed962eb537ea26c489f18eb833d52`. Working branch: `reconstruction/workspace-automation-maintenance-entrypoint`.
 

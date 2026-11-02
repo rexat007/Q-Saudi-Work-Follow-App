@@ -1,3 +1,9 @@
+## Canonical Workspace ensure command
+
+GET/POST /api/projects/:projectId/workspace/ensure observe/ensure one Project Workspace. POST accepts only optional destinationRootFolderId, never Script/Spreadsheet identities or phase/state claims. Responses expose the five product states, operationId, phase/completed progress, declared human action and bounded retry/resume diagnostics. Duplicate calls join PREPARING rather than a user-facing 409. OAuth authorization may include operationId to bind a fresh pre-binding grant to the existing ensure operation; callback and atomic binding promotion remain server-authoritative. Existing specialized commands are privileged diagnostics/compatibility, not the ordinary product contract.
+
+Current state: [ledger](reconstruction/02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Automation maintenance status and initialize precondition
 
 `GET /api/projects/:projectId/workspace` adds derived automationMaintenanceRequired alongside automationRecoveryRequired/automationState, plus a closed automationDiagnostic code (AUTOMATION_MAINTENANCE_REQUIRED, AUTOMATION_RECOVERY_REQUIRED or AUTOMATION_SCOPE_REQUIRED). Known Script identity is normalized in binding.scriptProjectId. These fields expose no raw provider data/credentials.

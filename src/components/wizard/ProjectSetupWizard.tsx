@@ -1,3 +1,4 @@
+import {WorkspaceEnsurePanel} from './WorkspaceEnsurePanel';
 import {workspaceAutomationNeedsScope,authorizeBoundWorkspaceExecution,workspaceNeedsReauthorization,workspaceAuthorizationMessageKey} from '../../utils/workspaceAuthorization';
 import {OperationalConfigurationForm} from './OperationalConfigurationForm';
 import {WorkspaceAutomationRecovery} from './WorkspaceAutomationRecovery';
@@ -4050,7 +4051,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 2: WORKSPACE ================= */}
             {activeSetupLayer === 'WORKSPACE' && project && (
               <div className="space-y-6 text-xs text-stone-300">
-                {/* Google Workspace Setup card */}
+                {isOperationallyMutable && ['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <WorkspaceEnsurePanel key={`${project.projectId}:${googleContinuity?.binding?.scriptProjectId||''}`} projectId={project.projectId} t={t} onReady={()=>{void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}} />}
+                {['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <details><summary>{t('gws.one.diagnostics')}</summary>
+                  {/* Google Workspace Setup card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
                     <h3 className="font-black text-white text-[13px]">{t('projects.batch4.workspace_sync_status')}</h3>
@@ -4112,6 +4115,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                     </button>}
                   </div>
                 </div>
+                </details>}
               </div>
             )}
 

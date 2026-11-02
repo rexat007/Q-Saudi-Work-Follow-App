@@ -1,3 +1,9 @@
+## One-click Google Workspace authority
+
+WorkspaceProvisioningOrchestrator now owns one durable ensure lifecycle in canonical continuity. The normal client starts/resumes/observes and handles declared consent/destination only; privileged technical tools are closed Advanced diagnostics. Existing resource receipts, encrypted grants, binding and inner leases remain authorities. Fresh profiles use a deterministic owned manifest, distinct from historical SABIL compatibility. The owner-accepted ambiguous bound-Script create boundary fails closed without duplicate creation or false READY.
+
+Current state: [ledger](reconstruction/02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](reconstruction/GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Automation identity recovery versus content maintenance
 
 [Ledger](reconstruction/02_PHASE_LEDGER.md) owns state. Missing/uncertain Script identity uses parent-proven recovery. A known identity with degraded/uninstalled content uses explicit automation-only maintenance through initialize with an existing-ID precondition. Both normal initialization and maintenance share one canonical Script reconciliation authority. Verify → install only on mismatch → re-verify → READY preserves Script/resource identity. Maintenance never creates resources, repairs tab grids or runs canonical data projection; failures remain in automation health. Fresh valid durable authorization needs no new consent; only missing Script permission invokes the existing grant action. Server flags and canonical read-back own UI routing/success. Template/tab count redesign and separately authorized clean-Project acceptance/reset debt are outside this unit.

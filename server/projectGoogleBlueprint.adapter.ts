@@ -1,3 +1,4 @@
+import {workspaceTabManifest} from '../src/services/workspaceTabManifest';
 import {createHash} from 'node:crypto';
 import {inspectWorkspaceWorkbook,type InspectionRange} from './workspaceWorkbookInspection';
 import {boundedA1,WORKBOOK_READ_LIMITS as READ_LIMITS,type WorkspaceInitializationStage} from '../src/services/googleWorkspaceBlueprint/inspection';
@@ -117,6 +118,14 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(!scriptMatches(content.data.files||[],blueprint.script!.files))return gwsFail('SCRIPT_CONTENT_INSTALL_FAILED');
     });},
     async projectMasterTabs(fileId,snapshot,tabs){await guarded('MASTER_DATA_SYNC_FAILED',async()=>{
+      const file=await owned(fileId);
+      if(file.appProperties?.workspaceBlueprintVersion?.endsWith('_FRESH_V2')){
+        const project=await (await import('../src/firebase/admin')).adminDb.collection('projects').doc(projectId).get();
+        const configuration=project.data()?.operationalConfiguration;if(!configuration)return gwsFail('OPERATIONAL_CONFIGURATION_REQUIRED');
+        const metadata=await sheets.spreadsheets.get({spreadsheetId:fileId,includeGridData:false,fields:'sheets(properties(sheetId,title),developerMetadata)'},{maxContentLength:READ_LIMITS.metadataBytes});
+        if((metadata.data.sheets||[]).length>READ_LIMITS.sheets)return gwsFail('WORKSPACE_STRUCTURE_INVALID');
+        for(const spec of workspaceTabManifest(configuration).filter(s=>s.key.startsWith('MASTER_'))){const found=(metadata.data.sheets||[]).filter(s=>(s.developerMetadata||[]).some(m=>m.metadataKey===spec.ownership.metadataKey&&m.metadataValue===spec.ownership.metadataValue&&m.visibility==='DOCUMENT'&&m.location?.sheetId===s.properties?.sheetId));if(found.length!==1||found[0].properties?.title!==spec.title)return gwsFail('PROFILE_REPORT_TAB_OWNERSHIP_INVALID');}
+      }
       if(snapshot.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       if(!tabs.length||tabs.some(tab=>!MASTER_TABS.some(spec=>spec.key===tab)))return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       for(const spec of MASTER_TABS.filter(spec=>tabs.includes(spec.key))){

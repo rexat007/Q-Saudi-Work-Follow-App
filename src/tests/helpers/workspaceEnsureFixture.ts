@@ -1,0 +1,38 @@
+import { vi } from 'vitest';
+import type { OperationalConfiguration } from '../../types/operationalProfile';
+import { operationGraph, operationConfig, operationActor } from './operationalProfileFixture';
+import { setTestDbOverride } from '../../firebase/admin';
+import { ProjectGoogleWorkspaceServer, GoogleWorkspaceCommandError } from '../../services/projectGoogleWorkspace.server';
+import { WorkspaceProvisioningOrchestrator } from '../../services/workspaceProvisioning.server';
+import { WorkspaceGoogleOfflineAuthorization } from '../../services/workspaceGoogleOfflineAuthorization.server';
+import { REQUIRED_WORKSPACE_SCOPES } from '../../utils/googleWorkspaceScopes';
+import { workbookInspectionFixture } from './workbookInspectionFixture';
+import { planWorkbookRepair } from '../../services/googleWorkspaceBlueprint/repair';
+import { verifyBlueprintWorkbook, type WorkspaceBlueprint } from '../../services/googleWorkspaceBlueprint/contract';
+export const ensurePath = 'projects/P1/workspace_continuity/current';
+export function workspaceEnsureFixture(configuration: OperationalConfiguration = operationConfig()) {
+    const x = operationGraph(configuration, true);
+    x.store['projects/P1'].status = 'SETUP';
+    setTestDbOverride(x.db);
+    const resources: Array<{
+        id: string;
+        parentId: string;
+        role: string;
+    }> = [], scripts = new Map<string, {
+        parentId: string;
+        blueprint?: WorkspaceBlueprint;
+    }>();
+    const workbook = workbookInspectionFixture({ properties: { locale: 'en_US', timeZone: 'Asia/Riyadh' }, sheets: [] }), provider = { authorizationUrl: vi.fn((o: any) => `https://accounts.google.com?state=${o.state}`), exchange: vi.fn(async () => ({ refreshToken: 'fixture-refresh', subject: 'subject', scopes: [...REQUIRED_WORKSPACE_SCOPES] })), refresh: vi.fn(async () => ({ accessToken: 'fixture-access', subject: 'subject', scopes: [...REQUIRED_WORKSPACE_SCOPES] })), revoke: vi.fn(async () => { }) };
+    let fence = async () => { };
+    const port = { setDeliveryFence: (check: () => Promise<void>) => { fence = check; }, subject: vi.fn(async () => 'subject'), authorizeBinding: vi.fn(async () => { }), authorizeProvisioning: vi.fn(async () => { }), validateDestination: vi.fn(async () => { }), findResource: vi.fn(async (_op: string, role: string) => resources.filter(r => r.role === role)), createProjectFolder: vi.fn(async (_name: string, parentId: string) => { await fence(); resources.push({ id: 'folder', parentId, role: 'FOLDER' }); return 'folder'; }), createProjectSpreadsheet: vi.fn(async (_name: string, parentId: string) => { await fence(); resources.push({ id: 'sheet', parentId, role: 'SPREADSHEET' }); return 'sheet'; }), verifyBinding: vi.fn(async () => { await fence(); return { title: 'Canonical Project' }; }), verifyWorkbook: vi.fn(async (_id: string, b: WorkspaceBlueprint) => { await fence(); verifyBlueprintWorkbook(b, workbook.book); }), repairWorkbook: vi.fn(async (_id: string, b: WorkspaceBlueprint) => { await fence(); const plan = planWorkbookRepair(b, workbook.book); await workbook.update({ requestBody: { requests: plan.requests } }); return { repaired: plan.requests.length > 0, conflicts: plan.conflicts }; }), createBoundScript: vi.fn(async (parentId: string) => { await fence(); scripts.set('script', { parentId }); return 'script'; }), installScript: vi.fn(async (id: string, b: WorkspaceBlueprint) => { await fence(); scripts.get(id)!.blueprint = structuredClone(b); }), verifyAutomation: vi.fn(async (parentId: string, id: string, b: WorkspaceBlueprint) => { await fence(); const script = scripts.get(id); if (script?.parentId !== parentId)
+            throw new GoogleWorkspaceCommandError('SCRIPT_PARENT_PROOF_REQUIRED'); if (JSON.stringify(script.blueprint?.script) !== JSON.stringify(b.script))
+            throw new GoogleWorkspaceCommandError('SCRIPT_CONTENT_INSTALL_FAILED'); }), verifyScriptParent: vi.fn(async (parentId: string, id: string) => { if (scripts.get(id)?.parentId !== parentId)
+            throw new GoogleWorkspaceCommandError('SCRIPT_PARENT_PROOF_REQUIRED'); }), projectMasterTabs: vi.fn(async () => { await fence(); }), projectProfileReports: vi.fn(async () => { await fence(); }) };
+    const authorization = new WorkspaceGoogleOfflineAuthorization(() => provider, x.db, () => ({ clientId: 'fixture', clientSecret: 'fixture-secret', redirectUri: 'https://fixture.example/workspace/google/callback', key: Buffer.alloc(32, 1), keyVersion: 'v1' }), async () => 'subject');
+    const service = () => new ProjectGoogleWorkspaceServer(x.db), engine = () => new WorkspaceProvisioningOrchestrator(x.db, service(), authorization, () => ({ ...port }) as any);
+    const grant = async () => { const begin = await authorization.begin('P1', operationActor, true, x.store[ensurePath].ensureOperation.operationId); await authorization.callback(new URL(begin.url).searchParams.get('state')!, 'fixture-code', begin.browser); };
+    const prepare = async () => { await engine().ensure('P1', operationActor); await grant(); };
+    return { ...x, resources, scripts, port, provider, workbook, authorization, service, engine, grant, prepare, run: (input?: {
+            destinationRootFolderId?: string;
+        }) => engine().ensure('P1', operationActor, input) };
+}

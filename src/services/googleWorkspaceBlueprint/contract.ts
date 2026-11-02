@@ -90,8 +90,9 @@ export function blueprintRequests(blueprint:WorkspaceBlueprint,current:Workspace
     const properties={...sheet.properties,index};
     const actual=existing.find(s=>s.properties?.sheetId===properties.sheetId);
     if(!actual) requests.push({addSheet:{properties}});
-    else if(actual.properties?.title!==properties.title) return invalid('WORKSPACE_STRUCTURE_INVALID');
-    else requests.push({updateSheetProperties:{properties,fields:'title,index,gridProperties'}});
+    for(const marker of sheet.developerMetadata||[])if(!(actual?.developerMetadata||[]).some(m=>m.metadataKey===marker.metadataKey&&m.metadataValue===marker.metadataValue))requests.push({createDeveloperMetadata:{developerMetadata:{...marker,location:{sheetId:properties.sheetId}}}});
+    if(actual&&actual.properties?.title!==properties.title) return invalid('WORKSPACE_STRUCTURE_INVALID');
+    else if(actual)requests.push({updateSheetProperties:{properties,fields:'title,index,gridProperties'}});
     for(const data of sheet.data||[]) {
       for(let offset=0;offset<(data.rowData?.length||0);) {
         const rows:sheets_v4.Schema$RowData[]=[];let bytes=0;
@@ -166,7 +167,9 @@ export const blueprintRequestBatches=(requests:sheets_v4.Schema$Request[]):sheet
 export function verifyBlueprintWorkbook(blueprint:WorkspaceBlueprint,actual:WorkspaceWorkbookInspection|sheets_v4.Schema$Spreadsheet,bindingOnly=false):void {
   assertBlueprint(blueprint,!bindingOnly);
   if(blueprint.operationalTabOwnershipSchema===1){
-    const plan=planOwnedOperationalTabs(blueprint,actual);if(plan.requests.length)invalid('WORKSPACE_STRUCTURE_INVALID');return;
+    const plan=planOwnedOperationalTabs(blueprint,actual);if(plan.requests.length)invalid('WORKSPACE_STRUCTURE_INVALID');
+    if(blueprint.version.endsWith('_FRESH_V2'))for(const expected of blueprint.sheets.filter(s=>(s.developerMetadata||[]).some(m=>m.metadataKey==='qsaudi.workspace.master'))){const marker=expected.developerMetadata![0],found=(actual.sheets||[]).filter(s=>(s.developerMetadata||[]).some(m=>m.metadataKey===marker.metadataKey&&m.metadataValue===marker.metadataValue&&m.visibility==='DOCUMENT'&&m.location?.sheetId===s.properties?.sheetId));if(found.length!==1||found[0].properties?.title!==expected.properties?.title)invalid('WORKSPACE_STRUCTURE_INVALID');}
+    return;
   }
   const projectionTitles=new Set((['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'] as const).map(key=>WORKSPACE_TABS[key].tabTitleAr));
   const sheets=bindingOnly?actual.sheets?.filter(sheet=>!projectionTitles.has(sheet.properties?.title||'')):actual.sheets;

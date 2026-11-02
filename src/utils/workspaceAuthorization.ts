@@ -89,3 +89,11 @@ export function workspaceAutomationNeedsScope(status:Pick<import('../types/proje
  if(status?.authorizationDiagnostic?.result==='CONNECTED_VALID')return false; // Fresh canonical grant proof outranks an old automation error.
  return status?.authorizationDiagnostic?.result==='AUTOMATION_SCOPE_REQUIRED'||status?.automationDiagnostic?.code==='AUTOMATION_SCOPE_REQUIRED';
 }
+
+/** Server-persisted pre-binding descriptor is promoted atomically with canonical binding.
+ * It is usable only within the same durable ensure operation, never a browser claim. */
+export function workspaceGrantBinding(state:any) {
+ if(state?.binding)return state.binding;
+ const p=state?.provisioningAuthorization;
+ return p&&p.operationId===state?.ensureOperation?.operationId?{projectId:state.ensureOperation.projectId,googleSubject:p.googleSubject,spreadsheetId:'',revision:0}:undefined;
+}

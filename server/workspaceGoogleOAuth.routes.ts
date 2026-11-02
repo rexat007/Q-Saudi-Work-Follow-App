@@ -50,8 +50,8 @@ export function registerWorkspaceOAuthCommands(app:Express,guards:any[]) {
   app.post('/api/projects/:projectId/workspace/authorization',...guards,async(req:any,res)=>{
     res.setHeader('Cache-Control','no-store');
     try{
-      if(Object.keys(req.body||{}).some(key=>key!=='automation')||typeof req.body?.automation!=='boolean')return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
-      const c=workspaceOfflineConfig(),uri=new URL(c.redirectUri),started=await workspaceOfflineAuthorization.begin(req.params.projectId,req.user,req.body.automation);
+      if(Object.keys(req.body||{}).some(key=>!['automation','operationId'].includes(key))||typeof req.body?.automation!=='boolean'||req.body?.operationId!==undefined&&(typeof req.body.operationId!=='string'||!(/^[a-f0-9]{64}$/).test(req.body.operationId)))return res.status(400).json({success:false,code:'INVALID_WORKSPACE_COMMAND'});
+      const c=workspaceOfflineConfig(),uri=new URL(c.redirectUri),started=await workspaceOfflineAuthorization.begin(req.params.projectId,req.user,req.body.automation,req.body.operationId);
       res.cookie(uri.protocol==='https:'?'__Host-qws':'qws-dev',started.browser,{secure:uri.protocol==='https:',httpOnly:true,sameSite:'lax',path:'/',maxAge:started.expiresIn*1000});
       return res.json({success:true,url:started.url,correlationId:started.correlationId});
     }catch(error){return res.status(error instanceof GoogleWorkspaceCommandError?error.status:503).json({success:false,code:error instanceof GoogleWorkspaceCommandError?error.code:'GOOGLE_OFFLINE_AUTHORIZATION_FAILED'});}

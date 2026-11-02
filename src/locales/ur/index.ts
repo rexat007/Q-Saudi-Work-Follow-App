@@ -4692,6 +4692,21 @@ export const urTranslations: TranslationDictionary = {
   "gws.repair_automation": "ورک بک کی خودکاری درست کریں",
   "gws.automation_maintenance_required": "Google Sheets کی خودکاری کی مرمت درکار ہے",
   "gws.automation_maintenance_complete": "ورک بک کی خودکاری درست اور تصدیق ہو گئی ہے۔",
+  "gws.one.not_configured": "Google ورک اسپیس ترتیب نہیں دی گئی",
+  "gws.one.preparing": "Google ورک اسپیس تیار ہو رہی ہے...",
+  "gws.one.action_required": "آپ کی کارروائی درکار ہے",
+  "gws.one.ready": "Google ورک اسپیس تیار ہے",
+  "gws.one.attention_required": "Google ورک اسپیس کو منتظم کے جائزے کی ضرورت ہے",
+  "gws.one.prepare": "Google ترتیب دیں اور ہم وقت کریں",
+  "gws.one.verify": "Google کی تصدیق اور ہم وقت سازی",
+  "gws.one.diagnostics": "اعلیٰ تشخیصی ٹولز",
+  "gws.one.progress": "Google ورک اسپیس کی تیاری کی پیش رفت",
+  "gws.one.phase_authorization": "Google اکاؤنٹ",
+  "gws.one.phase_binding": "پروجیکٹ کی ورک اسپیس",
+  "gws.one.phase_workbook": "عملی ورک بک",
+  "gws.one.phase_master_data": "پروجیکٹ کا ڈیٹا",
+  "gws.one.phase_script": "ورک بک کی خودکاری",
+  "gws.one.phase_final_verify": "آخری تصدیق",
 };
 
 

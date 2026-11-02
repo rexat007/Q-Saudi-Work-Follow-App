@@ -1,3 +1,9 @@
+## Fresh V2 manifest versus historical compatibility — current
+
+FRESH_TEMPLATE_AUTHORITY = PROFILE_MANIFEST; HISTORICAL_TABS != FRESH_TEMPLATE. New ensure-created Projects use profile_FRESH_V2 with exactly 9 owned Ops and 4 owned canonical references for all four measurement profiles and three orthogonal intake modes. The seven base SABIL tabs/legacy Script routines are compatibility-only for existing workbooks, not fresh requirements. All current fresh profiles require the lightweight canonical report/menu/review Script bundle. Older base-SABIL-plus-Ops fresh-generation descriptions below are historical where superseded; no historical resource/template migration is executed. Ownership, not title alone, resolves existing tabs; rename repair is safe only for proven owners.
+
+Current state: [ledger](02_PHASE_LEDGER.md); implementation contract: [GWS-ONE](GWS_ONE_PROVISIONING_ENGINE.md).
+
 ## Template ownership, maintenance and clean acceptance
 
 Current state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). **Operational tabs are idempotent by developer-metadata ownership.** Repeated initialize reuses the proven numeric sheet identity and must not duplicate owned tabs; title alone never authorizes adoption. Existing legacy history/Dashboard and unknown tabs stay preserved.

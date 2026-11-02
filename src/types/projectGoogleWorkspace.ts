@@ -41,6 +41,7 @@ export interface ProjectGoogleStatus {
   automationRecoveryRequired?:boolean;
   automationMaintenanceRequired?:boolean;
   automationDiagnostic?:{code:'AUTOMATION_RECOVERY_REQUIRED'|'AUTOMATION_MAINTENANCE_REQUIRED'|'AUTOMATION_SCOPE_REQUIRED'}|null;
+  provisioningOperationId?:string;
   syncTrigger?:'USER_ACTIVE';
   authorizationDiagnostic?:WorkspaceAuthorizationDiagnosis;
 }
