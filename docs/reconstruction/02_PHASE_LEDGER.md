@@ -1,7 +1,24 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Workspace authorization entry-point convergence — 2026-11-02
+### Google OAuth popup callback convergence — 2026-11-02
+
+CURRENT_CODE_BASELINE: `adc7ea93acec86a09c5111c7f8d6c539d4f9f293` — merged authorization entry-point convergence, including `29c526947a796484b21e1a851f7183e475ecef5b`. Working branch: `reconstruction/google-oauth-popup-callback`.
+
+GOOGLE_OAUTH_POPUP_CALLBACK: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+OAUTH_POPUP_COMPLETION: BROADCAST_CHANNEL_PRIMARY.
+WINDOW_OPENER: OPTIONAL_FALLBACK.
+POPUP_CLOSED_POLLING: RETIRED.
+CALLBACK_ROUTE: DEDICATED_MINIMAL_HTML.
+OAUTH_SUCCESS: SERVER_READBACK_REQUIRED.
+
+Owner live evidence reports successful navigation through Google consent but an unclosed callback/application window and repeated COOP closed-access warnings. Source depended on opener messaging and popup.closed; Workbox also allowed the callback URL to match its application navigation fallback. The bounded correction uses same-origin channel qsaudi-workspace-oauth, independent opaque transaction correlation and exact Project/current-intent validation. Opener messaging and self-close are best-effort; close refusal leaves only a minimal Arabic completion page. There is no application-wide COOP relaxation.
+
+The callback proves state/browser transaction ownership before returning public correlation, preserves full durable grant refresh/activation fences, publishes CONNECTED only after acceptance and keeps failures correlated where proof exists. Invalid/stale callbacks cannot clear a newer attempt's cookie. The client retires cross-origin closed polling, bounds the whole attempt including HTTP/read-back, aborts superseded intents and cleans channels/listeners/timers/handles. Canonical authorization read-back remains mandatory. The callback is network-only relative to the PWA navigation fallback; normal offline application navigation remains available.
+
+Local verification: 55 files, consolidated 1003/1004 PASS; only the baseline TBC-B4 source-anchor failure is independently reproduced. Focused transport/correlation/entry-point/callback verification 56/56 PASS; no new failures, removals or skips. Build PASS; lint EXIT 2 / NOT PASS, diagnostics 440→440 with added/removed 0; diff check PASS. Counts are observations, not permanent invariants. No resource/Google scope/Cloud/Drive/blueprint/Script/permission/domain change or later-phase activation. One commit/branch push is authorized after verification; no PR/merge or deployed live acceptance is claimed. Existing grant lifecycle, optional Script scope and bound durable-only execution remain. See [credential contract](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) and [sync contract](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md). Earlier implementation checkpoints remain historical where superseded.
+
+### Historical Workspace authorization entry-point convergence implementation — 2026-11-02
 
 CURRENT_CODE_BASELINE: `79b5df8abecd23c70e2bbd74d6072d4d4d84d291` — merged bounded-memory repair, including `0f991fbd1a0df8abe8b43f36b8277f9881542f22`. Working branch: `reconstruction/workspace-auth-entrypoint-convergence`.
 

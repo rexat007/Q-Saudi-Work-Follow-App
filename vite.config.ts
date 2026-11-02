@@ -115,7 +115,7 @@ export default defineConfig(({command}) => {
         workbox: {
           skipWaiting:true,clientsClaim:true,cleanupOutdatedCaches:true,
           importScripts:[generationFile],
-          navigateFallback:'/index.html',navigateFallbackDenylist:[/^\/api(?:\/|$)/],
+          navigateFallback:'/index.html',navigateFallbackDenylist:[/^\/api(?:\/|$)/,/^\/workspace\/google\/callback(?:[/?]|$)/],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MiB for XLSX & rich engine bundles
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           runtimeCaching: [

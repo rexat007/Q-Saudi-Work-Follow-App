@@ -31,16 +31,16 @@ describe('canonical bound authorization policy',()=>{
 });
 describe('actual client callback read-back and Firebase-only bound commands',()=>{
  function popup(){const p={closed:false,location:{href:''},close:vi.fn()};vi.spyOn(window,'open').mockReturnValue(p as any);return p;}
- function complete(p:unknown){window.dispatchEvent(new MessageEvent('message',{origin:window.location.origin,source:p as any,data:{type:'QSAUDI_WORKSPACE_OAUTH',projectId:'P1',result:'CONNECTED'}}));}
+ function complete(p:unknown){window.dispatchEvent(new MessageEvent('message',{origin:window.location.origin,source:p as any,data:{type:'QSAUDI_WORKSPACE_OAUTH',projectId:'P1',correlationId:'A'.repeat(32),result:'CONNECTED'}}));}
  it.each([false,true])('popup CONNECTED is accepted only if canonical read-back is usable: %s',async valid=>{
-  const p=popup(),client=new ClientWorkspaceService();client.setAccessToken('stale-browser');f.fetch.mockImplementation(async(url:string)=>url.endsWith('/authorization')?new Response(JSON.stringify({url:'https://accounts.google.com/consent'}),{headers:{'content-type':'application/json'}}):reply(status(valid)));
+  const p=popup(),client=new ClientWorkspaceService();client.setAccessToken('stale-browser');f.fetch.mockImplementation(async(url:string)=>url.endsWith('/authorization')?new Response(JSON.stringify({url:'https://accounts.google.com/consent',correlationId:'A'.repeat(32)}),{headers:{'content-type':'application/json'}}):reply(status(valid)));
   const pending=client.connectBackgroundAuthorization('P1',()=>true).then(()=>null,e=>e);await vi.waitFor(()=>expect(p.location.href).toContain('accounts.google.com'));complete(p);const result=await pending;
   if(valid){expect(result).toBeNull();expect(client.getAccessToken()).toBeNull();}else expect(result).toHaveProperty('message','DURABLE_AUTHORIZATION_REQUIRED');
   expect(f.fetch.mock.calls.map(c=>c[0])).toEqual(['/api/projects/P1/workspace/authorization','/api/projects/P1/workspace']);for(const [,options] of f.fetch.mock.calls)expect(options.headers['X-Google-Access-Token']).toBeUndefined();expect(p.close).toHaveBeenCalled();expect(f.grant).not.toHaveBeenCalled();
  });
  it('one durable consent supports initialize/retry/global sync and reopening without browser credentials or repeated consent',async()=>{
   const p=popup(),client=new ClientWorkspaceService();let connected=false;client.setAccessToken('provisioning-only');
-  f.fetch.mockImplementation(async(url:string)=>url.endsWith('/authorization')?new Response(JSON.stringify({url:'https://accounts.google.com/consent'}),{headers:{'content-type':'application/json'}}):reply(status(connected)));
+  f.fetch.mockImplementation(async(url:string)=>url.endsWith('/authorization')?new Response(JSON.stringify({url:'https://accounts.google.com/consent',correlationId:'A'.repeat(32)}),{headers:{'content-type':'application/json'}}):reply(status(connected)));
   const start=authorizeBoundWorkspaceExecution('P1',client,()=>true);await vi.waitFor(()=>expect(p.location.href).toContain('accounts.google.com'));connected=true;complete(p);await start;
   for(let i=0;i<2;i++){await authorizeBoundWorkspaceExecution('P1',client,()=>true);await client.initializeWorkspace('P1');await client.drainPendingWorkspace('P1');await client.requestUserActiveWorkspaceSync();await client.getGoogleWorkspaceStatus('P1');}
   expect(window.open).toHaveBeenCalledOnce();expect(f.grant).not.toHaveBeenCalled();for(const [,options] of f.fetch.mock.calls)expect(options.headers).toMatchObject({Authorization:'Bearer fixture-firebase'});expect(f.fetch.mock.calls.every(([,o])=>!o.headers['X-Google-Access-Token'])).toBe(true);

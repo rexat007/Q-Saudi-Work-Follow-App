@@ -1,4 +1,8 @@
-## Workspace authorization convergence continuation
+## OAuth popup callback continuation
+
+[02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `adc7ea93acec86a09c5111c7f8d6c539d4f9f293` includes bound durable-only authorization. Current correction replaces opener-only completion/closed polling with correlated same-origin BroadcastChannel and bounded cleanup. Dedicated callback HTML plus a narrow Workbox navigation exclusion prevents a second app window; opener/self-close remain best-effort. Canonical read-back, full durable grant acceptance and resource identity remain mandatory. See [credential](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) and [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) contracts. No live Google/Render acceptance, PR/merge, resource recreation or later-phase work. Older checkpoints below are historical where superseded.
+
+## Historical Workspace authorization convergence implementation continuation
 
 [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) owns exact state. Merged baseline `79b5df8abecd23c70e2bbd74d6072d4d4d84d291` includes bounded-memory repair. Bound execution now requires durable server authorization; browser Google permission ends at initial resource binding. Canonical GET overrides stale client state, consent requires server read-back, and failed consent cannot fall back or initialize. Missing grant preserves the healthy Sheet and exposes one activation action; optional Script permission stays separate. See [sync](PROJECT_GOOGLE_SHEET_SYNC_CONTRACT.md) and [credential](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md) contracts. Source verification is not deployment/live recovery; no replacement resources/manual Firestore changes, PR/merge, GWS2 expansion or Phase 10. Older continuation checkpoints are historical where superseded.
 

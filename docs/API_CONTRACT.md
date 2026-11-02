@@ -1,3 +1,9 @@
+## OAuth popup completion metadata
+
+`POST /api/projects/:projectId/workspace/authorization` retains its bounded `{automation:boolean}` request and HttpOnly/Secure browser-cookie transaction; response adds public 32-character correlationId beside success/url. It is independent of OAuth state/PKCE and grants no authority. `/workspace/google/callback` always terminates in dedicated minimal HTML before API authentication/SPA fallback, and is excluded from Workbox app-shell navigation. It never returns the application bundle or redirects into it.
+
+After state/browser proof and durable callback acceptance, the page publishes `{type,projectId,correlationId,result}` via same-origin `qsaudi-workspace-oauth`; failures may add allowlisted code/authorizationReason. Unproven callbacks use null routing metadata, never fabricated success. Opener postMessage is optional exact-origin compatibility; close refusal shows a minimal message. The client accepts the current correlated attempt once, then requires canonical GET Workspace read-back. This adds no Google scope, credential exposure, business endpoint or global COOP relaxation. [Ledger](reconstruction/02_PHASE_LEDGER.md) owns state.
+
 ## Bound Workspace command credentials — current
 
 `GET /api/projects/:projectId/workspace` is the no-store canonical routing/read-back authority. Bound initialize/retry-sync/automation-recover and the bound compatibility `/api/workspace/sync/initial` route require a validated durable server grant. Browser requests carry Firebase identity only. Missing grant → AUTHORIZATION_REQUIRED, before Google provider calls; no browser-token fallback. Client callback success requires canonical CONNECTED with CONNECTED_VALID/AUTOMATION_SCOPE_REQUIRED before initialization.
