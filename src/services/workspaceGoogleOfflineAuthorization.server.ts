@@ -1,3 +1,4 @@
+import {isWorkspaceOAuthCorrelation} from '../utils/workspaceOAuthCompletion';
 import {AUTH_TRANSIENT_CODES,isWorkspaceAuthReason,workspaceGrantFailure,workspaceAuthResult,type WorkspaceAuthReason,type WorkspaceAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
 import {classifyGoogleProviderFailure,isGoogleProviderCode} from '../../server/workspaceGoogleErrors';
 import {createCipheriv,createDecipheriv,createHash,randomBytes,randomUUID} from 'node:crypto';
@@ -67,13 +68,25 @@ export class WorkspaceGoogleOfflineAuthorization {
     const c=this.configuration(),{s}=await this.snapshot(projectId,who),b=s.binding;
     if(!b)return gwsFail('WORKSPACE_NOT_PROVISIONED');
     const subject=await this.googleSubject(who.userId);if(subject!==b.googleSubject)return gwsFail('WORKSPACE_GOOGLE_ACCOUNT_MISMATCH',403);
-    const state=randomBytes(32).toString('base64url'),browser=randomBytes(32).toString('base64url'),verifier=randomBytes(48).toString('base64url'),nonce=randomBytes(32).toString('base64url'),id=hash(state),scopes=automation?REQUIRED_WORKSPACE_SCOPES:BINDING_WORKSPACE_SCOPES;
+    const correlationId=randomBytes(24).toString('base64url'),state=randomBytes(32).toString('base64url'),browser=randomBytes(32).toString('base64url'),verifier=randomBytes(48).toString('base64url'),nonce=randomBytes(32).toString('base64url'),id=hash(state),scopes=automation?REQUIRED_WORKSPACE_SCOPES:BINDING_WORKSPACE_SCOPES;
     await this.database.runTransaction(async(tx:any)=>{
       await this.workspace.authorized(tx,projectId,who);const snap=await tx.get(continuityRef(this.database,projectId)),current=snap.data();
       if(current?.binding?.spreadsheetId!==b.spreadsheetId||current?.binding?.googleSubject!==subject||current?.binding?.revision!==b.revision)return gwsFail('WORKSPACE_BINDING_CONFLICT');
-      tx.set(this.database.collection(TRANSACTIONS).doc(id),{projectId,actorId:who.userId,subject,spreadsheetId:b.spreadsheetId,bindingRevision:b.revision,authorizationVersion:current.authorizationVersion||0,previousAuthorizationId:current.backgroundAuthorizationId||null,automation,browserHash:hash(browser),nonceHash:hash(nonce),verifier:sealWorkspaceSecret(verifier,`oauth:${id}:${projectId}`,c),expiresAt:Date.now()+600000,usedAt:null});
+      tx.set(this.database.collection(TRANSACTIONS).doc(id),{projectId,correlationId,actorId:who.userId,subject,spreadsheetId:b.spreadsheetId,bindingRevision:b.revision,authorizationVersion:current.authorizationVersion||0,previousAuthorizationId:current.backgroundAuthorizationId||null,automation,browserHash:hash(browser),nonceHash:hash(nonce),verifier:sealWorkspaceSecret(verifier,`oauth:${id}:${projectId}`,c),expiresAt:Date.now()+600000,usedAt:null});
     });
-    return {url:this.provider(c).authorizationUrl({state,challenge:hash(verifier),nonce,scopes:['openid','email',...scopes]}),browser,expiresIn:600};
+    return {url:this.provider(c).authorizationUrl({state,challenge:hash(verifier),nonce,scopes:['openid','email',...scopes]}),browser,correlationId,expiresIn:600};
+  }
+  /** Cookie/state proof supplies only public routing metadata, not grant acceptance.
+   * Provider denial consumes the attempt without exchanging a code or changing any grant. */
+  async callbackCompletion(state:string,browser:string,cancel=false):Promise<{projectId:string;correlationId:string}> {
+    if(!/^[\w-]{43}$/.test(state)||!/^[\w-]{43}$/.test(browser))return gwsFail('GOOGLE_OAUTH_TRANSACTION_INVALID',400);
+    const ref=this.database.collection(TRANSACTIONS).doc(hash(state));
+    return this.database.runTransaction(async(tx:any)=>{
+      const s=(await tx.get(ref)).data();
+      if(!s||s.usedAt||s.expiresAt<=Date.now()||s.browserHash!==hash(browser)||!isWorkspaceOAuthCorrelation(s.correlationId)||typeof s.projectId!=='string'||!(/^[A-Za-z0-9_-]{1,128}$/).test(s.projectId))return gwsFail('GOOGLE_OAUTH_TRANSACTION_INVALID',400);
+      if(cancel)tx.set(ref,{...s,usedAt:Date.now(),verifier:null});
+      return {projectId:s.projectId,correlationId:s.correlationId};
+    });
   }
   private checkPendingBinding(s:any,pending:any) {
     if(s?.binding?.projectId!==pending.projectId||s?.binding?.spreadsheetId!==pending.spreadsheetId||s?.binding?.googleSubject!==pending.subject||s?.binding?.revision!==pending.bindingRevision)return gwsFail('WORKSPACE_BINDING_CONFLICT');

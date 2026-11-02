@@ -1,3 +1,4 @@
+import {WORKSPACE_OAUTH_CHANNEL,WORKSPACE_OAUTH_MESSAGE,WORKSPACE_OAUTH_TIMEOUT_MS,isWorkspaceOAuthCorrelation} from '../utils/workspaceOAuthCompletion';
 import {assertDurableWorkspaceAuthorization,isWorkspaceAuthReason} from '../utils/workspaceAuthorization';
 import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceFetch,decodeWorkspaceResponse} from '../utils/workspaceHttp';
@@ -62,6 +63,7 @@ export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripPro
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export class ClientWorkspaceService {
+  private cancelWorkspaceOAuth?:()=>void;
   private currentAccessToken:string|null=null;
   private tokenIdentity:string|null=null;
   private identity(){const user=auth.currentUser;return user?`${user.uid}:${user.providerData?.find(p=>p.providerId==='google.com')?.uid||''}`:null;}
@@ -172,9 +174,9 @@ export class ClientWorkspaceService {
     return result.data.destinationRootFolderId;
   }
 
-  public async getGoogleWorkspaceStatus(projectId: string): Promise<ProjectGoogleStatus> {
+  public async getGoogleWorkspaceStatus(projectId: string,signal?:AbortSignal): Promise<ProjectGoogleStatus> {
     const headers = await this.getWorkspaceHeaders({}, true,false);
-    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers });
+    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers,signal });
     const result = await this.decodeResponse(response);
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
@@ -199,34 +201,45 @@ export class ClientWorkspaceService {
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
   public async connectBackgroundAuthorization(projectId:string,isCurrent:()=>boolean):Promise<void> {
+    this.cancelWorkspaceOAuth?.();
     const popup=window.open('about:blank','qsaudi-workspace-authorization','popup,width=560,height=720');
     if(!popup)throw Error('POPUP_BLOCKED');
-    let listener:(event:MessageEvent)=>void=()=>{},timer:ReturnType<typeof setTimeout>|undefined,poll:ReturnType<typeof setInterval>|undefined;
+    const controller=new AbortController();
+    let listener:(event:MessageEvent)=>void=()=>{},channel:BroadcastChannel|undefined,timer:ReturnType<typeof setTimeout>|undefined,intentGuard:ReturnType<typeof setInterval>|undefined;
+    let correlationId='',completed=false,cleaned=false,abortReason:Error|undefined,rejectCompletion:((error:Error)=>void)|undefined;
+    const cleanup=()=>{if(cleaned)return;cleaned=true;window.removeEventListener('message',listener);clearTimeout(timer);clearInterval(intentGuard);try{if(channel){channel.onmessage=null;channel.close();}}catch{/* Optional channel cleanup cannot override read-back. */}try{popup.close();}catch{/* Callback also attempts self-close; no opener relationship is required. */}};
+    let abortAttempt:(error:Error)=>void=()=>{};
+    const interrupted=new Promise<never>((_resolve,reject)=>{abortAttempt=error=>{if(abortReason)return;abortReason=error;controller.abort();rejectCompletion?.(error);cleanup();reject(error);};});
+    const cancel=()=>abortAttempt(Error('WORKSPACE_IDENTITY_CHANGED'));this.cancelWorkspaceOAuth=cancel;
+    const check=()=>{if(abortReason)throw abortReason;if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');};
+    timer=setTimeout(()=>abortAttempt(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED')),WORKSPACE_OAUTH_TIMEOUT_MS);
+    // Only the local Workspace intent is checked; cross-origin window handles are never inspected.
+    intentGuard=setInterval(()=>{if(!isCurrent())cancel();},500);
     try {
-      await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
-      const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true})});
-      const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
-      const url=new URL(result.url);if(url.origin!=='https://accounts.google.com')throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
-      await new Promise<void>((resolve,reject)=>{
-        listener=(event:MessageEvent)=>{
-          if(event.origin!==window.location.origin||event.source!==popup||event.data?.type!=='QSAUDI_WORKSPACE_OAUTH')return;
-          if(!isCurrent())return reject(Error('WORKSPACE_IDENTITY_CHANGED'));
-          if(event.data.result==='CONNECTED'&&event.data.projectId===projectId)resolve();else {
-            const code=boundedWorkspaceHttpCode(event.data.code)||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED';
-            reject(Error(isWorkspaceAuthReason(event.data.authorizationReason)?event.data.authorizationReason:code));
-          }
-        };
-        window.addEventListener('message',listener);timer=setTimeout(()=>reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED')),600000);
-        poll=setInterval(()=>{if(!isCurrent()||popup.closed)reject(Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));},500);
-        popup.location.href=url.href;
-      });
-      if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
-      const confirmed=await this.getGoogleWorkspaceStatus(projectId);
-      if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
-      assertDurableWorkspaceAuthorization(confirmed,projectId);
-      this.setAccessToken(null); // Provisioning credential has no role in bound execution.
-    } finally {window.removeEventListener('message',listener);clearTimeout(timer);clearInterval(poll);popup.close();}
+      await Promise.race([interrupted,(async()=>{
+        await ensureRuntimeGeneration();check();
+        const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true}),signal:controller.signal});
+        const result=await this.decodeResponse(response);check();if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
+        const url=new URL(result.url);if(url.origin!=='https://accounts.google.com'||!isWorkspaceOAuthCorrelation(result.correlationId))throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');correlationId=result.correlationId;
+        await new Promise<void>((resolve,reject)=>{
+          rejectCompletion=reject;
+          const receive=(data:any)=>{
+            if(completed||data?.type!==WORKSPACE_OAUTH_MESSAGE||data.projectId!==projectId||data.correlationId!==correlationId||!['CONNECTED','AUTHORIZATION_FAILED'].includes(data.result))return;
+            if(!isCurrent())return reject(Error('WORKSPACE_IDENTITY_CHANGED'));completed=true;
+            if(data.result==='CONNECTED')resolve();else reject(Error(isWorkspaceAuthReason(data.authorizationReason)?data.authorizationReason:boundedWorkspaceHttpCode(data.code)||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED'));
+          };
+          listener=event=>{if(event.origin===window.location.origin&&event.source===popup)receive(event.data);};
+          window.addEventListener('message',listener);
+          try{channel=new BroadcastChannel(WORKSPACE_OAUTH_CHANNEL);channel.onmessage=event=>receive(event.data);}catch{/* Opener postMessage remains a correlated compatibility fallback. */}
+          check();popup.location.href=url.href;
+        });
+        check();const confirmed=await this.getGoogleWorkspaceStatus(projectId,controller.signal);check();
+        assertDurableWorkspaceAuthorization(confirmed,projectId);
+        this.setAccessToken(null);
+      })()]);
+    } finally {cleanup();if(this.cancelWorkspaceOAuth===cancel)this.cancelWorkspaceOAuth=undefined;}
   }
+
   public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
     await ensureRuntimeGeneration();
     const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});

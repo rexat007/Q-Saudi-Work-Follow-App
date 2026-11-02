@@ -1,3 +1,15 @@
+## OAuth popup/callback transport — 2026-11-02
+
+Current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); merged baseline `adc7ea93acec86a09c5111c7f8d6c539d4f9f293`.
+
+- RESOLVED_IN_SOURCE: opener-only completion and cross-origin popup.closed polling. Same-origin BroadcastChannel is primary; correlated postMessage is optional. No global COOP policy relaxation.
+- RESOLVED_IN_SOURCE: callback could be swallowed by the PWA app-shell fallback. A callback-specific Workbox navigation denylist preserves its dedicated server HTML; normal app/API behavior is retained.
+- RESOLVED_IN_SOURCE: wrong/stale/duplicate completion cannot route another attempt. Each transaction adds a fresh 192-bit public correlation distinct from state/cookie/PKCE/nonce/credentials; Project, correlation and current intent are checked, completion is latched once and canonical GET remains required.
+- RESOLVED_IN_SOURCE: cleanup covers success/failure/timeout/current-intent invalidation/supersession and stalled start/read-back HTTP. Local intent checks never inspect cross-origin popup properties. Invalid/stale callback proof does not clear a newer shared cookie.
+- PRESERVED: PKCE/state/browser/nonce proofs, PENDING_VALIDATION → refresh proof → ACTIVE activation, current principal/Project/resource/revision/consent fences, encrypted grants, bound durable-only policy and optional Script scope. Correlation conveys no authorization.
+- STILL_OPEN: owner deployment of matching client/server/updated worker and real Q-PRJ-007 consent/return acceptance. Old in-flight transactions without correlation fail closed and need a fresh explicit attempt; accepted grants/resources are unchanged. Invalid/unprovable callbacks cannot target an attempt and resolve through the bounded timeout.
+- LIMITATION: browsers may refuse close; then the popup remains a minimal completion/failure page, never a second SPA. User cancellation can arrive as provider denial or the ten-minute deadline. No raw callback queries/credentials/PII are logged by application code; hosting/proxy log redaction remains external operational responsibility.
+
 ## Bound Workspace authorization convergence — 2026-11-02
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `79b5df8abecd23c70e2bbd74d6072d4d4d84d291`.

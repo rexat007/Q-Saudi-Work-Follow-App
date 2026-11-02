@@ -1,3 +1,19 @@
+## OAuth popup callback completion — current
+
+Exact state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); full protocol: [credential contract](GWS2_BACKGROUND_AUTHORIZATION_CONTRACT.md). OAUTH_POPUP_COMPLETION = BROADCAST_CHANNEL_PRIMARY; WINDOW_OPENER = OPTIONAL_FALLBACK; POPUP_CLOSED_POLLING = RETIRED; CALLBACK_ROUTE = DEDICATED_MINIMAL_HTML; OAUTH_SUCCESS = SERVER_READBACK_REQUIRED.
+
+Google's cross-origin navigation may sever the opener. The main app subscribes before navigation; a public independent correlationId returned by the transaction start binds completion to one Project/current intent. Bounded callback success/failure uses that correlation only after state/browser proof; grant acceptance still requires the unchanged server refresh-validation lifecycle. Wrong/stale/duplicate events cannot settle another attempt. The callback publishes through same-origin BroadcastChannel, attempts exact-origin opener messaging if available, then self-close. Separate try/finally cleanup keeps channel/opener failure from blocking close. Close refusal leaves only minimal Arabic status text, never the app.
+
+Both HTTP route ordering and Workbox navigation policy isolate `/workspace/google/callback` including its query/slash form from index.html. The only config edit is the callback-specific navigation denylist; API exclusion, offline shell and normal update/activation policy remain. No app-wide COOP relaxation. Client cleanup covers success, failure, supersession, current intent loss, stalled HTTP/read-back and ten-minute timeout without accessing popup.closed. Canonical read-back remains mandatory before initialize/sync; failures stop and keep existing resources. No automatic repeated consent or new Sheet/folder/Script/binding, manual Firestore/Console operation or deployment occurs here. Existing source/local evidence is separate from real deployed Q-PRJ-007 popup acceptance.
+
+### Popup callback verification observation — 2026-11-02
+
+Consolidated latest results per file: 55 files, 1003/1004 PASS, 0 skipped/pending. The sole failing TBC-B4 checkpoint_partial_failure source anchor is independently reproduced in a clean archive of merged `adc7ea93acec86a09c5111c7f8d6c539d4f9f293` (baseline guard 25/26). The broad command exits nonzero and is NOT all green. New failures 0; no test-count reductions. Focused final callback/correlation/client/entry-point set 56/56 PASS, overlapping the consolidated cases. The existing 21 entry-point tests and seven original callback tests retain their coverage/counts; nonce-aware fixtures extend the previous completion contract. Seven callback cases and 21 focused channel/transaction cases are added. Existing durable authorization, lifecycle, global coordinator, repair, operational/isolation, Script recovery, Phase-8 and PWA-generation tests pass.
+
+Tests execute generated callback HTML with missing/available/throwing opener, assert publication/close/minimal fallback, exercise actual localhost HTTP ordering ahead of SPA fallback, verify wrong/stale/duplicate correlation, invalid-cookie isolation, false completion, optional automation, accepted read-back, attempt replacement/intent cleanup, bounded stalled HTTP/read-back and timeout. Real Workbox NavigationRoute matching preserves normal offline app routes and denies callback/query/slash/API paths. The production generated worker includes the narrow callback denylist. Browser/Google/Render live acceptance is not claimed.
+
+Build PASS. Baseline/final lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0 using the diagnostic multiset with positions/equivalent quoted-union display order normalized only. `git diff --check` PASS. The only config edit is the callback-specific Workbox navigation denylist. No package/lockfile/workflow/rules/locale/blueprint/Apps Script asset or global COOP change. One commit/push is authorized, no PR/merge; matching deployment/worker activation and actual same-resource Q-PRJ-007 consent remain owner gates.
+
 ## Bound Workspace authorization entry points — current
 
 State authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). BOUND_WORKSPACE_GOOGLE_AUTHORITY = DURABLE_SERVER_GRANT; BROWSER_GOOGLE_TOKEN = PROVISIONING_ONLY / MEMORY_ONLY; CLIENT_CACHED_WORKSPACE_STATUS = NOT_AUTHORIZATION_AUTHORITY; OAUTH_SUCCESS = SERVER_READBACK_REQUIRED.
@@ -135,12 +151,12 @@ One standalone worker discovers active grants, examines pending Project outboxes
 ## Commands and UI
 
 - POST /api/projects/:projectId/workspace/resume: server-derived recovery; no replacement resource IDs.
-- POST /api/projects/:projectId/workspace/initialize: empty body; verify binding, reconcile workbook/automation, deliver initial/pending canonical data. Uses persistent grant when configured, otherwise an authorized transient Google token.
-- POST /api/projects/:projectId/workspace/authorization: {automation:boolean}; current Firebase Project administrator starts offline consent. Returns only Google authorization URL and sets HttpOnly browser-binding cookie.
-- GET /workspace/google/callback: single-use browser-bound PKCE/nonce transaction; no app sign-in. Returns a CSP-restricted same-origin popup completion message with only Project/result. No tokens, provider messages or Google identity are reflected.
+- POST /api/projects/:projectId/workspace/initialize: empty body; verify binding, reconcile workbook/automation, deliver initial/pending canonical data. Requires the validated durable server grant; browser Google token fallback is forbidden.
+- POST /api/projects/:projectId/workspace/authorization: {automation:boolean}; current Firebase Project administrator starts offline consent. Returns Google authorization URL plus independent public correlationId and sets the HttpOnly browser-binding cookie.
+- GET /workspace/google/callback: single-use browser-bound PKCE/nonce transaction; no app sign-in. Returns dedicated nonce-CSP HTML publishing same-origin correlated Project/result/closed diagnosis, never the SPA. No tokens, provider messages or Google identity are reflected.
 - DELETE /api/projects/:projectId/workspace/authorization: revoke/remove server credential; preserve binding.
 
-Normal connected UI has one Open Sheet primary action. Only one contextual secondary action is chosen: background authorization/reconnect, workbook repair, or retry. Structure/automation warnings cannot show setup as incomplete. OAuth popup completion is fenced to opener origin/window/current Project intent; its timer monitors cancellation, not data delivery. No open browser is needed by the worker.
+Normal connected UI has one Open Sheet primary action. Only one contextual secondary action is chosen: background authorization/reconnect, workbook repair, or retry. Structure/automation warnings cannot show setup as incomplete. OAuth completion is fenced to Project/correlation/current intent on BroadcastChannel, with origin/window checks only on the postMessage fallback; the ten-minute deadline bounds completion and read-back without reading popup.closed. No open browser is needed by the worker.
 
 ## Deployment and live gates
 
