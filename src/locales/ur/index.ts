@@ -1,6 +1,17 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "auth.continuity.title": "اکاؤنٹ کی تصدیق دوبارہ منسلک ہو رہی ہے",
+  "auth.continuity.message": "تصدیق عارضی طور پر دستیاب نہیں۔ آپ کی شناخت اور کام محفوظ ہیں؛ تصدیق بحال ہونے تک کارروائیاں رکی ہوئی ہیں۔",
+  "import.bulk.title": "اجتماعی شناخت کا جائزہ",
+  "import.bulk.discover": "مستند شناختیں تلاش کریں",
+  "import.bulk.approve": "محفوظ معاملات منظور کریں",
+  "import.bulk.summary": "تیار: {ready} · اندراج/بحالی: {enroll} · وابستگی: {affiliate} · نئی تیاری: {prepare} · انفرادی جائزہ: {manual}",
+  "import.material.missing": "ماخذ نے منتقل ہونے والا مواد نہیں بتایا۔ اس درآمد کے لیے مواد منتخب اور تصدیق کریں۔",
+  "import.material.confirm": "درآمد کے مواد کی تصدیق کریں",
+  "import.material.code": "کوڈ سے عالمی مواد تلاش کریں؛ عدم موجودگی کی تصدیق کے بعد تخلیق ممکن ہے",
+  "import.registry.lookup": "رجسٹریشن نمبر یا مواد کے کوڈ سے عالمی شناخت تلاش کریں",
+
   "import.assurance.search": "نام، شناخت کنندہ یا قدرتی شناخت سے تلاش کریں",
   "import.assurance.previous": "پچھلا",
   "import.assurance.next": "اگلا",

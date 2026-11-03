@@ -21,12 +21,12 @@ describe('Auth session refresh coherence', () => {
     x.receive(null); expect(x.sink.profile).toHaveBeenLastCalledWith(null);
     await x.controller.refresh(); expect(x.user.getIdToken).toHaveBeenCalledTimes(2); expect(x.stop).toHaveBeenCalledOnce();
   });
-  it('clears privileged profile immediately on refresh and does not fabricate a profile on failure', async () => {
+  it('retains identity presentation on refresh failure but clears mutation token authority', async () => {
     const x = setup(); await x.controller.change(x.user); x.deps.load.mockRejectedValueOnce(Error('network'));
-    await x.controller.refresh(); expect(x.sink.profile).toHaveBeenLastCalledWith(null); expect(x.sink.token).toHaveBeenLastCalledWith(null);
+    await x.controller.refresh(); expect(x.sink.profile).toHaveBeenLastCalledWith(account); expect(x.sink.token).toHaveBeenLastCalledWith(null);
   });
-  it('clears stale privilege on profile-listener failure', async () => {
-    const x = setup(); await x.controller.change(x.user); x.fail(); expect(x.sink.profile).toHaveBeenLastCalledWith(null);
+  it('clears mutation authority while preserving identity presentation on profile-listener failure', async () => {
+    const x = setup(); await x.controller.change(x.user); x.fail(); expect(x.sink.profile).toHaveBeenLastCalledWith(account);expect(x.sink.token).toHaveBeenLastCalledWith(null);
   });
   it('sign-out clears identity/profile/token synchronously and detaches profile watch', async () => {
     const x = setup(); await x.controller.change(x.user); x.controller.clear();

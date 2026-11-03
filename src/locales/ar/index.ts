@@ -1,6 +1,17 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "auth.continuity.title": "جارٍ التحقق من اتصال الحساب",
+  "auth.continuity.message": "تعذر التحقق مؤقتًا. هويتك وعملك محفوظان، والإجراءات متوقفة حتى استعادة التحقق.",
+  "import.bulk.title": "مراجعة الهويات المجمعة",
+  "import.bulk.discover": "اكتشاف الهويات المعتمدة",
+  "import.bulk.approve": "اعتماد الحالات الآمنة",
+  "import.bulk.summary": "جاهزة: {ready} · تسجيل/تفعيل بالمشروع: {enroll} · ربط بالناقل: {affiliate} · جديدة قابلة للتحضير: {prepare} · مراجعة فردية: {manual}",
+  "import.material.missing": "لم يحدد ملف المصدر مادة منقولة. اختر مادة لهذا الاستيراد وأكدها.",
+  "import.material.confirm": "تأكيد مادة الاستيراد",
+  "import.material.code": "اكتشاف مادة عالمية برمزها؛ الإنشاء متاح بعد إثبات غيابها",
+  "import.registry.lookup": "اكتشاف هوية عالمية بالسجل التجاري أو رمز المادة",
+
   "import.assurance.search": "ابحث بالاسم أو المعرّف أو الهوية",
   "import.assurance.previous": "السابق",
   "import.assurance.next": "التالي",

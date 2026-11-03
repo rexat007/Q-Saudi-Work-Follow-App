@@ -1,3 +1,4 @@
+import {importRequest} from './importRequest';
 import { auth } from '../firebase/config';
 
 export interface CarrierCreateInput {
@@ -91,7 +92,7 @@ export class CarrierManagementClientService {
       carrierData.contactEmail = input.contactEmail.trim();
     }
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId.trim())}/setup-carrier`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId.trim())}/setup-carrier`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -174,7 +175,7 @@ export class CarrierManagementClientService {
           : null;
     }
 
-    const response = await fetch(
+    const response = await importRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/carriers/${encodeURIComponent(carrierId.trim())}`,
       {
         method: 'PATCH',

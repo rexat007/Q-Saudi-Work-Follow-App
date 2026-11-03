@@ -3,7 +3,7 @@ import React, {useLayoutEffect, useRef} from 'react';
 import {createPortal} from 'react-dom';
 
 // One stack owns pointer, keyboard, focus and body scrolling. Portals alone do not.
-export const IMPORT_OVERLAY_LEVEL = {WORKFLOW: 100, EDITOR: 110, CONFIRMATION: 120} as const;
+export const IMPORT_OVERLAY_LEVEL = {WORKFLOW: 100, EDITOR: 110, CONFIRMATION: 120, AUTHORITY: 130} as const;
 type Entry = {node: HTMLElement; level: number; order: number; dismiss: () => void; origin: HTMLElement | null};
 const entries: Entry[] = [];
 const originals = new Map<HTMLElement, {inert: boolean; hidden: string | null}>();

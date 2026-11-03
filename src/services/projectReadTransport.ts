@@ -1,9 +1,10 @@
+import {importRequest} from './importRequest';
 import { auth } from '../firebase/config';
 /** Protected projection transport. No fallback to browser repositories or offline cache. */
 export async function canonicalProjectRead<T = any>(projectId: string, surface: string): Promise<T> {
   const token = await auth.currentUser?.getIdToken();
   if (!token) throw new Error('UNAUTHENTICATED');
-  const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/${surface}`, { headers: { Authorization: `Bearer ${token}` } });
+  const response = await importRequest(`/api/projects/${encodeURIComponent(projectId)}/${surface}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!response.ok) {
     const error = new Error(`CANONICAL_PROJECT_READ_FAILED:${response.status}`);
     const body = await response.json().catch(() => null);

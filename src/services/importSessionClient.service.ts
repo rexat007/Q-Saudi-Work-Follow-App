@@ -1,3 +1,5 @@
+import {importRequest} from './importRequest';
+import {assertProfileAuthorityAvailable} from '../firebase/authSession';
 import { encodeSessionChunks } from './import/sessionArtifactCodec';
 import { assertSessionPayload, sourceFingerprint, prepareDurableBatch } from './import/durableSessionContract';
 import { auth } from '../firebase/config';
@@ -24,7 +26,7 @@ export class ImportSessionVersionConflictError extends Error {
 export class ImportSessionClientService {
   public async commitReviewedIntent(projectId: string, importSessionId: string, expectedVersion: number): Promise<import('../types/importExecution').RosterExecutionCommitResponse> {
     const token = await this.getAuthToken();
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`, {
       method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({expectedVersion})
     });
     const json = await response.json();
@@ -44,13 +46,14 @@ export class ImportSessionClientService {
   }
   private async executionCommand(projectId:string,sessionId:string,action?:'retry'|'cancel',expectedOperationVersion?:number) {
     const token=await this.getAuthToken();
-    const response=await fetch(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(sessionId)}/execution${action?'/'+action:''}`,{
+    const response=await importRequest(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(sessionId)}/execution${action?'/'+action:''}`,{
       method:action?'POST':'GET',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},...(action?{body:JSON.stringify({expectedOperationVersion})}:{})
     });
     const json=await response.json();if(!response.ok||!json.success)throw Object.assign(new Error(json.code||'EXECUTION_REQUEST_FAILED'),{code:json.code});return json.data;
   }
 
   private async getAuthToken(overrideToken?: string): Promise<string> {
+    assertProfileAuthorityAvailable();
     if (overrideToken) return overrideToken;
     const currentUser = auth.currentUser;
     if (!currentUser) {
@@ -79,7 +82,7 @@ export class ImportSessionClientService {
     const token = await this.getAuthToken(overrideToken);
 
     assertSessionPayload(payload);
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +125,7 @@ export class ImportSessionClientService {
 
     const token = await this.getAuthToken(overrideToken);
 
-    const response = await fetch(
+    const response = await importRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions/${encodeURIComponent(importSessionId.trim())}`,
       {
         method: 'GET',
@@ -163,7 +166,7 @@ export class ImportSessionClientService {
 
     const token = await this.getAuthToken(overrideToken);
 
-    const response = await fetch(
+    const response = await importRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions${includeRosterResults ? "?includeRosterResults=true" : ""}`,
       {
         method: 'GET',
@@ -223,7 +226,7 @@ export class ImportSessionClientService {
       updates = { checkpointArtifact: manifest };
     }
 
-    const response = await fetch(
+    const response = await importRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions/${encodeURIComponent(importSessionId.trim())}`,
       {
         method: 'PATCH',

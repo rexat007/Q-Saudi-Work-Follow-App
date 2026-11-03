@@ -1,3 +1,4 @@
+import {importRequest} from './importRequest';
 import type { GlobalMaterialUom } from '../types/globalEntities';
 import { auth } from '../firebase/config';
 
@@ -82,7 +83,7 @@ export class MaterialManagementClientService {
       standardDensityTonPerM3,
     };
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(projectId.trim())}/setup-material`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId.trim())}/setup-material`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +162,7 @@ export class MaterialManagementClientService {
       throw new Error('UNAUTHENTICATED: User must be signed in to update project material');
     }
 
-    const response = await fetch(
+    const response = await importRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/materials/${encodeURIComponent(materialId.trim())}`,
       {
         method: 'PATCH',

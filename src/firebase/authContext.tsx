@@ -7,15 +7,16 @@ import {
   User 
 } from 'firebase/auth';
 import { auth, db } from './config';
-import { doc, onSnapshot } from 'firebase/firestore';
-import { createAuthSession } from './authSession';
+import { doc, getDocFromServer, onSnapshot } from 'firebase/firestore';
+import { createAuthSession, type ProfileAuthority } from './authSession';
 import { validateAccountProfile } from '../utils/principal';
 import { UserEntity } from '../types/entities';
-import { userRepository } from '../repositories/user.repository';
+import { decodeUser } from '../utils/persistenceBoundary';
 
 export interface AuthContextType {
   user: User | null;
   userProfile: UserEntity | null;
+  profileAuthority?: ProfileAuthority;
   idToken: string | null;
   isAuthReady: boolean;
   isProfileLoading: boolean;
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserEntity | null>(null);
+  const [profileAuthority, setProfileAuthority] = useState<ProfileAuthority>('LOADING');
   const [idToken, setIdToken] = useState<string | null>(null);
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(false);
@@ -47,11 +49,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const controller = createAuthSession<User>({
-      user: setUser, profile: setUserProfile, token: setIdToken,
+      authority: value=>{setProfileAuthority(value);window.dispatchEvent(new CustomEvent('auth-authority-change',{detail:value}));}, user: setUser, profile: setUserProfile, token: setIdToken,
       loading: setIsProfileLoading, ready: () => setIsAuthReady(true), error: setAuthError,
     }, {
-      load: async current => normalizeProfile(await userRepository.findById(current.uid), current.uid),
-      watch: (current, receive, fail) => onSnapshot(doc(db, 'users', current.uid), snapshot => {
+      load: async current => {
+        const snapshot=await getDocFromServer(doc(db,'users',current.uid));
+        return normalizeProfile(snapshot.exists() ? decodeUser<UserEntity>(snapshot.data(),current.uid) : null,current.uid);
+      },
+      watch: (current, receive, fail) => onSnapshot(doc(db, 'users', current.uid), {includeMetadataChanges:true}, snapshot => {
+        if(snapshot.metadata.fromCache||snapshot.metadata.hasPendingWrites) { fail(); return; }
         try { receive(normalizeProfile(snapshot.exists() ? snapshot.data() as UserEntity : null, current.uid)); }
         catch { fail(); }
       }, fail),
@@ -59,9 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     session.current = controller;
     const unsubscribe = onIdTokenChanged(auth, current => { void controller.change(current); }, () => {
-      controller.clear(); setAuthError('AUTH_REFRESH_FAILED'); setIsAuthReady(true);
+      controller.unavailable(); setAuthError('AUTH_REFRESH_FAILED'); setIsAuthReady(true);
     });
-    return () => { unsubscribe(); controller.dispose(); session.current = null; };
+    const reconnect=()=>{void controller.refresh();}, offline=()=>controller.unavailable();
+    window.addEventListener('online',reconnect);window.addEventListener('offline',offline);
+    return () => { window.removeEventListener('online',reconnect);window.removeEventListener('offline',offline); unsubscribe(); controller.dispose(); session.current = null; };
   }, []);
 
   const refreshUserProfile = async () => { await session.current?.refresh(); };
@@ -115,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         userProfile,
+        profileAuthority,
         idToken,
         isAuthReady,
         isProfileLoading,

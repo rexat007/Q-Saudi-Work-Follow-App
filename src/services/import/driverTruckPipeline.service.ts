@@ -505,7 +505,7 @@ export class DriverTruckPipelineService {
 
     const updatedRows = batch.rows.map((original) => {
       if (context.resolutionContext && (original.status === 'REJECTED' || original.status === 'COMMITTED')) return original;
-      const row = revalidateCanonicalRow(original, context);
+      const row = revalidateCanonicalRow(original, context, batch.metadata?.batchMaterialBinding?.confirmed===true?batch.metadata.batchMaterialBinding.materialId:undefined);
       const freshRosterIssues = validator.validateRow(row, context).map(issue => ({ ...issue, sourceLocation: row.sourceLocation }));
 
       const carrierResolved = Boolean(row.entityResolutions?.carrier?.matchedId);

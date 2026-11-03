@@ -33,6 +33,7 @@ export interface RosterCanonicalIntent {
   /** Emitted by the builder for every row; optional only for legacy working snapshots. Never infers source positions. */
   sourceRows?: ImportSourceLocation[];
   projectId: string;
+  materialBinding?: {materialId:string;provenance:'PROJECT_IMPORT_SELECTION';confirmed:true};
   rowDecisions: { rowNumber: number; status: 'CONTRIBUTING' | 'EXCLUDED' | 'BLOCKED'; entities: Partial<Record<'carrier' | 'driver' | 'truck' | 'material', string>> }[];
   entities: IntentEntity[];
   assignmentIntents: AssignmentIntent[];

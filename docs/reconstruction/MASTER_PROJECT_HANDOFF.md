@@ -1,3 +1,7 @@
+## Live intake continuity continuation — 2026-11-03
+
+Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `637b7d54429ac586e101689deae35e013a9eab77` merges PR #86. Current bounded work distinguishes profile unavailability from confirmed absence, preserves mounted Roster continuity, adds bounded global natural-key discovery/safe approval and requires explicit operational Material binding even without a source column or weighbridge. [Contract and unexecuted live matrix](LIVE_INTAKE_CONTINUITY_CONTRACT.md). No new phase or GWS redesign; earlier checkpoints are historical where superseded.
+
 ## Smart Import assurance continuation
 
 Exact state is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Merged baseline `4d193d96791425c4d3c3bcaa60f06175036efdfb` contains PR #85. The assurance package retains the seven-stage Roster/Phase-8 architecture and adds consistent portal/input/focus ownership, synchronous command gates, session-generation fencing, read-only convergence retry, fail-closed snapshot handling and bounded large-roster presentation. No GWS provisioning changes, new phase, Trips/Reports work or live Project mutation. Verification and manual acceptance matrix: [SMART_IMPORT_ASSURANCE_CONTRACT.md](SMART_IMPORT_ASSURANCE_CONTRACT.md). One branch commit/push is authorized after local verification; PR/merge and live acceptance remain separate. Older checkpoints are historical.
@@ -143,7 +147,7 @@ Binding rules:
 1. **One decision per semantic identity/problem, not per source row.**
 2. **Natural identity outranks name/fuzzy evidence.**
 3. **Rejected rows remain provenance but do not participate in active semantic groups.**
-4. **Material is optional for participation-only roster inputs.**
+4. **Operational Roster Material is required.** A missing source column requires explicit durable Project Material selection; the older participation-only optional-Material policy is superseded for this journey.
 5. **Contextual missing-entity handling reuses canonical application capabilities.** Smart Import may invoke creation/enrollment/reactivation/affiliation but must not own a parallel Master Data authority.
 6. **PREPARED_NEW remains distinct from immediate contextual canonical creation.**
 7. **No hidden temporal side effects** during contextual entity creation.
