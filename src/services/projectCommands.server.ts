@@ -9,9 +9,12 @@ import { ProjectValidator } from '../validators/project.validator';
 import { LEGAL_LIFECYCLE_TRANSITIONS } from './projectLifecycle.policy';
 import { ACTIVE_PROJECT_PROFILE_FIELDS, assertFoundationMutation, canEditProjectFoundation, FOUNDATION_FIELDS, FOUNDATION_SETTINGS } from './projectMutability.policy';
 import {validateOperationalConfiguration,resolveOperationalProfile} from './operationalProfileResolver';
+import {evaluateOperationalImpact} from './operationalProfileAssessment.server';
+import {configurationHash} from './workspaceProvisioning.server';
 import {markDirtyInTransaction} from './projectWorkspaceProjectionState.server';
 import type { ProjectEntity } from '../types/entities';
 import type { AuthUserContext } from '../types/common';
+import type { OperationalImpactAssessment } from '../types/operationalProfile';
 
 export class ProjectCommandError extends Error {
   constructor(public code: string, public status = 400, message = code, public blockers?: SetupReadinessBlocker[]) { super(message); }
@@ -143,10 +146,34 @@ export class ProjectCommandsServerService {
       return project;
     });
   }
+  async assessOperationalImpact(projectId: string, input: any, authenticated: AuthUserContext): Promise<OperationalImpactAssessment> {
+    exact(input, ['configuration', 'expectedVersion']);
+    const configuration = validateOperationalConfiguration(input.configuration);
+    if (!validId(projectId) || !Number.isInteger(input.expectedVersion)) fail('INVALID_PROJECT_COMMAND');
+    return this.db.runTransaction(async (tx: any) => {
+      const actor = await this.actor(tx, authenticated, projectId);
+      const ref = this.db.collection('projects').doc(projectId), snap = await tx.get(ref);
+      if (!snap.exists) fail('PROJECT_NOT_FOUND', 404);
+      const project = decodeProject<ProjectEntity>(snap.data(), projectId);
+      assertFoundationMutation(project.status, 'MAINTENANCE');
+      if ((project.version || 0) !== input.expectedVersion) fail('PROJECT_VERSION_CONFLICT', 409);
+      const trips = await tx.get(ref.collection('trips').limit(1));
+      const continuity = await tx.get(ref.collection('workspace_continuity').doc('current'));
+      return evaluateOperationalImpact({
+        projectId,
+        expectedVersion: input.expectedVersion,
+        currentProject: project,
+        proposedConfiguration: configuration,
+        hasTrips: !trips.empty,
+        continuityData: continuity.data() || null,
+      });
+    });
+  }
   async configureOperations(projectId:string,input:any,authenticated:AuthUserContext) {
-    exact(input,['configuration','expectedVersion','acknowledgeLegacyDualCompatibility']);
+    exact(input,['configuration','expectedVersion','acknowledgeLegacyDualCompatibility','assessmentSignature']);
     const configuration=validateOperationalConfiguration(input.configuration);
     if(!validId(projectId)||!Number.isInteger(input.expectedVersion))fail('INVALID_PROJECT_COMMAND');
+    if(input.assessmentSignature!==undefined&&(typeof input.assessmentSignature!=='string'||!/^[a-f0-9]{64}$/.test(input.assessmentSignature)))fail('INVALID_PROJECT_COMMAND');
     return this.db.runTransaction(async(tx:any)=>{
       const actor=await this.actor(tx,authenticated,projectId),ref=this.db.collection('projects').doc(projectId),snap=await tx.get(ref);
       if(!snap.exists)fail('PROJECT_NOT_FOUND',404);const project=decodeProject<ProjectEntity>(snap.data(),projectId);
@@ -154,8 +181,68 @@ export class ProjectCommandsServerService {
       if(JSON.stringify(project.operationalConfiguration)===JSON.stringify(configuration))return project;
       const trips=await tx.get(ref.collection('trips').limit(1)),continuity=await tx.get(ref.collection('workspace_continuity').doc('current'));
       const legacyCompatible=!project.operationalConfiguration&&continuity.data()?.binding?.workspaceBlueprintVersion==='SABIL-HAIL-V1'&&resolveOperationalProfile(configuration)==='DUAL_WEIGHBRIDGE'&&input.acknowledgeLegacyDualCompatibility===true;
-      if((trips.docs.length||continuity.data()?.binding||continuity.data()?.fileId||continuity.data()?.folderId)&&!legacyCompatible)fail('OPERATIONAL_PROFILE_IMPACT_ASSESSMENT_REQUIRED',409);
-      await markDirtyInTransaction(tx,projectId,['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'],'OPERATIONAL_CONFIGURATION',undefined,this.db);
+
+      if(input.assessmentSignature){
+        const assessment=evaluateOperationalImpact({
+          projectId,
+          expectedVersion:input.expectedVersion,
+          currentProject:project,
+          proposedConfiguration:configuration,
+          hasTrips:!trips.empty,
+          continuityData:continuity.data()||null,
+        });
+        if(assessment.assessmentSignature!==input.assessmentSignature){
+          fail('OPERATIONAL_PROFILE_ASSESSMENT_STALE',409,'OPERATIONAL_PROFILE_ASSESSMENT_STALE');
+        }
+        if(assessment.decision==='BLOCKED'){
+          fail(assessment.reasons[0]||'OPERATIONAL_PROFILE_MUTATION_BLOCKED',409);
+        }
+        if(assessment.decision==='NO_CHANGE'){
+          return project;
+        }
+        await markDirtyInTransaction(tx,projectId,['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'],'OPERATIONAL_CONFIGURATION',undefined,this.db);
+        const cData=continuity.data();
+        if(cData?.binding||cData?.ensureOperation){
+          const newHash=configurationHash(configuration);
+          const ensureOp=cData.ensureOperation;
+          if(ensureOp){
+            const RESOURCE_PHASES=['PREFLIGHT','AUTHORIZATION','DESTINATION','FOLDER','SPREADSHEET','BINDING'];
+            const preservedCompleted=(ensureOp.completed||[]).filter((p:string)=>RESOURCE_PHASES.includes(p));
+            const reconciledOp={
+              ...ensureOp,
+              configurationHash:newHash,
+              phase:'WORKBOOK',
+              status:'PREPARING',
+              completed:preservedCompleted,
+              lastBoundedError:null,
+              retryable:true,
+              actionRequired:null,
+              revision:(ensureOp.revision||0)+1,
+              updatedAt:Date.now(),
+              lastProgressAt:Date.now(),
+              timeline:[
+                ...(ensureOp.timeline||[]),
+                {phase:'WORKBOOK',at:Date.now(),event:'OPERATIONAL_CONFIGURATION_RECONCILED'}
+              ].slice(-48)
+            };
+            tx.set(ref.collection('workspace_continuity').doc('current'),{
+              ...cData,
+              workbookHealth:'REPAIR_REQUIRED',
+              automationState:assessment.changedDomains.includes('CAPACITY_ESTIMATION')?'DEGRADED':(cData.automationState||'NOT_INSTALLED'),
+              ensureOperation:reconciledOp
+            });
+          }else{
+            tx.set(ref.collection('workspace_continuity').doc('current'),{
+              ...cData,
+              workbookHealth:'REPAIR_REQUIRED'
+            });
+          }
+        }
+      }else{
+        if((trips.docs.length||continuity.data()?.binding||continuity.data()?.fileId||continuity.data()?.folderId)&&!legacyCompatible)fail('OPERATIONAL_PROFILE_IMPACT_ASSESSMENT_REQUIRED',409);
+        await markDirtyInTransaction(tx,projectId,['DRIVERS','CARRIERS','MATERIALS','FLEET_ROSTER'],'OPERATIONAL_CONFIGURATION',undefined,this.db);
+      }
+
       const after={...project,operationalConfiguration:configuration,operationalConfigurationRequired:true,version:(project.version||0)+1,updatedAt:new Date(),updatedBy:actor.userId};
       tx.update(ref,{operationalConfiguration:configuration,operationalConfigurationRequired:true,version:after.version,updatedAt:after.updatedAt,updatedBy:actor.userId});
       this.audit(tx,projectId,actor,project,after,'CONFIGURE_PROJECT_OPERATIONS');return after;

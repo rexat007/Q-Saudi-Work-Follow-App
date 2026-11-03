@@ -11,8 +11,8 @@ import { getState } from './projectWorkspaceProjectionState.server';
 import { boundedWorkspaceHttpCode } from '../utils/workspaceHttp';
 import { AUTH_TRANSIENT_CODES } from '../utils/workspaceAuthorization';
 const LEASE_MS = 120000;
-const ordered = (value: any): any => Array.isArray(value) ? value.map(ordered) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, ordered(value[key])])) : value;
-const configurationHash = (configuration: unknown) => createHash('sha256').update(JSON.stringify(ordered(configuration ?? null))).digest('hex');
+export const ordered = (value: any): any => Array.isArray(value) ? value.map(ordered) : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, ordered(value[key])])) : value;
+export const configurationHash = (configuration: unknown) => createHash('sha256').update(JSON.stringify(ordered(configuration ?? null))).digest('hex');
 const busyCodes = new Set(['WORKSPACE_SYNC_IN_PROGRESS', 'WORKSPACE_PROVISIONING_IN_PROGRESS','WORKSPACE_ROOT_IN_PROGRESS','WORKSPACE_EXECUTION_FENCED']);
 /** One lifecycle over canonical continuity/receipts/grants. No second resource registry. */
 export class WorkspaceProvisioningOrchestrator {

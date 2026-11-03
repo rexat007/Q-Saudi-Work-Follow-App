@@ -1,7 +1,27 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Smart Import Dark Contrast Family — Full Audit & Closure — 2026-11-03
+### Operational Profile Impact Assessment & Reviewed Apply — 2026-11-03
+
+CURRENT_CODE_BASELINE: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe` — verified main baseline; working source implemented locally.
+OPERATIONAL_PROFILE_IMPACT_ASSESSMENT: SOURCE_IMPLEMENTED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+SAME_PROFILE_REVIEWED_CHANGE: SUPPORTED (bounded same-profile in-place reconfigurations with user review, server revalidation, and version fencing).
+CROSS_PROFILE_BOUND_MIGRATION: FAIL_CLOSED / DEFERRED (cross-profile operational changes with bound Workspaces or historical Trips remain fail-closed).
+HISTORICAL_SNAPSHOT_PROTECTION: VERIFIED_LOCALLY (0 historical Trip snapshots modified or re-priced).
+BOUND_WORKSPACE_RESOURCE_IDENTITY: PRESERVED_LOCALLY (0 new folders, spreadsheets, or scripts created; destinationRootFolderId, projectFolderId, spreadsheetId, driveFileId, scriptProjectId, googleSubject preserved).
+UNIT_5B_PRODUCTION_SEMANTICS_CHANGED: NO (test fixture seeding in `projectWorkspaceMutationInvalidationUnit5B.test.ts` only).
+PUBLICATION: NOT_STARTED; no push, PR, or merge performed.
+NEXT_ACTION: OWNER_REVIEW → PUBLICATION → Q-PRJ-011 LIVE RETEST.
+WORKSPACE_QUIESCENCE_LIVE_RETEST: STILL_REQUIRED.
+PHASE_10: NOT_STARTED.
+
+Local verification summary:
+- `operationalProfileAssessment.test.ts`: 13/13 PASS
+- `projectWorkspaceMutationInvalidationUnit5B.test.ts`: 40/40 PASS
+- Combined affected selection: 54/54 PASS (0 new failures, 0 removed, 0 skipped)
+- Build truth: Vite & Rollup PASS, Workbox baseline precache limit reproduced (`BASELINE_WORKBOX_FAILURE_REPRODUCED`), zero new build regression.
+
+### Historical Smart Import Dark Contrast Family — Full Audit & Closure — 2026-11-03
 
 CURRENT_CODE_BASELINE: `ba20e2b069d105eae46740932d257ef9d954c645` — verified main; source integrity audited (1359 tracked files matched).
 WORKING_BRANCH: `reconstruction/smart-import-dark-contrast-family-closure`.

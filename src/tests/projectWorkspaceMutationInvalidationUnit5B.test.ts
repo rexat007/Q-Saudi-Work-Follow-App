@@ -39,6 +39,35 @@ describe('Unit 5B: Atomic Canonical Mutation Invalidation Wiring Tests', () => {
       nameAr: 'مشروع اختبار 5B',
       status: 'SETUP',
     };
+
+    // Seed test admin user profile for principal validation
+    inMemoryAdminStore[`users/${adminContext.userId}`] = {
+      userId: adminContext.userId,
+      role: 'PROJECT_ADMIN',
+      assignedProjectIds: [TEST_PROJECT_ID],
+      status: 'ACTIVE',
+      isActive: true,
+      email: adminContext.email,
+      fullName: adminContext.displayName,
+    };
+
+    // Seed test global entities for intake tests
+    for (const matId of ['MAT-001', 'MAT-002', 'MAT-TEST-001']) {
+      inMemoryAdminStore[`materials/${matId}`] = {
+        materialId: matId,
+        code: matId,
+        nameAr: 'مادة اختبار',
+        status: 'ACTIVE',
+      };
+    }
+    for (const carId of ['CAR-001', 'CAR-002', 'CAR-TEST-001']) {
+      inMemoryAdminStore[`carriers/${carId}`] = {
+        carrierId: carId,
+        commercialRegistrationNo: '1010001112',
+        nameAr: 'شركة النقل التجريبي',
+        status: 'ACTIVE',
+      };
+    }
   });
 
   // ==========================================

@@ -680,9 +680,13 @@ app.post('/api/projects/:projectId/workspace/resume', enforceProjectIsolation, e
     return res.json({success:true,data});
   } catch(error:any){return res.status(error.status||502).json({success:false,code:error.code||'WORKSPACE_RECOVERY_REQUIRED'});}
 });
+app.post('/api/projects/:projectId/operational-configuration/assess',enforceProjectIsolation,enforceAdminOnly,async(req:any,res)=>{
+  try {const {projectCommandsServerService}=await import('../src/services/projectCommands.server');return res.json({success:true,data:await projectCommandsServerService.assessOperationalImpact(req.params.projectId,req.body,req.user)});}
+  catch(error:any){return res.status(error.status||error.statusCode||409).json({success:false,code:error.code||'OPERATIONAL_CONFIGURATION_INVALID',error:error.message});}
+});
 app.post('/api/projects/:projectId/operational-configuration',enforceProjectIsolation,enforceAdminOnly,async(req:any,res)=>{
   try {const {projectCommandsServerService}=await import('../src/services/projectCommands.server');return res.json({success:true,data:await projectCommandsServerService.configureOperations(req.params.projectId,req.body,req.user)});}
-  catch(error:any){return res.status(error.status||error.statusCode||409).json({success:false,code:error.code||'OPERATIONAL_CONFIGURATION_INVALID'});}
+  catch(error:any){return res.status(error.status||error.statusCode||409).json({success:false,code:error.code||'OPERATIONAL_CONFIGURATION_INVALID',error:error.message});}
 });
 const workspaceProvisioning=new WorkspaceProvisioningOrchestrator(adminDb,projectGoogleWorkspaceServer,workspaceOfflineAuthorization,projectGoogleBlueprintPort);
 app.get('/api/projects/:projectId/workspace/ensure',enforceProjectIsolation,enforceAdminOnly,async(req:any,res)=>{

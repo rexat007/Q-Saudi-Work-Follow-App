@@ -1,4 +1,21 @@
-## Smart Import Dark Contrast Family Closure — 2026-11-03
+## Operational Profile Impact Assessment and Same-Profile Reviewed Apply — 2026-11-03
+
+Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe`.
+
+- RESOLVED_IN_SOURCE: Operational Profile Impact Assessment engine evaluating active dispatches, open trips, pricing rules, and workspace resources before profile update.
+- RESOLVED_IN_SOURCE: same-profile reviewed apply supporting in-place operational reconfigurations with user review, server revalidation, and version fencing.
+- PRESERVED: historical Trip operational snapshots remain frozen and unedited (0 historical trip snapshots modified or repriced).
+- PRESERVED: bound Google Workspace resource identity (0 new folders, spreadsheets, or Apps Script instances created; destinationRootFolderId, projectFolderId, spreadsheetId, driveFileId, scriptProjectId, googleSubject strictly preserved).
+- FAIL_CLOSED: cross-profile migration attempts on Projects with bound Google Workspace resources.
+- FAIL_CLOSED: cross-profile migration attempts on Projects with existing historical Trips.
+- DEFERRED: general cross-profile migration machinery outside current bounded same-profile scope.
+- STILL_OPEN: Q-PRJ-011 live retest after deployment publication.
+- STILL_OPEN: Workspace quiescence live acceptance retest.
+- STILL_OPEN: final Foundation acceptance.
+
+This unit authorizes local working source changes and documentation reconciliation only. No push, PR, or merge is performed.
+
+## Historical Smart Import Dark Contrast Family Closure — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `ba20e2b069d105eae46740932d257ef9d954c645`. [Evidence and live acceptance gates](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
 

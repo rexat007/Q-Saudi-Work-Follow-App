@@ -21,3 +21,48 @@ export interface OperationalWeights {
 }
 export type OperationalTimeline=Partial<Record<OperationalCheckpoint|'completedAt'|'expectedArrivalAt',string>>;
 export interface TripOperationalSnapshot {schemaVersion:1;configuration:OperationalConfiguration;profile:OperationalProfile;configurationVersion:number;estimatedCapacityTonnes:number|null;driverAtDispatch:string|null}
+
+export type OperationalChangeDomain =
+  | 'MEASUREMENT_PROFILE'
+  | 'DRIVER_INTAKE'
+  | 'ROUTE'
+  | 'SHIFT_WINDOWS'
+  | 'CAPACITY_ESTIMATION'
+  | 'REQUIRED_CHECKPOINTS';
+
+export type AssessmentDecision = 'NO_CHANGE' | 'SAFE_APPLY' | 'REVIEW_REQUIRED' | 'BLOCKED';
+
+export type WorkspaceImpactClass =
+  | 'NONE'
+  | 'REFRESH_REQUIRED'
+  | 'IN_PLACE_MAINTENANCE_REQUIRED'
+  | 'PARTIAL_WORKSPACE_RECOVERY_REQUIRED'
+  | 'CROSS_PROFILE_MIGRATION_REQUIRED'
+  | 'LEGACY_WORKSPACE_FROZEN';
+
+export type HistoricalImpactClass =
+  | 'NONE'
+  | 'FUTURE_ONLY_SNAPSHOT_SAFE'
+  | 'HISTORICAL_PROFILE_MIGRATION_REQUIRED';
+
+export interface OperationalImpactAssessment {
+  projectId: string;
+  projectVersion: number;
+  currentProfile: OperationalProfile | null;
+  proposedProfile: OperationalProfile;
+  changedDomains: OperationalChangeDomain[];
+  hasTrips: boolean;
+  workspaceState: 'NONE' | 'CONNECTED' | 'PARTIAL' | 'BUSY';
+  workspaceImpact: WorkspaceImpactClass;
+  historicalImpact: HistoricalImpactClass;
+  decision: AssessmentDecision;
+  reasons: string[];
+  assessmentSignature: string;
+}
+
+export interface ConfigureOperationsInput {
+  configuration: OperationalConfiguration;
+  expectedVersion: number;
+  acknowledgeLegacyDualCompatibility?: boolean;
+  assessmentSignature?: string;
+}

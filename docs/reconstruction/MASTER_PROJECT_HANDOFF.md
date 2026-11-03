@@ -1,4 +1,23 @@
-## Smart Import resume and contrast continuation — 2026-11-03
+## Operational Profile Impact Assessment handoff checkpoint — 2026-11-03
+
+Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe`. Working source contains the completed Operational Profile Impact Assessment and Reviewed Apply implementation.
+
+- latest source working unit = Operational Profile Impact Assessment & Reviewed Apply
+- publication = pending (0 pushes / PRs / merges performed)
+- live fixture = Q-PRJ-011
+- next acceptance order =
+  1. publish source
+  2. verify deployed runtime SHA
+  3. Q-PRJ-011 reviewed apply live test
+  4. verify same Workspace resource IDs (folder, spreadsheet, script)
+  5. converge Workspace to READY
+  6. five-minute quiescence test
+  7. inspect Firestore usage
+  8. final Foundation acceptance decision
+
+Phase 10 does not start automatically.
+
+## Historical Smart Import resume and contrast continuation — 2026-11-03
 
 Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Merged main `0f1c6b841da168dc4464c17cbd9f5096fef5e32d` contains Workspace quiescence PR #88; its live retest is still open. Owner restored the same durable Roster session after quota recovery, then observed a saved Driver/Truck stage inconsistent with current canonical prerequisites. The old session was cancelled; its exact originating blocker is not known. Current bounded source correction reuses fresh canonical/group/material gates to route backward only as needed, retains all valid durable facts and improves specific blocker presentation. Material selection and bulk approval now have shared dark-theme text/control/status/focus styling across their existing hosts. [Evidence and owner retest](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Local tests do not establish deployed visual or Final Review acceptance. One local commit only; no push/PR/merge or Phase 10. Older continuations below are historical.
 

@@ -1,4 +1,8 @@
-## Current Smart Import live-remediation checkpoint — 2026-11-03
+## Current Operational Profile Impact Assessment checkpoint — 2026-11-03
+
+Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Working source contains completed Operational Profile Impact Assessment and Reviewed Apply implementation verified locally (`9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe` baseline). Same-profile reviewed reconfigurations are supported while preserving historical Trip snapshots and Google Workspace resource identities without creating duplicate folders/sheets/scripts. General cross-profile migration remains fail-closed. Local test suites `operationalProfileAssessment.test.ts` (13/13 PASS) and `projectWorkspaceMutationInvalidationUnit5B.test.ts` (40/40 PASS) pass. Previous gates Smart Import Dark Contrast Family (`LIVE_PASS`), Durable Recovery (`LIVE_PASS`), and Account Profile Continuity (`LIVE_PASS`) are preserved. Publication is pending owner review; no push, PR, merge, or Phase 10. Deployed Q-PRJ-011 retest and Workspace quiescence retest remain required.
+
+## Historical Smart Import live-remediation checkpoint — 2026-11-03
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Starting merged main `0f1c6b841da168dc4464c17cbd9f5096fef5e32d` contains PR #88. Owner reports profile recovery and same durable Import Session/stage restoration passed live; restored-stage prerequisite drift and invisible shared Material/bulk controls exposed two bounded defects. Current source correction derives effective stage from fresh existing gates and styles the two shared components. [Evidence and remaining live checks](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Final Review live acceptance is incomplete; Workspace quiescence still requires owner live retest. One local commit only; no push/PR/merge, Workspace redesign or Phase 10. Older checkpoints below are historical.
 
