@@ -7,7 +7,7 @@ import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
-import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
+import { canonicalCarrierRowsReady, RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 
 export interface ProjectCarrierOption {
   carrierId: string;
@@ -97,7 +97,7 @@ export const RosterCarrierResolutionLayer: React.FC<RosterCarrierResolutionLayer
 
   const resolvedCount = carrierGroups.length - unresolvedCount;
   const isCarrierLayerComplete = useMemo(() => {
-    return canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) || Boolean(r.entityResolutions?.carrier?.matchedId)) : checkCarrierResolutionReadiness(importBatch);
+    return canonicalContext ? canonicalCarrierRowsReady(importBatch) : checkCarrierResolutionReadiness(importBatch);
   }, [importBatch, canonicalContext]);
 
   const carrierGroupsPage=useImportGroupPage(carrierGroups);

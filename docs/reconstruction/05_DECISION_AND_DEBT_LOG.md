@@ -1,4 +1,19 @@
-## Workspace sync quiescence and operation amplification — 2026-11-03
+## Smart Import resume-stage reconciliation and shared contrast — 2026-11-03
+
+Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Starting verified main `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`, merged PR #88. [Evidence and live acceptance gates](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: initial restore and checkpoint/reconnect no longer blindly reapply a saved stage after fresh canonical revalidation. Final Review revalidation routes to the earliest responsible correction stage when required, without automatically writing a checkpoint or creating canonical entities/relationships.
+- PRESERVED: same session/source fingerprint/revision/mapping/operation/batch, valid selections/Material binding, contextual receipts and bulk progress; existing canonical pipeline/group/material gate authorities; warning confirmation, temporal displacement and P8 reviewed-intent/journal/receipt/fencing. Effective presentation may move backward; durable stage changes only through a subsequent authorized existing checkpoint action.
+- RESOLVED_IN_SOURCE: membership-missing, membership-state, affiliation, Material, relationship-context, integrity and cross-row blockers no longer collapse into one generic message. Existing AR/EN/UR keys and row numbers remain the presentation boundary. Unknown details retain a bounded generic fallback.
+- RESOLVED_IN_SOURCE: the shared Material selection and bulk approval components explicitly style body/heading/labels/native controls/options/buttons/disabled/status/error/hover/focus in the existing dark palette, with wrapping and direction-neutral layout. Callback admission and explicit Material confirmation remain mandatory.
+- SUPERSEDED_TEST_PRESENTATION_EXPECTATION: one real Wizard regression previously required manually returning from a legacy Driver/Truck stage without Material. It now proves automatic return to Material with the same durable session and completion path. The case is retained and strengthened, not deleted/skipped; no historical baseline failure is edited away.
+- STILL_OPEN: exact old live blocker attribution (fixture cancelled), deployed AR/EN/UR desktop/tablet/mobile/keyboard contrast check, historical-session drift/resume and Final Review live completion. Owner reports profile recovery and durable same-session restore LIVE_PASS; that does not imply these remaining gates passed.
+- MERGED_SOURCE_VERIFIED: PR #88 quiescence at `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`. LIVE_RETEST_REQUIRED remains. Previous local-only instructions are historical execution records, not the current publication state of PR #88.
+- STILL_OPEN: independently reproduced baseline test failures and TypeScript debt; no lint PASS claim. No Workspace engine/provider/blueprint/Script/scopes, global invalidation, server persistence authority, Trips/Reports or Phase-10 changes.
+
+This unit authorizes one local commit only. No push/PR/merge or live resource mutation is performed.
+
+## Historical PR #88 Workspace sync quiescence and operation amplification — 2026-11-03
 
 Single current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Verified merged baseline: `be908ce2642e68ff784282ab3cacfd6b94efc745`. [Pre-edit findings, controlled budgets and live retest](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md).
 

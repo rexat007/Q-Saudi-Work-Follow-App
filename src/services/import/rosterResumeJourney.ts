@@ -1,3 +1,8 @@
+import type {UnifiedImportBatch} from '../../types/unifiedImport';
+import type {RosterCanonicalIntent} from '../../types/rosterCanonicalIntent';
+import {canonicalCarrierRowsReady, RosterBatchReviewService} from './rosterBatchReview.service';
+import {materialRowsReady} from './rosterMaterialBinding';
+import {RosterSmartImportWorkflowService, type RosterSmartImportStage} from './rosterSmartImportWorkflow.service';
 import type { ImportExecutionStatus } from '../../types/importExecution';
 import { reconstructSmartImportResumeState, sourceFingerprint, type SourceRevision } from './durableSessionContract';
 
@@ -34,4 +39,26 @@ export async function verifyRosterRemoteSource(spreadsheetId: string, sheetTitle
   const fingerprint = await sourceFingerprint(new TextEncoder().encode(JSON.stringify(remote.values)).buffer as ArrayBuffer);
   if (previous && (previous.sourceType !== 'GOOGLE_SHEETS' || previous.remote?.spreadsheetId !== spreadsheetId || previous.remote?.sheetTitle !== sheetTitle || previous.fingerprint !== fingerprint)) throw Error('IMMUTABLE_SOURCE_REVISION');
   return fingerprint;
+}
+
+/** Route presentation from fresh gate results, never change persisted facts or execute corrections. */
+export function reconcileRosterResumeStage(saved: RosterSmartImportStage, batch: UnifiedImportBatch,
+  intent: RosterCanonicalIntent | undefined = batch.metadata?.canonicalIntent): RosterSmartImportStage {
+  const index = RosterSmartImportWorkflowService.getStageIndex.bind(RosterSmartImportWorkflowService);
+  if (index(saved) < index('CARRIER_RESOLUTION') || saved === 'COMMIT_RESULT') return saved;
+  const earlier = (required: RosterSmartImportStage) => index(required) < index(saved) ? required : saved;
+  if (!canonicalCarrierRowsReady(batch)) return earlier('CARRIER_RESOLUTION');
+  if (!materialRowsReady(batch) || intent?.blockers.some(b => b.code === 'UNRESOLVED_MATERIAL')) return earlier('MATERIAL_RESOLUTION');
+  // These codes/fields are presentation ownership, not new eligibility/business rules.
+  if (intent?.blockers.some(b => b.code === 'CROSS_ROW_TRUCK_MATERIAL_CONFLICT')) return earlier('MATERIAL_RESOLUTION');
+  const blockedRows = new Set(intent?.blockers.flatMap(b => b.rowNumbers) || []);
+  for (const key of ['carrier', 'material'] as const) {
+    if (batch.rows.some(r => blockedRows.has(r.rowNumber) && r.entityResolutions?.[key]?.resolutionReason))
+      return earlier(key === 'carrier' ? 'CARRIER_RESOLUTION' : 'MATERIAL_RESOLUTION');
+  }
+  const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
+  if ([...groups.driver, ...groups.truck].some(g => ['REVIEW_REQUIRED', 'UNRESOLVED', 'CONFLICT'].includes(g.status)) ||
+      !intent || intent.blockers.some(b => b.code !== 'DISPLACEMENT_APPROVAL_REQUIRED'))
+    return earlier('DRIVER_TRUCK_RESOLUTION');
+  return saved;
 }
