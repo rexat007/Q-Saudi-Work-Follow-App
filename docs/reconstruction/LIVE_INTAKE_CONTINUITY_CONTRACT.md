@@ -1,6 +1,12 @@
 # Live intake continuity, canonical bulk resolution and Material binding
 
-Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Evidence baseline: `637b7d54429ac586e101689deae35e013a9eab77`, merged PR #86. This is a bounded correction of the existing operational Roster and account-availability journey, not another phase or a Workspace/Trips/Reports redesign.
+Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Historical implementation evidence baseline: `637b7d54429ac586e101689deae35e013a9eab77`, merged PR #86. This is a bounded correction of the existing operational Roster and account-availability journey, not another phase or a Workspace/Trips/Reports redesign.
+
+## Live evidence and current pause — 2026-11-03
+
+Merged PR #87 baseline: `be908ce2642e68ff784282ab3cacfd6b94efc745`. Owner reports `PR87_PROFILE_UNAVAILABLE_LIVE_BEHAVIOR = PASS`: an unavailable profile was not treated as a new account. This is owner evidence, not an independent live observation here. `FIRESTORE_QUOTA_EXHAUSTION = OBSERVED_DURING_LIVE_ACCEPTANCE`. Wider `LIVE_INTAKE_CONTINUITY = LIVE_ACCEPTANCE_PAUSED_PENDING_OWNER_RETEST_AFTER_REMEDIATION`.
+
+Workspace retry stability is source-remediated with local regression/operation-budget verification, not live-accepted. See [the quiescence audit and exact live retest](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). This unit does not alter account/profile, canonical bulk discovery, Material provenance or Phase-8 execution authority. Historical verification below remains evidence for PR #87, not a claim that the complete deployed matrix passed. Only a local commit is authorized; no push/PR/merge is performed.
 
 ## Current product rules
 
@@ -55,7 +61,7 @@ Verification results below are dated observations, not permanent cardinality con
 Local controlled React/transaction/transport tests are not real Firebase/Google/deployed browser acceptance. Historical failures remain separately reported rather than being rewritten to PASS. Exact final observations and scope are recorded below.
 
 
-## Final verification — 2026-11-03
+## Historical PR #87 local verification — 2026-11-03
 
 - Baseline: 30 files, 852/855 PASS. Final consolidated latest result per file: 36 files, **902/905 PASS**. Broad selection is **NOT all green**.
 - Focused final selection (latest per file): **299/299 PASS**, 15 files. Auth/profile/controller/actual Provider/continuity UI, safe bulk/Material UI, real two-Project reuse, scale/chunk interruption and preserved PR #86 behavior are included.
@@ -68,9 +74,9 @@ Local controlled React/transaction/transport tests are not real Firebase/Google/
 - AR=EN=UR=**4698**. Exactly ten append-only keys; duplicate definitions 0, parity gaps 0, empty values 0, unrelated existing-value edits 0.
 - Scale: **500 Trucks + 500 Drivers**, multiple Carriers, explicit batch Material, 900 safe groups / 100 manual exceptions, at most four actions in flight, 18 chunk checkpoints. Repeat has no repeated canonical mutation. An interrupted 60-group case retains its first durable 50 and skips already completed canonical work on retry. These controlled timings/counts are not production SLOs.
 - Temporal displacement stays manual in bulk review, with expected peer/Material criteria rechecked by fresh server discovery. Final reviewed intent remains separately approved.
-- `git diff --check`: PASS. Live acceptance: **NOT_PERFORMED**.
+- `git diff --check`: PASS. Live acceptance at that historical implementation checkpoint: **NOT_PERFORMED**.
 
-## Exact scope
+## Historical PR #87 exact scope
 
 48 files: 31 source/type/locale/API files, ten tests and seven documentation files. No package, lockfile, config, workflow, Firestore rules, provider scope, blueprint, Apps Script or generated artifact change. Workspace orchestration and Trips/Reports implementation are unchanged.
 
@@ -132,7 +138,7 @@ Local controlled React/transaction/transport tests are not real Firebase/Google/
 - `docs/reconstruction/SMART_IMPORT_ASSURANCE_CONTRACT.md`
 
 
-## Required live matrix — NOT_PERFORMED
+## Remaining required live matrix — acceptance paused
 
 | Area | Cases | Required observation |
 |---|---|---|

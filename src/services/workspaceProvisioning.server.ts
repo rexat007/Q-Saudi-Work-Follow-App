@@ -90,6 +90,7 @@ export class WorkspaceProvisioningOrchestrator {
                 return gwsFail('WORKSPACE_EXECUTION_FENCED');
             if (configurationHash(project.operationalConfiguration) !== op.configurationHash)
                 return gwsFail('WORKSPACE_TEMPLATE_MIGRATION_REQUIRED');
+            if(Object.entries(change).every(([key,value])=>JSON.stringify((op as any)[key])===JSON.stringify(value))&&op.leaseExpiresAt-Date.now()>LEASE_MS/2)return op;
             const next = { ...op, ...change, revision: op.revision + 1, updatedAt: Date.now(), leaseExpiresAt: Date.now() + LEASE_MS };
             tx.set(ref, { ...s, ensureOperation: next });
             return next;
@@ -98,6 +99,7 @@ export class WorkspaceProvisioningOrchestrator {
         const renew = async () => { const value = await patch({}); heartbeatPendingRetry = false; return value; };
         const checkpoint = async (phase: WorkspacePhase) => {
             const s = (await ref.get()).data(), op: WorkspaceProvisioningOperation = s.ensureOperation;
+            if(op.completed.includes(phase)){await renew();return;}
             const completed = WORKSPACE_PHASES.filter(p => op.completed.includes(p) || p === phase);
             await patch({ phase: WORKSPACE_PHASES[Math.max(WORKSPACE_PHASES.indexOf(op.phase), WORKSPACE_PHASES.indexOf(phase))], completed, lastProgressAt: Date.now(), timeline: [...op.timeline, { phase, at: Date.now(), event: phase + '_CONFIRMED' }].slice(-48) });
         };

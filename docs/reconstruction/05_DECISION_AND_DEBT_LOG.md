@@ -1,4 +1,19 @@
-## Live intake continuity and canonical bulk review — 2026-11-03
+## Workspace sync quiescence and operation amplification — 2026-11-03
+
+Single current authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Verified merged baseline: `be908ce2642e68ff784282ab3cacfd6b94efc745`. [Pre-edit findings, controlled budgets and live retest](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: immediate canResume-driven POST loop, duplicate concurrent observers, Script-ID-induced observer remount and same-progress automatic replay; explicit verification/retry and genuine interrupted-operation resume remain available.
+- RESOLVED_IN_SOURCE: delivered outbox history is no longer read/renewed for pending count/drain. Canonical PENDING aggregation/drain preserve exact pending semantics without deleting history; dirty-marker recovery preserves mutation revision.
+- RESOLVED_IN_SOURCE: browser activity throttle survives remount/reload; coordinator renews only eligible actual work. No-work retries perform no projection/success/audit writes. Lease/checkpoint write suppression retains fresh authority, binding/revision/expiry checks and real provider verification.
+- NOT_CAUSAL: strict READY is reachable; FINAL_VERIFICATION_REQUIRED is terminal attention, not an automatic retry instruction. No proven projection self-invalidating cycle. READY is not weakened.
+- PRESERVED: canonical global/project identity and participation, inactive/path-present invalidation, managed root, required Script, durable authorization, USER_ACTIVE/no-cron, PWA fence, P8 journal/receipts and PR #87 PROFILE_UNAVAILABLE != NO_PROFILE.
+- STILL_OPEN: deployed owner verification of idle Network/Firestore usage, real interruption/resume and genuine canonical-change convergence. Local measurements are application operations, not Firebase billing or attribution of the owner's observed spike.
+- ROUTED_TO_SEPARATE_COMPLETENESS_PROVEN_SCOPE: removing all-Project membership discovery for global edits requires an exhaustive canonical-path participation inventory/inverse index including inactive and malformed-but-present membership. No incomplete field query/index or destructive cleanup is introduced. Existing fan-out is quantified and disclosed, not silently called optimized.
+- STILL_OPEN: historical TypeScript/test debt; lint is EXIT 2 / NOT PASS. The same two historical empty Workspace suites remain suite-level errors; no test removal/skip or repository-wide PASS claim.
+
+Owner-reported PR #87 profile-unavailable behavior passed. Firestore quota exhaustion was observed during live intake acceptance; the wider matrix is paused pending owner retest after remediation. Source closure does not imply live acceptance. This unit authorizes one local commit only; push/PR/merge and Phase 10 remain unauthorized.
+
+## Historical PR #87 live intake continuity and canonical bulk review — 2026-11-03
 
 Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); evidence and live gates: [continuity contract](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
 

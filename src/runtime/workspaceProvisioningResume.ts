@@ -12,3 +12,10 @@ export function readWorkspaceContinuation(actorId:string,store=browserStore(),no
 export function clearWorkspaceContinuation(actorId:string,projectId:string,store=browserStore()){
  if(readWorkspaceContinuation(actorId,store)?.projectId===projectId)try{store?.removeItem(KEY);}catch{/* Optional navigation cleanup does not mutate the durable operation. */}
 }
+
+/** Navigation throttle only: a status flag never authorizes repeated automatic mutations. */
+export function claimWorkspaceAutomaticResume(actorId:string,projectId:string,status:{operationId:string|null;phase:string;completed:string[]},buildId:string,store=browserStore(),now=Date.now()):boolean {
+ if(!store)return false;const key=`q-saudi:workspace-auto-resume:${actorId}:${projectId}:${buildId}`;
+ const progress=JSON.stringify([status.operationId,status.phase,status.completed]);
+ try{const old=JSON.parse(store.getItem(key)||'null');if(old?.progress===progress&&old.at<=now&&now-old.at<3600000)return false;store.setItem(key,JSON.stringify({progress,at:now}));return true;}catch{return false;}
+}

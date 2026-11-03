@@ -10,7 +10,7 @@ export interface WorkspaceEnsureClient {
 export async function runWorkspaceEnsureJourney(projectId: string, port: WorkspaceEnsureClient, current: () => boolean, progress: (s: WorkspaceEnsureStatus) => void, observeActive: (current: () => boolean) => Promise<void> = current => new Promise((resolve, reject) => { setTimeout(() => current() ? resolve() : reject(Error('WORKSPACE_IDENTITY_CHANGED')), 1500); })) {
     const check = () => { if (!current())
         throw Error('WORKSPACE_IDENTITY_CHANGED'); };
-    let authorizationAttempts = 0;
+    let authorizationAttempts = 0, observedActive=false, resumed=false;
     const submit=async()=>{try{return await port.ensureWorkspace(projectId,current);}catch(error){
       check();if(error instanceof Error&&error.message==='APP_UPDATE_REQUIRED')throw error;
       const canonical=await port.observeWorkspaceProvisioning(projectId);check();
@@ -36,12 +36,14 @@ export async function runWorkspaceEnsureJourney(projectId: string, port: Workspa
             continue;
         }
         if (status.canResume) {
-            status = await submit();
-            continue;
+            // Only a newly observed interrupted owner can resume once. A fast POST response
+            // advertising canResume is not permission to recursively issue another mutation.
+            if(!observedActive||resumed)return status;
+            resumed=true;observedActive=false;status=await submit();continue;
         }
         await observeActive(current);
         check();
-        status = await port.observeWorkspaceProvisioning(projectId);
+        status = await port.observeWorkspaceProvisioning(projectId);observedActive=true;
     }
     throw Error('WORKSPACE_ENSURE_FAILED');
 }
