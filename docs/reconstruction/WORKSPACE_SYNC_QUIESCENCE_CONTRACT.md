@@ -1,3 +1,12 @@
+## Controlled Incremental Workspace Projection & Quiescence Quota Convergence — 2026-11-03
+
+The single current-state authority is [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Working source baseline `7d50d3a31e72eb2e573ed169a029d5822f0a0742` incorporates Controlled Incremental Workspace Projection & Cost/Scale Architecture Convergence:
+1. `useUserActiveWorkspaceSync` automatic POST requests are retired (`AUTOMATIC_USER_ACTIVE_SYNC_POSTS` = 0). Client user activity no longer triggers global sync requests.
+2. Continuous 30s PWA polling timer (`window.setInterval(check, 30000)` in `pwaUpdate.ts`) is eliminated. Startup check + 15m TTL activity recheck retained.
+3. Ordinary incremental sync (`retrySync`) processes pending outbox changes with 0 full trip collection reads (`collection('trips').get()` removed from ordinary retry pass) and 0 `projectProfileReports` calls.
+4. Derived operational report refresh is separated into an explicit bounded server operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`).
+5. Scheduled background worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects (`SETUP`, `INACTIVE`, `SUSPENDED`, `ARCHIVED`) without executing Google delivery calls.
+
 # Workspace sync quiescence and Firestore operation amplification
 
 The single current-state authority is [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). PR #88 is now MERGED / SOURCE_VERIFIED at `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`; owner live quiescence retest is still required. Local-only publication statements below are historical boundaries of the original unit, not current merge status. This records the 2026-11-03 bounded source audit and local remediation, starting from verified merged main `be908ce2642e68ff784282ab3cacfd6b94efc745` (PR #87). Audit findings and the original controlled model were recorded before production edits. A frozen Git archive supplied independent baseline verification. No live Firebase/Google mutation, billing query, resource cleanup or deployment was performed.

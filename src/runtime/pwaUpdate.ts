@@ -31,6 +31,6 @@ export function startRuntimeGeneration(){
  const check=()=>{void ensureRuntimeGeneration().catch(()=>{});};
  window.addEventListener('online',check);window.addEventListener('focus',check);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check();});
- window.setInterval(check,30000);check();
+ check();
  console.debug('[runtime] client build',CLIENT_BUILD_ID);
 }

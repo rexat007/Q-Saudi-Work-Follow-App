@@ -600,13 +600,6 @@ export class ProjectGoogleWorkspaceServer {
           if(fresh.data()?.revision===event.revision) tx.set(syncOutboxRef(this.db,projectId).doc(doc.id),{...fresh.data(),status:'DELIVERED',deliveredAt:new Date().toISOString()});
         });
       }
-      if(state.project.operationalConfiguration&&google.projectProfileReports){
-        await this.renewSync(projectId,who,owner);
-        const {decodeTrip}=await import('../utils/persistenceBoundary'),{buildOperationalReport}=await import('./operationalReporting');
-        const snapshot=await this.db.collection('projects').doc(projectId).collection('trips').get();
-        const trips=snapshot.docs.map((doc:any)=>decodeTrip<import('../types/entities').TripEntity>(doc.data(),doc.id,projectId));
-        await google.projectProfileReports(state.binding.spreadsheetId,buildOperationalReport(trips,{projectId},new Date(),state.project.operationalConfiguration));
-      }
       await this.finishSync(projectId,who,owner,legacyMappingPending?'SHEET_SOURCE_MAPPING_REQUIRED':null);
     } catch(error) {
       const code=error instanceof GoogleWorkspaceCommandError?error.code:'SHEET_SYNC_FAILED';
@@ -626,6 +619,37 @@ export class ProjectGoogleWorkspaceServer {
       tx.set(ref,{...snap.data(),syncOwner:null,syncLeaseExpiresAt:0,state:error?(error==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(error)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED'):'READY',lastSyncError:error,...(!error?{lastSuccessfulSyncAt:new Date().toISOString()}:{})});
       this.audit(tx,projectId,who.userId,error?'WORKSPACE_SYNC_FAILED':'WORKSPACE_SYNC_RECOVERED',{code:error});
     });
+  }
+  async refreshOperationalReports(projectId: string, who: AuthUserContext, google: GoogleBlueprintPort) {
+    const owner = randomUUID();
+    const state = await this.claimSync(projectId, who, owner, false);
+    if (!google.projectProfileReports) return gwsFail('PROFILE_PROJECTION_REQUIRED');
+    try {
+      if (await google.subject() !== state.binding.googleSubject) return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
+      if (state.binding.workspaceBlueprintVersion) {
+        if (!google.verifyBinding) return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
+        await google.verifyBinding(state.binding.destinationRootFolderId, state.binding.projectFolderId, state.binding.spreadsheetId, state.binding.workspaceBlueprintVersion);
+      }
+      const { decodeTrip } = await import('../utils/persistenceBoundary');
+      const { buildOperationalReport } = await import('./operationalReporting');
+      const tripSnaps = await this.db.collection('projects').doc(projectId).collection('trips').get();
+      const trips = tripSnaps.docs.map((d: any) => decodeTrip<import('../types/entities').TripEntity>(d.data(), d.id, projectId));
+      const report = buildOperationalReport(trips, { projectId }, new Date(), state.project.operationalConfiguration);
+      await google.projectProfileReports(state.binding.spreadsheetId, report);
+      await this.db.runTransaction(async (tx: any) => {
+        const ref = continuityRef(this.db, projectId);
+        const snap = await tx.get(ref);
+        tx.set(ref, { ...snap.data(), lastReportRefreshAt: new Date().toISOString() });
+      });
+      await this.finishSync(projectId, who, owner, null);
+    } catch (error) {
+      const code = error instanceof GoogleWorkspaceCommandError ? error.code : 'REPORT_REFRESH_FAILED';
+      await this.finishSync(projectId, who, owner, code);
+      throw new GoogleWorkspaceCommandError(code, error instanceof GoogleWorkspaceCommandError ? error.status : 502);
+    } finally {
+      await this.releaseSync(projectId, owner);
+    }
+    return this.status(projectId, who);
   }
 }
 export const projectGoogleWorkspaceServer=new ProjectGoogleWorkspaceServer();

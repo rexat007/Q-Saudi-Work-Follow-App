@@ -1,3 +1,18 @@
+## Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
+
+Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`.
+
+- RESOLVED_IN_SOURCE: `FIRESTORE` = SOLE CANONICAL OPERATIONAL AUTHORITY (`GOOGLE_SHEETS` = DEFERRED PROJECTION / CONTINUITY / REPORT EXPORT).
+- RESOLVED_IN_SOURCE: client-driven automatic user-active activity trigger POST requests (`useUserActiveWorkspaceSync`) retired (`AUTOMATIC_USER_ACTIVE_SYNC_POSTS` strictly 0 calls across mount, focus, online, and visibilitychange).
+- RESOLVED_IN_SOURCE: unbounded continuous 30s runtime PWA polling in `pwaUpdate.ts` eliminated (`window.setInterval(check, 30000)` removed; startup check + 15m TTL user-activity recheck retained).
+- RESOLVED_IN_SOURCE: full collection scan (`collection('trips').get()`) eliminated from `ProjectGoogleWorkspaceServer.retrySync` during ordinary incremental sync passes (`FULL_TRIP_COLLECTION_READ` = 0).
+- RESOLVED_IN_SOURCE: derived operational report refresh implemented as a separate explicit bounded operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`).
+- RESOLVED_IN_SOURCE: scheduled worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects (`SETUP`, `INACTIVE`, `SUSPENDED`, `ARCHIVED`) without executing Google delivery calls.
+- PRESERVED: bound Google Workspace resource identity (`destinationRootFolderId`, `projectFolderId`, `spreadsheetId`, `scriptProjectId`, `googleSubject`), durable authorization, script execution, and user-initiated manual sync buttons.
+- STILL_OPEN: live operational cost and scale retest after deployment publication.
+
+This unit authorizes local working source changes and documentation reconciliation only. No push, PR, or merge is performed.
+
 ## Operational Profile Impact Assessment and Same-Profile Reviewed Apply — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe`.

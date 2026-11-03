@@ -1,4 +1,28 @@
-## Operational Profile Impact Assessment handoff checkpoint — 2026-11-03
+## Controlled Incremental Workspace Projection handoff checkpoint — 2026-11-03
+
+Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`. Working source contains the completed Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence.
+
+- latest source working unit = Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence
+- publication = pending (0 pushes / PRs / merges performed)
+- canonical operational authority = `FIRESTORE` (Firestore sole operational authority; Google Sheets deferred projection/continuity)
+- user-active sync trigger = RETIRED (`AUTOMATIC_USER_ACTIVE_SYNC_POSTS` strictly 0 calls)
+- PWA update polling = RETIRED (30s continuous timer eliminated)
+- ordinary incremental sync full collection reads = 0 (`collection('trips').get()` removed from ordinary `retrySync`, 0 `projectProfileReports` calls)
+- derived operational report refresh = EXPLICIT_BOUNDED_OPERATION (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`)
+- scheduled worker non-active project filtering = VERIFIED (`WorkspaceSyncCoordinator.ts` skips non-ACTIVE projects without Google calls)
+- test verification = 61/61 total PASS across 4 suites (`controlledIncrementalWorkspaceProjection.test.ts` 5/5, `userActiveWorkspaceSync.test.tsx` 10/10, `runtimeGenerationConvergence.test.ts` 18/18, `workspaceSyncCoordinator.test.ts` 28/28)
+- next acceptance order =
+  1. publish source
+  2. verify deployed runtime SHA
+  3. live operational cost & scale retest
+  4. verify zero automatic activity sync POST requests
+  5. verify ordinary incremental sync writes pending outbox changes with zero full trip collection reads
+  6. verify explicit report refresh updates derived report tabs on demand
+  7. verify scheduled worker skips non-active projects
+
+Phase 10 does not start automatically.
+
+## Historical Operational Profile Impact Assessment handoff checkpoint — 2026-11-03
 
 Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe`. Working source contains the completed Operational Profile Impact Assessment and Reviewed Apply implementation.
 

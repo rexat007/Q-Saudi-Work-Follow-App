@@ -12,7 +12,7 @@ import {projectGoogleBlueprintPort} from './projectGoogleBlueprint.adapter';
 export interface WorkspaceSyncPass {examined:number;eligible:number;attempted:number;delivered:number;skipped:number;deferred:number}
 const emptyPass=():WorkspaceSyncPass=>({examined:0,eligible:0,attempted:0,delivered:0,skipped:0,deferred:0});
 const validId=(v:unknown):v is string=>typeof v==='string'&&/^[a-zA-Z0-9_-]{1,128}$/.test(v);
-const attentionCodes=new Set(['AUTHORIZATION_REQUIRED','BOUND_FILE_UNAVAILABLE','WORKSPACE_NOT_PROVISIONED','WORKBOOK_OPERATOR_REVIEW_REQUIRED','AUTOMATION_RECOVERY_REQUIRED','WORKSPACE_MAINTENANCE_REQUIRED','WORKSPACE_TEMPLATE_MIGRATION_REQUIRED','WORKSPACE_NO_PENDING_WORK','WORKSPACE_SYNC_IN_PROGRESS','FORBIDDEN_PROJECT_ACCESS']);
+const attentionCodes=new Set(['AUTHORIZATION_REQUIRED','BOUND_FILE_UNAVAILABLE','WORKSPACE_NOT_PROVISIONED','WORKBOOK_OPERATOR_REVIEW_REQUIRED','AUTOMATION_RECOVERY_REQUIRED','WORKSPACE_MAINTENANCE_REQUIRED','WORKSPACE_TEMPLATE_MIGRATION_REQUIRED','WORKSPACE_NO_PENDING_WORK','WORKSPACE_SYNC_IN_PROGRESS','FORBIDDEN_PROJECT_ACCESS','PROJECT_LIFECYCLE_MUTATION_DENIED']);
 /** Shared bounded grant discovery and canonical delivery. Scheduled maintenance is dormant.
  * The global actor pass never receives Project IDs, browser Google tokens or row payloads. */
 export class WorkspaceSyncCoordinator {
@@ -50,7 +50,8 @@ export class WorkspaceSyncCoordinator {
      if(user){if(!await service.hasPendingUserActiveWork(projectId,actor)){result.skipped++;continue;}}
      else{
       // Same discovery/execution engine, retaining the dormant worker's explicit maintenance policy.
-      await this.database.runTransaction((tx:any)=>service.authorized(tx,projectId,actor));
+      const {project}=await this.database.runTransaction((tx:any)=>service.authorized(tx,projectId,actor));
+      if(project?.status!=='ACTIVE'){result.skipped++;continue;}
       const s=(await continuityRef(this.database,projectId).get()).data();
       initialize=s?.workbookHealth!=='HEALTHY'||['NOT_INSTALLED','DEGRADED'].includes(s?.automationState);
       const events=await syncOutboxRef(this.database,projectId).where('status','==','PENDING').limit(1).get();
@@ -66,8 +67,8 @@ export class WorkspaceSyncCoordinator {
      else await service.retrySync(projectId,actor,google,user?{pendingOnly:true}:false);
      const status=await service.status(projectId,actor),dirty=(await getState(projectId,this.database)).dirtyTabs.some(isMasterTab);
      if(status.pendingSyncCount||dirty||status.syncHealth!=='HEALTHY'||status.workspaceState!=='CONNECTED')result.deferred++;else result.delivered++;
-    }catch(error){
-     const code=error instanceof GoogleWorkspaceCommandError?error.code:undefined;
+    }catch(error:any){
+     const code=error instanceof GoogleWorkspaceCommandError?error.code:error?.code;
      if(!attempted&&attentionCodes.has(code||'')||code==='WORKSPACE_NO_PENDING_WORK')result.skipped++;else result.deferred++;
      if(attempted)await this.noteProjectFailure(projectId,actor,doc.id,code).catch(()=>{/* Existing leases/diagnosis remain authoritative if state storage is unavailable. */});
     }

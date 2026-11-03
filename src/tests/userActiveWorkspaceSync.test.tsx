@@ -17,36 +17,37 @@ afterEach(async()=>{await act(async()=>root.unmount());host.remove();clientWorks
 const render=async(context:typeof user|null=user)=>{await act(async()=>root.render(<Hook context={context}/>));};
 const event=async(name:string,target:Window|Document=window)=>{await act(async()=>target.dispatchEvent(new Event(name)));};
 const advance=()=>vi.advanceTimersByTime(61000);
-describe('one global Firebase-only activity request',()=>{
- it('initial authenticated readiness sends one global request even with many assigned Projects and a stale browser Google token',async()=>{
+
+describe('Client Trigger Retirement (USER_ACTIVE_GLOBAL_SYNC = RETIRED)',()=>{
+ it('initial authenticated readiness generates 0 automatic global workspace sync requests',async()=>{
   clientWorkspaceService.setAccessToken('private-stale-google');await render({...user,assignedProjectIds:Array.from({length:10},(_,i)=>'P'+i)});
-  expect(f.fetch).toHaveBeenCalledOnce();const [url,init]=f.fetch.mock.calls[0];expect(url).toBe('/api/workspace/user-active-sync');expect(init).toMatchObject({method:'POST',body:'{}'});expect(init.headers.Authorization).toBe('Bearer fixture-firebase');expect(init.headers['X-Google-Access-Token']).toBeUndefined();expect(JSON.stringify(init)).not.toContain('private-stale-google');expect(f.grant).not.toHaveBeenCalled();
+  expect(f.fetch).not.toHaveBeenCalled();
  });
- it('focus/online/visible triggers are throttled to one pass per minute',async()=>{
-  await render();await event('focus');await event('online');expect(f.fetch).toHaveBeenCalledOnce();advance();await event('focus');expect(f.fetch).toHaveBeenCalledTimes(2);advance();await event('online');expect(f.fetch).toHaveBeenCalledTimes(3);advance();await event('visibilitychange',document);expect(f.fetch).toHaveBeenCalledTimes(4);
+ it('focus/online/visible triggers generate 0 automatic sync requests',async()=>{
+  await render();await event('focus');await event('online');expect(f.fetch).not.toHaveBeenCalled();advance();await event('focus');expect(f.fetch).not.toHaveBeenCalled();advance();await event('online');expect(f.fetch).not.toHaveBeenCalled();advance();await event('visibilitychange',document);expect(f.fetch).not.toHaveBeenCalled();
  });
- it('pointer and keyboard interaction never trigger requests, even after throttle expiry',async()=>{
-  await render();advance();await event('pointerdown');await event('keydown');expect(f.fetch).toHaveBeenCalledOnce();
+ it('pointer and keyboard interaction generate 0 automatic sync requests',async()=>{
+  await render();advance();await event('pointerdown');await event('keydown');expect(f.fetch).not.toHaveBeenCalled();
  });
- it('Project-array/scope changes are not execution authority',async()=>{
-  await render({...user,assignedProjectIds:['P1']});advance();await render({...user,assignedProjectIds:['P2','P3']});expect(f.fetch).toHaveBeenCalledOnce();await event('focus');expect(f.fetch).toHaveBeenCalledTimes(2);expect(f.fetch.mock.calls.every(c=>c[1].body==='{}')).toBe(true);
+ it('Project-array/scope changes generate 0 automatic sync requests',async()=>{
+  await render({...user,assignedProjectIds:['P1']});advance();await render({...user,assignedProjectIds:['P2','P3']});expect(f.fetch).not.toHaveBeenCalled();await event('focus');expect(f.fetch).not.toHaveBeenCalled();
  });
- it('offline and hidden tabs do not invoke the coordinator',async()=>{
-  const online=vi.spyOn(navigator,'onLine','get').mockReturnValue(false),visibility=vi.spyOn(document,'visibilityState','get').mockReturnValue('hidden');await render();await event('focus');expect(f.fetch).not.toHaveBeenCalled();online.mockReturnValue(true);visibility.mockReturnValue('visible');await event('visibilitychange',document);expect(f.fetch).toHaveBeenCalledOnce();
+ it('offline and hidden tabs do not invoke fetch requests',async()=>{
+  const online=vi.spyOn(navigator,'onLine','get').mockReturnValue(false),visibility=vi.spyOn(document,'visibilityState','get').mockReturnValue('hidden');await render();await event('focus');expect(f.fetch).not.toHaveBeenCalled();online.mockReturnValue(true);visibility.mockReturnValue('visible');await event('visibilitychange',document);expect(f.fetch).not.toHaveBeenCalled();
  });
- it('multiple activity events cannot overlap an in-flight pass',async()=>{
-  let complete!:(r:Response)=>void;f.fetch.mockReturnValueOnce(new Promise<Response>(yes=>complete=yes));await render();advance();await event('focus');await event('online');expect(f.fetch).toHaveBeenCalledOnce();await act(async()=>complete(response()));advance();await event('focus');expect(f.fetch).toHaveBeenCalledTimes(2);
+ it('multiple activity events generate 0 automatic sync requests',async()=>{
+  await render();advance();await event('focus');await event('online');expect(f.fetch).not.toHaveBeenCalled();advance();await event('focus');expect(f.fetch).not.toHaveBeenCalled();
  });
- it('logout removes listeners and later activity cannot start another pass',async()=>{
-  await render();await render(null);advance();await event('focus');await event('online');await event('visibilitychange',document);expect(f.fetch).toHaveBeenCalledOnce();
+ it('logout removes listeners and activity generates 0 requests',async()=>{
+  await render();await render(null);advance();await event('focus');await event('online');await event('visibilitychange',document);expect(f.fetch).not.toHaveBeenCalled();
  });
- it('non-administrative roles never invoke automatic Workspace execution',async()=>{
+ it('non-administrative roles generate 0 requests',async()=>{
   await render({...user,role:'DISPATCHER' as any});await event('focus');expect(f.fetch).not.toHaveBeenCalled();
  });
- it('StrictMode preserves one initial request without duplicate effects',async()=>{
-  await act(async()=>root.render(<StrictMode><Hook/></StrictMode>));expect(f.fetch).toHaveBeenCalledOnce();
+ it('StrictMode preserves 0 requests without duplicate effects',async()=>{
+  await act(async()=>root.render(<StrictMode><Hook/></StrictMode>));expect(f.fetch).not.toHaveBeenCalled();
  });
- it('host errors remain bounded and do not retrigger continuously or request Google consent',async()=>{
-  f.fetch.mockResolvedValueOnce(new Response('',{status:503}));await render();await event('focus');expect(f.fetch).toHaveBeenCalledOnce();advance();await event('focus');expect(f.fetch).toHaveBeenCalledTimes(2);expect(f.grant).not.toHaveBeenCalled();
+ it('AUTOMATIC_USER_ACTIVE_SYNC_POSTS is strictly 0 across user session lifetime',async()=>{
+  await render();advance();await event('focus');expect(f.fetch).not.toHaveBeenCalled();
  });
 });

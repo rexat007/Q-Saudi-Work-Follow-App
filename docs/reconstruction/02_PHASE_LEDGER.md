@@ -1,7 +1,29 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Operational Profile Impact Assessment & Reviewed Apply — 2026-11-03
+### Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
+
+CURRENT_CODE_BASELINE: `7d50d3a31e72eb2e573ed169a029d5822f0a0742` — verified main baseline; working source implemented locally.
+CONTROLLED_INCREMENTAL_WORKSPACE_PROJECTION: SOURCE_IMPLEMENTED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+CANONICAL_OPERATIONAL_AUTHORITY: `FIRESTORE` = SOLE CANONICAL OPERATIONAL AUTHORITY (`GOOGLE_SHEETS` = DEFERRED PROJECTION / CONTINUITY / REPORT EXPORT).
+USER_ACTIVE_SYNC_TRIGGER: RETIRED (`AUTOMATIC_USER_ACTIVE_SYNC_POSTS` strictly 0 calls across mount, focus, online, and visibilitychange).
+PWA_UPDATE_POLLING: RETIRED (window.setInterval 30s timer removed; startup check + 15m TTL user-activity recheck retained).
+INCREMENTAL_SYNC_FULL_COLLECTION_READ: 0 (ordinary `retrySync` processes pending outbox changes with 0 full trip collection scans and 0 `projectProfileReports` calls).
+DERIVED_REPORT_REFRESH: EXPLICIT_BOUNDED_OPERATION (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`).
+SCHEDULED_WORKER_NON_ACTIVE_FILTERING: VERIFIED (WorkspaceSyncCoordinator skips non-ACTIVE / SETUP projects without Google delivery calls).
+PUBLICATION: NOT_STARTED; no push, PR, or merge performed.
+NEXT_ACTION: OWNER_REVIEW → PUBLICATION → LIVE COST & SCALE RETEST.
+PHASE_10: NOT_STARTED.
+
+Local verification summary:
+- `controlledIncrementalWorkspaceProjection.test.ts`: 5/5 PASS
+- `userActiveWorkspaceSync.test.tsx`: 10/10 PASS
+- `runtimeGenerationConvergence.test.ts`: 18/18 PASS
+- `workspaceSyncCoordinator.test.ts`: 28/28 PASS
+- Combined affected test suite: 61/61 PASS (0 new failures, 0 removed, 0 skipped)
+- Build truth: Vite & Rollup PASS, Workbox baseline precache limit reproduced (`BASELINE_WORKBOX_FAILURE_REPRODUCED`), zero new build regression.
+
+### Historical Operational Profile Impact Assessment & Reviewed Apply — 2026-11-03
 
 CURRENT_CODE_BASELINE: `9923c5b5adc40ff7ad5e69b46cbfc14f34f7dbbe` — verified main baseline; working source implemented locally.
 OPERATIONAL_PROFILE_IMPACT_ASSESSMENT: SOURCE_IMPLEMENTED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.

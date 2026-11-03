@@ -59,6 +59,20 @@ app.use('/api', authenticateUser);
 registerUserActiveWorkspaceSync(app,workspaceSyncCoordinator);
 registerWorkspaceOAuthCommands(app,[enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence]);
 
+app.post('/api/projects/:projectId/workspace/refresh-reports', enforceProjectIsolation, enforceDispatcherOrAbove, workspaceGenerationFence, async (req: any, res) => {
+  try {
+    const { projectId } = req.params;
+    const googleToken = resolveWorkspaceExecutionToken(req);
+    const googlePort = projectGoogleBlueprintPort(googleToken, projectId);
+    const result = await projectGoogleWorkspaceServer.refreshOperationalReports(projectId, req.user, googlePort);
+    res.json({ success: true, data: result });
+  } catch (error: any) {
+    const code = error instanceof GoogleWorkspaceCommandError ? error.code : 'REPORT_REFRESH_FAILED';
+    const status = error instanceof GoogleWorkspaceCommandError ? error.status : 500;
+    res.status(status).json({ success: false, code, error: code });
+  }
+});
+
 // Global account governance: current principal plus transaction-time reauthorization.
 app.post('/api/admin/users/:userId/commands', async (req: any, res) => {
   try {
