@@ -102,8 +102,33 @@ it('lost successful checkpoint reply is adopted on reconnect without replay or a
  await act(async()=>window.dispatchEvent(new CustomEvent('auth-authority-change',{detail:'AVAILABLE'})));
  expect(saved().rosterStage).toBe('MATERIAL_RESOLUTION');await click('import.material.confirm');await click('entityResolution.labels.continue_driver_truck_review');await click('entityResolution.labels.continue_final_review');await click('intent.accept');await click('entityResolution.labels.approve_commit_import');expect(client.commitReviewedIntent).toHaveBeenCalledOnce();expect(saved().lifecycleState).toBe('COMMITTED');
 });
-it('legacy resumed Driver/Truck stage without Material can return to explicit selection without replacing the session or completed identities',async()=>{
+it('legacy resumed Driver/Truck stage without Material automatically returns to explicit selection without replacing the session or completed identities',async()=>{
  await mapping();const id=saved().importSessionId;await sessions.updateCheckpoint('P1',id,{lifecycleState:'RESOLUTION',rosterStage:'MATERIAL_RESOLUTION',currentStage:'MATERIAL_RESOLUTION'},{expectedVersion:saved().version},actor);await sessions.updateCheckpoint('P1',id,{lifecycleState:'RESOLUTION',rosterStage:'DRIVER_TRUCK_RESOLUTION',currentStage:'DRIVER_TRUCK_RESOLUTION'},{expectedVersion:saved().version},actor);
  await act(async()=>root.unmount());root=createRoot(host);await act(async()=>root.render(<ProjectSetupWizard selectedProjectId="P1" projects={[project]} authContext={actor}/>));
- await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent?.includes('projects.batch4.layer_roster'))!.click();});expect(saved().rosterStage).toBe('DRIVER_TRUCK_RESOLUTION');await click('entityResolution.labels.continue_material_review');expect(saved().importSessionId).toBe(id);expect(saved().rosterStage).toBe('MATERIAL_RESOLUTION');await click('import.material.confirm');await click('entityResolution.labels.continue_driver_truck_review');expect(saved().importSessionId).toBe(id);expect(saved().rosterStage).toBe('DRIVER_TRUCK_RESOLUTION');expect(client.createSession).toHaveBeenCalledOnce();
+ await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent?.includes('projects.batch4.layer_roster'))!.click();});expect(saved().rosterStage).toBe('DRIVER_TRUCK_RESOLUTION');expect(button('import.material.confirm')).toBeDefined();expect(button('entityResolution.labels.continue_final_review')).toBeUndefined();expect(saved().importSessionId).toBe(id);await click('import.material.confirm');await click('entityResolution.labels.continue_driver_truck_review');expect(saved().importSessionId).toBe(id);expect(saved().rosterStage).toBe('DRIVER_TRUCK_RESOLUTION');expect(client.createSession).toHaveBeenCalledOnce();
+});
+
+async function driverStage(){await mapping();await click('entityResolution.labels.continue_material_review');await click('import.material.confirm');await click('entityResolution.labels.continue_driver_truck_review');}
+async function remountRoster(){await act(async()=>root.unmount());root=createRoot(host);await act(async()=>root.render(<ProjectSetupWizard selectedProjectId="P1" projects={[project]} authContext={actor}/>));await act(async()=>Array.from(host.querySelectorAll('button')).find(b=>b.textContent?.includes('projects.batch4.layer_roster'))!.click());}
+it('valid resumed Driver/Truck session keeps source, mapping and valid decisions, restores read-only, then reaches Final Review',async()=>{
+ await driverStage();const before=structuredClone(env.store),record=structuredClone(saved()),writes=vi.mocked(client.updateCheckpoint).mock.calls.length;
+ await remountRoster();expect(env.store).toEqual(before);expect(client.updateCheckpoint).toHaveBeenCalledTimes(writes);expect(saved().source).toEqual(record.source);expect(saved().mapping).toEqual(record.mapping);expect(saved().importBatchId).toBe(record.importBatchId);expect(client.createSession).toHaveBeenCalledOnce();
+ expect(button('entityResolution.labels.continue_final_review').disabled).toBe(false);await click('entityResolution.labels.continue_final_review');expect(saved().rosterStage).toBe('FINAL_REVIEW');expect(button('intent.accept').disabled).toBe(false);expect(client.commitReviewedIntent).not.toHaveBeenCalled();
+});
+it('fresh Material drift during Final Review entry routes the actual Wizard to Material without a checkpoint or canonical mutation',async()=>{
+ await driverStage();env.store['materials/M1'].status='INACTIVE';const before=structuredClone(env.store),writes=vi.mocked(client.updateCheckpoint).mock.calls.length;
+ await click('entityResolution.labels.continue_final_review');expect(env.store).toEqual(before);expect(client.updateCheckpoint).toHaveBeenCalledTimes(writes);expect(button('import.material.confirm')).toBeDefined();expect(button('import.material.confirm').disabled).toBe(true);expect(button('entityResolution.labels.continue_final_review')).toBeUndefined();expect(client.createSession).toHaveBeenCalledOnce();expect(client.commitReviewedIntent).not.toHaveBeenCalled();
+});
+it('checkpoint/reconnect restore reconciles fresh Material drift instead of reapplying the saved Driver/Truck stage',async()=>{
+ await driverStage();env.store['materials/M1'].status='INACTIVE';const before=structuredClone(env.store),writes=vi.mocked(client.updateCheckpoint).mock.calls.length;
+ await act(async()=>window.dispatchEvent(new CustomEvent('auth-authority-change',{detail:'UNAVAILABLE_TRANSIENT'})));
+ await act(async()=>window.dispatchEvent(new CustomEvent('auth-authority-change',{detail:'AVAILABLE'})));
+ expect(env.store).toEqual(before);expect(client.updateCheckpoint).toHaveBeenCalledTimes(writes);expect(button('import.material.confirm')).toBeDefined();expect(button('entityResolution.labels.continue_final_review')).toBeUndefined();expect(client.createSession).toHaveBeenCalledOnce();expect(client.commitReviewedIntent).not.toHaveBeenCalled();
+});
+
+it('warning-only blockers cannot enter Final Review without the existing confirmation/checkpoint gate',async()=>{
+ await driverStage();const record=await sessions.getSession('P1',saved().importSessionId,actor) as ImportSessionRecord;const batch=structuredClone(record.importBatch)!;
+ batch.rows[0].validationIssues=[{issueId:'W',row:1,field:'driverName',severity:'WARNING',blocking:false,code:'HISTORICAL_WARNING',message:'warning',resolvable:true}];
+ await sessions.updateCheckpoint('P1',record.importSessionId,{lifecycleState:'REVIEW',rosterStage:'FINAL_REVIEW',currentStage:'FINAL_REVIEW',importBatch:batch},{expectedVersion:saved().version},actor);
+ await remountRoster();const before=structuredClone(env.store);await click('entityResolution.labels.continue_final_review');expect(env.store).toEqual(before);expect(button('intent.accept')).toBeUndefined();expect(button('entityResolution.labels.continue_final_review')).toBeDefined();expect(saved().rosterStage).toBe('FINAL_REVIEW');expect(client.commitReviewedIntent).not.toHaveBeenCalled();
 });

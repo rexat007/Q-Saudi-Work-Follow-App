@@ -1,7 +1,34 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Workspace sync quiescence / Firestore amplification — 2026-11-03
+### Smart Import resume-stage reconciliation / shared contrast — 2026-11-03
+
+CURRENT_CODE_BASELINE: `0f1c6b841da168dc4464c17cbd9f5096fef5e32d` — verified merged main, PR #88; clean starting worktree.
+WORKING_BRANCH: `reconstruction/smart-import-resume-contrast-closure`.
+PR_88: MERGED / SOURCE_VERIFIED; WORKSPACE_MERGE_SHA: `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`.
+WORKSPACE_SYNC_QUIESCENCE: SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+PR87_PROFILE_UNAVAILABLE_BEHAVIOR: LIVE_PASS — OWNER_REPORTED.
+ACCOUNT_PROFILE_READ: PASS — OWNER_REPORTED; FALSE_NO_PROFILE: NOT_OBSERVED.
+DURABLE_IMPORT_SESSION_RECOVERY: LIVE_PASS — OWNER_REPORTED.
+SAME_SESSION_RESTORED: LIVE_PASS — OWNER_REPORTED.
+SAME_SAVED_STAGE_RESTORED: LIVE_PASS — OWNER_REPORTED; this does not prove that the restored stage satisfies fresh prerequisites.
+RESUME_STAGE_RECONCILIATION_DEFECT: LIVE_OBSERVED / SOURCE_CONFIRMED; cancelled old live fixture unavailable, exact originating blocker not attributed.
+SMART_IMPORT_CONTRAST_DEFECT: LIVE_PROVEN / SOURCE_CONFIRMED.
+RESUME_STAGE_RECONCILIATION: SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+SMART_IMPORT_CONTRAST: SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+FINAL_REVIEW_LIVE_ACCEPTANCE: NOT_COMPLETE.
+WORKSPACE_QUIESCENCE_LIVE_RETEST: STILL_REQUIRED.
+PHASE_10: NOT_STARTED.
+PUBLICATION: NOT_STARTED; one LOCAL commit only. PUSH/PR/MERGE: NOT_AUTHORIZED.
+NEXT_ACTION: OWNER_REVIEW_AND_LIVE_RETEST_DECISION; stop after the authorized single local commit. No automatic publication.
+
+Local verification observation: new cases 41 (25 reconciliation/diagnosis, 12 shared contrast, 4 actual Wizard); focused 59/59 PASS in four files. Affected final 749/765 PASS across 29 files; unchanged baseline 708/724 PASS across 27 files, same 16 independently reproduced failures. Broad command EXIT 1 / NOT PASS; new failures/removals/skips 0. One retained legacy presentation assertion is converged to the owner-required automatic return; its case and behavioral coverage remain. Build PASS; lint EXIT 2 / NOT PASS; diagnostics 440→440, added/removed 0; diff check PASS. Scope: 16 files (7 production, 3 tests, 6 documents). No locale/package/config/workflow/rules/assets, Workspace engine, global invalidation or P8 authority changes. Counts are observations, not frozen invariants. Controlled DOM/style-contract tests do not claim real browser visual acceptance.
+
+Fresh canonical pipeline/group/material gate results now reconcile the effective presentation stage at initial restore, checkpoint/reconnect recovery and failed Final Review entry. Reconciliation is read-only and never invents durable facts, clears valid decisions, creates a session or bypasses a warning/commit gate. Existing execution-managed/terminal recovery remains authoritative. Shared Carrier readiness is extracted unchanged; no new business eligibility rule is introduced. Two shared components receive explicit existing dark-palette control/text/state styling, not per-stage overrides. Semantic blocker messages reuse current AR/EN/UR keys; no locale edits.
+
+Evidence, affected surfaces, exact remaining live checks and historical PR #87 results are in [LIVE_INTAKE_CONTINUITY_CONTRACT.md](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Existing phase source closures, P8 journal/receipts/fences and PR #88 quiescence are unchanged. Earlier current-state blocks below are historical checkpoints, not instructions to publish or restart them.
+
+### Historical PR #88 Workspace sync quiescence / Firestore amplification — 2026-11-03
 
 CURRENT_CODE_BASELINE: `be908ce2642e68ff784282ab3cacfd6b94efc745` — verified merged main, PR #87; starting worktree clean.
 WORKING_BRANCH: `reconstruction/workspace-sync-quiescence-amplification`.

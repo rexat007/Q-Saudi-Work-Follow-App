@@ -1,4 +1,8 @@
-## Current Workspace quiescence checkpoint — 2026-11-03
+## Current Smart Import live-remediation checkpoint — 2026-11-03
+
+Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Starting merged main `0f1c6b841da168dc4464c17cbd9f5096fef5e32d` contains PR #88. Owner reports profile recovery and same durable Import Session/stage restoration passed live; restored-stage prerequisite drift and invisible shared Material/bulk controls exposed two bounded defects. Current source correction derives effective stage from fresh existing gates and styles the two shared components. [Evidence and remaining live checks](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Final Review live acceptance is incomplete; Workspace quiescence still requires owner live retest. One local commit only; no push/PR/merge, Workspace redesign or Phase 10. Older checkpoints below are historical.
+
+## Historical PR #88 Workspace quiescence checkpoint — 2026-11-03
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns exact current state. Starting verified merged main: `be908ce2642e68ff784282ab3cacfd6b94efc745` (PR #87). Owner observed correct profile-unavailable behavior, followed by Firestore quota exhaustion and repeated Workspace retries. The bounded source remedy and controlled operation budgets are in [WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). Live intake acceptance is paused pending owner retest; local verification is not live acceptance. Only a local commit is authorized: no push/PR/merge, Phase 10 or Trips/Reports redesign. Earlier continuation instructions below are historical where superseded.
 

@@ -596,3 +596,12 @@ export class RosterBatchReviewService {
     };
   }
 }
+
+/** Existing canonical Carrier-layer gate, shared by rendering and resumed-stage presentation. */
+export function canonicalCarrierRowsReady(batch: UnifiedImportBatch): boolean {
+  const groups = RosterBatchReviewService.getBatchReviewGroups(batch).carrier;
+  return !groups.some(g => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT') &&
+    batch.rows.some(r => r.status !== 'REJECTED') &&
+    batch.rows.filter(r => r.status !== 'REJECTED').every(r =>
+      (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) || Boolean(r.entityResolutions?.carrier?.matchedId));
+}

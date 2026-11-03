@@ -24,7 +24,7 @@ import {ProjectMaintenancePanel} from './ProjectMaintenancePanel';
 import { pricingResolutionWindow, canonicalPricingRule } from '../../services/pricing.service';
 import { PricingRuleValidator } from '../../validators/pricingRule.validator';
 import { WORKSPACE_TABS } from '../../types/workspace';
-import { rosterResumeJourney, RosterJourneyLifetime, verifyRosterRemoteSource } from '../../services/import/rosterResumeJourney';
+import { reconcileRosterResumeStage, rosterResumeJourney, RosterJourneyLifetime, verifyRosterRemoteSource } from '../../services/import/rosterResumeJourney';
 import type { ImportExecutionStatus } from '../../types/importExecution';
 import type { CreateImportSessionPayload, ImportSessionRecord } from '../../types/importSession';
 import { acceptedSourceRevision, prepareDurableBatch, sourceFingerprint, verifySourceReattach } from '../../services/import/durableSessionContract';
@@ -1118,11 +1118,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         }
         const facts = journey.facts;
         let working = facts.reviewSnapshot;
+        let effectiveStage = (facts.durableStage || 'SOURCE_DISCOVERY') as RosterSmartImportStage;
         if (working) {
           const fresh = await loadImportResolutionContext(targetProjectId);
           if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) return;
           const ctx = ImportProjectContextAdapter.createPipelineContext({ relContext: fresh, projectId: targetProjectId, userId: authContext.userId, role: authContext.role, operationId: authoritative.operationId });
           working = DriverTruckPipelineService.revalidateRosterBatch(working, ctx);
+          effectiveStage = reconcileRosterResumeStage(effectiveStage, working);
           const currentIntent = facts.reviewedIntent ? buildRosterCanonicalIntent(working, ctx) : null;
           if (facts.reviewedIntent && currentIntent && facts.reviewedIntent.acceptedSignature === currentIntent.signature && facts.reviewedIntent.sourceRevisionId === facts.sourceRevision?.sourceRevisionId && facts.reviewedIntent.mappingRevisionId === facts.mappingRevision?.mappingRevisionId) working = { ...working, metadata: { ...working.metadata, reviewedCanonicalIntent: facts.reviewedIntent } };
           else if (facts.reviewedIntent) setSmartImportCommitError('RELATIONSHIP_CONTEXT_STALE');
@@ -1141,7 +1143,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         if (discovery) { setRosterDiscoveryResult(discovery as unknown as DiscoveryResult); setRosterSelectedSheet((discovery as any).selectedSheet || ''); setRosterHeaderRowIndex((discovery as any).detectedHeaderRowIndex ?? 0); }
         if (facts.mappingRevision) setRosterCustomMappings(facts.mappingRevision.mappings as any);
         else if (discovery) setRosterCustomMappings(Object.fromEntries((discovery as any).detectedHeaders.map((h:string) => [h, translateDiscoveryToRosterTarget(String((discovery as any).mappingDiagnostics?.[h]?.canonicalField || ''))])));
-        setRosterImportStage((facts.durableStage || 'SOURCE_DISCOVERY') as RosterSmartImportStage);
+        setRosterImportStage(effectiveStage);
         setIsSmartImportOpen(true);
         setImportSessionRecoveryError(null);
       } catch (err: any) {
@@ -1725,16 +1727,19 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       if(saved.lifecycleState==='CANCELLED') { handleResetRosterImport(); setIsSmartImportOpen(false); return; }
       rememberDurableSession(saved);
       let working=saved.importBatch;
+      let effectiveStage=saved.rosterStage;
       if(working) {
         const fresh=await loadImportResolutionContext(saved.projectId);
         if(!isRosterCurrent(request,editingProjectId)) return;
         const ctx=ImportProjectContextAdapter.createPipelineContext({relContext:fresh,projectId:saved.projectId,userId:authContext.userId,role:authContext.role,operationId:saved.operationId});
         working=DriverTruckPipelineService.revalidateRosterBatch(working,ctx);
+        if(effectiveStage)effectiveStage=reconcileRosterResumeStage(effectiveStage,working);
+        setProjectRelationshipContext(fresh);
         if(saved.reviewedCanonicalIntent && buildRosterCanonicalIntent(working,ctx).signature===saved.reviewedCanonicalIntent.acceptedSignature) working={...working,metadata:{...working.metadata,reviewedCanonicalIntent:saved.reviewedCanonicalIntent}};
         else if(saved.reviewedCanonicalIntent) setSmartImportCommitError('RELATIONSHIP_CONTEXT_STALE');
         setImportBatch(working);
       }
-      if(saved.rosterStage) setRosterImportStage(saved.rosterStage);
+      if(effectiveStage) setRosterImportStage(effectiveStage);
       setIsRosterMappingApproved(saved.mapping?.approved===true);setImportSessionRecoveryError(restore&&pendingRosterCheckpoint.current?t('projects.batch4.checkpoint_persistence_failed'):null);pendingRosterRestore.current=null;
     } catch (error) { if(isRosterCurrent(request,editingProjectId))setImportSessionRecoveryError(t(resolutionErrorKey(error))); }
     finally { if(isRosterCurrent(request,editingProjectId)) setIsProcessing(false); }
@@ -2908,6 +2913,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const intent = buildRosterCanonicalIntent(revalidated, pipelineCtx);
       setImportBatch({ ...revalidated });
       if (intent.blockers.length > 0) {
+        const effectiveStage = reconcileRosterResumeStage('FINAL_REVIEW', revalidated, intent);
+        if (effectiveStage !== 'FINAL_REVIEW') setRosterImportStage(effectiveStage);
         setSmartImportCommitError('CANONICAL_INTENT_BLOCKED');
         return;
       }

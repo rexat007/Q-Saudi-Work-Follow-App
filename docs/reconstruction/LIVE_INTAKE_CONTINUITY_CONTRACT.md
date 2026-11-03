@@ -2,11 +2,102 @@
 
 Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Historical implementation evidence baseline: `637b7d54429ac586e101689deae35e013a9eab77`, merged PR #86. This is a bounded correction of the existing operational Roster and account-availability journey, not another phase or a Workspace/Trips/Reports redesign.
 
-## Live evidence and current pause — 2026-11-03
+## Current live evidence and bounded remediation — 2026-11-03
 
-Merged PR #87 baseline: `be908ce2642e68ff784282ab3cacfd6b94efc745`. Owner reports `PR87_PROFILE_UNAVAILABLE_LIVE_BEHAVIOR = PASS`: an unavailable profile was not treated as a new account. This is owner evidence, not an independent live observation here. `FIRESTORE_QUOTA_EXHAUSTION = OBSERVED_DURING_LIVE_ACCEPTANCE`. Wider `LIVE_INTAKE_CONTINUITY = LIVE_ACCEPTANCE_PAUSED_PENDING_OWNER_RETEST_AFTER_REMEDIATION`.
+Starting verified merged main: `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`. PR #88 = MERGED / SOURCE_VERIFIED, merge SHA `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`. Workspace quiescence = SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED. Its earlier local-commit-only boundary describes historical execution, not current publication. [Quiescence source model and remaining live test](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md).
 
-Workspace retry stability is source-remediated with local regression/operation-budget verification, not live-accepted. See [the quiescence audit and exact live retest](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). This unit does not alter account/profile, canonical bulk discovery, Material provenance or Phase-8 execution authority. Historical verification below remains evidence for PR #87, not a claim that the complete deployed matrix passed. Only a local commit is authorized; no push/PR/merge is performed.
+Owner-reported live evidence after quota recovery:
+
+```text
+PR87_PROFILE_UNAVAILABLE_BEHAVIOR = LIVE_PASS
+ACCOUNT_PROFILE_READ = PASS
+PROFILE_UNAVAILABLE_RECOVERY = PASS
+FALSE_NO_PROFILE = NOT_OBSERVED
+DURABLE_IMPORT_SESSION_RECOVERY = LIVE_PASS
+SAME_SESSION_RESTORED = LIVE_PASS
+SAME_SAVED_STAGE_RESTORED = LIVE_PASS
+RESUME_STAGE_RECONCILIATION_DEFECT = LIVE_OBSERVED / SOURCE_CONFIRMED
+SMART_IMPORT_CONTRAST_DEFECT = LIVE_PROVEN / SOURCE_CONFIRMED
+FINAL_REVIEW_LIVE_ACCEPTANCE = NOT_COMPLETE
+WORKSPACE_QUIESCENCE_LIVE_RETEST = STILL_REQUIRED
+PHASE_10 = NOT_STARTED
+```
+
+These are owner observations, not independent live execution in this unit. The old failing session was subsequently cancelled and is unavailable; no exact originating blocker is asserted. Current source remediates both defect families; local verification remains separate from owner live acceptance. This new unit authorizes one local commit only, no push/PR/merge.
+
+### Source findings and effective resume stage
+
+Initial restore and `retryRosterCheckpoint` previously revalidated against a fresh canonical context, then independently applied `facts.durableStage` / `saved.rosterStage`. Final Review revalidation could produce blockers while leaving the user at the obsolete Driver/Truck stage. `intentIssueKey` also mapped several distinct families to one generic message. This confirms the source contradiction; Material is not assumed to have been the sole old live blocker.
+
+`reconcileRosterResumeStage` consumes the fresh revalidated batch, the existing shared canonical Carrier gate, existing `materialRowsReady`, existing group status and canonical intent blockers. Workflow indices are reused to prevent automatic advancement. Carrier prerequisites take precedence, then Material, then Driver/Truck or the responsible blocker family (including cross-row Material conflict). A valid saved stage stays valid; a terminal/execution-managed journey stays with its existing P8 authority. This is presentation routing, not another eligibility/identity rule engine. The Carrier expression was extracted unchanged and reused by its existing layer.
+
+Reconciliation is applied at initial restore, checkpoint/reconnect restore and fresh blocked Final Review entry. It performs no checkpoint or canonical command. Same session/source fingerprint/source revision/mapping revision/operation/batch remain; valid choices, explicit Material provenance, contextual receipts and bulk progress are preserved. The durable saved stage may remain later until an explicit correction uses the existing invalidateReview checkpoint. No silent Material inference, source rewrite, new session, identity, membership, affiliation, assignment or allocation is introduced. Warnings and displacement still require their existing approvals; a blocker cannot enter Final Review merely because routing leaves the current stage unchanged.
+
+Presentation distinguishes UNRESOLVED_MATERIAL, MEMBERSHIP_MISSING, MEMBERSHIP_STATE_CONFLICT, AFFILIATION_CONFLICT, RELATIONSHIP_CONTEXT_UNAVAILABLE, CANONICAL_INTEGRITY_ERROR and CROSS_ROW_* through existing AR/EN/UR keys and existing row numbers. PREPARED_ENTITY_CONFLICT retains its specific message. Unknown errors keep a bounded fallback, never raw provider details. If a missing entity is not present in a fresh server projection, it cannot be falsely diagnosed as a proven missing membership; the existing canonical-integrity/lookup path remains authoritative.
+
+### Shared contrast impact and verification boundary
+
+Repository-wide production callers: `ImportMaterialSelection` once in the Wizard Material stage; `RosterBulkApproval` three times, in Carrier, Material and Driver/Truck stages. No stage-specific CSS patch is added. Shared dark surfaces use stone-950/900 with explicit stone-300/100/white text, amber primary Material action, emerald primary bulk approval, stone secondary/disabled states, amber loading status and rose errors. Inputs/selects/options, placeholder color, hover and focus-visible rings are explicit. Width/wrapping/min-width rules are direction-neutral; no left/right override or new theme is introduced. Native disabled controls, labelled inputs/selects, semantic buttons and status/alert roles remain. Single-Material suggestion still needs explicit confirmation; business callbacks keep their existing admission/identity behavior.
+
+Controlled React tests verify Arabic/English/Urdu text/key resolution, RTL/LTR container inheritance, 360/768/1440 layout-class contracts, programmatic control focus, pending/disabled/error readability classes and callback single admission. They do not measure real viewport layout, Tab navigation or deployed pixel contrast; owner browser acceptance remains required. No screenshot/pixel baseline or new browser tooling/dependency is introduced.
+
+### Local verification — resume and contrast unit
+
+- New focused test files: `rosterResumeStageReconciliation.test.ts` 25/25; `smartImportSharedContrast.test.tsx` 12/12. Existing actual `smartImportJourneyAssurance.test.tsx` grows 13→17 with four real Wizard cases. Existing shared callback suite `bulkMaterialReviewUi.test.tsx` stays 5/5. Focused total **59/59 PASS**; 41 added cases overall.
+- One retained historical-session case now asserts automatic Material-stage reconciliation rather than requiring the user to manually navigate there. Same session, explicit confirmation and completion assertions remain; no test is removed/skipped or replaced with a trivial check. No historical failing assertion is edited away.
+- Independent clean merged-baseline archive: **708/724 PASS**, 27 files. Final affected selection: **749/765 PASS**, 29 files. Broad commands **EXIT 1 / NOT PASS**. Exact failing case set is unchanged: **NEW_FAILURES=0, REMOVED_TESTS=0, SKIPPED_TESTS=0**. The existing Wizard file has 13 retained cases, one presentation expectation converged and four additional cases.
+- Actual Wizard tests cover read-only initial restore with identical store/session/source/mapping, valid Final Review progression, fresh Material drift at Final Review entry, checkpoint/reconnect reconciliation, no automatic canonical mutations, and preserved warning-confirmation/checkpoint gates. Pure cases cover Carrier precedence, Material drift, missing/inactive membership, Driver/Truck affiliation, prepared/cross-row/context/integrity families, valid earlier-stage preservation, terminal P8 isolation and specific AR/EN/UR key resolution.
+- Required historical resume/navigation/post-resolution/interaction/persistence/Material/Driver-Truck/cutover suites are included, plus bulk reuse, profile continuity, i18n foundation/runtime/guard, workflow C1 and P8-B1/B2/B3/B4. All four P8 suites remain **41/41, 50/50, 30/30, 14/14 PASS**. Workspace engine/worker/hooks/outbox code and the Workspace panel key are unchanged; its expensive matrix is not rerun for this unit.
+- Build **PASS**. Lint **EXIT 2 / NOT PASS**. Exact diagnostic multiset **440→440**, added 0/removed 0 by file/code/message ignoring shifted lines; no changed-file additions. Diff check **PASS**. No locale definitions or vocabulary changed; existing translations are reused.
+- Deployed visual/keyboard/viewport verification, Final Review live completion and Workspace live quiescence remain **NOT_COMPLETE / LIVE_RETEST_REQUIRED**. Controlled DOM/fake persistence evidence is not live Firebase/Google or browser-pixel acceptance.
+
+Independently reproduced baseline failures, retained unchanged:
+
+- `liveProjectRosterSmartConvergence.test.ts` — Live Project Roster Smart Convergence & Final Atomic Integrity Closeout (Beta 2) 10. blocking row increments errorRows
+- `liveProjectRosterSmartConvergence.test.ts` — Live Project Roster Smart Convergence & Final Atomic Integrity Closeout (Beta 2) 12. batch WARNING status computed correctly
+- `rosterSmartImportFinalReviewCommitC5.test.ts` — C5 — Smart Import Final Review & Commit Result Layer Contract Suite 38. Commit performs fresh second revalidation preflight
+- `rosterSmartImportFinalReviewCommitC5.test.ts` — C5 — Smart Import Final Review & Commit Result Layer Contract Suite 61. Reset clears smartImportCommitResult
+- `rosterSmartImportFinalReviewCommitC5.test.ts` — C5 — Smart Import Final Review & Commit Result Layer Contract Suite 62. Reset returns to SOURCE_DISCOVERY stage
+- `rosterSmartImportFinalReviewCommitC5.test.ts` — C5 — Smart Import Final Review & Commit Result Layer Contract Suite 67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 15. Reset clears import batch and session data completely
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 16. Zero Carrier groups cannot enter Material layer
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 18. Zero Material groups block progression to Driver/Truck
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 20. Zero Driver/Truck groups block progression to Final Review
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 23-24. C5 Orchestration derives review groups via RosterBatchReviewService in wizard
+- `rosterSmartImportJourneyNavigation.test.ts` — C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Convergence Suite 37-41. Selecting new file clears prior session state completely before start
+- `rosterSmartImportLayeredWorkflowC1.test.ts` — FOUNDATION C1 — LAYERED SMART IMPORT WORKFLOW FOUNDATION 5. from MAPPING_APPROVAL: only CARRIER_RESOLUTION becomes next active stage after pipeline execution
+- `smartImportCanonicalCommitCutoverC2.test.ts` — SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts) 2–6. importedTripClientService source uses Firebase auth, getIdToken, Authorization Bearer, and endpoint
+- `smartImportCanonicalCommitCutoverC2.test.ts` — SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts) 52. C1 server contract remains unchanged
+- `translationByConstructionGuard.test.ts` — Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations
+
+Exact source scope:
+
+```text
+src/components/import/ImportMaterialSelection.tsx
+src/components/import/RosterBulkApproval.tsx
+src/components/import/RosterCarrierResolutionLayer.tsx
+src/components/import/RosterSemanticReview.tsx
+src/components/wizard/ProjectSetupWizard.tsx
+src/services/import/rosterBatchReview.service.ts
+src/services/import/rosterResumeJourney.ts
+```
+
+Exact test scope:
+
+```text
+src/tests/rosterResumeStageReconciliation.test.ts
+src/tests/smartImportSharedContrast.test.tsx
+src/tests/smartImportJourneyAssurance.test.tsx
+```
+
+Six current documentation files are reconciled: this contract, `00_WORK_START_HERE.md`, `02_PHASE_LEDGER.md`, `05_DECISION_AND_DEBT_LOG.md`, `MASTER_PROJECT_HANDOFF.md`, and only a merge-state clarification in `WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md`. No historical snapshot/handoff rewrite, production/server persistence change, API/schema change, new dependency/config/workflow/rule or generated artifact is included. One local commit only; no push/PR/merge.
+
+### Remaining owner live checks
+
+1. Reopen a saved Driver/Truck session whose current Material prerequisite is missing/ineligible: the effective stage must be Material immediately, with no contradictory all-resolved Driver/Truck view. Confirm the same session/source/mapping and retained valid decisions; explicitly select/enroll/confirm through canonical authority, then continue.
+2. Repeat with missing/inactive membership, invalid affiliation and Carrier drift; show the earliest responsible stage and specific bounded message/row numbers. Unknown or omitted canonical identity must fail closed, not infer membership or silently prepare a duplicate. A fully valid saved session must retain its stage and successfully reach Final Review through the normal checkpoint/approval gate.
+3. In a new and resumed session inspect Material selection and shared bulk review in Carrier/Material/Driver-Truck: readable without text selection, AR/EN/UR, RTL/LTR, desktop/tablet/mobile, actual Tab/focus-visible, disabled/loading/success/error and wrapping behavior. Do not use local DOM class tests as live visual acceptance.
+4. Confirm no duplicate canonical identity/membership/affiliation/assignment/allocation during restore/reconnect, and retain the separate PR #88 five-minute idle/activity/remount/resume quiescence retest. Final Review live acceptance and the wider intake matrix below remain incomplete.
 
 ## Current product rules
 

@@ -59,6 +59,15 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
   </section>;
 }
 export function intentIssueKey(code: string): string {
+  const specific: Record<string, string> = {
+    UNRESOLVED_MATERIAL: 'projects.batch4.material_rows_pending',
+    MEMBERSHIP_MISSING: 'import.resolution.missing',
+    MEMBERSHIP_STATE_CONFLICT: 'import.resolution.membership',
+    AFFILIATION_CONFLICT: 'import.resolution.affiliationConflict',
+    RELATIONSHIP_CONTEXT_UNAVAILABLE: 'import.resolution.context',
+    CANONICAL_INTEGRITY_ERROR: 'import.resolution.integrity',
+  };
+  if (Object.hasOwn(specific, code)) return specific[code];
   if (code.startsWith('CROSS_ROW_')) return 'intent.error.crossRow';
   if (code === 'PREPARED_ENTITY_CONFLICT') return 'intent.error.prepared';
   if (code === 'DISPLACEMENT_APPROVAL_REQUIRED') return 'intent.confirm';
