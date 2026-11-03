@@ -1,3 +1,4 @@
+import {materialRowsReady} from '../../services/import/rosterMaterialBinding';
 import {useImportGroupPage} from './ImportGroupPage';
 import {useImportConfirmation} from './ImportConfirmation';
 import type { ContextualPrerequisiteReceipts } from '../../services/import/contextualCanonicalCreation.service';
@@ -98,7 +99,7 @@ export const RosterMaterialResolutionLayer: React.FC<RosterMaterialResolutionLay
 
   const resolvedCount = materialGroups.length - unresolvedCount;
   const legacyComplete = materialGroups.length > 0 && unresolvedCount === 0;
-  const isMaterialLayerComplete = canonicalContext ? unresolvedCount === 0 && importBatch.rows.some(r => r.status !== 'REJECTED') && importBatch.rows.filter(r => r.status !== 'REJECTED').every(r => (!r.canonical?.materialName && !r.canonical?.materialCode && !r.canonical?.materialId) || Boolean(r.entityResolutions?.material?.matchedId)) : legacyComplete && checkMaterialResolutionReadiness(importBatch);
+  const isMaterialLayerComplete = canonicalContext ? materialRowsReady(importBatch) : legacyComplete && checkMaterialResolutionReadiness(importBatch);
 
   const materialGroupsPage=useImportGroupPage(materialGroups);
   const panelContent = (

@@ -1,3 +1,5 @@
+import {importRequest} from '../importRequest';
+import {assertProfileAuthorityAvailable} from '../../firebase/authSession';
 import { setupCommand } from '../setupOrchestration.service';
 import type { GlobalKind } from '../../utils/globalIdentityPolicy';
 /**
@@ -100,6 +102,7 @@ export class EntityResolutionCommandService {
    * Helper to retrieve Firebase Bearer Token or throw UNAUTHENTICATED
    */
   private async getAuthBearerToken(): Promise<string> {
+    assertProfileAuthorityAvailable();
     const user = auth.currentUser;
     if (!user) {
       const err: any = new Error('المستخدم غير موثق');
@@ -167,7 +170,7 @@ export class EntityResolutionCommandService {
 
     const authHeader = await this.getAuthBearerToken();
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-carrier`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(params.projectId)}/setup-carrier`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -224,7 +227,7 @@ export class EntityResolutionCommandService {
 
     const authHeader = await this.getAuthBearerToken();
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-material`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(params.projectId)}/setup-material`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -299,7 +302,7 @@ export class EntityResolutionCommandService {
 
     const authHeader = await this.getAuthBearerToken();
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-driver`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(params.projectId)}/setup-driver`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -375,7 +378,7 @@ export class EntityResolutionCommandService {
 
     const authHeader = await this.getAuthBearerToken();
 
-    const response = await fetch(`/api/projects/${encodeURIComponent(params.projectId)}/setup-truck`, {
+    const response = await importRequest(`/api/projects/${encodeURIComponent(params.projectId)}/setup-truck`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

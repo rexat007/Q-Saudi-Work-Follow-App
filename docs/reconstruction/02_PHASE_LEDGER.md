@@ -1,7 +1,27 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Smart Import assurance and hardening — 2026-11-02
+### Live intake continuity, bulk canonical resolution and Material binding — 2026-11-03
+
+CURRENT_CODE_BASELINE: `637b7d54429ac586e101689deae35e013a9eab77` — verified merged PR #86.
+WORKING_BRANCH: `reconstruction/live-intake-continuity-bulk-resolution`.
+LIVE_INTAKE_CONTINUITY_BULK_RESOLUTION: IMPLEMENTED / VERIFIED_LOCALLY / AWAITING_OWNER_REVIEW.
+SCOPE: current account-profile availability and operational Smart Roster journey; no new phase, Trips/Reports redesign or GWS architecture/scope/blueprint change.
+NEXT_ACTION: complete the expressly authorized single commit/branch publication and stop for owner review; no PR/merge or live acceptance.
+
+GLOBAL_IDENTITY_REUSE = REQUIRED.
+PROJECT_DUPLICATE_GLOBAL_ENTITY = FORBIDDEN.
+BULK_CANONICAL_DISCOVERY = REQUIRED_FOR_ROSTER_SCALE.
+MATERIAL_ABSENT_FROM_SOURCE = EXPLICIT_PROJECT_MATERIAL_SELECTION_REQUIRED.
+NO_WEIGHBRIDGE_MATERIAL = STILL_REQUIRED.
+PROFILE_UNAVAILABLE != NO_PROFILE.
+TRANSIENT_AUTH_FAILURE = RECONNECT/RESUME, NOT ACCOUNT_REREGISTRATION.
+
+This owner-authorized policy supersedes Material-optional operational Roster semantics in SI-CG1/Phase-8/PR #86 descriptions. The source column remains optional to map; operational material identity must be explicitly resolved. Existing participation-only historical designs remain historical. P8 reviewed intent/journal, global uniqueness, current server principal/Project/lifecycle fences and PR #86 overlay authority remain intact. No old phase closure or provider policy is reopened. Verification, exact boundaries, debt and the unexecuted live matrix are recorded in [LIVE_INTAKE_CONTINUITY_CONTRACT.md](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
+
+Local verification observation: focused 299/299 PASS in 15 files; combined latest-per-file selection 902/905 PASS in 36 files. All three remaining failing cases were independently reproduced on exact baseline (852/855 PASS): historical translation cardinality, direct-lifecycle mutation expectation and TBC-B4 source anchor. NEW_FAILURES=0; REMOVED_TESTS=0; SKIPPED_TESTS=0. Build PASS; lint EXIT 2 / NOT PASS, diagnostics 440→440, added/removed 0. AR=EN=UR=4698; ten append-only keys, duplicates/parity/empty/unrelated value edits 0. Scope: 48 files (31 source/types/locales including one API route file, ten tests, seven documents); package/config/workflow/rules/assets/generated drift 0; diff check PASS. Deployed acceptance remains NOT_PERFORMED. Counts are dated observations, not permanent invariants.
+
+### Historical Smart Import assurance and hardening — 2026-11-02
 
 CURRENT_CODE_BASELINE: `4d193d96791425c4d3c3bcaa60f06175036efdfb` — verified merged PR #85 (GWS-ONE live closure).
 WORKING_BRANCH: `reconstruction/smart-import-assurance-hardening`.
@@ -529,7 +549,7 @@ The owner-confirmed Course Correction supplies the accepted completion/source-cl
 
 ### Smart Import correction and Phase 8 implementation record
 
-Phase 8 followed a Master Design Review and two correction gates because historical import implementation had diverged from the intended product model. SI-CG1 established semantic grouping by natural/canonical identity rather than display name alone; rejected rows do not contribute; Material is not globally mandatory for roster participation; internal and physical source-row provenance are distinct; natural identity outranks name/fuzzy evidence. SI-CG2 reused canonical Master Data capabilities for contextual creation and kept Create, Enroll, Reactivate and Affiliation separate. `PREPARED_NEW` remains distinct from immediate contextual creation, and temporal consequences are never hidden inside identity creation. Smart Import coordinates existing authorities rather than owning duplicate business policy.
+Phase 8 followed a Master Design Review and two correction gates because historical import implementation had diverged from the intended product model. SI-CG1 established semantic grouping by natural/canonical identity rather than display name alone; rejected rows do not contribute; Material was not globally mandatory for historical participation inputs (superseded for operational Roster by the 2026-11-03 Material-binding decision); internal and physical source-row provenance are distinct; natural identity outranks name/fuzzy evidence. SI-CG2 reused canonical Master Data capabilities for contextual creation and kept Create, Enroll, Reactivate and Affiliation separate. `PREPARED_NEW` remains distinct from immediate contextual creation, and temporal consequences are never hidden inside identity creation. Smart Import coordinates existing authorities rather than owning duplicate business policy.
 
 P8-B1 established schema-v2 durable sessions with server lifecycle authority; stable Project/Session/Operation/Batch bindings; source and mapping revisions; first-class reviewed intent; optimistic concurrency; factual legacy resume and exact local-file reattach; immutable staged artifact chunks with complete-manifest publication; separate Trip/Roster requirements; and cancellation ACK before reset. Raw file bytes and credentials are not durable artifacts, and browser Firestore writes are not authority. Its recovery classified the 86 introduced failures and reached zero new failures before publication; those dated counts are evidence, not permanent test-cardinality rules.
 

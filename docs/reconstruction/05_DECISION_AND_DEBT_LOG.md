@@ -1,3 +1,16 @@
+## Live intake continuity and canonical bulk review — 2026-11-03
+
+Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); evidence and live gates: [continuity contract](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: successful authoritative absence is distinct from read/watch/cache/network failure. Retained profile is presentation only while verification is unavailable; mutation transports and topmost ownership block privileged entry. Same-account refresh does not discard the shell; changed identity or confirmed revocation does not inherit old privilege.
+- RESOLVED_IN_SOURCE: bounded natural-key server discovery and explicit safe-case approval replace repeated per-identity review for deterministic cases. Global identity remains shared across Projects; enrollment, reactivation and affiliation remain canonical commands. Conflicts and temporal displacement are never bulk-approved.
+- SUPERSEDED: Material-optional operational Roster policy. Missing source material now requires explicit durable Project Material selection; NO_WEIGHBRIDGE does not waive it. Source values stay unchanged; PROJECT_IMPORT_SELECTION is separately signed provenance and drives reviewed allocations.
+- PRESERVED: PREPARED_NEW, no immediate mass creation, exact reviewed intent, server execution receipts/fencing/recovery, current Project/lifecycle checks, PR #86 ownership and all GWS contracts.
+- STILL_OPEN: separately executed deployed online/offline/reload/reconnect, identity-scale and Material/NO_WEIGHBRIDGE acceptance matrix. Local controlled models are not live Firebase/provider acceptance.
+- STILL_OPEN: independently reproduced historical test and TypeScript debt; no hidden failures, test deletion, skip or lint PASS claim.
+
+Verification observation: focused 299/299 PASS; 36-file consolidated selection 902/905 PASS, with three independently baseline-existing failures (852/855 PASS before change). No new failure/removal/skip. Build PASS; lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0. Historical cardinality/lifecycle/source-anchor debt is retained, not waived. Controlled scale covers 500 Trucks plus 500 Drivers (900 safe groups and 100 manual exceptions), interrupted chunk continuation and two-Project same-global-ID reuse. No deployed acceptance is claimed.
+
 ## Smart Import assurance — 2026-11-02
 
 Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); evidence/acceptance: [assurance contract](SMART_IMPORT_ASSURANCE_CONTRACT.md).
@@ -9,7 +22,7 @@ Current state authority: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md); evidence/acce
 - SUPERSEDED: native confirm/alert and distributed numeric z-index assumptions in current Roster UX/tests. Compatibility assertions now prove owned confirmation/inline feedback and the explicit hierarchy; test counts are preserved. Failed test teardown must unmount React roots before deleting portal DOM.
 - STILL_OPEN: independent deployed desktop/tablet/mobile/RTL hit-testing and complete fresh Q-PRJ-010 acceptance. No live acceptance is claimed. Large-fixture timings are observations, not a production latency SLO.
 - STILL_OPEN: independently reproduced historical tests and 440 TypeScript diagnostics; no waiver or lint PASS. Full baseline evidence remains in the verification record below.
-- PRESERVED: P8-B1/B2/B3/B4 persistence/intent/journal/receipts/fences; natural-ID and current Project authority; Material remains optional; contextual Master Data creation survives import cancellation; PREPARED_NEW is distinct; shared GWS behavior unchanged.
+- PRESERVED: P8-B1/B2/B3/B4 persistence/intent/journal/receipts/fences; natural-ID and current Project authority; Material was optional in PR #86 (superseded for operational Roster by the 2026-11-03 decision above); contextual Master Data creation survives import cancellation; PREPARED_NEW is distinct; shared GWS behavior unchanged.
 - RETAINED_HISTORICAL_TEST_AUTHORITY: five uncalled Wizard helpers are not deletion targets in this unit. No parallel production raw-row execution flow is activated.
 
 Verification observation: 65 new cases PASS; final closure command 134/134 PASS and P8-B1/B2/B3/B4 41/41, 50/50, 30/30, 14/14 PASS. Across 91 selected files, latest per-file results are 2328/2499 PASS with 171 baseline-existing failing cases, two historical empty-suite errors and historical unhandled rejections. Baseline comparison has zero new failures, removals or skips; 25 previously failed cases now pass. Build PASS; lint EXIT 2 / NOT PASS, 440→440 diagnostics, added/removed 0. Detailed remaining debt and exact changed paths are recorded in the assurance contract; these observations do not retire historical suites or waive any domain assertion.
@@ -308,7 +321,7 @@ Current state and accepted merge evidence belong only to [02_PHASE_LEDGER.md](02
 
 ### Source-supported decisions
 
-- Master Design Review → SI-CG1 → SI-CG2 → Phase 8 is the accepted correction sequence. Natural/canonical identity outranks names; rejected rows do not contribute; Material is not universally mandatory; source-row provenance is explicit. Contextual canonical Create/Enroll/Reactivate/Affiliation remain distinct capabilities, separate from PREPARED_NEW and temporal consequences.
+- Master Design Review → SI-CG1 → SI-CG2 → Phase 8 is the accepted correction sequence. Natural/canonical identity outranks names; rejected rows do not contribute; Material was not universally mandatory in that historical gate (the operational Roster rule is superseded by the 2026-11-03 decision); source-row provenance is explicit. Contextual canonical Create/Enroll/Reactivate/Affiliation remain distinct capabilities, separate from PREPARED_NEW and temporal consequences.
 - B1 replaces fabricated snapshot reconstruction with schema-v2 session, source/mapping revisions and first-class durable reviewed intent. Immutable chunks publish through complete manifests, with stable identity/version fencing, exact reattach and separate Trip semantics. Its 86 introduced failures were classified and resolved before publication; that dated observation is not a cardinality gate.
 - B2 consumes the server-loaded reviewed semantic intent, revalidates current canonical state and reuses shared canonical identity/participation/temporal authorities. The legacy raw-row path remains fenced rather than restored as a second authority.
 - Merged B3 provides deterministic semantic consequence identities, a Project/Session-bound journal, explicit generation/version fencing and atomic mutation-plus-receipt groups. Retry skips receipted groups; satisfaction can reduce work but not broaden the review. Cancellation preserves completed effects. Bounded summaries reference full receipt detail; incomplete refresh proof remains pending. B3 is merged/source-verified/closed through PR #60; live Firebase certification is not implied.

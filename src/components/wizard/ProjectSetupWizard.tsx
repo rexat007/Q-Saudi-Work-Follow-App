@@ -1,3 +1,9 @@
+import {GlobalRegistryEnrollment} from '../import/GlobalRegistryEnrollment';
+import {RosterBulkApproval} from '../import/RosterBulkApproval';
+import {ImportMaterialSelection} from '../import/ImportMaterialSelection';
+import {rosterBulkItems,fenceBulkDisplacements,executeBulkRoster,type BulkRosterItem} from '../../services/import/rosterBulkResolution';
+import {discoverRosterIdentities} from '../../services/import/rosterBulkClient';
+import {bindRosterMaterial,needsBatchMaterial,materialRowsReady} from '../../services/import/rosterMaterialBinding';
 import {ImportOverlay} from '../import/ImportOverlay';
 import {useImportConfirmation} from '../import/ImportConfirmation';
 import {RosterInteractionAuthority} from '../../services/import/rosterInteractionAuthority';
@@ -448,6 +454,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const rosterImportSessionGenerationRef = useRef(0);
   const rosterJourneyLifetime = useRef(new RosterJourneyLifetime()).current;
 
+  const [bulkRosterReview,setBulkRosterReview]=useState<BulkRosterItem[]|null>(null);
+  const bulkReviewBatch=useRef<UnifiedImportBatch|null>(null);
+  const [rosterReconnectNeeded,setRosterReconnectNeeded]=useState(false);
+  const continuityInterrupted=useRef(false);
   const rosterOperations = useRef(new RosterInteractionAuthority()).current;
   const renderedRosterGeneration = rosterImportSessionGenerationRef.current;
   const captureRosterContext = () => ({...renderedContext, importGeneration: rosterImportSessionGenerationRef.current});
@@ -573,7 +583,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   };
 
   useLayoutEffect(() => {
-    setSmartImportPendingCarrierGroup(null); setIsSmartImportCarrierModalOpen(false);
+    setBulkRosterReview(null);setSmartImportPendingCarrierGroup(null); setIsSmartImportCarrierModalOpen(false);
     setSmartImportPendingMaterialGroup(null); setIsSmartImportMaterialModalOpen(false);
   }, [rosterImportStage, isSmartImportOpen, importBatch?.importBatchId]);
 
@@ -1476,7 +1486,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const handleResetRosterImport = () => {
     // LOCAL_TERMINAL_CLEAR / LOCAL_CLEANUP
     rosterImportSessionGenerationRef.current += 1;
-    rosterOperations.invalidate(); contextualReceipts.clear();
+    rosterOperations.invalidate(); contextualReceipts.clear();setBulkRosterReview(null);setRosterReconnectNeeded(false);
     reviewedCommitInFlight.current = false;
     setIsProcessing(false);
     setIsImportingFile(false);
@@ -1725,12 +1735,89 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         setImportBatch(working);
       }
       if(saved.rosterStage) setRosterImportStage(saved.rosterStage);
-      setIsRosterMappingApproved(saved.mapping?.approved===true);setImportSessionRecoveryError(null);pendingRosterRestore.current=null;
+      setIsRosterMappingApproved(saved.mapping?.approved===true);setImportSessionRecoveryError(restore&&pendingRosterCheckpoint.current?t('projects.batch4.checkpoint_persistence_failed'):null);pendingRosterRestore.current=null;
     } catch (error) { if(isRosterCurrent(request,editingProjectId))setImportSessionRecoveryError(t(resolutionErrorKey(error))); }
     finally { if(isRosterCurrent(request,editingProjectId)) setIsProcessing(false); }
 
     } finally { if (rosterOperations.finish(command)) setIsProcessing(false); }
   };
+
+  const confirmBatchMaterial = async (id:string) => {
+    const command=rosterOperations.begin();if(!command)throw Error('IMPORT_COMMAND_IN_PROGRESS');
+    const request=captureRosterContext();setIsProcessing(true);
+    try{
+      if(!project||!importBatch||!isRosterCurrent(request,project.projectId))throw Error('PROJECT_CONTEXT_STALE');
+      const fresh=await loadImportResolutionContext(project.projectId,id);
+      if(!isRosterCurrent(request,project.projectId))throw Error('PROJECT_CONTEXT_STALE');
+      const material=fresh.importResolution!.entities.find(e=>e.kind==='MATERIAL'&&e.id===id);if(!material)throw Error('UNRESOLVED_MATERIAL');
+      const ctx=ImportProjectContextAdapter.createPipelineContext({relContext:fresh,projectId:project.projectId,userId:authContext.userId,role:authContext.role,operationId:importBatch.operationId});
+      const bound=DriverTruckPipelineService.revalidateRosterBatch(bindRosterMaterial(importBatch,material),ctx);
+      if(!await persistSmartImportCheckpoint({batch:bound}))throw Error('CHECKPOINT_PERSISTENCE_FAILED');
+      if(isRosterCurrent(request,project.projectId))setImportBatch(bound);
+    }finally{if(rosterOperations.finish(command))setIsProcessing(false);}
+  };
+  const discoverBulkRoster = async () => {
+    const command=rosterOperations.begin();if(!command)return;const request=captureRosterContext();setIsProcessing(true);setImportError(null);
+    try{
+      if(!project||!importBatch)return;
+      const kinds=rosterImportStage==='CARRIER_RESOLUTION'?['carrier'] as const:rosterImportStage==='MATERIAL_RESOLUTION'?['material'] as const:['driver','truck'] as const;
+      const items=rosterBulkItems(importBatch,[...kinds]);
+      const found=await discoverRosterIdentities(project.projectId,items.filter(i=>!i.conflict).map(i=>i.query));
+      if(!isRosterCurrent(request,project.projectId))return;
+      bulkReviewBatch.current=importBatch;const map=new Map(found.map(r=>[r.key,r]));setBulkRosterReview(fenceBulkDisplacements(importBatch,items.map(i=>({...i,result:map.get(i.query.key)}))));
+    }catch(error){if(isRosterCurrent(request,editingProjectId))setImportError(t(resolutionErrorKey(error)));}
+    finally{if(rosterOperations.finish(command))setIsProcessing(false);}
+  };
+  const approveBulkRoster = async () => {
+    const command=rosterOperations.begin();if(!command)return;const request=captureRosterContext();setIsProcessing(true);setImportError(null);
+    try{
+      if(!project||!importBatch||!bulkRosterReview)return;
+      if(bulkReviewBatch.current!==importBatch){setBulkRosterReview(null);throw Error('PROJECT_CONTEXT_STALE');}
+      const current=()=>isRosterCurrent(request,project.projectId);
+      const working=await executeBulkRoster(importBatch,bulkRosterReview,{
+        discover:queries=>discoverRosterIdentities(project.projectId,queries),current,
+        membership:(kind,id,action)=>entityResolutionCommandService.membership(project.projectId,kind,id,action),
+        affiliation:(kind,id,carrierId,action)=>entityResolutionCommandService.affiliation(project.projectId,kind,id,carrierId,action),
+        checkpoint:async batch=>{if(!current())throw Error('PROJECT_CONTEXT_STALE');if(!await persistSmartImportCheckpoint({batch}))throw Error('CHECKPOINT_PERSISTENCE_FAILED');if(current())setImportBatch(batch);}
+      });
+      if(!current())return;
+      const fresh=await loadImportResolutionContext(project.projectId);if(!current())return;
+      const ctx=ImportProjectContextAdapter.createPipelineContext({relContext:fresh,projectId:project.projectId,userId:authContext.userId,role:authContext.role,operationId:working.operationId});
+      const final=DriverTruckPipelineService.revalidateRosterBatch(working,ctx);
+      if(!await persistSmartImportCheckpoint({batch:final}))throw Error('CHECKPOINT_PERSISTENCE_FAILED');
+      if(current()){setImportBatch(final);setBulkRosterReview(null);}
+    }catch(error){if(isRosterCurrent(request,editingProjectId))setImportError(t(resolutionErrorKey(error)));}
+    finally{if(rosterOperations.finish(command))setIsProcessing(false);}
+  };
+  const restoreRosterAfterReconnect=async()=>{
+    const command=rosterOperations.begin();if(!command)return;
+    const request=captureRosterContext(),record=durableSessionRef.current;let restore=false;
+    setIsProcessing(true);
+    try{
+      if(!record||!isRosterCurrent(request,record.projectId))return;
+      const saved=await importSessionClientService.getSession(record.projectId,record.importSessionId);
+      if(!isRosterCurrent(request,record.projectId))return;
+      const pending=pendingRosterCheckpoint.current;
+      if(pending&&pending[0]===saved.projectId&&pending[1]===saved.importSessionId&&saved.version>pending[3])pendingRosterCheckpoint.current=null;
+      if((saved as any).executionOperationId){rememberDurableSession(saved);await recoverRosterExecution('status');}
+      else{pendingRosterRestore.current=saved;restore=true;}
+      setRosterReconnectNeeded(false);
+    }catch(error){if(isRosterCurrent(request,editingProjectId)){setRosterReconnectNeeded(true);setImportSessionRecoveryError(t(resolutionErrorKey(error)));}}
+    finally{if(rosterOperations.finish(command))setIsProcessing(false);}
+    if(restore&&isRosterCurrent(request,editingProjectId))await retryRosterCheckpoint();
+  };
+  useEffect(()=>{
+    const changed=(event:Event)=>{
+      const state=(event as CustomEvent<string>).detail;
+      if(state!=='AVAILABLE'){
+        continuityInterrupted.current=true;rosterImportSessionGenerationRef.current++;rosterOperations.invalidate();setIsProcessing(false);setIsCommittingImport(false);reviewedCommitInFlight.current=false;setIsImportingFile(false);setIsDiscoveringRoster(false);setIsRestoringImportSession(false);setBulkRosterReview(null);setIsSmartImportCarrierModalOpen(false);setSmartImportPendingCarrierGroup(null);setIsSmartImportMaterialModalOpen(false);setSmartImportPendingMaterialGroup(null);
+        return;
+      }
+      if(!continuityInterrupted.current)return;continuityInterrupted.current=false;
+      void restoreRosterAfterReconnect();
+    };
+    window.addEventListener('auth-authority-change',changed);return()=>window.removeEventListener('auth-authority-change',changed);
+  },[editingProjectId,importSessionId,rosterImportStage]);
 
   const processRosterFile = async (file: File) => {
     let sourceCommand=rosterOperations.begin();if(!sourceCommand)return;setIsProcessing(true);
@@ -2129,7 +2216,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     const activeRows = importBatch.rows.filter((r) => r.status !== 'REJECTED');
     const hasUnresolvedMaterialRow = activeRows.some((r) => {
       const materialRes = r.entityResolutions?.material;
-      if (projectRelationshipContext?.importResolution && !r.canonical?.materialName && !r.canonical?.materialCode && !r.canonical?.materialId) return false;
+      if (!materialRowsReady(importBatch)) return true;
       return !materialRes?.matchedId || materialRes.relationshipStatus === 'RELATIONSHIP_CONFLICT';
     });
     if (hasUnresolvedMaterialRow) {
@@ -4354,6 +4441,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 3: MATERIALS ================= */}
             {activeSetupLayer === 'MATERIALS' && project && (
               <div className="space-y-6 text-xs text-stone-300">
+                {isOperationallyMutable&&<GlobalRegistryEnrollment key={`${project.projectId}:MATERIAL:${renderedContext.generation}`} projectId={project.projectId} kind="MATERIAL" isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} onChanged={async()=>{const snapshot=await projectCanonicalRefreshService.refresh(project.projectId);if(projectContext.isCurrent(renderedContext,project.projectId))applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);}}/>}
                 {/* Materials list management card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
@@ -4480,6 +4568,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 4: CARRIERS ================= */}
             {activeSetupLayer === 'CARRIERS' && project && (
               <div className="space-y-6 text-xs text-stone-300">
+                {isOperationallyMutable&&<GlobalRegistryEnrollment key={`${project.projectId}:CARRIER:${renderedContext.generation}`} projectId={project.projectId} kind="CARRIER" isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} onChanged={async()=>{const snapshot=await projectCanonicalRefreshService.refresh(project.projectId);if(projectContext.isCurrent(renderedContext,project.projectId))applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);}}/>}
                 {/* Carriers checklist */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">
                   <div className="flex justify-between items-center border-b border-stone-800 pb-2">
@@ -5025,7 +5114,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
       {/* Root Layered Smart Import Workflow Host */}
       {isSmartImportOpen && rosterImportStage === 'CARRIER_RESOLUTION' && project && importBatch && smartImportPendingCarrierGroup && projectRelationshipContext && isSmartImportCarrierModalOpen && (<ContextualCanonicalCreation key={`Carrier:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingCarrierGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportCarrierModalOpen(false);setSmartImportPendingCarrierGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);await applyCanonicalImportChoice(smartImportPendingCarrierGroup!,fresh,id,prerequisite);}}/>)}
-      {isSmartImportOpen && rosterImportStage === 'MATERIAL_RESOLUTION' && project && importBatch && smartImportPendingMaterialGroup && projectRelationshipContext && isSmartImportMaterialModalOpen && (<ContextualCanonicalCreation key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingMaterialGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportMaterialModalOpen(false);setSmartImportPendingMaterialGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);await applyCanonicalImportChoice(smartImportPendingMaterialGroup!,fresh,id,prerequisite);}}/>)}
+      {isSmartImportOpen && rosterImportStage === 'MATERIAL_RESOLUTION' && project && importBatch && smartImportPendingMaterialGroup && projectRelationshipContext && isSmartImportMaterialModalOpen && (<ContextualCanonicalCreation key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingMaterialGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportMaterialModalOpen(false);setSmartImportPendingMaterialGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);if(smartImportPendingMaterialGroup?.normalizedSourceKey==='BATCH_MATERIAL')await confirmBatchMaterial(id);else await applyCanonicalImportChoice(smartImportPendingMaterialGroup!,fresh,id,prerequisite);}}/>)}
       {isSmartImportOpen && project && (
         <ImportOverlay level="WORKFLOW" label={t('projects.batch4.smart_roster_import')} className="bg-stone-950/90 md:p-8" onDismiss={() => void requestRosterCancellation()}>
           <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-5xl w-full mx-auto my-auto shadow-2xl p-6 space-y-6 flex flex-col max-h-[90dvh] overflow-hidden">
@@ -5054,7 +5143,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {importError && <p role="alert" className="break-words text-rose-300">{importError}</p>}
               {smartImportCommitError && rosterImportStage !== 'FINAL_REVIEW' && rosterImportStage !== 'COMMIT_RESULT' && <p role="alert" className="break-words text-rose-300">{/^[A-Z][A-Z0-9_]+$/.test(smartImportCommitError) ? t(intentIssueKey(smartImportCommitError)) : smartImportCommitError}</p>}
               {importSessionRecoveryError && <div role="alert" className="p-3 text-rose-400"><p>{importSessionRecoveryError}</p>
-                {importSessionVersion < 0 ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : (pendingRosterCheckpoint.current || pendingRosterRestore.current) ? <button disabled={isProcessing} onClick={retryRosterCheckpoint}>{t('shared.error_boundary.retry')}</button> : rosterSelectedFile && rosterBuffer && rosterDiscoveryResult ? <button disabled={isProcessing} onClick={async () => { try { await acceptRosterSource(rosterSelectedFile,rosterBuffer,rosterDiscoveryResult); setRosterImportStage('MAPPING_APPROVAL'); } catch { /* Retry remains available. */ } }}>{t('shared.error_boundary.retry')}</button> : null}
+                {rosterReconnectNeeded ? <button disabled={isProcessing} onClick={restoreRosterAfterReconnect}>{t('shared.error_boundary.retry')}</button> : importSessionVersion < 0 ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : (pendingRosterCheckpoint.current || pendingRosterRestore.current) ? <button disabled={isProcessing} onClick={retryRosterCheckpoint}>{t('shared.error_boundary.retry')}</button> : rosterSelectedFile && rosterBuffer && rosterDiscoveryResult ? <button disabled={isProcessing} onClick={async () => { try { await acceptRosterSource(rosterSelectedFile,rosterBuffer,rosterDiscoveryResult); setRosterImportStage('MAPPING_APPROVAL'); } catch { /* Retry remains available. */ } }}>{t('shared.error_boundary.retry')}</button> : null}
               </div>}
               {durableSessionRef.current?.sourceType === 'GOOGLE_SHEETS' && !rosterSheetValues && !importBatch && !rosterRecoveryVisible && <button disabled={isProcessing} onClick={handleSyncRosterFromSheet}>{t('entityResolution.labels.refresh_data')}</button>}
               {requiresRosterSourceReattach && (durableSessionRef.current?.schemaVersion !== 2 ? <div role="status" className="p-3 text-amber-400"><p>{t('projects.batch4.import_restore_invalid')}</p><button onClick={async () => { if(await handleCancelRosterImport()) {setIsSmartImportOpen(true);setRosterImportStage('SOURCE_DISCOVERY');} }}>{t('entityResolution.labels.reset_new_file')}</button></div> : <label className="block p-3 text-amber-400">{t('entityResolution.messages.review_session_resumed')}<input aria-label={t('entityResolution.labels.reattach_file')} type="file" accept=".csv,.xls,.xlsx" onChange={e => { const file=e.target.files?.[0]; if(file) void processRosterFile(file); }} /></label>)}
@@ -5253,12 +5342,15 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </div>
               )}
 
+              {importBatch&&['DRIVER_TRUCK_RESOLUTION','FINAL_REVIEW'].includes(rosterImportStage)&&!materialRowsReady(importBatch)&&<div role="alert" className="rounded-xl border border-amber-600 p-3"><p>{t(needsBatchMaterial(importBatch)?'import.material.missing':'projects.batch4.material_rows_pending')}</p><button disabled={isProcessing} type="button" onClick={handleSmartImportContinueToMaterials}>{t('entityResolution.labels.continue_material_review')}</button></div>}
+
               {/* STAGE 3: CARRIER_RESOLUTION */}
               {importBatch && rosterImportStage === 'CARRIER_RESOLUTION' && (
                 <div>
                   {/* C2: True Carrier-Only Resolution Layer */}
                   {/* Only Carrier review groups are resolved here before future layers. */}
-                  <RosterCarrierResolutionLayer beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  <RosterBulkApproval items={bulkReviewBatch.current===importBatch?bulkRosterReview:null} onDiscover={discoverBulkRoster} onApprove={approveBulkRoster} busy={isProcessing}/>
+                  <RosterCarrierResolutionLayer key={`${importBatch.importBatchId}:${renderedRosterGeneration}`} beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoiceNow} onCanonicalSelect={selectCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectCarriers={carriers}
@@ -5279,7 +5371,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 4: MATERIAL_RESOLUTION */}
               {importBatch && rosterImportStage === 'MATERIAL_RESOLUTION' && (
                 <div>
-                  <RosterMaterialResolutionLayer beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  {needsBatchMaterial(importBatch)&&<ImportMaterialSelection key={`${importBatch.importBatchId}:${renderedRosterGeneration}`} projectId={project.projectId} materials={projectRelationshipContext?.importResolution?.entities||[]} busy={isProcessing} isCurrent={()=>isRosterCurrent(renderedContext,project.projectId)} onConfirm={confirmBatchMaterial} onCreate={()=>{setSmartImportPendingMaterialGroup({entityType:'material',normalizedSourceKey:'BATCH_MATERIAL',sourceValue:'',rowNumbers:importBatch.rows.filter(r=>r.status!=='REJECTED').map(r=>r.rowNumber),sourceRows:[],occurrenceCount:importBatch.rows.length,status:'UNRESOLVED',candidates:[]});setIsSmartImportMaterialModalOpen(true);}}/>}
+                  <RosterBulkApproval items={bulkReviewBatch.current===importBatch?bulkRosterReview:null} onDiscover={discoverBulkRoster} onApprove={approveBulkRoster} busy={isProcessing}/>
+                  <RosterMaterialResolutionLayer key={`${importBatch.importBatchId}:${renderedRosterGeneration}`} beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoiceNow} onCanonicalSelect={selectCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectMaterials={materials}
@@ -5300,7 +5394,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {/* STAGE 5: DRIVER_TRUCK_RESOLUTION */}
               {importBatch && rosterImportStage === 'DRIVER_TRUCK_RESOLUTION' && (
                 <div>
-                  <RosterDriverTruckResolutionLayer beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
+                  <RosterBulkApproval items={bulkReviewBatch.current===importBatch?bulkRosterReview:null} onDiscover={discoverBulkRoster} onApprove={approveBulkRoster} busy={isProcessing}/>
+                  <RosterDriverTruckResolutionLayer key={`${importBatch.importBatchId}:${renderedRosterGeneration}`} beginCommand={beginRosterInteraction} receipts={contextualReceipts} canonicalContext={projectRelationshipContext?.importResolution ? projectRelationshipContext : undefined}
                     onCanonicalVerified={applyCanonicalImportChoiceNow} onCanonicalSelect={selectCanonicalImportChoice} canManageParticipation={authContext.role==='SUPER_ADMIN'||authContext.role==='PROJECT_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)}
                     importBatch={importBatch}
                     projectDrivers={projectRelationshipContext?.knownDrivers || []}

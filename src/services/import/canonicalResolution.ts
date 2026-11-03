@@ -98,9 +98,9 @@ export function resolveCanonicalRoster(row: Record<string,any>, context: Pipelin
   }
   return result;
 }
-export function revalidateCanonicalRow(row: ImportRow, context: PipelineContext): ImportRow {
+export function revalidateCanonicalRow(row: ImportRow, context: PipelineContext, batchMaterialId?:string): ImportRow {
   if(!context.resolutionContext)return row;
   const value:any=row.canonical||row.mapped||{};
   const canonical={...value,carrierName:value.carrierName||value.carrier,materialName:value.materialName||value.materialType,truckPlate:value.truckPlate||value.truckNo};
-  return {...row,entityResolutions:resolveCanonicalRoster(canonical,context,row.entityResolutions)};
+  return {...row,entityResolutions:resolveCanonicalRoster(batchMaterialId&&!canonical.materialId&&!canonical.materialName&&!canonical.materialCode?{...canonical,materialId:batchMaterialId}:canonical,context,row.entityResolutions)};
 }

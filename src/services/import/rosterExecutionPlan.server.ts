@@ -39,7 +39,7 @@ export function scopedExecutionBatch(batch: any, rows: number[]) {
 }
 export function provenanceDigest(intent: RosterCanonicalIntent) {
   const signed = JSON.parse(intent.signature);
-  return executionDigest({ projectId: signed.projectId, sourceEvidence: signed.sourceEvidence, sourceRows: signed.sourceRows, rowDecisions: signed.rowDecisions, warnings: signed.warnings, blockers: signed.blockers });
+  return executionDigest({ projectId: signed.projectId, materialBinding:signed.materialBinding, sourceEvidence: signed.sourceEvidence, sourceRows: signed.sourceRows, rowDecisions: signed.rowDecisions, warnings: signed.warnings, blockers: signed.blockers });
 }
 /** Current satisfaction may remove work; it cannot authorize a different relationship or affiliation. */
 export function validateRecoveryScope(scope: ImportExecutionGroup, rebuilt: RosterCanonicalIntent, context: any) {

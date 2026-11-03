@@ -1,4 +1,8 @@
-## Current Smart Import continuation
+## Current live intake continuity checkpoint — 2026-11-03
+
+Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first. Verified merged main is `637b7d54429ac586e101689deae35e013a9eab77` (PR #86). The current bounded unit addresses account-profile outage continuity, bulk canonical identity reuse and explicit operational Material binding; see [LIVE_INTAKE_CONTINUITY_CONTRACT.md](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Local verification precedes the authorized one-commit branch publication. No PR/merge, new phase or live acceptance is performed. Older continuation checkpoints below are historical where superseded.
+
+## Historical PR #86 Smart Import continuation
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first. Verified main `4d193d96791425c4d3c3bcaa60f06175036efdfb` merges GWS-ONE live closure (PR #85). The current bounded package assures the existing Smart Roster journey, owned nested dialogs, async/session ownership, canonical resolution, durable recovery and scale. See [SMART_IMPORT_ASSURANCE_CONTRACT.md](SMART_IMPORT_ASSURANCE_CONTRACT.md). No Trips/Reports/new phase, live Project mutation, PR or merge is authorized. Deployed Q-PRJ-010 acceptance remains NOT_PERFORMED.
 
@@ -15,7 +19,7 @@ This directory (`docs/reconstruction/`) contains repository-governed current con
 P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged and accepted for this reconstruction stage; remaining mixed/bilingual labels are deferred non-blocking debt, not authorization to reopen localization.
 
 
-### Current Continuation Checkpoint — 2026-11-02
+### Historical Continuation Checkpoint — 2026-11-02
 
 - **Verified merged baseline**: `4d193d96791425c4d3c3bcaa60f06175036efdfb` (GWS-ONE live closure, PR #85).
 - **Phase 0**: VERIFIED / CLOSED / FROZEN.

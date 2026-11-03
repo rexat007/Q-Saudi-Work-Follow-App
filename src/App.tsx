@@ -1,3 +1,4 @@
+import {ProfileContinuity} from './components/auth/ProfileContinuity';
 import {readWorkspaceContinuation} from './runtime/workspaceProvisioningResume';
 import {AdaptiveOperationalReports} from './components/reports/AdaptiveOperationalReports';
 import {useUserActiveWorkspaceSync} from './hooks/useUserActiveWorkspaceSync';
@@ -78,7 +79,7 @@ import { ProjectEntity } from './types/entities';
 export default function App() {
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
-  const { user, userProfile, isAuthReady, isProfileLoading, refreshUserProfile } = useAuth();
+  const { user, userProfile, isAuthReady, isProfileLoading, refreshUserProfile, profileAuthority } = useAuth();
 
   // Determine authoritative role from server profile when signed in
   const effectiveRole: UserRole = userProfile 
@@ -116,7 +117,8 @@ export default function App() {
       }
     : undefined;
 
-  useUserActiveWorkspaceSync(activeAuthContext);
+  const profileUnavailable=Boolean(user && profileAuthority && profileAuthority!=='AVAILABLE' && profileAuthority!=='ABSENT_CONFIRMED');
+  useUserActiveWorkspaceSync(profileUnavailable||userProfile?.status!=='ACTIVE'?undefined:activeAuthContext);
   const operationalProject=projects.find(project=>project.projectId===selectedProjectId);
 
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
@@ -300,7 +302,7 @@ export default function App() {
   };
 
   // Separate authentication and account verification from main application shell
-    if (!isAuthReady || (user && isProfileLoading)) {
+    if (!isAuthReady || (user && isProfileLoading && !userProfile)) {
     return (
       <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] flex flex-col items-center justify-center p-4 font-sans" dir={direction}>
         <div className="bg-[#15181e] border border-white/10 rounded-2xl p-8 shadow-2xl flex flex-col items-center space-y-4 max-w-sm w-full text-center">
@@ -318,6 +320,8 @@ export default function App() {
     );
   }
 
+  if(!user&&profileAuthority==='UNAVAILABLE_TRANSIENT')return <ProfileContinuity blocked onRetry={refreshUserProfile}/>;
+
   if (!user) {
     return (
       <AccountStatusGate
@@ -327,11 +331,13 @@ export default function App() {
     );
   }
 
+  if(profileUnavailable && !userProfile) return <ProfileContinuity blocked onRetry={refreshUserProfile}/>;
+
   // Gate authenticated users if account status is not ACTIVE
   if (user && (!userProfile || userProfile.status !== 'ACTIVE')) {
     return (
       <AccountStatusGate
-        status={userProfile?.status || 'NO_PROFILE'}
+        status={userProfile?.status || (profileAuthority==='ABSENT_CONFIRMED'?'NO_PROFILE':'PROFILE_UNAVAILABLE')}
         userEmail={user.email || ''}
         userName={userProfile?.fullName || user.displayName || ''}
         onRefresh={refreshUserProfile}
@@ -340,7 +346,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f1115] text-[#f8fafc] font-sans flex flex-col antialiased selection:bg-[#10b981] selection:text-[#0f1115]" dir={direction}>
+    <ProfileContinuity blocked={profileUnavailable} onRetry={refreshUserProfile}><div className="min-h-screen bg-[#0f1115] text-[#f8fafc] font-sans flex flex-col antialiased selection:bg-[#10b981] selection:text-[#0f1115]" dir={direction}>
       {/* Top Application Header */}
       <header className="bg-[#0f1115] border-b-2 border-white/10 sticky top-0 z-30 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
@@ -963,6 +969,6 @@ export default function App() {
         isOnline={isOnline}
         pendingOutboxCount={pendingCount}
       />
-    </div>
+    </div></ProfileContinuity>
   );
 }

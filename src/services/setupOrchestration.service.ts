@@ -1,3 +1,5 @@
+import {importRequest} from './importRequest';
+import {assertProfileAuthorityAvailable} from '../firebase/authSession';
 import { auth } from '../firebase/config';
 import { projectCanonicalRefreshService, type ProjectCanonicalRefreshSnapshot } from './projectCanonicalRefresh.service';
 
@@ -8,9 +10,10 @@ export async function setupCommand(projectId: string, surface: string, payload: 
   return postSetupJson(`/api/projects/${encodeURIComponent(projectId)}/${surface}`, payload);
 }
 export async function postSetupJson(path: string, payload: unknown) {
+  assertProfileAuthorityAvailable();
   const token = await auth.currentUser?.getIdToken();
   if (!token) throw new SetupCommandError('UNAUTHENTICATED', 401);
-  const response = await fetch(path, {
+  const response = await importRequest(path, {
     method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
   });
   let json: any;

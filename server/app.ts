@@ -1662,6 +1662,11 @@ app.get('/api/projects/:projectId/setup-context', enforceProjectIsolation, enfor
     res.json({ success: true, data: await new SetupFleetQuery().read(req.params.projectId, (req as any).user) });
   } catch (error: any) { res.status(error.status || 400).json({ success: false, code: error.code || 'SETUP_READ_FAILED' }); }
 });
+app.post('/api/projects/:projectId/import-resolution/discover', enforceProjectIsolation, enforceAdminOnly, async (req,res)=>{
+  try { const {RosterBulkDiscoveryServer}=await import('../src/services/import/rosterBulkDiscovery.server');
+    res.json({success:true,data:await new RosterBulkDiscoveryServer().discover(req.params.projectId,req.body?.queries,(req as any).user)});
+  } catch(error:any){res.status(error.status||400).json({success:false,code:error.code||'BULK_DISCOVERY_UNAVAILABLE'});}
+});
 app.get('/api/projects/:projectId/relationship-context', enforceProjectIsolation, async (req, res) => {
   try {
     const { ProjectFleetQueryService } = await import('../src/services/projectFleetQuery.server');

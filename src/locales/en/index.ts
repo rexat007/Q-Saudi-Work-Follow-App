@@ -1,6 +1,17 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "auth.continuity.title": "Reconnecting account verification",
+  "auth.continuity.message": "Verification is temporarily unavailable. Your identity and work are retained; actions are paused until verification returns.",
+  "import.bulk.title": "Bulk identity review",
+  "import.bulk.discover": "Discover canonical identities",
+  "import.bulk.approve": "Approve safe cases",
+  "import.bulk.summary": "Ready: {ready} · Enrollment/reactivation: {enroll} · Affiliation: {affiliate} · New to prepare: {prepare} · Manual review: {manual}",
+  "import.material.missing": "The source did not specify a transported material. Select and confirm a material for this import.",
+  "import.material.confirm": "Confirm import material",
+  "import.material.code": "Find a global material by code; creation is available after confirmed absence",
+  "import.registry.lookup": "Find global identity by registration number or material code",
+
   "import.assurance.search": "Search by name, ID or natural identity",
   "import.assurance.previous": "Previous",
   "import.assurance.next": "Next",

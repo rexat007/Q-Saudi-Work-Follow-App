@@ -1,3 +1,4 @@
+import {sourceHasMaterial} from './rosterMaterialBinding';
 import { normalizeNaturalKey } from '../../utils/globalIdentityPolicy';
 import type { ImportRow, PipelineContext, UnifiedImportBatch } from '../../types/unifiedImport';
 import type { ImportResolutionEntity } from '../../types/importResolution';
@@ -23,6 +24,11 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
   const intent: RosterCanonicalIntent = { projectId: batch.projectId, sourceRows: batch.rows.map(row => row.sourceLocation ? {...row.sourceLocation} : {sourceType:batch.source.sourceType, sourceSheetName:batch.source.sourceSheetName, internalRowNumber:row.rowNumber}), rowDecisions: [], entities: [], assignmentIntents: [], allocationIntents: [], entityConsequences: [], blockers: [], warnings: [], requiresDisplacementApproval: false, signature: '' };
   const blockerKeys = new Set<string>();
   const block = (code: string, rows: number[]) => {const numbers=sortedNumbers(rows), key=code+':'+numbers.join(',');if(!blockerKeys.has(key)){blockerKeys.add(key);intent.blockers.push({code,rowNumbers:numbers});}};
+  const binding=batch.metadata?.batchMaterialBinding;
+  if(binding){
+    if(binding.confirmed!==true||binding.provenance!=='PROJECT_IMPORT_SELECTION'||typeof binding.materialId!=='string'||!binding.materialId)block('UNRESOLVED_MATERIAL',batch.rows.filter(r=>r.status!=='REJECTED'&&r.status!=='COMMITTED').map(r=>r.rowNumber));
+    else intent.materialBinding={materialId:binding.materialId,provenance:'PROJECT_IMPORT_SELECTION',confirmed:true};
+  }
   const ctx = context.resolutionContext;
   const available = ctx && ctx.projectId === batch.projectId && context.projectId === batch.projectId;
   if (!available) block('RELATIONSHIP_CONTEXT_UNAVAILABLE', batch.rows.filter(r => r.status !== 'REJECTED').map(r => r.rowNumber));
@@ -79,6 +85,7 @@ export function buildRosterCanonicalIntent(batch: UnifiedImportBatch, context: P
         existing.rowNumbers.push(row.rowNumber);
       } else entities.set(mapKey, entity);
     }
+    if(!ids.material||!sourceHasMaterial(row)&&(!binding||binding.confirmed!==true||binding.provenance!=='PROJECT_IMPORT_SELECTION'||ids.material!==binding.materialId)) {block('UNRESOLVED_MATERIAL',[row.rowNumber]);invalid=true;}
     decision.entities = ids;
     const driver = ids.driver && entities.get(`DRIVER:${ids.driver}`), truck = ids.truck && entities.get(`TRUCK:${ids.truck}`);
     if ((driver && (!ids.carrier || driver.carrierId !== ids.carrier)) || (truck && (!ids.carrier || truck.carrierId !== ids.carrier))) { block('AFFILIATION_CONFLICT', [row.rowNumber]); invalid = true; }

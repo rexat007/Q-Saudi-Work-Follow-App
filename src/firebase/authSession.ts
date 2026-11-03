@@ -1,9 +1,17 @@
 import type { UserEntity } from '../types/entities';
 
+export type ProfileAuthority = 'UNAUTHENTICATED' | 'LOADING' | 'AVAILABLE' | 'ABSENT_CONFIRMED' | 'UNAVAILABLE_TRANSIENT';
+let activeProfile=false;
+let authority: ProfileAuthority | undefined;
+export function assertProfileAuthorityAvailable() {
+  if (authority && (authority !== 'AVAILABLE'||!activeProfile)) throw Object.assign(new Error('PROFILE_AUTHORITY_UNAVAILABLE'), {code:'PROFILE_AUTHORITY_UNAVAILABLE'});
+}
+
 interface SessionUser { uid: string; getIdToken(): Promise<string> }
 interface SessionSink<U> {
   user(value: U | null): void; profile(value: UserEntity | null): void;
   token(value: string | null): void; loading(value: boolean): void;
+  authority?(value: ProfileAuthority): void;
   ready(): void; error(value: string | null): void;
 }
 
@@ -16,29 +24,33 @@ export function createAuthSession<U extends SessionUser>(sink: SessionSink<U>, d
   let generation = 0;
   let current: U | null = null;
   let stop: (() => void) | undefined;
+  const publish = (value: ProfileAuthority) => { authority=value; sink.authority?.(value); };
+  const unavailable = (invalidate=true) => { if(current) { if(invalidate){generation++;stop?.();stop=undefined;} sink.token(null); sink.loading(false); sink.error('PROFILE_UNAVAILABLE'); publish('UNAVAILABLE_TRANSIENT'); sink.ready(); } else {sink.token(null);sink.loading(false);sink.error('PROFILE_UNAVAILABLE');publish('UNAVAILABLE_TRANSIENT');sink.ready();} };
   const clear = () => {
     generation++; stop?.(); stop = undefined; current = null;
-    sink.user(null); sink.profile(null); sink.token(null); sink.loading(false);
+    activeProfile=false;publish('UNAUTHENTICATED'); sink.user(null); sink.profile(null); sink.token(null); sink.loading(false);
   };
   const change = async (user: U | null) => {
-    clear(); sink.error(null);
+    if (!user || current?.uid !== user.uid) clear();
+    else { generation++; stop?.(); stop=undefined; sink.token(null); }
+    sink.error(null);
     if (!user) { sink.ready(); return; }
     current = user;
     const version = generation;
-    sink.user(user); sink.loading(true);
+    sink.user(user); sink.loading(true); publish('LOADING');
     try {
       const token = await user.getIdToken();
       const profile = await deps.load(user);
       if (version !== generation) return;
-      sink.token(token); sink.profile(profile);
+      activeProfile=profile?.status==='ACTIVE'&&profile.isActive!==false;sink.token(token); sink.profile(profile); publish(profile ? 'AVAILABLE' : 'ABSENT_CONFIRMED');
       stop = deps.watch(user, value => {
-        if (version === generation) sink.profile(value);
+        if (version === generation) { activeProfile=value?.status==='ACTIVE'&&value.isActive!==false;sink.profile(value); sink.token(token); sink.error(null); publish(value ? 'AVAILABLE' : 'ABSENT_CONFIRMED'); }
       }, () => {
-        if (version === generation) { sink.profile(null); sink.error('PROFILE_UNAVAILABLE'); }
+        if (version === generation) unavailable(false);
       });
     } catch (error) {
       if (version !== generation) return;
-      sink.profile(null); sink.token(null); sink.error('AUTH_REFRESH_FAILED');
+      unavailable();
       const code = (error as { code?: string })?.code;
       if (['auth/user-disabled', 'auth/user-token-expired', 'auth/invalid-user-token', 'auth/id-token-revoked'].includes(code || '')) {
         clear();
@@ -48,5 +60,6 @@ export function createAuthSession<U extends SessionUser>(sink: SessionSink<U>, d
       if (version === generation || current === null) { sink.loading(false); sink.ready(); }
     }
   };
-  return { change, clear, refresh: () => change(current), dispose: () => { generation++; stop?.(); stop = undefined; } };
+  publish('LOADING');
+  return { change, clear, unavailable, refresh: () => change(current), dispose: () => { generation++; stop?.(); stop = undefined; } };
 }
