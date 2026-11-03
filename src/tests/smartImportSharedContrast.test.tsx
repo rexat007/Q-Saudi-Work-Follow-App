@@ -4,6 +4,10 @@ import {createRoot,type Root} from 'react-dom/client';
 import {it,expect,vi,beforeEach,afterEach} from 'vitest';
 import {ImportMaterialSelection} from '../components/import/ImportMaterialSelection';
 import {RosterBulkApproval} from '../components/import/RosterBulkApproval';
+import {ImportConfirmation} from '../components/import/ImportConfirmation';
+import {useImportGroupPage} from '../components/import/ImportGroupPage';
+import {GlobalRegistryEnrollment} from '../components/import/GlobalRegistryEnrollment';
+import {CanonicalImportBoundary} from '../components/import/CanonicalImportBoundary';
 import {enTranslations} from '../locales/en';
 import {arTranslations} from '../locales/ar';
 import {urTranslations} from '../locales/ur';
@@ -12,6 +16,7 @@ const dictionaries:Record<string,typeof enTranslations>={en:enTranslations,ar:ar
 vi.mock('../i18n',()=>({useI18n:()=>({t:(key:string)=>dictionaries[f.locale][key]||key,direction:f.locale==='en'?'ltr':'rtl'})}));
 vi.mock('../services/import/rosterBulkClient',()=>({discoverRosterIdentities:vi.fn()}));
 vi.mock('../services/import/entityResolutionCommand.service',()=>({entityResolutionCommandService:{membership:vi.fn()}}));
+vi.mock('../services/canonicalRelationshipContext.service',()=>({canonicalRelationshipContextService:{getProjectRelationshipContext:vi.fn()}}));
 let host:HTMLDivElement,root:Root;
 const material:any={kind:'MATERIAL',id:'M1',name:'Wheat',globalStatus:'ACTIVE',membershipStatus:'ACTIVE',eligible:true};
 const items:any[]=[{query:{kind:'TRUCK',key:'T1'},rows:[1],conflict:false,result:{state:'GLOBAL_ACTIVE_AND_PROJECT_READY'}}];
@@ -55,3 +60,83 @@ it('zero safe cases cannot approve and disabled text has explicit contrast inste
   const approve=vi.fn(async()=>{});await render(<RosterBulkApproval items={[]} onDiscover={vi.fn(async()=>{})} onApprove={approve} busy={false}/>);
   const button=host.querySelectorAll('button')[1];expect(button.disabled).toBe(true);expect(button.className).toContain('disabled:bg-stone-800');expect(button.className).toContain('disabled:text-stone-400');await act(async()=>button.click());expect(approve).not.toHaveBeenCalled();
 });
+
+function PagerHarness({ count }: { count: number }) {
+  const { pager } = useImportGroupPage(Array.from({ length: count }, (_, i) => i));
+  return <div data-testid="pager-harness">{pager}</div>;
+}
+
+it.each(['ar', 'en', 'ur'])('%s ImportGroupPage pager controls and indicators have explicit dark styling and focus-visible rings', async locale => {
+  f.locale = locale;
+  await render(<PagerHarness count={100} />);
+  const nav = host.querySelector('nav')!;
+  expect(nav).toBeTruthy();
+  expect(nav.className).toContain('bg-stone-950/60');
+  expect(nav.className).toContain('border-stone-850');
+  const span = nav.querySelector('span[role=status]')!;
+  expect(span.className).toContain('text-stone-300');
+  const buttons = nav.querySelectorAll('button');
+  expect(buttons.length).toBe(2);
+  for (const btn of buttons) {
+    expect(btn.className).toContain('bg-stone-800');
+    expect(btn.className).toContain('text-stone-200');
+    expect(btn.className).toContain('focus-visible:ring-2');
+  }
+});
+
+it.each(['ar', 'en', 'ur'])('%s ImportConfirmation renders dark modal surface and high-contrast actions', async locale => {
+  f.locale = locale;
+  const onAnswer = vi.fn();
+  await render(<ImportConfirmation message="Confirm roster import?" onAnswer={onAnswer} />);
+  const section = document.body.querySelector('section')!;
+  expect(section).toBeTruthy();
+  expect(section.className).toContain('bg-stone-900');
+  expect(section.className).toContain('border-stone-800');
+  expect(section.className).toContain('text-stone-100');
+  const buttons = section.querySelectorAll('button');
+  expect(buttons[0].className).toContain('bg-stone-800');
+  expect(buttons[0].className).toContain('text-stone-300');
+  expect(buttons[1].className).toContain('bg-amber-500');
+  expect(buttons[1].className).toContain('text-stone-950');
+  for (const btn of buttons) {
+    expect(btn.className).toContain('focus-visible:ring-2');
+  }
+  await act(async () => buttons[0].click());
+  expect(onAnswer).toHaveBeenCalledWith(false);
+});
+
+it('GlobalRegistryEnrollment search and controls expose explicit dark backgrounds and focus rings', async () => {
+  const onEnroll = vi.fn();
+  await render(
+    <GlobalRegistryEnrollment
+      candidateIdentities={[{ id: 'I1', candidateName: 'Carrier Alpha', kind: 'CARRIER', globalStatus: 'ACTIVE', membershipStatus: 'AVAILABLE' } as any]}
+      onEnroll={onEnroll}
+      kind="CARRIER"
+      busy={false}
+    />
+  );
+  const input = host.querySelector('input')!;
+  expect(input.className).toContain('bg-stone-900');
+  expect(input.className).toContain('text-stone-100');
+  expect(input.className).toContain('border-stone-700');
+  expect(input.className).toContain('focus-visible:ring-2');
+  const button = host.querySelector('button')!;
+  expect(button.className).toContain('bg-amber-500');
+  expect(button.className).toContain('text-stone-950');
+  expect(button.className).toContain('focus-visible:ring-2');
+});
+
+it('CanonicalImportBoundary shows dark-contrast loading and error feedback', async () => {
+  const { canonicalRelationshipContextService } = await import('../services/canonicalRelationshipContext.service');
+  vi.mocked(canonicalRelationshipContextService.getProjectRelationshipContext).mockRejectedValueOnce(new Error('CONTEXT_UNAVAILABLE'));
+  await render(<CanonicalImportBoundary projectId="P1" owner="U1">{() => <div>Child</div>}</CanonicalImportBoundary>);
+  const alert = host.querySelector('[role=alert]');
+  expect(alert).toBeTruthy();
+  expect(alert!.className).toContain('bg-rose-950/40');
+  expect(alert!.className).toContain('text-rose-300');
+  const retryBtn = alert!.querySelector('button')!;
+  expect(retryBtn.className).toContain('bg-rose-800');
+  expect(retryBtn.className).toContain('text-white');
+  expect(retryBtn.className).toContain('focus-visible:ring-2');
+});
+

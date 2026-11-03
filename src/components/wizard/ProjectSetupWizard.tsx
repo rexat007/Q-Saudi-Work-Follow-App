@@ -71,7 +71,11 @@ import {
   HelpCircle,
   FileText,
   UserCheck,
-  LayoutDashboard
+  LayoutDashboard,
+  RotateCcw,
+  Clock,
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { useI18n } from '../../i18n';
 import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity } from '../../types/entities';
@@ -5146,14 +5150,101 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </div>
 
               {rosterConfirmation.dialog}
-              {isProcessing && <p role="status" aria-live="polite">{t('shared.status.loading')}</p>}
-              {importError && <p role="alert" className="break-words text-rose-300">{importError}</p>}
-              {smartImportCommitError && rosterImportStage !== 'FINAL_REVIEW' && rosterImportStage !== 'COMMIT_RESULT' && <p role="alert" className="break-words text-rose-300">{/^[A-Z][A-Z0-9_]+$/.test(smartImportCommitError) ? t(intentIssueKey(smartImportCommitError)) : smartImportCommitError}</p>}
-              {importSessionRecoveryError && <div role="alert" className="p-3 text-rose-400"><p>{importSessionRecoveryError}</p>
-                {rosterReconnectNeeded ? <button disabled={isProcessing} onClick={restoreRosterAfterReconnect}>{t('shared.error_boundary.retry')}</button> : importSessionVersion < 0 ? <button onClick={() => window.location.reload()}>{t('shared.error_boundary.reload')}</button> : (pendingRosterCheckpoint.current || pendingRosterRestore.current) ? <button disabled={isProcessing} onClick={retryRosterCheckpoint}>{t('shared.error_boundary.retry')}</button> : rosterSelectedFile && rosterBuffer && rosterDiscoveryResult ? <button disabled={isProcessing} onClick={async () => { try { await acceptRosterSource(rosterSelectedFile,rosterBuffer,rosterDiscoveryResult); setRosterImportStage('MAPPING_APPROVAL'); } catch { /* Retry remains available. */ } }}>{t('shared.error_boundary.retry')}</button> : null}
-              </div>}
-              {durableSessionRef.current?.sourceType === 'GOOGLE_SHEETS' && !rosterSheetValues && !importBatch && !rosterRecoveryVisible && <button disabled={isProcessing} onClick={handleSyncRosterFromSheet}>{t('entityResolution.labels.refresh_data')}</button>}
-              {requiresRosterSourceReattach && (durableSessionRef.current?.schemaVersion !== 2 ? <div role="status" className="p-3 text-amber-400"><p>{t('projects.batch4.import_restore_invalid')}</p><button onClick={async () => { if(await handleCancelRosterImport()) {setIsSmartImportOpen(true);setRosterImportStage('SOURCE_DISCOVERY');} }}>{t('entityResolution.labels.reset_new_file')}</button></div> : <label className="block p-3 text-amber-400">{t('entityResolution.messages.review_session_resumed')}<input aria-label={t('entityResolution.labels.reattach_file')} type="file" accept=".csv,.xls,.xlsx" onChange={e => { const file=e.target.files?.[0]; if(file) void processRosterFile(file); }} /></label>)}
+              {isProcessing && (
+                <div role="status" aria-live="polite" className="flex items-center gap-2 p-3 rounded-xl bg-stone-900 border border-stone-800 text-stone-300 text-xs font-mono">
+                  <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                  <span>{t('shared.status.loading')}</span>
+                </div>
+              )}
+              {importError && (
+                <div role="alert" className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/40 text-rose-300 text-xs break-words flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <span>{importError}</span>
+                </div>
+              )}
+              {smartImportCommitError && rosterImportStage !== 'FINAL_REVIEW' && rosterImportStage !== 'COMMIT_RESULT' && (
+                <div role="alert" className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/40 text-rose-300 text-xs break-words flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <span>{/^[A-Z][A-Z0-9_]+$/.test(smartImportCommitError) ? t(intentIssueKey(smartImportCommitError)) : smartImportCommitError}</span>
+                </div>
+              )}
+              {importSessionRecoveryError && (
+                <div role="alert" className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/40 text-rose-300 text-xs space-y-2">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <p className="font-sans text-rose-200">{importSessionRecoveryError}</p>
+                  </div>
+                  {rosterReconnectNeeded ? (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={restoreRosterAfterReconnect}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/50 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                    >
+                      {t('shared.error_boundary.retry')}
+                    </button>
+                  ) : importSessionVersion < 0 ? (
+                    <button
+                      type="button"
+                      onClick={() => window.location.reload()}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                    >
+                      {t('shared.error_boundary.reload')}
+                    </button>
+                  ) : (pendingRosterCheckpoint.current || pendingRosterRestore.current) ? (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={retryRosterCheckpoint}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/50 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                    >
+                      {t('shared.error_boundary.retry')}
+                    </button>
+                  ) : rosterSelectedFile && rosterBuffer && rosterDiscoveryResult ? (
+                    <button
+                      type="button"
+                      disabled={isProcessing}
+                      onClick={async () => { try { await acceptRosterSource(rosterSelectedFile,rosterBuffer,rosterDiscoveryResult); setRosterImportStage('MAPPING_APPROVAL'); } catch { /* Retry remains available. */ } }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/50 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                    >
+                      {t('shared.error_boundary.retry')}
+                    </button>
+                  ) : null}
+                </div>
+              )}
+              {durableSessionRef.current?.sourceType === 'GOOGLE_SHEETS' && !rosterSheetValues && !importBatch && !rosterRecoveryVisible && (
+                <button
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={handleSyncRosterFromSheet}
+                  className="px-3 py-2 rounded-xl text-xs font-bold bg-stone-850 hover:bg-stone-800 text-stone-200 border border-stone-700/60 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                >
+                  {t('entityResolution.labels.refresh_data')}
+                </button>
+              )}
+              {requiresRosterSourceReattach && (durableSessionRef.current?.schemaVersion !== 2 ? (
+                <div role="status" className="p-3 rounded-xl bg-amber-950/60 border border-amber-800/40 text-amber-300 text-xs space-y-2">
+                  <p className="font-sans text-amber-200">{t('projects.batch4.import_restore_invalid')}</p>
+                  <button
+                    type="button"
+                    onClick={async () => { if(await handleCancelRosterImport()) {setIsSmartImportOpen(true);setRosterImportStage('SOURCE_DISCOVERY');} }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-900/60 hover:bg-amber-800 text-amber-200 border border-amber-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                  >
+                    {t('entityResolution.labels.reset_new_file')}
+                  </button>
+                </div>
+              ) : (
+                <label className="block p-3 rounded-xl bg-amber-950/60 border border-amber-800/40 text-amber-300 text-xs space-y-1 cursor-pointer">
+                  <span className="block font-sans text-amber-200 font-semibold">{t('entityResolution.messages.review_session_resumed')}</span>
+                  <input
+                    aria-label={t('entityResolution.labels.reattach_file')}
+                    type="file"
+                    accept=".csv,.xls,.xlsx"
+                    onChange={e => { const file=e.target.files?.[0]; if(file) void processRosterFile(file); }}
+                    className="block w-full text-xs text-stone-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border file:border-stone-700 file:text-xs file:font-mono file:bg-stone-800 file:text-stone-200 hover:file:bg-stone-700 cursor-pointer"
+                  />
+                </label>
+              ))}
               {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
               <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-stone-800">
                 {ROSTER_STAGE_DEFINITIONS.map((def, idx) => {
@@ -5445,26 +5536,136 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                 </div>
               )}
 
-              {rosterRecoveryVisible && <section aria-label={t('import.recovery.title')} className="space-y-3 rounded-xl border p-4">
-                <h3>{t('import.recovery.title')}</h3>
-                <p role="status">{t(`import.recovery.${rosterExecution?.operation.state || (durableSessionRef.current?.lifecycleState === 'COMMITTED' ? 'COMPLETED' : 'CANCELLED')}`)}</p>
-                {rosterExecution && <>
-                  <p>{t('import.recovery.completed')}: {rosterExecution.operation.completedConsequences} / {rosterExecution.operation.consequenceCount}</p>
-                  <p>{t('import.recovery.remaining')}: {rosterExecution.operation.consequenceCount - rosterExecution.operation.completedConsequences}</p>
-                  <ul aria-label={t('import.recovery.completed')}>{rosterExecution.completed.flatMap(r => r.consequences).map(c => <li key={c.id}>{c.subject}{c.target ? ` → ${c.target}` : ''}</li>)}</ul>
-                  <ul aria-label={t('import.recovery.remaining')}>{rosterExecution.remaining.flatMap(r => r.consequences).map(c => <li key={c.id}>{c.subject}{c.target ? ` → ${c.target}` : ''}</li>)}</ul>
-                  {rosterExecution.retryAllowed && !rosterExecution.reviewRequired && <button disabled={isProcessing} onClick={() => void requestRosterExecution('retry')}>{t('shared.error_boundary.retry')}</button>}
-                  {!['COMPLETED','CANCELLED'].includes(rosterExecution.operation.state) && <button disabled={isProcessing} onClick={() => void requestRosterExecution('cancel')}>{t('entityResolution.labels.cancel_import')}</button>}
-                  <button disabled={isProcessing} onClick={() => void requestRosterExecution('status')}>{t('entityResolution.labels.refresh_data')}</button>
-                  {rosterExecution.operation.state === 'COMPLETED' && <button disabled={isProcessing} onClick={() => void requestRosterExecution('refresh')}>{t('setup.retry')}</button>}
-                </>}
-                {smartImportCommitError && <p role="alert">{/^[A-Z][A-Z0-9_]+$/.test(smartImportCommitError) ? t(intentIssueKey(smartImportCommitError)) : smartImportCommitError}</p>}
-                {projectDataLoadError && <p role="alert">{projectDataLoadError}</p>}
-                <button onClick={() => {
-                  if (['COMPLETED','CANCELLED'].includes(rosterExecution?.operation.state || '') || ['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState || '')) handleResetRosterImport();
-                  setIsSmartImportOpen(false);
-                }}>{t('entityResolution.labels.finish_import')}</button>
-              </section>}
+              {rosterRecoveryVisible && (
+                <section aria-label={t('import.recovery.title')} className="space-y-4 rounded-2xl border border-stone-800 bg-stone-900/90 p-5 shadow-2xl backdrop-blur-md">
+                  <div className="flex items-center justify-between gap-3 border-b border-stone-800 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                        <RotateCcw className="w-4 h-4" />
+                      </div>
+                      <h3 className="text-sm font-bold text-white tracking-wide">{t('import.recovery.title')}</h3>
+                    </div>
+                    <span role="status" className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-stone-800 text-stone-300 border border-stone-700/60">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      {t(`import.recovery.${rosterExecution?.operation.state || (durableSessionRef.current?.lifecycleState === 'COMMITTED' ? 'COMPLETED' : 'CANCELLED')}`)}
+                    </span>
+                  </div>
+
+                  {rosterExecution && (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-xl bg-stone-950/70 border border-stone-800">
+                          <p className="text-[11px] font-mono text-stone-400 uppercase tracking-wider">{t('import.recovery.completed')}</p>
+                          <p className="text-lg font-mono font-bold text-emerald-400 mt-1">
+                            {rosterExecution.operation.completedConsequences} <span className="text-xs text-stone-500">/ {rosterExecution.operation.consequenceCount}</span>
+                          </p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-950/70 border border-stone-800">
+                          <p className="text-[11px] font-mono text-stone-400 uppercase tracking-wider">{t('import.recovery.remaining')}</p>
+                          <p className="text-lg font-mono font-bold text-amber-400 mt-1">
+                            {rosterExecution.operation.consequenceCount - rosterExecution.operation.completedConsequences}
+                          </p>
+                        </div>
+                      </div>
+
+                      {rosterExecution.completed.flatMap(r => r.consequences).length > 0 && (
+                        <div className="space-y-1.5">
+                          <p className="text-xs font-semibold text-stone-400">{t('import.recovery.completed')}</p>
+                          <ul aria-label={t('import.recovery.completed')} className="max-h-32 overflow-y-auto space-y-1 p-2.5 rounded-xl bg-stone-950/90 border border-stone-850 font-mono text-xs text-stone-300">
+                            {rosterExecution.completed.flatMap(r => r.consequences).map(c => (
+                              <li key={c.id} className="flex items-center gap-1.5 py-0.5 text-emerald-300/90">
+                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                <span className="truncate">{c.subject}{c.target ? ` → ${c.target}` : ''}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {rosterExecution.remaining.flatMap(r => r.consequences).length > 0 && (
+                        <div className="space-y-1.5">
+                          <p className="text-xs font-semibold text-stone-400">{t('import.recovery.remaining')}</p>
+                          <ul aria-label={t('import.recovery.remaining')} className="max-h-32 overflow-y-auto space-y-1 p-2.5 rounded-xl bg-stone-950/90 border border-stone-850 font-mono text-xs text-stone-300">
+                            {rosterExecution.remaining.flatMap(r => r.consequences).map(c => (
+                              <li key={c.id} className="flex items-center gap-1.5 py-0.5 text-amber-300/90">
+                                <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                <span className="truncate">{c.subject}{c.target ? ` → ${c.target}` : ''}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      <div className="flex flex-wrap items-center gap-2 pt-2">
+                        {rosterExecution.retryAllowed && !rosterExecution.reviewRequired && (
+                          <button
+                            type="button"
+                            disabled={isProcessing}
+                            onClick={() => void requestRosterExecution('retry')}
+                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-500 text-stone-950 shadow-sm transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
+                          >
+                            {t('shared.error_boundary.retry')}
+                          </button>
+                        )}
+                        {!['COMPLETED','CANCELLED'].includes(rosterExecution.operation.state) && (
+                          <button
+                            type="button"
+                            disabled={isProcessing}
+                            onClick={() => void requestRosterExecution('cancel')}
+                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-800 hover:bg-stone-750 text-rose-300 border border-rose-900/40 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                          >
+                            {t('entityResolution.labels.cancel_import')}
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          disabled={isProcessing}
+                          onClick={() => void requestRosterExecution('status')}
+                          className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700/60 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                        >
+                          {t('entityResolution.labels.refresh_data')}
+                        </button>
+                        {rosterExecution.operation.state === 'COMPLETED' && (
+                          <button
+                            type="button"
+                            disabled={isProcessing}
+                            onClick={() => void requestRosterExecution('refresh')}
+                            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-800 hover:bg-stone-750 text-stone-200 border border-stone-700/60 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                          >
+                            {t('setup.retry')}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {smartImportCommitError && (
+                    <div role="alert" className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/40 text-rose-300 text-xs flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <span>{/^[A-Z][A-Z0-9_]+$/.test(smartImportCommitError) ? t(intentIssueKey(smartImportCommitError)) : smartImportCommitError}</span>
+                    </div>
+                  )}
+                  {projectDataLoadError && (
+                    <div role="alert" className="p-3 rounded-xl bg-rose-950/60 border border-rose-800/40 text-rose-300 text-xs flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      <span>{projectDataLoadError}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-stone-800 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (['COMPLETED','CANCELLED'].includes(rosterExecution?.operation.state || '') || ['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState || '')) handleResetRosterImport();
+                        setIsSmartImportOpen(false);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-stone-950 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                    >
+                      {t('entityResolution.labels.finish_import')}
+                    </button>
+                  </div>
+                </section>
+              )}
               {/* STAGE 7: COMMIT_RESULT */}
               {importBatch && !rosterRecoveryVisible && rosterImportStage === 'COMMIT_RESULT' && (
                 <div>

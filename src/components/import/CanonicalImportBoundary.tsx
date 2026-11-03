@@ -24,8 +24,9 @@ export function CanonicalImportBoundary({ projectId, owner, children }: { projec
   useEffect(()=>{void reload().catch(()=>{});},[reload]);
   const current=()=>life.isCurrent(token,projectId);
   return <div aria-busy={loading}>
-    {loading&&<p role="status">{t('shared.status.loading')}</p>}
-    {error&&<div role="alert">{t(error!)}<button type="button" onClick={()=>void reload().catch(()=>{})}>{t('setup.retry')}</button></div>}
+    {loading&&<p role="status" className="p-3 text-stone-400 text-xs font-mono">{t('shared.status.loading')}</p>}
+    {error&&<div role="alert" className="p-3 my-2 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-center justify-between gap-3 font-mono"><span>{t(error!)}</span><button type="button" className="px-3 py-1 rounded-lg bg-rose-800 hover:bg-rose-700 text-white text-xs font-bold shrink-0 transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-400" onClick={()=>void reload().catch(()=>{})}>{t('setup.retry')}</button></div>}
     {context&&accepted.current&&life.isCurrent(accepted.current,projectId)&&context.projectId===projectId&&<fieldset className="min-w-0 border-0 p-0" disabled={loading||Boolean(error)}>{children(context,reload,current)}</fieldset>}
   </div>;
 }
+

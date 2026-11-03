@@ -28,33 +28,33 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
   const counts = ['PREPARE_NEW', 'REUSE', 'ASSIGN', 'REASSIGN', 'ALLOCATE', 'REALLOCATE', 'NO_CHANGE'].map(action => ({ action, count: intent.entityConsequences.filter(c => c.action === action).length + intent.assignmentIntents.filter(a => a.action === action).length + intent.allocationIntents.filter(a => a.action === action).length })).filter(item => item.count > 0);
   return <section className="space-y-4 rounded-2xl border border-stone-700 bg-stone-900 p-4 text-stone-100 min-w-0" aria-label={t('intent.title')}>
     <h3 className="text-lg font-bold">{t('intent.title')}</h3>
-    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      {(['read', 'contributing', 'excluded', 'blocked'] as const).map((key, index) => <div key={key}><dt>{t(`intent.count.${key}`)}</dt><dd className="font-bold">{index === 0 ? intent.rowDecisions.length : intent.rowDecisions.filter(r => r.status === ['', 'CONTRIBUTING', 'EXCLUDED', 'BLOCKED'][index]).length}</dd></div>)}
+    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-950/80 p-3 rounded-xl border border-stone-850">
+      {(['read', 'contributing', 'excluded', 'blocked'] as const).map((key, index) => <div key={key} className="space-y-0.5"><dt className="text-stone-400 text-xs font-medium">{t(`intent.count.${key}`)}</dt><dd className="font-mono text-base font-bold text-white">{index === 0 ? intent.rowDecisions.length : intent.rowDecisions.filter(r => r.status === ['', 'CONTRIBUTING', 'EXCLUDED', 'BLOCKED'][index]).length}</dd></div>)}
     </dl>
-    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3">{counts.map(item => <div key={item.action}><dt>{action(item.action)}</dt><dd className="font-bold">{item.count}</dd></div>)}</dl>
+    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-950/80 p-3 rounded-xl border border-stone-850">{counts.map(item => <div key={item.action} className="space-y-0.5"><dt className="text-stone-400 text-xs font-medium">{action(item.action)}</dt><dd className="font-mono text-base font-bold text-amber-400">{item.count}</dd></div>)}</dl>
     <div className="grid sm:grid-cols-2 gap-3">
-      <section><h4 className="font-bold">{t('intent.identities')}</h4>{identityPage.pager}{identityPage.visible.map((c, i) => {
+      <section className="space-y-2"><h4 className="font-bold text-stone-200 text-sm">{t('intent.identities')}</h4>{identityPage.pager}{identityPage.visible.map((c, i) => {
         const e = identities.get(c.key)!;
-        return <div key={`${c.key}:${c.action}:${i}`} className="p-3 border-b border-stone-700 break-words"><span className="font-semibold">{e.label}</span> · {action(c.action)}{e.prepared && <span> · {t(`intent.new.${e.kind}`)}</span>}<p>{rows(c.rowNumbers)}{c.completed && <> · {t('intent.completed')}</>}</p></div>;
+        return <div key={`${c.key}:${c.action}:${i}`} className="p-3 border-b border-stone-800 break-words hover:bg-stone-850/40 rounded-lg transition-colors"><span className="font-semibold text-white">{e.label}</span> <span className="text-stone-400">· {action(c.action)}</span>{e.prepared && <span className="text-amber-400 font-medium"> · {t(`intent.new.${e.kind}`)}</span>}<p className="mt-1">{rows(c.rowNumbers)}{c.completed && <span className="text-emerald-400 font-medium"> · {t('intent.completed')}</span>}</p></div>;
       })}</section>
-      <section><h4 className="font-bold">{t('intent.relationships')}</h4>
-        {assignmentPage.pager}{assignmentPage.visible.map(a => <article key={`assignment:${a.driverId}:${a.truckId}`} className="p-3 border-b border-stone-700 break-words">
-          <p className="font-semibold">{action(a.action)}</p><p>{t('intent.driver')}: {label('DRIVER', a.driverId)}</p><p>{t('intent.truck')}: {label('TRUCK', a.truckId)}</p>{rows(a.rowNumbers)}
-          {a.displaced.map(d => <p key={d.assignmentId} className="mt-2 text-amber-300">{t('intent.displaced')}: {t('intent.driver')} {label('DRIVER', d.driverId)}; {t('intent.truck')} {label('TRUCK', d.truckId)}</p>)}
+      <section className="space-y-2"><h4 className="font-bold text-stone-200 text-sm">{t('intent.relationships')}</h4>
+        {assignmentPage.pager}{assignmentPage.visible.map(a => <article key={`assignment:${a.driverId}:${a.truckId}`} className="p-3 border-b border-stone-800 break-words hover:bg-stone-850/40 rounded-lg transition-colors">
+          <p className="font-semibold text-amber-400">{action(a.action)}</p><p className="text-stone-300">{t('intent.driver')}: <span className="text-white font-mono">{label('DRIVER', a.driverId)}</span></p><p className="text-stone-300">{t('intent.truck')}: <span className="text-white font-mono">{label('TRUCK', a.truckId)}</span></p>{rows(a.rowNumbers)}
+          {a.displaced.map(d => <p key={d.assignmentId} className="mt-2 text-amber-300 font-mono text-xs">{t('intent.displaced')}: {t('intent.driver')} {label('DRIVER', d.driverId)}; {t('intent.truck')} {label('TRUCK', d.truckId)}</p>)}
         </article>)}
-        {allocationPage.pager}{allocationPage.visible.map(a => <article key={`allocation:${a.truckId}:${a.materialId}`} className="p-3 border-b border-stone-700 break-words">
-          <p className="font-semibold">{action(a.action)}</p><p>{t('intent.truck')}: {label('TRUCK', a.truckId)}</p><p>{t('intent.material')}: {label('MATERIAL', a.materialId)}</p>{rows(a.rowNumbers)}
-          {a.displaced && <p className="mt-2 text-amber-300">{t('intent.currentMaterial')}: {label('MATERIAL', a.displaced.materialId)}</p>}
+        {allocationPage.pager}{allocationPage.visible.map(a => <article key={`allocation:${a.truckId}:${a.materialId}`} className="p-3 border-b border-stone-800 break-words hover:bg-stone-850/40 rounded-lg transition-colors">
+          <p className="font-semibold text-amber-400">{action(a.action)}</p><p className="text-stone-300">{t('intent.truck')}: <span className="text-white font-mono">{label('TRUCK', a.truckId)}</span></p><p className="text-stone-300">{t('intent.material')}: <span className="text-white font-mono">{label('MATERIAL', a.materialId)}</span></p>{rows(a.rowNumbers)}
+          {a.displaced && <p key={a.displaced.allocationId} className="mt-2 text-amber-300 font-mono text-xs">{t('intent.currentMaterial')}: {label('MATERIAL', a.displaced.materialId)}</p>}
         </article>)}
       </section>
     </div>
-    {intent.blockers.length > 0 && <div role="alert" className="rounded-xl border border-rose-700 p-3"><h4>{t('intent.blockers')}</h4>{intent.blockers.map((b, i) => <p key={i}>{t(intentIssueKey(b.code))} · {rows(b.rowNumbers)}</p>)}</div>}
-    {intent.requiresDisplacementApproval && <label className="flex items-start gap-2 p-3 border border-amber-600 rounded-xl"><input type="checkbox" checked={approved === intent.signature} disabled={busy || intent.blockers.length > 0} onChange={e => setApproved(e.target.checked ? intent.signature : undefined)} /><span>{t('intent.confirm')}</span></label>}
-    {error && <p role="alert">{t(intentIssueKey(error))}</p>}
+    {intent.blockers.length > 0 && <div role="alert" className="rounded-xl border border-rose-800/80 bg-rose-950/40 p-4 space-y-2 text-rose-300 text-xs"><h4 className="font-bold text-rose-200 text-sm">{t('intent.blockers')}</h4>{intent.blockers.map((b, i) => <p key={i} className="font-mono">{t(intentIssueKey(b.code))} · {rows(b.rowNumbers)}</p>)}</div>}
+    {intent.requiresDisplacementApproval && <label className="flex items-start gap-2.5 p-3.5 border border-amber-600/70 bg-amber-950/30 rounded-xl cursor-pointer text-amber-200 text-xs font-medium"><input type="checkbox" checked={approved === intent.signature} disabled={busy || intent.blockers.length > 0} onChange={e => setApproved(e.target.checked ? intent.signature : undefined)} className="w-4 h-4 rounded-sm border-amber-600 bg-stone-900 text-amber-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 mt-0.5" /><span>{t('intent.confirm')}</span></label>}
+    {error && <p role="alert" className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-mono">{t(intentIssueKey(error))}</p>}
     <p className="text-xs text-stone-400">{t('intent.handoff')}</p>
-    <div className="flex flex-wrap gap-2 justify-end">
-      {onBack && <button type="button" disabled={busy} onClick={onBack} className="rounded-xl bg-stone-700 px-4 py-2">{t('entityResolution.labels.return_to_correction')}</button>}
-      <button type="button" disabled={busy || !ready} onClick={() => void onAccept(intent.signature, approved)} className="rounded-xl bg-amber-600 px-4 py-2 disabled:opacity-40">{t('intent.accept')}</button>
+    <div className="flex flex-wrap gap-2 justify-end pt-2 border-t border-stone-800">
+      {onBack && <button type="button" disabled={busy} onClick={onBack} className="rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white px-4 py-2 text-xs font-bold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-stone-400">{t('entityResolution.labels.return_to_correction')}</button>}
+      <button type="button" disabled={busy || !ready} onClick={() => void onAccept(intent.signature, approved)} className="rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-5 py-2 text-xs disabled:bg-stone-800 disabled:text-stone-400 disabled:opacity-40 transition-colors shadow-md shadow-amber-950/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400">{t('intent.accept')}</button>
     </div>
   </section>;
 }

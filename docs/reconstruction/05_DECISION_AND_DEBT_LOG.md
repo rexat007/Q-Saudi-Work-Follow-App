@@ -1,3 +1,16 @@
+## Smart Import Dark Contrast Family Closure — 2026-11-03
+
+Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `ba20e2b069d105eae46740932d257ef9d954c645`. [Evidence and live acceptance gates](LIVE_INTAKE_CONTINUITY_CONTRACT.md).
+
+- RESOLVED_IN_SOURCE: complete family-wide dark contrast audit closed remaining unstyled controls, inherited low-contrast text on dark backgrounds, and recovery surfaces across all Smart Import wizard and modal layers.
+- RESOLVED_IN_SOURCE: `rosterRecoveryVisible` in `ProjectSetupWizard.tsx` (the live-proven defect surface) completely restyled with explicit dark palette (`bg-stone-900/90`, `border-stone-800`), status indicator chips, completed/remaining consequence metric cards, scrollable consequence lists, and accessible focus-visible action buttons.
+- RESOLVED_IN_SOURCE: `CanonicalImportBoundary.tsx`, `CanonicalResolutionDecision.tsx`, `ContextualCanonicalCreation.tsx`, `GlobalRegistryEnrollment.tsx`, `ImportConfirmation.tsx`, `ImportGroupPage.tsx`, and `RosterSemanticReview.tsx` now define explicit background, foreground, border, hover, and focus-visible contracts.
+- PRESERVED: PR #89 contrast remediation in `ImportMaterialSelection.tsx` and `RosterBulkApproval.tsx` preserved without modification or regression.
+- PRESERVED: zero business logic, canonical pipeline, durable session, or identity authority changes.
+- STILL_OPEN: live browser visual acceptance across diverse mobile/desktop displays.
+
+This unit authorizes local changes only. No push/PR/merge or live resource mutation is performed.
+
 ## Smart Import resume-stage reconciliation and shared contrast — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Starting verified main `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`, merged PR #88. [Evidence and live acceptance gates](LIVE_INTAKE_CONTINUITY_CONTRACT.md).

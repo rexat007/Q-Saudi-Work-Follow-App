@@ -2,6 +2,26 @@
 
 Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Historical implementation evidence baseline: `637b7d54429ac586e101689deae35e013a9eab77`, merged PR #86. This is a bounded correction of the existing operational Roster and account-availability journey, not another phase or a Workspace/Trips/Reports redesign.
 
+## Smart Import Dark Contrast Family Audit & Closure — 2026-11-03
+
+Baseline commit: `ba20e2b069d105eae46740932d257ef9d954c645`. Source integrity audited: 1,359 files exact match.
+
+### Verified Surfaces and Remediations:
+- `rosterRecoveryVisible` in `ProjectSetupWizard.tsx`: Remediated the unstyled recovery presentation (the live-proven defect surface). Restyled with explicit dark palette (`bg-stone-900/90`, `border-stone-800`), status indicator chips, completed/remaining consequence metric cards, scrollable consequence lists, and accessible focus-visible action buttons. Inline status messages, recovery alert retry buttons, and sheet sync controls styled.
+- `CanonicalImportBoundary.tsx`: Styled loading indicator (`text-stone-400 font-mono`) and fatal error alert banner with high-contrast retry action.
+- `CanonicalResolutionDecision.tsx`: Styled candidate select dropdown (`bg-stone-900 text-stone-200 border-stone-700`), search input, entity detail cards, and alert notifications.
+- `ContextualCanonicalCreation.tsx`: Styled permission-denied banner (`bg-stone-900 border-amber-800/40 text-amber-400`), modal overlay, and action buttons.
+- `GlobalRegistryEnrollment.tsx`: Styled global entity search input, lookup button, candidate chip, and enrollment action.
+- `ImportConfirmation.tsx`: Styled modal confirmation dialog, backdrop overlay, cancel and confirmation actions.
+- `ImportGroupPage.tsx`: Styled pagination navigation bar, previous/next controls, and page counter indicator.
+- `RosterSemanticReview.tsx`: Styled definition lists, count metrics, identity items, relationship items, blocker alerts, displacement confirmation checkbox, and review actions.
+
+Preserved:
+- PR #89 contrast remediation in `ImportMaterialSelection.tsx` and `RosterBulkApproval.tsx` preserved without modification or regression.
+- Zero business logic changes across all components.
+- Zero alterations to durable session lifecycle or canonical pipeline mechanics.
+- Expanded regression coverage in `src/tests/smartImportSharedContrast.test.tsx` (20/20 PASS).
+
 ## Current live evidence and bounded remediation — 2026-11-03
 
 Starting verified merged main: `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`. PR #88 = MERGED / SOURCE_VERIFIED, merge SHA `0f1c6b841da168dc4464c17cbd9f5096fef5e32d`. Workspace quiescence = SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED. Its earlier local-commit-only boundary describes historical execution, not current publication. [Quiescence source model and remaining live test](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md).

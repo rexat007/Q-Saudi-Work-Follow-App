@@ -1,6 +1,34 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
+### Smart Import Dark Contrast Family — Full Audit & Closure — 2026-11-03
+
+CURRENT_CODE_BASELINE: `ba20e2b069d105eae46740932d257ef9d954c645` — verified main; source integrity audited (1359 tracked files matched).
+WORKING_BRANCH: `reconstruction/smart-import-dark-contrast-family-closure`.
+SMART_IMPORT_DARK_CONTRAST_FAMILY: SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+PR_89_CONTRAST_FIX: PARTIAL_LIVE_PASS (Material/Bulk components verified; unstyled recovery & sibling controls remediated in current family closure).
+FINAL_REVIEW_LIVE_ACCEPTANCE: NOT_COMPLETE.
+WORKSPACE_QUIESCENCE_LIVE_RETEST: STILL_REQUIRED.
+PHASE_10: NOT_STARTED.
+PUBLICATION: NOT_STARTED; no push, PR or merge.
+NEXT_ACTION: OWNER_REVIEW_AND_LIVE_RETEST.
+
+Surfaces remediated in family closure:
+- `ProjectSetupWizard.tsx`: `rosterRecoveryVisible` section (live-proven defect surface) completely restyled with dark palette (`bg-stone-900/90`, `border-stone-800`), status indicator chips, completed/remaining consequence metric cards, scrollable consequence lists, and accessible focus-visible action buttons; inline statuses, alert banners, and sheet sync controls styled.
+- `CanonicalImportBoundary.tsx`: loading indicator and fatal error boundary retry banner.
+- `CanonicalResolutionDecision.tsx`: candidate select dropdown, search input, actions, entity detail panels, alert feedback.
+- `ContextualCanonicalCreation.tsx`: permission-denied banner, modal overlay, action buttons.
+- `GlobalRegistryEnrollment.tsx`: global entity search input, lookup button, candidate chip, enrollment action.
+- `ImportConfirmation.tsx`: modal confirmation dialog, backdrop overlay, cancel and confirmation actions.
+- `ImportGroupPage.tsx`: pagination navigation bar, previous/next controls, page counter indicator.
+- `RosterSemanticReview.tsx`: definition lists, count metrics, identity items, relationship items, blocker alerts, displacement confirmation checkbox, review actions.
+
+Preserved:
+- Zero business logic changes across all components.
+- Zero alterations to PR #89 contrast remediation in `ImportMaterialSelection.tsx` and `RosterBulkApproval.tsx`.
+- Durable session lifecycle, canonical resolution, and reviewed intent mechanisms preserved.
+- Local regression coverage expanded in `src/tests/smartImportSharedContrast.test.tsx` (20/20 PASS).
+
 ### Smart Import resume-stage reconciliation / shared contrast — 2026-11-03
 
 CURRENT_CODE_BASELINE: `0f1c6b841da168dc4464c17cbd9f5096fef5e32d` — verified merged main, PR #88; clean starting worktree.
