@@ -10,6 +10,7 @@ export function commandDatabase(initial: Record<string, any>) {
     orderBy: (_field:any) => reference(path,filters,limit,true,after),
     startAfter: (id:string) => reference(path,filters,limit,ordered,id),
     get: async () => snapshot({ path, filters, max: limit, ordered, after }),
+    count: () => ({ get: async () => ({ data: () => ({ count: snapshot({path,filters,max:limit,ordered,after}).docs.length }) }) }),
   });
   const snapshot = (ref: any): any => {
     // Document paths have an even segment count; query paths are collections.

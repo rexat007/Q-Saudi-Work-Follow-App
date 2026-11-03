@@ -1,0 +1,31 @@
+import {it,expect,vi} from 'vitest';
+import type {GoogleTemplatePort,GoogleBlueprintPort} from '../services/projectGoogleWorkspace.server';
+import {workspaceEnsureFixture,ensurePath} from './helpers/workspaceEnsureFixture';
+import {operationActor} from './helpers/operationalProfileFixture';
+import {countWorkspaceOperations} from './helpers/workspaceOperationCounters';
+import {WorkspaceSyncCoordinator} from '../../server/workspaceSyncCoordinator';
+import {markDirtyInTransaction,getState} from '../services/projectWorkspaceProjectionState.server';
+function deliveryPort(x:ReturnType<typeof workspaceEnsureFixture>){return x.port as unknown as GoogleTemplatePort & Partial<GoogleBlueprintPort>;}
+async function ready(){const x=workspaceEnsureFixture(),counter=countWorkspaceOperations(x.db);await x.prepare();expect((await x.run()).state).toBe('READY');counter.reset();return {...x,counter};}
+function history(x:Awaited<ReturnType<typeof ready>>,n:number){for(const key of Object.keys(x.store))if(key.includes('/workspace_sync_outbox/'))delete x.store[key];for(let i=0;i<n;i++)x.store[`projects/P1/workspace_sync_outbox/H${i}`]={projectId:'P1',status:'DELIVERED',deliveredAt:'historical'};}
+it.each([10,1000,10000])('healthy idle status/retry with %s delivered events does not read/write history or call Google',async n=>{
+ const x=await ready();history(x,n);const before=structuredClone(x.store);x.port.verifyBinding.mockClear();x.port.projectProfileReports.mockClear();
+ for(let i=0;i<4;i++){expect((await x.service().status('P1',operationActor)).pendingSyncCount).toBe(0);expect((await x.engine().observe('P1',operationActor)).state).toBe('READY');await x.service().retrySync('P1',operationActor,deliveryPort(x),true);}
+ const count=x.counter.snapshot();expect(count.writes).toBe(0);expect(count.queryDocs).toBe(0);expect(count.aggregations).toBeGreaterThan(0);expect(count.pointReads).toBeLessThan(150);expect(x.store).toEqual(before);expect(x.port.verifyBinding).not.toHaveBeenCalled();expect(x.port.projectProfileReports).not.toHaveBeenCalled();
+});
+it.each([10,1000,10000])('one pending event has a history-independent operation budget with %s delivered',async n=>{
+ const x=await ready();history(x,n);x.store['projects/P1/workspace_sync_outbox/P']={projectId:'P1',revision:1,status:'PENDING',input:{projectId:'P1'}};const prior=structuredClone(x.store['projects/P1/workspace_sync_outbox/H0']);const upsert=vi.fn(async()=>{});Object.assign(x.port,{upsert});
+ expect((await x.service().status('P1',operationActor)).pendingSyncCount).toBe(1);await x.service().retrySync('P1',operationActor,deliveryPort(x),true);
+ const c=x.counter.snapshot();expect(c.queryDocs).toBeLessThanOrEqual(3);expect(c.pointReads).toBeLessThan(60);expect(c.writes).toBeLessThanOrEqual(8);expect(upsert).toHaveBeenCalledOnce();expect(x.store['projects/P1/workspace_sync_outbox/H0']).toEqual(prior);expect(x.store['projects/P1/workspace_sync_outbox/P'].status).toBe('DELIVERED');
+ x.counter.reset();await x.service().retrySync('P1',operationActor,deliveryPort(x),true);expect(x.counter.snapshot().writes).toBe(0);expect(upsert).toHaveBeenCalledOnce();
+});
+it('a healthy explicit Verify still checks provider/binding while avoiding redundant phase/lease writes',async()=>{const x=await ready();x.port.verifyBinding.mockClear();x.port.verifyAutomation.mockClear();expect((await x.run()).state).toBe('READY');expect(x.port.verifyBinding).toHaveBeenCalled();expect(x.port.verifyAutomation).toHaveBeenCalled();expect(x.counter.snapshot().writes).toBeLessThan(40);});
+it('zero-work actor pass writes at most claim/release independently of eligible-grant history',async()=>{
+ const x=await ready(),s=x.store[ensurePath],id=s.backgroundAuthorizationId;for(let n=2;n<=10;n++){const projectId=`P${n}`,grantId=`G${n}`;x.store['projects/'+projectId]={...x.store['projects/P1'],projectId};x.store[`projects/${projectId}/workspace_continuity/current`]={...structuredClone(s),projectId,backgroundAuthorizationId:grantId,binding:{...s.binding,projectId,spreadsheetId:`sheet-${n}`}};x.store['workspace_google_authorizations/'+grantId]={...structuredClone(x.store['workspace_google_authorizations/'+id]),projectId,spreadsheetId:`sheet-${n}`,authorizationId:grantId};}
+ const actor=new WorkspaceSyncCoordinator(x.authorization,x.db,()=>x.port as any);const pass=await actor.runForActor(operationActor);expect(pass.attempted).toBe(0);expect(pass.examined).toBe(10);expect(x.counter.snapshot().writes).toBeLessThanOrEqual(2);
+});
+it('a new canonical mutation exits quiescence and USER_ACTIVE delivers it once without manufacturing another revision',async()=>{
+ const x=await ready(),oldRevision=(await getState('P1',x.db)).mutationRevision;await x.db.runTransaction((tx:any)=>markDirtyInTransaction(tx,'P1',['CARRIERS'],'NEW_CANONICAL_MUTATION',undefined,x.db));expect((await x.engine().observe('P1',operationActor)).state).toBe('ATTENTION_REQUIRED');
+ const coordinator=new WorkspaceSyncCoordinator(x.authorization,x.db,()=>x.port as any);expect((await coordinator.runForActor(operationActor)).delivered).toBe(1);expect((await getState('P1',x.db)).mutationRevision).toBe(oldRevision+1);expect((await x.engine().observe('P1',operationActor)).state).toBe('READY');const deliveries=x.port.projectMasterTabs.mock.calls.length;await coordinator.runForActor(operationActor);expect(x.port.projectMasterTabs).toHaveBeenCalledTimes(deliveries);
+});
+it('expired genuine operation can resume under the same binding while live leases cannot be stolen',async()=>{const x=await ready(),binding=structuredClone(x.store[ensurePath].binding);x.store[ensurePath].ensureOperation={...x.store[ensurePath].ensureOperation,status:'PREPARING',leaseOwner:'interrupted',leaseExpiresAt:Date.now()-1};expect((await x.engine().observe('P1',operationActor))).toMatchObject({state:'PREPARING',canResume:true});expect((await x.run()).state).toBe('READY');expect(x.store[ensurePath].binding).toEqual(binding);x.store[ensurePath].ensureOperation.leaseOwner='live';x.store[ensurePath].ensureOperation.leaseExpiresAt=Date.now()+120000;x.counter.reset();expect((await x.run())).toMatchObject({state:'PREPARING',canResume:false});expect(x.counter.snapshot().writes).toBe(0);});

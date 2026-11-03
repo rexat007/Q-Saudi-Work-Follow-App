@@ -4370,7 +4370,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
             {/* ================= LAYER 2: WORKSPACE ================= */}
             {activeSetupLayer === 'WORKSPACE' && project && (
               <div className="space-y-6 text-xs text-stone-300">
-                {isOperationallyMutable && ['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <WorkspaceEnsurePanel key={`${project.projectId}:${googleContinuity?.binding?.scriptProjectId||''}`} projectId={project.projectId} actorId={authContext.userId} t={t} onReady={()=>{void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}} />}
+                {isOperationallyMutable && ['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <WorkspaceEnsurePanel key={`${project.projectId}:${renderedContext.generation}`} projectId={project.projectId} actorId={authContext.userId} t={t} onReady={()=>{void clientWorkspaceService.getGoogleWorkspaceStatus(project.projectId).then(value=>{if(projectContext.isCurrent(renderedContext,editingProjectId))setGoogleContinuity(value);});}} />}
                 {['SUPER_ADMIN','PROJECT_ADMIN'].includes(authContext.role) && <details><summary>{t('gws.one.diagnostics')}</summary>
                   {/* Google Workspace Setup card */}
                 <div className="bg-stone-950 border border-stone-850 p-5 rounded-2xl space-y-4">

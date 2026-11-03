@@ -128,8 +128,9 @@ export class ProjectGoogleWorkspaceServer {
       await this.authorized(tx,projectId,who);
       const snap=await tx.get(continuityRef(this.db,projectId));return snap.exists?snap.data():{};
     });
-    const jobs=await syncOutboxRef(this.db,projectId).get();
-    const pending=jobs.docs.filter((d:any)=>d.data().status!=='DELIVERED').length;
+    // Canonical enqueue writes PENDING; terminal history is not current work.
+    const jobs=await syncOutboxRef(this.db,projectId).where('status','==','PENDING').count().get();
+    const pending=jobs.data().count;
     const scriptId=state.scriptProjectId||state.binding?.scriptProjectId,knownScript=validId(scriptId)?scriptId:undefined;
     const automationState=state.automationState||'NOT_INSTALLED';
     const recovery=Boolean(state.binding&&!knownScript&&automationState!=='NOT_REQUIRED'&&(!state.automationCreationAllowed||state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)));
@@ -407,8 +408,8 @@ export class ProjectGoogleWorkspaceServer {
       if(!s.binding||s.binding.projectId!==projectId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
       if(s.ensureOperation?.leaseOwner&&s.ensureOperation.leaseExpiresAt>Date.now()&&s.ensureOperation.leaseOwner!==this.ensureOwner)return gwsFail('WORKSPACE_SYNC_IN_PROGRESS');
       if(pendingOnly)this.assertPendingOnlyState(project,s);
-      const work=pendingOnly?await this.pendingWork(tx,projectId):null;
-      if(work&&!work.pending)return gwsFail('WORKSPACE_NO_PENDING_WORK');
+      const work=await this.pendingWork(tx,projectId);
+      if(pendingOnly&&!work.pending)return gwsFail('WORKSPACE_NO_PENDING_WORK');
       if(s.syncOwner){
         if(!Number.isFinite(s.syncLeaseExpiresAt)){tx.set(ref,{...s,syncLeaseExpiresAt:now+120000});return null;}
         if(s.syncLeaseExpiresAt>now)return null;
@@ -423,6 +424,7 @@ export class ProjectGoogleWorkspaceServer {
     await this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);const ref=continuityRef(this.db,projectId),snap=await tx.get(ref),s=snap.data();
       if(s?.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now()||s.syncLeaseRevision!==(s.binding?.revision??0)||s.syncLeaseSpreadsheetId!==s.binding?.spreadsheetId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+      if(s.syncLeaseExpiresAt-Date.now()>60000)return;
       tx.set(ref,{...s,syncLeaseExpiresAt:Date.now()+120000});
     });
   }
@@ -541,6 +543,14 @@ export class ProjectGoogleWorkspaceServer {
         const result=await this.status(projectId,who);if(result.lastSyncError?.startsWith('PROFILE_REPORT_'))throw new GoogleWorkspaceCommandError(result.lastSyncError,502);return result;
       }
     }
+    // A successful receipt and no canonical work is a read-only no-op, not another drain.
+    if(!pendingOnly){
+      const idle=await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const s=(await tx.get(continuityRef(this.db,projectId))).data();
+        if(!s?.binding||s.state!=='READY'||s.workbookHealth!=='HEALTHY'||!['READY','NOT_REQUIRED'].includes(s.automationState)||s.backgroundAuthorization!=='CONNECTED'||!s.lastSuccessfulSyncAt||s.lastSyncError||s.syncOwner||s.lastAutomationError)return false;
+        const work=await this.pendingWork(tx,projectId);return !work.pending;
+      });
+      if(idle)return this.status(projectId,who);
+    }
     const owner=randomUUID(),ref=continuityRef(this.db,projectId);
     const state=await this.claimSync(projectId,who,owner,pendingOnly);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));
@@ -551,11 +561,11 @@ export class ProjectGoogleWorkspaceServer {
         if(!google.verifyBinding)return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
         await google.verifyBinding(state.binding.destinationRootFolderId,state.binding.projectFolderId,state.binding.spreadsheetId,state.binding.workspaceBlueprintVersion);
       } else await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
-      const events=await syncOutboxRef(this.db,projectId).get();
+      const events=await syncOutboxRef(this.db,projectId).where('status','==','PENDING').get();
       let legacyMappingPending=false;
       for(const doc of [...events.docs.filter((d:any)=>d.data().kind==='MASTER_DATA'),...events.docs.filter((d:any)=>d.data().kind!=='MASTER_DATA')]) {
+        const event=doc.data();
         await this.renewSync(projectId,who,owner);
-        const event=doc.data();if(event.status==='DELIVERED') continue;
         if(event.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
         if(event.kind==='PROFILE_TRIP'){
           if(!google.projectProfileTrip||!validId(event.tripId))return gwsFail('PROFILE_PROJECTION_REQUIRED');

@@ -8,16 +8,18 @@ function database(seed: Record<string, any>) {
   const commits: Array<{ path: string; value: any }> = [];
   const reads: string[] = [];
   const snapshot = (path: string) => ({ id: path.split('/').at(-1), exists: records.has(path), data: () => structuredClone(records.get(path)) });
-  const ref = (path: string, collection = false, filter?: [string, any]): any => ({
+  const ref = (path: string, collection = false, filter?: [string, any], cap=Infinity): any => ({
     path, id:path.split('/').at(-1), collectionKind: collection,
     set: async (value:any) => { records.set(path,structuredClone(value)); versions.set(path,(versions.get(path)||0)+1); },
     collection: (name: string) => ref(`${path}/${name}`, true),
     doc: (id: string) => ref(`${path}/${id}`),
-    where: (key: string, _op: string, value: any) => ref(path, true, [key, value]),
+    where: (key: string, _op: string, value: any) => ref(path, true, [key, value], cap),
+    limit: (n:number) => ref(path, collection, filter, n),
+    count: () => ({get: async () => ({data: () => ({count: [...records.keys()].filter(k => k.startsWith(path + '/') && !k.slice(path.length + 1).includes('/') && (!filter || records.get(k)[filter[0]] === filter[1])).length})})}),
     get: async () => {
       reads.push(path);
       if (!collection) return snapshot(path);
-      return { docs: [...records.keys()].filter(k => k.startsWith(path + '/') && !k.slice(path.length + 1).includes('/') && (!filter || records.get(k)[filter[0]] === filter[1])).map(snapshot) };
+      return { docs: [...records.keys()].filter(k => k.startsWith(path + '/') && !k.slice(path.length + 1).includes('/') && (!filter || records.get(k)[filter[0]] === filter[1])).slice(0,cap).map(snapshot) };
     },
   });
   const db = {

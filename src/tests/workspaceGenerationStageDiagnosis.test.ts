@@ -25,7 +25,7 @@ function fixture(){
   ['users/admin',{userId:'admin',role:'SUPER_ADMIN',status:'ACTIVE',assignedProjectIds:[]}],
  ]);
  const options={failBindingOnce:false};
- const ref=(path:string):any=>({path,id:path.split('/').at(-1),doc:(id:string)=>ref(path+'/'+id),collection:(name:string)=>ref(path+'/'+name),where:()=>ref(path),get:async()=>({exists:records.has(path),data:()=>structuredClone(records.get(path)),docs:[...records].filter(([key])=>key.startsWith(path+'/')&&!key.slice(path.length+1).includes('/')).map(([key,value])=>({id:key.split('/').at(-1),data:()=>structuredClone(value)}))})});
+ const ref=(path:string,filter?:[string,unknown],cap=Infinity):any=>({path,id:path.split('/').at(-1),doc:(id:string)=>ref(path+'/'+id),collection:(name:string)=>ref(path+'/'+name),where:(key:string,_op:string,value:unknown)=>ref(path,[key,value],cap),limit:(n:number)=>ref(path,filter,n),count:()=>({get:async()=>({data:()=>({count:[...records].filter(([key,value])=>key.startsWith(path+'/')&&!key.slice(path.length+1).includes('/')&&(!filter||value[filter[0]]===filter[1])).length})})}),get:async()=>({exists:records.has(path),data:()=>structuredClone(records.get(path)),docs:[...records].filter(([key])=>key.startsWith(path+'/')&&!key.slice(path.length+1).includes('/')&&(!filter||records.get(key)[filter[0]]===filter[1])).slice(0,cap).map(([key,value])=>({id:key.split('/').at(-1),data:()=>structuredClone(value)}))})});
  const db:any={collection:(name:string)=>ref(name),runTransaction:async(fn:any)=>{
   const writes:Array<[string,any]>=[];
   const result=await fn({get:(r:any)=>r.get(),set:(r:any,value:any)=>{

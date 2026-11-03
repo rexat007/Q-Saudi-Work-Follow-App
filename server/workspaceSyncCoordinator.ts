@@ -41,7 +41,6 @@ export class WorkspaceSyncCoordinator {
    let processed=0;
    for(const doc of page.docs.slice(0,this.limits.candidates)){
     if(result.attempted>=this.limits.attempts||Date.now()-now>=this.limits.milliseconds)break;
-    const lease=await this.database.runTransaction(async(tx:any)=>{const s=(await tx.get(ref)).data();if(s?.owner!==owner||s.expiresAt<=Date.now())return false;tx.set(ref,{...s,expiresAt:Date.now()+120000});return true;});if(!lease)break;
     cursor=doc.id;processed++;result.examined++;
     const grant=doc.data(),projectId=grant.projectId,actor=user||{userId:grant.actorId} as AuthUserContext;
     if(grant.status!=='ACTIVE'||!validId(projectId)||!validId(actor.userId)||grant.actorId!==actor.userId){result.skipped++;continue;}
@@ -58,6 +57,7 @@ export class WorkspaceSyncCoordinator {
       const dirty=(await getState(projectId,this.database)).dirtyTabs.some(isMasterTab);
       if(!events.docs.length&&!dirty&&!initialize){result.skipped++;continue;}
      }
+    const lease=await this.database.runTransaction(async(tx:any)=>{const s=(await tx.get(ref)).data();if(s?.owner!==owner||s.expiresAt<=Date.now())return false;tx.set(ref,{...s,expiresAt:Date.now()+120000});return true;});if(!lease)break;
      result.eligible++;result.attempted++;attempted=true;
      const access=await this.offline.access(projectId,actor);
      if(access.authorizationId!==doc.id)throw new GoogleWorkspaceCommandError('WORKSPACE_EXECUTION_FENCED',409);

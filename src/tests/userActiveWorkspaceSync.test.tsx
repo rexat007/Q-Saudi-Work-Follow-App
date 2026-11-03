@@ -12,7 +12,7 @@ const user={userId:'actor',role:'SUPER_ADMIN' as const,assignedProjectIds:[],dis
 let root:ReturnType<typeof createRoot>,host:HTMLDivElement;
 const response=()=>new Response(JSON.stringify({success:true,examined:2,eligible:1,attempted:1,delivered:1,skipped:1,deferred:0}),{status:200,headers:{'content-type':'application/json'}});
 function Hook({context=user}: {context?:typeof user|null}){useUserActiveWorkspaceSync(context||undefined);return null;}
-beforeEach(()=>{vi.clearAllMocks();vi.useFakeTimers();vi.setSystemTime(new Date('2026-11-01T00:00:00Z'));(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;f.auth.currentUser={uid:'actor',getIdToken:async()=> 'fixture-firebase'};vi.stubGlobal('fetch',f.fetch);f.fetch.mockImplementation(async()=>response());host=document.createElement('div');document.body.append(host);root=createRoot(host);});
+beforeEach(()=>{sessionStorage.clear();vi.clearAllMocks();vi.useFakeTimers();vi.setSystemTime(new Date('2026-11-01T00:00:00Z'));(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;f.auth.currentUser={uid:'actor',getIdToken:async()=> 'fixture-firebase'};vi.stubGlobal('fetch',f.fetch);f.fetch.mockImplementation(async()=>response());host=document.createElement('div');document.body.append(host);root=createRoot(host);});
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();clientWorkspaceService.setAccessToken(null);vi.unstubAllGlobals();vi.restoreAllMocks();vi.useRealTimers();});
 const render=async(context:typeof user|null=user)=>{await act(async()=>root.render(<Hook context={context}/>));};
 const event=async(name:string,target:Window|Document=window)=>{await act(async()=>target.dispatchEvent(new Event(name)));};

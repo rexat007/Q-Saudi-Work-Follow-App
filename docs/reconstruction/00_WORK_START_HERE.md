@@ -1,4 +1,8 @@
-## Current live intake continuity checkpoint — 2026-11-03
+## Current Workspace quiescence checkpoint — 2026-11-03
+
+Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns exact current state. Starting verified merged main: `be908ce2642e68ff784282ab3cacfd6b94efc745` (PR #87). Owner observed correct profile-unavailable behavior, followed by Firestore quota exhaustion and repeated Workspace retries. The bounded source remedy and controlled operation budgets are in [WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). Live intake acceptance is paused pending owner retest; local verification is not live acceptance. Only a local commit is authorized: no push/PR/merge, Phase 10 or Trips/Reports redesign. Earlier continuation instructions below are historical where superseded.
+
+## Historical PR #87 live intake continuity checkpoint — 2026-11-03
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first. Verified merged main is `637b7d54429ac586e101689deae35e013a9eab77` (PR #86). The current bounded unit addresses account-profile outage continuity, bulk canonical identity reuse and explicit operational Material binding; see [LIVE_INTAKE_CONTINUITY_CONTRACT.md](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Local verification precedes the authorized one-commit branch publication. No PR/merge, new phase or live acceptance is performed. Older continuation checkpoints below are historical where superseded.
 

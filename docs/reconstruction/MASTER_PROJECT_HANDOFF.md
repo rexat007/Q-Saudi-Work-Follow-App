@@ -1,4 +1,8 @@
-## Live intake continuity continuation — 2026-11-03
+## Workspace sync quiescence continuation — 2026-11-03
+
+Exact current state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Merged main `be908ce2642e68ff784282ab3cacfd6b94efc745` contains PR #87. Owner-reported profile continuity passed live; quota exhaustion and repeated Workspace retries pause the wider live intake matrix. The bounded correction removes recursive mutating resume, duplicate observers, delivered-history drains and redundant lease/checkpoint writes, while retaining strict READY, durable grants, Script identity, managed root and current Project authority. Browser activity is throttled across remount; zero-work coordinator writes are constant. [Audit, measurements and remaining live retest](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). Global invalidation remains unchanged for canonical completeness. Local commit only; no push, PR, merge, Google/live resource change or Phase 10. Older checkpoints below are historical.
+
+## Historical PR #87 live intake continuity continuation — 2026-11-03
 
 Exact current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline `637b7d54429ac586e101689deae35e013a9eab77` merges PR #86. Current bounded work distinguishes profile unavailability from confirmed absence, preserves mounted Roster continuity, adds bounded global natural-key discovery/safe approval and requires explicit operational Material binding even without a source column or weighbridge. [Contract and unexecuted live matrix](LIVE_INTAKE_CONTINUITY_CONTRACT.md). No new phase or GWS redesign; earlier checkpoints are historical where superseded.
 

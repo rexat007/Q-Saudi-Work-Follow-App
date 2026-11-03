@@ -1,7 +1,23 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
-### Live intake continuity, bulk canonical resolution and Material binding — 2026-11-03
+### Workspace sync quiescence / Firestore amplification — 2026-11-03
+
+CURRENT_CODE_BASELINE: `be908ce2642e68ff784282ab3cacfd6b94efc745` — verified merged main, PR #87; starting worktree clean.
+WORKING_BRANCH: `reconstruction/workspace-sync-quiescence-amplification`.
+WORKSPACE_SYNC_RETRY_STABILITY: SOURCE_REMEDIATED / VERIFIED_LOCALLY / LIVE_RETEST_REQUIRED.
+PR87_PROFILE_UNAVAILABLE_LIVE_BEHAVIOR: PASS — OWNER_REPORTED; not an independent live observation in this unit.
+FIRESTORE_QUOTA_EXHAUSTION: OBSERVED_DURING_LIVE_ACCEPTANCE — OWNER_REPORTED.
+LIVE_INTAKE_CONTINUITY: LIVE_ACCEPTANCE_PAUSED_PENDING_OWNER_RETEST_AFTER_REMEDIATION.
+SCOPE: proven Workspace mutation retry, observer/remount, pending-outbox and metadata-write amplification; strict READY and existing authority remain unchanged.
+PUBLICATION: NOT_STARTED; only one LOCAL commit authorized. PUSH/PR/MERGE: NOT_AUTHORIZED.
+NEXT_ACTION: OWNER_REVIEW; stop after the authorized single local commit. Owner retests after separately authorized publication/deployment. No Phase 10, Trips/Reports redesign, resource reset or Google configuration change.
+
+Local verification: new focused 15/15 PASS; affected cases 802/802 PASS (787/787 on baseline), zero removed/skipped/new failing cases. Both broad commands EXIT 1 because the same two historical empty suites remain; not a repository-wide PASS. Build PASS; lint EXIT 2 / NOT PASS, diagnostics 440→440, added/removed 0. Scope: 22 files (8 production, 8 test/helper, 6 documentation), no config/package/workflow/rules/assets changes; diff check PASS. Counts are dated observations, not permanent gates.
+
+The source audit and quantitative findings were recorded before production edits. Details, limits, operation budgets and owner live matrix: [WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md](WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md). Global invalidation remains semantically necessary and unchanged; no incomplete inverse index replaces canonical-path participation. Existing phase source closures, P8 intent/journal/receipts and the PR #87 identity-availability contract remain preserved. Earlier unit checkpoints below are historical, not new publication instructions.
+
+### Historical PR #87 live intake continuity, bulk canonical resolution and Material binding — 2026-11-03
 
 CURRENT_CODE_BASELINE: `637b7d54429ac586e101689deae35e013a9eab77` — verified merged PR #86.
 WORKING_BRANCH: `reconstruction/live-intake-continuity-bulk-resolution`.
