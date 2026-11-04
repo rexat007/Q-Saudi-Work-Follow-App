@@ -44,4 +44,5 @@ export interface ProjectGoogleStatus {
   provisioningOperationId?:string;
   syncTrigger?:'USER_ACTIVE';
   authorizationDiagnostic?:WorkspaceAuthorizationDiagnosis;
+  lastReportRefreshAt?: string | null;
 }

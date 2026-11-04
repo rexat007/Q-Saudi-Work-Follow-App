@@ -844,6 +844,22 @@ export class ClientWorkspaceService {
     const data = await this.decodeResponse(res);
     return data.data;
   }
+
+  /**
+   * Triggers an explicit, server-authoritative refresh of Google Sheets derived operational reports.
+   * This is a heavy operation that performs a full Trip read on the server.
+   */
+  public async refreshOperationalReports(projectId: string): Promise<ProjectGoogleStatus> {
+    const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true, false);
+    const res = await workspaceFetch(`${getApiBase()}/api/projects/${projectId}/workspace/refresh-reports`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({}),
+    });
+    const result = await this.decodeResponse(res);
+    if (!res.ok) throw new Error(result.error || 'REPORT_REFRESH_FAILED');
+    return result.data;
+  }
 }
 
 export const clientWorkspaceService = new ClientWorkspaceService();
