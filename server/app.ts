@@ -62,8 +62,16 @@ registerWorkspaceOAuthCommands(app,[enforceProjectIsolation,enforceAdminOnly,wor
 app.post('/api/projects/:projectId/workspace/refresh-reports', enforceProjectIsolation, enforceDispatcherOrAbove, workspaceGenerationFence, async (req: any, res) => {
   try {
     const { projectId } = req.params;
-    const googleToken = resolveWorkspaceExecutionToken(req);
-    const googlePort = projectGoogleBlueprintPort(googleToken, projectId);
+    const credential = await resolveWorkspaceExecutionToken(
+      projectId,
+      req.user,
+      req,
+      {
+        status: (id, user) => projectGoogleWorkspaceServer.status(id, user),
+        access: (id, user) => workspaceOfflineAuthorization.access(id, user),
+      },
+    );
+    const googlePort = projectGoogleBlueprintPort(credential.accessToken, projectId);
     const result = await projectGoogleWorkspaceServer.refreshOperationalReports(projectId, req.user, googlePort);
     res.json({ success: true, data: result });
   } catch (error: any) {
