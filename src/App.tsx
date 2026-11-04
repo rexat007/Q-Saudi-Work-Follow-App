@@ -123,25 +123,27 @@ export default function App() {
 
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
 
-  // Real-time Firestore project subscription (authoritative lifecycle based on user identity/role)
+  // One-shot project fetch (Inventory cards only require eventual consistency)
   useEffect(() => {
     const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
     const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
     setProjects(previous => previous.filter(project => isSuperAdmin || assignedProjectIds.includes(project.projectId)));
     setLoadingProjects(true);
-    const unsubscribe = projectRepository.subscribeToProjects(
-      (list) => {
-        setProjects(list || []);
-        setLoadingProjects(false);
-      },
-      (err) => {
-        console.error('Error in project subscription:', err);
-        setLoadingProjects(false);
-      },
-      assignedProjectIds,
-      isSuperAdmin
-    );
-    return () => unsubscribe();
+    
+    let active = true;
+    void projectRepository.listAll(assignedProjectIds, isSuperAdmin)
+      .then(list => {
+        if (active) {
+          setProjects(list || []);
+          setLoadingProjects(false);
+        }
+      })
+      .catch(err => {
+        console.error('Error in project list:', err);
+        if (active) setLoadingProjects(false);
+      });
+
+    return () => { active = false; };
   }, [user?.uid, effectiveRole, assignedProjectScopeKey]);
 
   // Synchronize and reconcile selectedProjectId without restarting project subscription
@@ -224,7 +226,7 @@ export default function App() {
       }
     };
     updateCount();
-    const interval = setInterval(updateCount, 2500);
+    const interval = setInterval(updateCount, 2500); // Revert to baseline 2500ms for IndexedDB-only poll
     return () => clearInterval(interval);
   }, []);
 

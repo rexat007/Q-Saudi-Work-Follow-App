@@ -16,7 +16,7 @@ export function createRuntimeGeneration(clientId:string,fetchVersion:()=>Promise
    verified=true;verifiedAt=now();
   })().finally(()=>{pending=null});return pending;
  }
- function assert(){if(!verified||now()-verifiedAt>90000){void check().catch(()=>{});throw new Error('APP_UPDATE_REQUIRED');}}
+  function assert(){if(!verified||now()-verifiedAt>960000){void check().catch(()=>{});throw new Error('APP_UPDATE_REQUIRED');}} // Bounded by 16m to reconcile with PWA recheck TTL
  return {check,assert};
 }
 let requestUpdate:(target:string)=>Promise<unknown>=async()=>{};

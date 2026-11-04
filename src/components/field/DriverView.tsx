@@ -49,8 +49,39 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
   }, [authContext, isOnline]);
 
   useEffect(() => {
-    refreshActiveTrip();
-  }, [refreshActiveTrip]);
+    let isMounted = true;
+    const unsubs: (() => void)[] = [];
+
+    const setupRealtime = async () => {
+      if (!isOnline || !authContext?.assignedProjectIds || authContext.assignedProjectIds.length === 0) {
+        await refreshActiveTrip();
+        return;
+      }
+
+      // Realtime bounded to assigned projects
+      authContext.assignedProjectIds.forEach(pId => {
+        if (!pId || pId === 'ALL') return;
+        const unsub = tripRepository.subscribeByProject(pId, (data) => {
+          if (!isMounted) return;
+          const projected = data.map(operationalTripProjection);
+          void indexedDBService.putMany('trips', projected).catch(() => {});
+          
+          const driverActive = projected.find(t => 
+            (Boolean(authContext.linkedDriverId) && t.driverId === authContext.linkedDriverId) &&
+            (t.status === 'LOADED' || t.status === 'IN_TRANSIT' || t.status === 'ARRIVED' || t.status === 'UNLOADING')
+          );
+          if (driverActive) setActiveTrip(driverActive);
+        });
+        unsubs.push(unsub);
+      });
+    };
+
+    setupRealtime();
+    return () => {
+      isMounted = false;
+      unsubs.forEach(u => u());
+    };
+  }, [authContext, isOnline, refreshActiveTrip]);
 
   // Role Guard
   if (authContext.role !== 'DRIVER') {

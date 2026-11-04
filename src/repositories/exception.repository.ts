@@ -76,6 +76,21 @@ export class ExceptionRepository {
     }
   }
 
+  async listByProject(projectId: string): Promise<TripExceptionEntity[]> {
+    if (!auth.currentUser) return [];
+    try {
+      const q = query(
+        collectionGroup(db, 'exceptions'),
+        where('projectId', '==', projectId)
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map(d => d.data() as TripExceptionEntity);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.LIST, `projects/${projectId}/exceptions`);
+      return [];
+    }
+  }
+
   subscribeByTrip(projectId: string, tripId: string, onData: (exceptions: TripExceptionEntity[]) => void) {
     if (!auth.currentUser) {
       return () => {};

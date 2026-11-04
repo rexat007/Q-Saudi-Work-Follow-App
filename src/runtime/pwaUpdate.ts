@@ -28,9 +28,16 @@ export function startRuntimeGeneration(){
    // Never reload into a controller whose generation has not been confirmed.
   })().finally(()=>{pending=null});return pending;
  });
- const check=()=>{void ensureRuntimeGeneration().catch(()=>{});};
- window.addEventListener('online',check);window.addEventListener('focus',check);
+ const RUNTIME_ACTIVITY_RECHECK_MS = 15 * 60 * 1000;
+ let lastCheckAt = 0;
+ const check=(force=false)=>{
+  const now = Date.now();
+  if(!force && (now - lastCheckAt < RUNTIME_ACTIVITY_RECHECK_MS)) return;
+  lastCheckAt = now;
+  void ensureRuntimeGeneration().catch(()=>{});
+ };
+ window.addEventListener('online',()=>check());window.addEventListener('focus',()=>check());
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check();});
- check();
+ check(true);
  console.debug('[runtime] client build',CLIENT_BUILD_ID);
 }

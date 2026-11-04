@@ -69,31 +69,37 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
 
   useEffect(() => {
     let isMounted = true;
+    const unsubs: (() => void)[] = [];
+
     const loadCanonicalTrips = async () => {
       try {
-        if (isOnline && !isSimulatedOffline && targetProjectId) {
-          const remoteTrips = await tripRepository.listByProject(targetProjectId).catch(() => []);
-          if (remoteTrips && remoteTrips.length > 0) {
-            await indexedDBService.putMany('trips', remoteTrips).catch(() => {});
-          }
+        if (!isOnline || isSimulatedOffline || !targetProjectId) {
+          // Fallback to IndexedDB if offline or no project
+          const allTrips: any[] = await indexedDBService.getAll('trips').catch(() => []);
+          const filteredTrips = targetProjectId
+            ? allTrips.filter(t => t.projectId === targetProjectId)
+            : authContext.role === 'SUPER_ADMIN' ? filterProjectScope(allTrips, authContext) : [];
+          if (isMounted) setTrips(filteredTrips);
+          return;
         }
 
-        const allTrips: any[] = await indexedDBService.getAll('trips').catch(() => []);
-        const filteredTrips = targetProjectId
-          ? allTrips.filter(t => t.projectId === targetProjectId)
-          : authContext.role === 'SUPER_ADMIN' ? filterProjectScope(allTrips, authContext) : [];
+        // Realtime bounded to targetProjectId
+        const unsub = tripRepository.subscribeByProject(targetProjectId, (data) => {
+          if (isMounted) setTrips(data);
+          // Background cache hydration
+          void indexedDBService.putMany('trips', data).catch(() => {});
+        });
+        unsubs.push(unsub);
 
-        if (isMounted) {
-          setTrips(filteredTrips);
-        }
       } catch (err) {
-        console.warn('FieldSupervisionView: Error loading canonical trips:', err);
+        console.warn('FieldSupervisionView: Error setting up realtime trips:', err);
       }
     };
 
     loadCanonicalTrips();
     return () => {
       isMounted = false;
+      unsubs.forEach(u => u());
     };
   }, [targetProjectId, isOnline, isSimulatedOffline, authContext]);
 

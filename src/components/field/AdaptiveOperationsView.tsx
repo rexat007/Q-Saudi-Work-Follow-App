@@ -14,7 +14,26 @@ import {useI18n} from '../../i18n';
 export function AdaptiveOperationsView({project,authContext,onManageRoster}:{project:ProjectEntity;authContext:AuthUserContext;onManageRoster?:()=>void}){
  const {t}=useI18n(),[trips,setTrips]=useState<TripEntity[]>([]),[fleet,setFleet]=useState<ProjectFleetReadModelResponse|null>(null),[rules,setRules]=useState<any[]>([]),[truck,setTruck]=useState(''),[selected,setSelected]=useState(''),[tare,setTare]=useState(''),[gross,setGross]=useState(''),[ticket,setTicket]=useState(''),[driver,setDriver]=useState(''),[busy,setBusy]=useState(false),[failed,setFailed]=useState(false);
  const pending=useRef<{key:string;id:string}|null>(null),currentScope=useRef('');currentScope.current=project.projectId+'|'+authContext.userId;
- useEffect(()=>{let active=true;setFleet(null);setTrips([]);setTruck('');setSelected('');setDriver('');setRules([]);pending.current=null;canonicalProjectRead<ProjectFleetReadModelResponse>(project.projectId,'fleet-read-model').then(v=>{if(active)setFleet(v);}).catch(()=>{if(active)setFailed(true);});const stop=tripRepository.subscribeByProject(project.projectId,v=>{if(active)setTrips(v);},()=>{if(active)setFailed(true);});const pricing=pricingRuleRepository.subscribeByProject(project.projectId,v=>{if(active)setRules(v.map(r=>({...r,pricingType:r.pricingModel,rate:r.baseRateSAR})));});return()=>{active=false;stop();pricing();};},[project.projectId,authContext.userId]);
+  useEffect(() => {
+    let active = true; setFleet(null); setTrips([]); setTruck(''); setSelected(''); setDriver(''); setRules([]); pending.current = null;
+    
+    // Fleet is read-only inventory, keep one-shot
+    void canonicalProjectRead<ProjectFleetReadModelResponse>(project.projectId, 'fleet-read-model').then(data => {
+      if (active) setFleet(data);
+    }).catch(() => { if (active) setFailed(true); });
+
+    // Trips require live operational visibility
+    const unsubTrips = tripRepository.subscribeByProject(project.projectId, data => {
+      if (active) setTrips(data);
+    }, () => { if (active) setFailed(true); });
+
+    // Pricing rules should refresh on mutation
+    const unsubRules = pricingRuleRepository.subscribeByProject(project.projectId, data => {
+      if (active) setRules(data.map(r => ({ ...r, pricingType: r.pricingModel, rate: r.baseRateSAR })));
+    });
+
+    return () => { active = false; unsubTrips(); unsubRules(); };
+  }, [project.projectId, authContext.userId]);
  const row=fleet?.rows.find(r=>r.truckId===truck),trip=trips.find(v=>v.tripId===selected&&v.operationalSnapshot),config=project.operationalConfiguration!,required=resolveRequiredTripFields(config);
  const rule=useMemo(()=>row?new PricingService().resolvePricingRuleFromList(rules,{projectId:project.projectId,carrierId:row.carrierId,materialId:row.materialId,tripDate:new Date().toISOString()}):null,[rules,row,project.projectId]);
  async function command(name:TripCommandName,payload:Record<string,unknown>={},id?:string){const scope=currentScope.current,key=JSON.stringify([scope,name,payload,id]);if(pending.current?.key!==key)pending.current={key,id:crypto.randomUUID()};setBusy(true);setFailed(false);try{const result=await sendTripCommand(project.projectId,name,payload,pending.current.id,id);if(currentScope.current!==scope)return;pending.current=null;if(result.trip){setTrips(old=>[...old.filter(v=>v.tripId!==result.trip.tripId),result.trip]);setSelected(result.trip.tripId);}setTare('');setGross('');setTicket('');}catch{if(currentScope.current===scope)setFailed(true);}finally{if(currentScope.current===scope)setBusy(false);}}

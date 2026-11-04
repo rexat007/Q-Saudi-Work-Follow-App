@@ -80,39 +80,33 @@ export function AdminConsoleView() {
     setTimeout(() => setBanner(null), 5000);
   };
 
-  // Subscribe to canonical collections
+  // Subscribe to canonical collections (Retire to one-shot for Idle Quiescence)
   useEffect(() => {
-    // 1. Live Firestore users subscription
-    const unsubscribeUsers = userRepository.subscribeToUsers((realUsers) => {
-      setUsers(realUsers);
-      // Auto-select first user if none selected
-      if (realUsers.length > 0 && !selectedUserForSecurity) {
-        setSelectedUserForSecurity(realUsers[0]);
-      }
-    });
-
-    // 2. Live Firestore audit logs subscription
-    const unsubscribeLogs = auditLogService.subscribeToRecentLogs(100, (realLogs) => {
-      setAuditLogs(realLogs);
-    });
-
-    // 3. Live Firestore projects subscription (canonical RBAC-scoped)
+    let active = true;
     const isSuperAdmin = userProfile?.role === 'SUPER_ADMIN';
     const assignedProjectIds = userProfile?.assignedProjectIds || [];
-    const unsubscribeProjects = projectRepository.subscribeToProjects(
-      (realProjects) => {
-        setProjects(realProjects);
-      },
-      undefined,
-      assignedProjectIds,
-      isSuperAdmin
-    );
 
-    return () => {
-      unsubscribeUsers();
-      unsubscribeLogs();
-      unsubscribeProjects();
+    const loadData = async () => {
+      try {
+        const [realUsers, realLogs, realProjects] = await Promise.all([
+          userRepository.listAll(),
+          auditLogService.getRecentAuditLogs(100),
+          projectRepository.listAll(assignedProjectIds, isSuperAdmin)
+        ]);
+        if (!active) return;
+        setUsers(realUsers);
+        // Auto-select first user if none selected
+        if (realUsers.length > 0 && !selectedUserForSecurity) {
+          setSelectedUserForSecurity(realUsers[0]);
+        }
+        setAuditLogs(realLogs);
+        setProjects(realProjects);
+      } catch (err) {
+        console.error('Error loading admin console data:', err);
+      }
     };
+    loadData();
+    return () => { active = false; };
   }, [userProfile]);
 
   // Filtered Users List

@@ -134,218 +134,73 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
   // Real-time exception database mapping: projectId -> TripExceptionEntity[]
   const [exceptionsByProject, setExceptionsByProject] = useState<Record<string, TripExceptionEntity[]>>({});
 
-  // 1. Authorized Projects Subscription Lifecycle (strictly active canonical projects for SUPER_ADMIN)
+  // Combined data loading effect (Retire to one-shot for Idle Quiescence)
   useEffect(() => {
-    if (!isAuthReady || !userProfile) {
-      return;
-    }
+    if (!isAuthReady || !userProfile) return;
 
-    setAuthorizedProjects([]); setAuthorizedProjectIds([]);
-    setIsDataLoading(true);
-    setDataError(null);
-
+    let active = true;
     const isSuperAdmin = userProfile.role === 'SUPER_ADMIN';
     const assignedIds = userProfile.assignedProjectIds || [];
 
-    const unsubscribeProjects = projectRepository.subscribeToProjects(
-      (projects) => {
-        const filtered = projects.filter(p => {
-          if (p.status === 'ARCHIVED') return false;
-          if (isSuperAdmin) return true;
-          return assignedIds.includes(p.projectId);
-        });
-        const formatted = filtered.map(p => ({
-          id: p.projectId,
-          nameAr: p.nameAr || p.projectId,
-        }));
+    const loadData = async () => {
+      setIsDataLoading(true);
+      setDataError(null);
+
+      try {
+        // 1. Projects
+        const projects = await projectRepository.listAll(assignedIds, isSuperAdmin);
+        if (!active) return;
+        const filtered = projects.filter(p => p.status !== 'ARCHIVED' && (isSuperAdmin || assignedIds.includes(p.projectId)));
+        const formatted = filtered.map(p => ({ id: p.projectId, nameAr: p.nameAr || p.projectId }));
         setAuthorizedProjects(formatted);
         const ids = formatted.map(f => f.id);
         setAuthorizedProjectIds(ids);
-      },
-      (err) => {
-        console.error('Failed to subscribe to authorized projects:', err);
-        setDataError("analytics.ui.could_not_load_authorized_projects");
-        setIsDataLoading(false);
-      },
-      assignedIds,
-      isSuperAdmin
-    );
 
-    return () => {
-      unsubscribeProjects();
-    };
-  }, [userProfile, isAuthReady]);
-
-  // 2. Trip Real-time Subscription Lifecycle (strictly scoped to authorized projects)
-  useEffect(() => {
-    if (authorizedProjectIds.length === 0) {
-      if (isAuthReady) {
-        setIsDataLoading(false);
-      }
-      return;
-    }
-
-    setIsDataLoading(true);
-    setDataError(null);
-
-    // Determine target projects to subscribe to
-    const targetIds = filters.projectId === 'ALL' 
-      ? authorizedProjectIds 
-      : (authorizedProjectIds.includes(filters.projectId) ? [filters.projectId] : []);
-
-    if (targetIds.length === 0) {
-      setTripsByProject({});
-      setIsDataLoading(false);
-      return;
-    }
-
-    // Initialize or prune old project datasets from state
-    setTripsByProject(prev => {
-      const next: Record<string, TripRecord[]> = {};
-      targetIds.forEach(id => {
-        if (prev[id]) {
-          next[id] = prev[id];
+        if (ids.length === 0) {
+          setIsDataLoading(false);
+          return;
         }
-      });
-      return next;
-    });
 
-    const unsubscribers: (() => void)[] = [];
-    const pendingSet = new Set<string>(targetIds);
-    const failedSet = new Set<string>();
+        // 2. Trips
+        const targetIds = filters.projectId === 'ALL' ? ids : (ids.includes(filters.projectId) ? [filters.projectId] : []);
+        if (targetIds.length === 0) {
+          setTripsByProject({});
+          setIsDataLoading(false);
+          return;
+        }
 
-    targetIds.forEach(pId => {
-      const unsub = tripRepository.subscribeByProject(
-        pId,
-        (tripEntities) => {
-          const adapted = tripEntities.map(t => reportsEngineService.adaptTripEntityToRecord(t));
-          
-          setTripsByProject(prev => ({ ...prev, [pId]: adapted }));
+        const tripResults = await Promise.all(targetIds.map(pId => tripRepository.listByProject(pId, 1000)));
+        if (!active) return;
+        const tripsMap: Record<string, TripRecord[]> = {};
+        tripResults.forEach((trips, idx) => {
+          tripsMap[targetIds[idx]] = trips.map(t => reportsEngineService.adaptTripEntityToRecord(t));
+        });
+        setTripsByProject(tripsMap);
 
-          failedSet.delete(pId);
-          pendingSet.delete(pId);
-
-          if (failedSet.size > 0) {
-            setDataError("analytics.ui.could_not_retrieve_trip_data_for_some_authorized_projects");
-          } else {
-            setDataError(null);
-          }
-
-          if (pendingSet.size === 0) {
-            setIsDataLoading(false);
-          }
-        },
-        (error) => {
-          console.error(`Failed to subscribe to trips for project ${pId}:`, error);
-          failedSet.add(pId);
-          pendingSet.delete(pId);
-
-          setTripsByProject(prev => {
-            const next = { ...prev };
-            delete next[pId];
-            return next;
+        // 3. Exceptions
+        if (selectedReportType === 'EXCEPTION_REPORT') {
+          const exceptionResults = await Promise.all(targetIds.map(pId => exceptionRepository.listByProject(pId)));
+          if (!active) return;
+          const exceptionsMap: Record<string, TripExceptionEntity[]> = {};
+          exceptionResults.forEach((excs, idx) => {
+            exceptionsMap[targetIds[idx]] = excs;
           });
-
-          setDataError("analytics.ui.could_not_retrieve_trip_data_for_some_authorized_projects");
-
-          if (pendingSet.size === 0) {
-            setIsDataLoading(false);
-          }
+          setExceptionsByProject(exceptionsMap);
         }
-      );
-      unsubscribers.push(unsub);
-    });
 
-    return () => {
-      unsubscribers.forEach(unsub => unsub());
-    };
-  }, [authorizedProjectIds, filters.projectId, isAuthReady]);
-
-  // 3. Exception Real-time Subscription Lifecycle (active ONLY when EXCEPTION_REPORT selected)
-  useEffect(() => {
-    if (selectedReportType !== 'EXCEPTION_REPORT') {
-      setExceptionsByProject({});
-      return;
-    }
-
-    if (authorizedProjectIds.length === 0) {
-      if (isAuthReady) {
         setIsDataLoading(false);
+      } catch (err) {
+        console.error('Failed to load report data:', err);
+        if (active) {
+          setDataError("analytics.ui.data_loading_failed");
+          setIsDataLoading(false);
+        }
       }
-      return;
-    }
-
-    setIsDataLoading(true);
-    setDataError(null);
-
-    const targetIds = filters.projectId === 'ALL' 
-      ? authorizedProjectIds 
-      : (authorizedProjectIds.includes(filters.projectId) ? [filters.projectId] : []);
-
-    if (targetIds.length === 0) {
-      setExceptionsByProject({});
-      setIsDataLoading(false);
-      return;
-    }
-
-    setExceptionsByProject(prev => {
-      const next: Record<string, TripExceptionEntity[]> = {};
-      targetIds.forEach(id => {
-        if (prev[id]) {
-          next[id] = prev[id];
-        }
-      });
-      return next;
-    });
-
-    const unsubscribers: (() => void)[] = [];
-    const pendingSet = new Set<string>(targetIds);
-    const failedSet = new Set<string>();
-
-    targetIds.forEach(pId => {
-      const unsub = exceptionRepository.subscribeByProject(
-        pId,
-        (exceptions) => {
-          setExceptionsByProject(prev => ({ ...prev, [pId]: exceptions }));
-
-          failedSet.delete(pId);
-          pendingSet.delete(pId);
-
-          if (failedSet.size > 0) {
-            setDataError("analytics.ui.could_not_retrieve_exception_data_for_some_authorized_projects");
-          } else {
-            setDataError(null);
-          }
-
-          if (pendingSet.size === 0) {
-            setIsDataLoading(false);
-          }
-        },
-        (error) => {
-          console.error(`Failed to subscribe to exceptions for project ${pId}:`, error);
-          failedSet.add(pId);
-          pendingSet.delete(pId);
-
-          setExceptionsByProject(prev => {
-            const next = { ...prev };
-            delete next[pId];
-            return next;
-          });
-
-          setDataError("analytics.ui.could_not_retrieve_exception_data_for_some_authorized_projects");
-
-          if (pendingSet.size === 0) {
-            setIsDataLoading(false);
-          }
-        }
-      );
-      unsubscribers.push(unsub);
-    });
-
-    return () => {
-      unsubscribers.forEach(unsub => unsub());
     };
-  }, [authorizedProjectIds, filters.projectId, isAuthReady, selectedReportType]);
+
+    loadData();
+    return () => { active = false; };
+  }, [userProfile, isAuthReady, filters.projectId, selectedReportType]);
 
   // Merged & Deduplicated canonical datasets
   const allTrips = useMemo(() => {

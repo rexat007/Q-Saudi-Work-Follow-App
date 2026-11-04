@@ -81,15 +81,15 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const assignedProjectScopeKey = JSON.stringify([...new Set(authContext.assignedProjectIds || [])].sort());
 
   useEffect(() => {
-    const unsubscribe = projectRepository.subscribeToProjects(
-      (list) => {
-        setProjectsList(list || []);
-      },
-      (err) => console.error(err),
-      JSON.parse(assignedProjectScopeKey),
-      authContext.role === 'SUPER_ADMIN'
-    );
-    return () => unsubscribe();
+    let active = true;
+    const assignedProjectIds = JSON.parse(assignedProjectScopeKey);
+    const isSuperAdmin = authContext.role === 'SUPER_ADMIN';
+    void projectRepository.listAll(assignedProjectIds, isSuperAdmin)
+      .then(list => {
+        if (active) setProjectsList(list || []);
+      })
+      .catch(err => console.error(err));
+    return () => { active = false; };
   }, [authContext.userId, authContext.role, assignedProjectScopeKey]);
 
   // Available Projects (scoped by assignedProjectIds if set, unless SUPER_ADMIN)
@@ -237,11 +237,13 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
   const [canonicalPricingRules, setCanonicalPricingRules] = useState<any[]>([]);
   useEffect(() => {
     setCanonicalPricingRules([]); setPricingRuleId('');
-    if(!projectId) return;
-    let current=true;
-    const stop=pricingRuleRepository.subscribeByProject(projectId,rules=>{if(current)setCanonicalPricingRules(rules.map(r=>({...r,pricingType:r.pricingModel,rate:r.baseRateSAR,agreedRate:r.baseRateSAR})));});
-    return()=>{current=false;stop();};
-  },[projectId]);
+    if (!projectId || projectId === 'ALL') return;
+    let current = true;
+    const unsub = pricingRuleRepository.subscribeByProject(projectId, (rules) => {
+      if (current) setCanonicalPricingRules(rules.map(r => ({ ...r, pricingType: r.pricingModel, rate: r.baseRateSAR, agreedRate: r.baseRateSAR })));
+    });
+    return () => { current = false; unsub(); };
+  }, [projectId]);
   const pricingResolution=useMemo(()=>pricingService.resolvePricingRuleFromList(canonicalPricingRules,{projectId,carrierId,materialId,tripDate:new Date().toISOString()}),[canonicalPricingRules,projectId,carrierId,materialId]);
   const applicablePricingRules=pricingResolution.candidates;
   const activePricingRule=pricingResolution.selectedRule as MasterPricingRule | undefined;

@@ -15,7 +15,11 @@ export function AdaptiveOperationalReports({projectId,configuration}:{projectId:
 
  useEffect(()=>{
   setTrips([]);setFilters({});setError(false);setRefreshStatus('IDLE');
-  return tripRepository.subscribeByProject(projectId,setTrips,()=>setError(true));
+  let active = true;
+  void tripRepository.listByProject(projectId, 500)
+   .then(list => { if (active) setTrips(list); })
+   .catch(() => { if (active) setError(true); });
+  return () => { active = false; };
  },[projectId]);
 
  const onRefreshReports = async () => {

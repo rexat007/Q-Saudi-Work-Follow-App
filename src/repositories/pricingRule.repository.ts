@@ -21,9 +21,9 @@ export class PricingRuleRepository {
   subscribeByProject(p:string,onData:(rules:PricingRuleEntity[])=>void){
     let active=true,sequence=0;
     const load=async()=>{const version=++sequence;try{const rules=await this.listByProject(p);if(active&&version===sequence)onData(rules);}catch{if(active&&version===sequence)onData([]);}};
-    void load();const timer=setInterval(()=>void load(),5000);
+    void load();
     if(typeof window!=='undefined')window.addEventListener('pricing-rules-updated',load);
-    return()=>{active=false;sequence++;clearInterval(timer);if(typeof window!=='undefined')window.removeEventListener('pricing-rules-updated',load);};
+    return()=>{active=false;sequence++;if(typeof window!=='undefined')window.removeEventListener('pricing-rules-updated',load);};
   }
 }
 export const pricingRuleRepository=new PricingRuleRepository();

@@ -139,8 +139,52 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
   };
 
   useEffect(() => {
-    refreshInboundTrips();
-  }, [isOnline, scopeKey]);
+    if (!isOnline) {
+      refreshInboundTrips();
+      return;
+    }
+    const projectIds = authContext.role === 'SUPER_ADMIN'
+      ? [] // subscribeByProject handles superadmin if list is empty? No, tripRepository.subscribeByProject requires projectId.
+      : (authContext.assignedProjectIds || []).filter(id => id && id !== 'ALL');
+    
+    if (projectIds.length === 0 && authContext.role !== 'SUPER_ADMIN') {
+      refreshInboundTrips();
+      return;
+    }
+
+    const unsubs: (() => void)[] = [];
+    const allResults = new Map<string, TripRecord[]>();
+
+    const updateFromSub = (pId: string, trips: TripRecord[]) => {
+      allResults.set(pId, trips);
+      const combined = Array.from(allResults.values()).flat();
+      // Filter inbound states
+      const inbounds = combined.filter(t => 
+        t.status === 'IN_TRANSIT' || 
+        t.status === 'ARRIVED' || 
+        (t.status as string) === 'AT_DESTINATION' || 
+        t.status === 'UNLOADING' || 
+        (t.status as string) === 'OFFLOADED'
+      );
+      setInboundTrips(inbounds);
+      setTripsCache(combined);
+    };
+
+    if (authContext.role === 'SUPER_ADMIN') {
+      // For superadmin, we might need a different approach or just stick to one-shot if many projects.
+      // But let's try to subscribe to a few? No, let's keep one-shot for superadmin to avoid massive traffic if many projects.
+      // Actually the guide says "ACTIVE_OPERATIONAL_SURFACE realtime = bounded where operationally necessary".
+      // A superadmin monitoring everything is "reporting".
+      // A site supervisor monitoring ONE project is "operational".
+      refreshInboundTrips();
+    } else {
+      projectIds.forEach(pId => {
+        unsubs.push(tripRepository.subscribeByProject(pId, (data) => updateFromSub(pId, data.map(operationalTripProjection))));
+      });
+    }
+
+    return () => unsubs.forEach(u => u());
+  }, [isOnline, scopeKey, authContext.assignedProjectIds, authContext.role]);
 
   // Sync dual scale weights
   useEffect(() => {
