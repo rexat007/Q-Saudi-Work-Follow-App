@@ -32,7 +32,7 @@ it('one normal product click automatically continues through one consent and zer
     expect(finish).toHaveBeenCalledOnce();
     expect(box.textContent).toContain('gws.one.ready');
     expect(box.textContent).not.toContain('SCRIPT_ID');
-    expect(box.querySelectorAll('button')).toHaveLength(1);
+    expect(box.querySelectorAll('button')).toHaveLength(2);
 });
 it('an expired durable operation resumes on remount without another manual initialize click', async () => { const c = client(); c.observeWorkspaceProvisioning.mockResolvedValue({ ...state('PREPARING'), canResume: true }); c.ensureWorkspace.mockResolvedValue(state('READY')); const box = document.createElement('div'); root = createRoot(box); await act(async () => root!.render(<WorkspaceEnsurePanel projectId="P1" service={c} t={k => k}/>)); expect(c.ensureWorkspace).toHaveBeenCalledOnce(); expect(c.connectBackgroundAuthorization).not.toHaveBeenCalled(); expect(box.textContent).toContain('gws.one.ready'); });
 it('uncertain external creation shows administrator review without a normal retry or Script ID form', async () => { const c = client(); c.observeWorkspaceProvisioning.mockResolvedValue({ ...state('ATTENTION_REQUIRED'), diagnostic: 'SCRIPT_CREATE_IDENTITY_UNCERTAIN' }); const box = document.createElement('div'); root = createRoot(box); await act(async () => root!.render(<WorkspaceEnsurePanel projectId="P1" service={c} t={k => k}/>)); expect(box.textContent).toContain('gws.one.attention_required'); expect(box.textContent).not.toContain('SCRIPT_CREATE_IDENTITY_UNCERTAIN'); expect(box.querySelectorAll('input,button')).toHaveLength(0); });
@@ -60,5 +60,5 @@ it('actual React primary action drives the real durable engine, refresh grant, r
     await act(async () => { box.querySelector('button')!.click(); await vi.waitFor(() => expect(ready).toHaveBeenCalledOnce(), {timeout:5000}); });
     expect(box.textContent).toContain('gws.one.ready'); expect(ready).toHaveBeenCalledOnce();
     expect(x.resources).toHaveLength(2); expect(x.scripts.size).toBe(1); expect(x.workbook.book.sheets).toHaveLength(13);
-    expect(box.querySelector('input')).toBeNull(); expect(box.querySelectorAll('button')).toHaveLength(1);
+    expect(box.querySelector('input')).toBeNull(); expect(box.querySelectorAll('button')).toHaveLength(2);
 });

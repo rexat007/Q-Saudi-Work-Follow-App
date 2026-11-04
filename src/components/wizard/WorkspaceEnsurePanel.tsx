@@ -10,10 +10,11 @@ const stateKey={NOT_CONFIGURED:'gws.one.not_configured',PREPARING:'gws.one.prepa
 /** One serialized read observer; automatic resume is once per durable progress/build. */
 export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=clientWorkspaceService}:Props){
  const [status,setStatus]=useState<WorkspaceEnsureStatus|null>(null),[busy,setBusy]=useState(false),[failure,setFailure]=useState(false);
+ const [syncState,setSyncState]=useState<'IDLE'|'SYNCING'|'SUCCESS'|'FAILURE'>('IDLE');
  const active=useRef(0),running=useRef(false),generationBlocked=useRef(false),ready=useRef(onReady),timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),transport=useRef<AbortController|undefined>(undefined),interaction=useRef<(()=>void)|undefined>(undefined);
  ready.current=onReady;
  useEffect(()=>{
-  const generation=++active.current;let polls=0;running.current=false;generationBlocked.current=false;setBusy(false);setFailure(false);setStatus(null);
+  const generation=++active.current;let polls=0;running.current=false;generationBlocked.current=false;setBusy(false);setFailure(false);setSyncState('IDLE');setStatus(null);
   const observe=async()=>{if(generationBlocked.current||running.current||active.current!==generation)return;
    try{
     const controller=new AbortController();transport.current=controller;
@@ -39,10 +40,30 @@ export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=cli
   }catch(error){if(error instanceof Error&&error.message==='APP_UPDATE_REQUIRED')generationBlocked.current=true;if(active.current===generation)setFailure(true);}
   finally{controller.abort();finish?.();if(interaction.current===finish)interaction.current=undefined;if(active.current===generation){setBusy(false);running.current=false;}}
  };
+ const handleManualSync=async()=>{
+  if(syncState==='SYNCING'||busy||generationBlocked.current)return;
+  setSyncState('SYNCING');
+  try{
+   const clientPort=service as any;
+   if(typeof clientPort.drainPendingWorkspace==='function'){
+    await clientPort.drainPendingWorkspace(projectId);
+   }else{
+    await clientWorkspaceService.drainPendingWorkspace(projectId);
+   }
+   setSyncState('SUCCESS');
+  }catch{
+   setSyncState('FAILURE');
+  }
+ };
  if(typeof service.ensureWorkspace!=='function')return null;
- return <section className="rounded-xl border border-stone-700 p-4 space-y-3" aria-busy={busy}>
+ return <section className="rounded-xl border border-stone-700 p-4 space-y-3" aria-busy={busy||syncState==='SYNCING'}>
  <p role="status" aria-live="polite">{t(busy?'gws.one.preparing':failure?'gws.one.attention_required':stateKey[status?.state||'NOT_CONFIGURED'])}</p>
+ {syncState==='SUCCESS'&&<p role="status" aria-live="polite" className="text-emerald-400 text-sm font-semibold">{t('gws.one.sync_complete')}</p>}
+ {syncState==='FAILURE'&&<p role="status" aria-live="polite" className="text-rose-400 text-sm font-semibold">{t('gws.one.sync_failed')}</p>}
  {status&&<ol aria-label={t('gws.one.progress')}>{(Object.keys(progressKeys) as (keyof typeof progressKeys)[]).map(phase=><li key={phase}>{status.completed.includes(phase)?'✓ ':''}{t(progressKeys[phase])}</li>)}</ol>}
- {(!status||status.state!=='ATTENTION_REQUIRED'||status.canResume)&&<button type="button" onClick={()=>void run(active.current,true)} disabled={busy||generationBlocked.current} className="bg-amber-600 rounded-xl px-4 py-2 font-bold">{t(status?.state==='READY'?'gws.one.verify':'gws.one.prepare')}</button>}
+ <div className="flex flex-wrap gap-2">
+  {(!status||status.state!=='ATTENTION_REQUIRED'||status.canResume)&&<button type="button" onClick={()=>void run(active.current,true)} disabled={busy||syncState==='SYNCING'||generationBlocked.current} className="bg-amber-600 hover:bg-amber-500 disabled:opacity-50 rounded-xl px-4 py-2 font-bold">{t(status?.state==='READY'?'gws.one.verify':'gws.one.prepare')}</button>}
+  {status?.state==='READY'&&<button type="button" onClick={()=>void handleManualSync()} disabled={syncState==='SYNCING'||busy||generationBlocked.current} className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 rounded-xl px-4 py-2 font-bold">{t('gws.one.sync')}</button>}
+ </div>
  </section>;
 }
