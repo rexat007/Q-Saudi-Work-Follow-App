@@ -471,4 +471,27 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
     const expectedDbId = 'ai-studio-qsaudiworkfollow-ab1cba1e-ac08-4099-bc72-193202e518f1';
     expect(resolvedId).toBe(expectedDbId);
   });
+
+  it('TC-AUTH-24: Returns 503 Service Unavailable when Firestore lookup encounters transient error', async () => {
+    // Need to set up the DB override to throw 'unavailable'
+    setTestDbOverride({
+      collection(colName: string) {
+        return {
+          doc(docId: string) {
+            return {
+              async get() {
+                throw { code: 'unavailable' };
+              }
+            };
+          }
+        };
+      }
+    });
+
+    const req: any = { headers: { authorization: 'Bearer active-supervisor-token' } };
+    const { res, getStatus, getBody } = createMockResponse();
+    await authenticateUser(req, res, () => {});
+    expect(getStatus()).toBe(503);
+    expect(getBody()?.code).toBe('SERVICE_UNAVAILABLE');
+  });
 });

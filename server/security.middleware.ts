@@ -190,6 +190,12 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
       'auth/id-token-revoked': 'TOKEN_REVOKED',
       'auth/user-disabled': 'IDENTITY_DISABLED',
     };
+
+    // Check for transient Firestore/Admin errors
+    if (['unavailable', 'deadline-exceeded'].includes(err?.code)) {
+      return res.status(503).json({ success: false, code: 'SERVICE_UNAVAILABLE', error: 'الخدمة غير متوفرة مؤقتاً، يرجى المحاولة لاحقاً.' });
+    }
+
     const code = err instanceof PrincipalError ? err.code : firebaseCodes[err?.code] || 'INVALID_TOKEN';
     return res.status(err instanceof PrincipalError ? 403 : 401).json({ success: false, code, error: err instanceof PrincipalError ? err.message : code });
   }
