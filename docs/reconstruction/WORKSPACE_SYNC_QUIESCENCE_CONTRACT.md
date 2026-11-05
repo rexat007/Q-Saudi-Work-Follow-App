@@ -111,3 +111,14 @@ After separately authorized publication/deployment and quota recovery, use the e
 5. Confirm PR #87 profile-unavailable behavior still retains the same account/Roster session during a transient outage and never opens re-registration. Reconnect through existing authority; do not manufacture an outage or reset live data in this source unit.
 
 Compare observed document-operation usage with actual pending work/history and the model; do not equate Query Insights query executions with document reads. The full intake/Material/bulk live matrix remains open in [LIVE_INTAKE_CONTINUITY_CONTRACT.md](LIVE_INTAKE_CONTINUITY_CONTRACT.md). Local commit only; PUSH/PR/MERGE NOT_PERFORMED. Phase 10 and Trips/Reports redesign are not started.
+
+## Final Product/Architecture Decision: Manual-Only Workspace Synchronization
+
+- **3-Hour Scheduler**: Cancelled by product decision. External scheduler introduces recurring infrastructure cost. Firestore remains the sole canonical operational authority.
+- **Manual Incremental Synchronization**: Implemented and LIVE PASS (`retrySync`).
+- **Manual Derived Report Refresh**: Implemented and LIVE PASS (`refreshOperationalReports` with server quota guard and 60s cooldown).
+- **Worker Source**: `scripts/run-workspace-sync-worker.ts`, `server/workspaceSyncWorker.ts`, and `server/workspaceSyncCoordinator.ts` are classified as optional future automation capability, not deployed, not required for foundation acceptance.
+- **Google Sheets Freshness Contract**: Google Sheets may be stale until an authorized user explicitly performs manual synchronization. This is intentional. Application/Firestore state remains authoritative at all times.
+- **Cost Model**: Idle automatic Google sync calls = 0; scheduled infrastructure cost = none; Google projection cost = user-triggered only.
+- **Foundation Status**: Three-hour scheduler blocker removed by product decision; scheduled worker deployment not required; foundation technical blockers = none known. Foundation acceptance = READY FOR OWNER FINAL ACCEPTANCE. Phase 10 = NOT STARTED.
+
