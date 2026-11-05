@@ -1,3 +1,30 @@
+## Q-PRJ-011 Terminal Smart Import Re-entry Defect — 2026-11-05
+
+Owner live observation: Q-PRJ-011 resumed and completed the Smart Roster Import journey. After completion, ordinary navigation back into the ROSTER setup layer automatically opens the Smart Import recovery/overlay again.
+
+This behavior is not accepted.
+
+### Binding recovery rule
+
+- Durable recovery is preserved for genuinely interrupted/resumable sessions and managed executions.
+- A session/execution that is terminal under the canonical Import Session / execution contract must not be selected by automatic ROSTER-entry recovery.
+- Terminal result/history may remain inspectable through an explicit history/result action; it must not hijack normal ROSTER navigation.
+- Starting another import requires an explicit **new import** user action and a new canonical session/operation identity.
+- The correction must not weaken P8 reviewed-intent authority, source fingerprint/version fencing, commit receipts, lost-response recovery or terminal audit evidence.
+
+### Acceptance gate
+
+Reproduce against current source, identify which list/resume selector admits the terminal Q-PRJ-011 session, correct the selector/presentation lifecycle, retain interrupted-session recovery, and live-retest: complete an import → leave ROSTER → return to ROSTER → no automatic overlay → explicitly start a new import → new session opens.
+
+~~~text
+Q_PRJ_011_TERMINAL_IMPORT_AUTO_RESTORE = LIVE_DEFECT
+SMART_IMPORT_DURABLE_INTERRUPTED_RECOVERY = PRESERVE
+TERMINAL_SESSION_AUTO_RESUME = FORBIDDEN
+NEW_IMPORT = EXPLICIT_USER_ACTION_ONLY
+FOUNDATION_ACCEPTANCE = BLOCKED
+PHASE_10 = NOT_STARTED
+~~~
+
 # Live intake continuity, canonical bulk resolution and Material binding
 
 Current state belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Historical implementation evidence baseline: `637b7d54429ac586e101689deae35e013a9eab77`, merged PR #86. This is a bounded correction of the existing operational Roster and account-availability journey, not another phase or a Workspace/Trips/Reports redesign.

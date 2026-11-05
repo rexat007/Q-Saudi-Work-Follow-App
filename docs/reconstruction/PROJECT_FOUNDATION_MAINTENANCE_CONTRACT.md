@@ -1,3 +1,41 @@
+## Owner Field-Correction Requirement — Foundation Acceptance Reopened — 2026-11-05
+
+This section supersedes any interpretation that an ACTIVE Project is operationally read-only.
+
+### Product requirement
+
+An ACTIVE Project must remain **correctable without becoming historically mutable**. The maintenance model must be role-bounded, server-authoritative and audited. It must distinguish current operational corrections from immutable historical evidence.
+
+Owner field scenarios that must be supported by the final design include:
+
+- a shipment starts with one tractor/head/plate identity and the tractor/head changes before unloading while the business shipment remains the same movement;
+- equipment breaks down and a valid substitute is used;
+- a weighbridge becomes temporarily unavailable during live execution;
+- other unforeseen field conditions require an administrator to correct the current operational structure without deleting/recreating the Project or corrupting historical reports.
+
+### Safety invariants
+
+- Do not solve these scenarios by allowing unrestricted Firestore/client edits.
+- Do not silently rewrite frozen Trip-at-dispatch facts or historical pricing/operational snapshots.
+- Preserve actor, reason, effective time, before/after identity and causal provenance for corrective actions.
+- Do not split one real shipment into orphaned open/closed Trips merely because equipment identity changed mid-cycle.
+- Current assignment/allocation/participation truth and historical event truth must remain distinguishable.
+- RBAC, Project isolation, audit, version fencing and dependency consequences remain mandatory.
+- Structural operational-profile changes continue through impact assessment/review; field-contingency semantics must not bypass that contract.
+
+### Current acceptance status
+
+Source policy already permits several bounded operational mutations on ACTIVE Projects, but owner live observation shows the current setup/maintenance UX is effectively locked and therefore does not satisfy the field requirement. The exact mismatch between UI fences, lifecycle/mutation policies and domain commands must be audited before implementation.
+
+~~~text
+ACTIVE_PROJECT_CORRECTIVE_MAINTENANCE = GAP_CONFIRMED
+CURRENT_LIVE_UX = EFFECTIVELY_LOCKED
+REMEDIATION = DESIGN_AND_SOURCE_AUDIT_REQUIRED
+HISTORY_PRESERVATION = MANDATORY
+FOUNDATION_ACCEPTANCE = BLOCKED
+PHASE_10 = NOT_STARTED
+~~~
+
 # Project Foundation Maintenance Contract — PFAG-RB2
 
 CURRENT_SUPPORTING_CONTRACT. [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) alone owns current unit and acceptance state. This contract describes source behavior, not deployed Firebase acceptance.

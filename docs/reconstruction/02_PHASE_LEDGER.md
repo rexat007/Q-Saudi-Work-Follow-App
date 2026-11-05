@@ -1,3 +1,29 @@
+### Current Pre-Phase-10 Foundation Reopening — 2026-11-05
+
+Authoritative current source baseline: 8b3615a1153ee0e59a456f5d28a51bf28380b3c8.
+
+~~~text
+PRE_PHASE_10_FOUNDATION_ASSURANCE = REOPENED
+FOUNDATION_ACCEPTANCE = BLOCKED_PENDING_REMEDIATION_AND_LIVE_ACCEPTANCE
+PHASE_10 = NOT_STARTED
+~~~
+
+The owner has reopened final Foundation acceptance after live field review. This is not a rollback of closed source phases; it is a Foundation product-acceptance gate over the integrated result.
+
+| Current Foundation item | Status | Binding interpretation |
+|---|---|---|
+| Active Project corrective maintenance | GAP_CONFIRMED / DESIGN_AND_REMEDIATION_REQUIRED | ACTIVE Projects must support bounded, audited operational correction during execution. Current owner-observed UI behavior is effectively locked and does not satisfy the product requirement. Historical facts must not be destructively rewritten. |
+| In-flight equipment / field contingency continuity | REQUIREMENT_CONFIRMED / DESIGN_REQUIRED | Real operations may require tractor/head/plate substitution, weighbridge outage handling and other field contingencies while preserving one business movement and its provenance. Exact command/event semantics remain to be designed and verified. |
+| Smart Import terminal-session restoration | LIVE_DEFECT / REMEDIATION_REQUIRED | Q-PRJ-011 completed Smart Roster Import, but later ROSTER entry auto-reopened the completed overlay. Terminal sessions must not be automatic resume candidates; interrupted/resumable sessions retain durable recovery. |
+| Google Workspace generated-template acceptance | INCOMPLETE / FULL_VARIANT_MATRIX_REQUIRED | Owner has exercised two models; the second remains unfinished. Every distinct supported generated workbook/profile variant must be accepted before Phase 10. |
+| Firestore idle quiescence | LIVE_PASS | Preserved; not reopened. |
+| Active-surface bounded realtime | LIVE_PASS | Preserved; not reopened. |
+| Manual incremental Workspace sync | LIVE_PASS | Preserved. |
+| Manual derived report refresh + quota guard | LIVE_PASS | Preserved. |
+| Three-hour scheduler / paid cron | CANCELLED_BY_PRODUCT_DECISION | Not a Foundation requirement. Worker source remains optional/dormant. |
+
+**Phase rule:** Phase 10 remains strictly NOT_STARTED until the owner explicitly accepts the reopened Foundation gate after the three current blocker families are resolved and live-validated. Earlier ledger entries that say Foundation is ready for owner final acceptance are superseded by this checkpoint.
+
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 

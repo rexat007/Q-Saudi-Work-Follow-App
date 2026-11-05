@@ -1,3 +1,23 @@
+## Foundation Reopening Note — 2026-11-05
+
+Workspace quiescence itself remains accepted. This note changes only the **overall Foundation** conclusion.
+
+~~~text
+FIRESTORE_IDLE_QUIESCENCE = LIVE_PASS
+ACTIVE_SURFACE_REALTIME = LIVE_PASS / BOUNDED
+MANUAL_INCREMENTAL_SYNC = LIVE_PASS
+MANUAL_DERIVED_REPORT_REFRESH = LIVE_PASS
+THREE_HOUR_SCHEDULER = CANCELLED_BY_PRODUCT_DECISION
+PAID_CRON_REQUIREMENT = NONE
+
+OVERALL_FOUNDATION_ACCEPTANCE =
+BLOCKED_PENDING_ACTIVE_PROJECT_MAINTENANCE_SMART_IMPORT_TERMINAL_RESUME_AND_TEMPLATE_MATRIX
+
+PHASE_10 = NOT_STARTED
+~~~
+
+Any older line in this document saying foundation technical blockers = none known or Foundation acceptance = READY FOR OWNER FINAL ACCEPTANCE is superseded by this note. The manual-only Workspace architecture and its live quiescence evidence are not reopened.
+
 ## Controlled Incremental Workspace Projection & Quiescence Quota Convergence — 2026-11-03
 
 The single current-state authority is [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Working source baseline `7d50d3a31e72eb2e573ed169a029d5822f0a0742` incorporates Controlled Incremental Workspace Projection & Cost/Scale Architecture Convergence:

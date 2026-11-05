@@ -1,3 +1,29 @@
+## Generated Google Workspace Variant Acceptance Gate — 2026-11-05
+
+Local/source matrix coverage does not substitute for final owner live acceptance of the generated workbooks.
+
+Owner status: two generated operational models have been exercised in the live acceptance sequence; the second model is not yet fully completed/accepted. Therefore the Workspace/template family is **not** a closed Foundation acceptance item yet.
+
+Before Phase 10:
+
+- identify every distinct workbook/template variant produced by the current Operational Profile registry;
+- at minimum live-validate DUAL_WEIGHBRIDGE, LOADING_SCALE_ONLY, UNLOADING_SCALE_ONLY and NO_WEIGHBRIDGE when each resolves a distinct workbook;
+- if Driver Intake mode changes generated workbook capability/behavior, cover the applicable PRELOADED_ROSTER / ON_FIRST_OPERATION / MIXED combinations rather than assuming source tests alone prove equivalence;
+- verify required tab identity and headers, profile-specific views, formulas/static generation, bound Apps Script installation and simple-trigger behavior, master-data projection, manual incremental synchronization, explicit derived-report refresh, repair/idempotence and preservation of folder/Sheet/Script identity;
+- verify no generated variant depends on automatic scheduler/cron freshness; Firestore remains canonical and Google projection remains manual-only;
+- record each live result explicitly rather than inferring full family acceptance from one or two models.
+
+~~~text
+GOOGLE_WORKSPACE_TEMPLATE_SOURCE_MATRIX = IMPLEMENTED
+GOOGLE_WORKSPACE_TEMPLATE_LIVE_ACCEPTANCE = INCOMPLETE
+OWNER_TESTED_MODELS = 2
+SECOND_MODEL_ACCEPTANCE = INCOMPLETE
+FULL_DISTINCT_VARIANT_MATRIX = REQUIRED_BEFORE_PHASE_10
+PHASE_10 = NOT_STARTED
+~~~
+
+Older local 4×3 tests remain valuable source evidence, but they do not close this live gate.
+
 ## Controlled Incremental Workspace Projection & Canonical Operational Authority — 2026-11-03
 
 CANONICAL_OPERATIONAL_AUTHORITY = FIRESTORE (`FIRESTORE` is the sole operational authority; Google Sheets is a deferred projection, continuity, and export destination). Ordinary data sync (`retrySync`) executes with 0 full trip collection reads (`FULL_TRIP_COLLECTION_READ` = 0) and 0 `projectProfileReports` calls. Derived operational reports refresh via an explicit bounded operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`). Automatic activity trigger POST calls (`useUserActiveWorkspaceSync`) are retired (`AUTOMATIC_USER_ACTIVE_SYNC_POSTS` = 0). Unbounded continuous 30s PWA polling is eliminated. Scheduled background sync worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects without Google calls. Bound Google Workspace resource identity (`destinationRootFolderId`, `projectFolderId`, `spreadsheetId`, `scriptProjectId`, `googleSubject`), durable authorization, script execution, and user-initiated manual sync actions remain fully preserved.

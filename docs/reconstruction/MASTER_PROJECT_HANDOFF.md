@@ -1,3 +1,24 @@
+## Current Handoff — Foundation Reopened Before Phase 10 — 2026-11-05
+
+Current verified GitHub baseline: 8b3615a1153ee0e59a456f5d28a51bf28380b3c8.
+
+The final Project Foundation gate is **reopened** after owner field acceptance. Do not start Phase 10 and do not rely on older handoff statements that Foundation is ready for final acceptance.
+
+Current blockers:
+
+1. **ACTIVE Project corrective-maintenance gap.** Owner-observed UI behavior effectively locks the active Project. The accepted product requirement is controlled operational mutability under RBAC/audit/history preservation, including real field contingencies such as tractor/head/plate substitution during the same movement and temporary weighbridge outages. Exact remediation design is not yet accepted.
+2. **Completed Smart Import session auto-restores.** In Q-PRJ-011 the Smart Roster Import was completed, but entering ROSTER later reopens the terminal overlay. Automatic recovery must select only genuinely resumable work; terminal history must not hijack ordinary ROSTER entry. A new import requires explicit user action.
+3. **Generated Google Sheets variants are not fully live-accepted.** Two models were tested; the second remains unfinished. Complete the live generated-template matrix before Phase 10.
+
+Preserve the already accepted Workspace decisions: Firestore authority; manual-only Google projection; no three-hour scheduler/paid cron requirement; quiescence LIVE PASS; manual incremental sync LIVE PASS; explicit report refresh and cooldown LIVE PASS.
+
+~~~text
+FOUNDATION_SOURCE_HISTORY = PRESERVED
+PRE_PHASE_10_FOUNDATION_ASSURANCE = REOPENED
+FOUNDATION_ACCEPTANCE = BLOCKED_PENDING_REMEDIATION_AND_LIVE_ACCEPTANCE
+PHASE_10 = NOT_STARTED
+~~~
+
 ## Controlled Incremental Workspace Projection handoff checkpoint — 2026-11-03
 
 Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`. Working source contains the completed Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence.

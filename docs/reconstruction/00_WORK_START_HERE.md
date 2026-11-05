@@ -1,3 +1,26 @@
+## Current Pre-Phase-10 Foundation Reopening Checkpoint — 2026-11-05
+
+**Authoritative source baseline:** 8b3615a1153ee0e59a456f5d28a51bf28380b3c8.
+
+Owner field acceptance has reopened the final Foundation gate. This supersedes any older top-level statement that Foundation is ready for final acceptance. Three Foundation acceptance blockers are now explicit:
+
+1. **Active-Project Corrective Maintenance** — owner live observation shows an ACTIVE Project is effectively locked in the current setup UI even though source policies permit bounded operational mutation. The product must support audited, role-bounded corrective maintenance during real execution without destructive historical rewriting. Field examples include a tractor/head or plate substitution while the same shipment continues, and temporary weighbridge failure during operations. Exact correction semantics require bounded design/source audit before implementation; historical Trip facts and audit provenance must remain preserved.
+2. **Smart Import Terminal-Session Re-entry** — in Q-PRJ-011 the owner completed the Smart Roster Import journey, but entering the ROSTER layer later automatically reopens the completed import overlay. Durable recovery remains required for genuinely resumable work, but a terminal/completed session must not be auto-selected. A new import must begin only from an explicit user action. This is an owner-observed live defect requiring source remediation and live retest.
+3. **Google Workspace Template Acceptance** — live acceptance of generated Google Sheets structures is incomplete. Two models have been exercised by the owner and the second is not yet fully accepted. Before Phase 10, every distinct supported generated workbook/profile variant must be validated for structure, tabs, formulas/Apps Script behavior, manual incremental synchronization, derived report refresh, identity preservation and non-destructive repair. Where intake mode changes generated capability, the applicable profile × intake combinations must also be covered.
+
+Preserved accepted decisions: Firestore remains the sole operational authority; Google Sheets is manual deferred projection; the three-hour scheduler is cancelled; idle quiescence, manual incremental sync, manual report refresh and the 60-second report-refresh quota guard remain accepted and are not reopened by this checkpoint.
+
+~~~text
+PRE_PHASE_10_FOUNDATION_ASSURANCE = REOPENED
+ACTIVE_PROJECT_CORRECTIVE_MAINTENANCE = GAP_CONFIRMED / DESIGN_AND_REMEDIATION_REQUIRED
+SMART_IMPORT_TERMINAL_SESSION_AUTO_RESTORE = LIVE_DEFECT / REMEDIATION_REQUIRED
+GOOGLE_WORKSPACE_TEMPLATE_ACCEPTANCE = INCOMPLETE / FULL_VARIANT_MATRIX_REQUIRED
+FOUNDATION_ACCEPTANCE = BLOCKED_PENDING_REMEDIATION_AND_LIVE_ACCEPTANCE
+PHASE_10 = NOT_STARTED
+~~~
+
+Older checkpoints below are historical evidence and must not override this section.
+
 ## Current Controlled Incremental Workspace Projection & Derived Report Refresh checkpoint — 2026-11-03
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Working source contains completed Controlled Incremental Workspace Projection & Cost, Scale, Synchronization Architecture and Explicit Derived Report Refresh Convergence verified locally (`7d50d3a31e72eb2e573ed169a029d5822f0a0742` baseline). Standard operational authority is strictly Firestore (`FIRESTORE` = SOLE CANONICAL OPERATIONAL AUTHORITY; `GOOGLE_SHEETS` = DEFERRED PROJECTION / CONTINUITY / REPORT EXPORT). Ordinary data sync (`retrySync`) performs strictly incremental Trip projection (0 full Trip collection scans). Derived operational reports are updated via an explicit bounded server-authoritative operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`). Automatic user-active activity trigger POST requests (`useUserActiveWorkspaceSync`) and unbounded continuous 30s PWA polling in `pwaUpdate.ts` are retired to strictly 0 calls. Scheduled worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects without Google calls. Local test suites `controlledIncrementalWorkspaceProjection.test.ts` (5/5 PASS), `userActiveWorkspaceSync.test.tsx` (10/10 PASS), `runtimeGenerationConvergence.test.ts` (18/18 PASS), and `workspaceSyncCoordinator.test.ts` (28/28 PASS) all pass (61/61 total PASS). Publication is pending owner review; no push, PR, merge, or Phase 10.

@@ -1,3 +1,12 @@
+## Pre-Phase-10 Foundation Reopening Decisions — 2026-11-05
+
+- **OWNER_DECISION — ACTIVE PROJECTS MUST REMAIN CORRECTABLE IN REAL OPERATIONS.** Final Foundation acceptance is reopened. An ACTIVE Project cannot be treated as a globally immutable setup artifact. The product must permit bounded, RBAC-protected, audited operational correction and maintenance while preserving historical truth. Owner field examples include changing a tractor/head or plate during the same shipment and operating through a temporary weighbridge failure. This requirement does **not** authorize unrestricted editing or destructive rewriting of Trip history; exact command/event/snapshot semantics require a bounded design/source audit.
+- **OWNER_LIVE_DEFECT — SMART IMPORT TERMINAL SESSION AUTO-RESTORE.** Q-PRJ-011 completed its Smart Roster Import session, yet subsequent entry into the ROSTER layer reopens the completed import overlay. Durable recovery remains authoritative for non-terminal/resumable sessions, but terminal sessions must not be automatically restored. Explicit user action is required to start a new import. This is blocking Foundation acceptance until remediated and live-retested.
+- **OWNER_ACCEPTANCE_GAP — GOOGLE WORKSPACE TEMPLATE MATRIX.** Generated Google Sheets acceptance is incomplete. Two models were exercised; the second remains unfinished. Before Phase 10, all distinct supported generated workbook/profile variants require live validation of required tabs/headers, formulas and bound Apps Script behavior, manual sync, explicit report refresh, repair/idempotence and stable resource identity. If driver-intake mode changes a generated capability, the applicable profile × intake combinations are also in scope.
+- **PRESERVED — MANUAL-ONLY GOOGLE PROJECTION.** Firestore remains canonical; automatic three-hour scheduling remains cancelled; optional worker source is dormant. Idle quiescence, manual incremental sync and manual report refresh/quota controls remain accepted.
+- **SUPERSEDES:** any prior statement that FOUNDATION_ACCEPTANCE = READY_FOR_OWNER_FINAL_ACCEPTANCE, foundation technical blockers = none known, or that Phase 10 may begin immediately.
+- **CURRENT:** FOUNDATION_ACCEPTANCE = BLOCKED_PENDING_REMEDIATION_AND_LIVE_ACCEPTANCE; PHASE_10 = NOT_STARTED.
+
 ## Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`.
