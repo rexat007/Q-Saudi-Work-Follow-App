@@ -621,6 +621,35 @@ export class ProjectGoogleWorkspaceServer {
     });
   }
   async refreshOperationalReports(projectId: string, who: AuthUserContext, google: GoogleBlueprintPort) {
+    const REPORT_REFRESH_COOLDOWN_MS = 60000;
+    const now = new Date();
+    const nowMs = now.getTime();
+
+    const cooldownCheck = await this.db.runTransaction(async (tx: any) => {
+      await this.authorized(tx, projectId, who);
+      const ref = continuityRef(this.db, projectId);
+      const snap = await tx.get(ref);
+      if (!snap.exists) return { allowed: true };
+      const data = snap.data();
+      const lastAttempt = data?.lastReportRefreshAttemptAt;
+      if (lastAttempt) {
+        const elapsed = nowMs - Date.parse(lastAttempt);
+        if (elapsed < REPORT_REFRESH_COOLDOWN_MS) {
+          const retryAfterSeconds = Math.ceil((REPORT_REFRESH_COOLDOWN_MS - elapsed) / 1000);
+          return { allowed: false, retryAfterSeconds };
+        }
+      }
+      tx.set(ref, { ...data, lastReportRefreshAttemptAt: now.toISOString() }, { merge: true });
+      return { allowed: true };
+    });
+
+    if (!cooldownCheck.allowed) {
+      const err = Object.assign(new GoogleWorkspaceCommandError('REPORT_REFRESH_COOLDOWN', 429), {
+        retryAfterSeconds: cooldownCheck.retryAfterSeconds
+      });
+      throw err;
+    }
+
     const owner = randomUUID();
     const state = await this.claimSync(projectId, who, owner, false);
     if (!google.projectProfileReports) return gwsFail('PROFILE_PROJECTION_REQUIRED');

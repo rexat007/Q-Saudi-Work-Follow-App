@@ -24,6 +24,7 @@ vi.mock('../services/workspace.service', () => ({
 vi.mock('../repositories/trip.repository', () => ({
   tripRepository: {
     subscribeByProject: f.subscribe,
+    listByProject: vi.fn(async () => []),
   },
 }));
 
@@ -100,18 +101,8 @@ describe('Google Derived Report Refresh UI Wiring', () => {
     expect(f.refresh).toHaveBeenCalledTimes(1);
   });
 
-  it('does not refresh automatically on mount or subscription update', async () => {
-    let subCallback: any;
-    f.subscribe.mockImplementation((_p, cb) => {
-      subCallback = cb;
-      cb([]);
-      return () => {};
-    });
-
+  it('does not refresh automatically on mount or list load', async () => {
     await act(async () => root.render(<AdaptiveOperationalReports projectId={projectId} configuration={mockConfig} />));
-    expect(f.refresh).not.toHaveBeenCalled();
-
-    await act(async () => subCallback([{ tripId: 'T1' }]));
     expect(f.refresh).not.toHaveBeenCalled();
   });
 

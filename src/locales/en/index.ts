@@ -75,6 +75,8 @@ export const enTranslations: TranslationDictionary = {
   "op.refreshing_google_reports": "Refreshing Google Sheets reports...",
   "op.google_reports_refreshed": "Google Sheets reports refreshed successfully",
   "op.google_reports_refresh_failed": "Failed to refresh Google Sheets reports",
+  "op.google_reports_refresh_rate_limited": "Google Sheets is temporarily rate-limiting report updates. Try again shortly.",
+  "op.google_reports_refresh_cooldown": "Google reports were recently refreshed. Please try again in less than a minute.",
   "op.last_google_report_refresh": "Last Google reports refresh: {at}",
   "op.no_change": "No changes detected in operational setup.",
   "op.save_failed": "Setup could not be saved. Check values, refresh the project, and verify that its binding or operations do not require a migration review.",

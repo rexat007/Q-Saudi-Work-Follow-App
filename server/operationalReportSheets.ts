@@ -37,7 +37,7 @@ export async function projectOwnedOperationalTable(sheets:sheets_v4.Sheets,sprea
  for(let i=0;i<headers.length;i++)headers[i]||='';while(headers.at(-1)==='')headers.pop();
  const previousHeaders=[...headers];if(headers.filter(h=>h===primaryKey).length>1||columns.some(h=>headers.filter(v=>v===h).length>1))fail();for(const name of columns)if(!headers.includes(name))headers.push(name);
  const pk=headers.indexOf(primaryKey),existing=new Map<string,number>();let lastRow=0;
- if(ownership.tabId!=='AUDIT')for(let row=1;row<rowCount;row+=L.rows)for(let col=0;col<columnCount;col+=L.columns)await read(row,col,Math.min(L.rows,rowCount-row),Math.min(L.columns,columnCount-col),(r,c,value)=>{
+ if(!snapshot&&ownership.tabId!=='AUDIT')for(let row=1;row<rowCount;row+=L.rows)for(let col=0;col<columnCount;col+=L.columns)await read(row,col,Math.min(L.rows,rowCount-row),Math.min(L.columns,columnCount-col),(r,c,value)=>{
   if(value.userEnteredValue||value.effectiveValue||value.note)lastRow=Math.max(lastRow,r);
   if(c!==pk)return;const key=String(scalar(value)??'').trim();if(!key)return;if(key.length>256||existing.size>=50000)fail();if(preserveUnmapped&&existing.has(key))fail();existing.set(key,r);
  });

@@ -75,6 +75,8 @@ export const arTranslations: TranslationDictionary = {
   "op.refreshing_google_reports": "جارٍ تحديث تقارير Google Sheets...",
   "op.google_reports_refreshed": "تم تحديث تقارير Google Sheets بنجاح",
   "op.google_reports_refresh_failed": "فشل تحديث تقارير Google Sheets",
+  "op.google_reports_refresh_rate_limited": "Google Sheets يفرض حداً مؤقتاً على تحديث التقارير. حاول مرة أخرى بعد قليل.",
+  "op.google_reports_refresh_cooldown": "تم تحديث تقارير Google مؤخراً. حاول مرة أخرى بعد أقل من دقيقة.",
   "op.last_google_report_refresh": "آخر تحديث لتقارير Google Sheets: {at}",
   "op.no_change": "لم يطرأ أي تغيير على إعداد التشغيل.",
   "op.save_failed": "تعذر الحفظ. راجع القيم وحدّث المشروع وتحقق من عدم الحاجة لمراجعة ترحيل بسبب الربط أو التشغيل.",

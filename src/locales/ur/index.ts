@@ -75,6 +75,8 @@ export const urTranslations: TranslationDictionary = {
   "op.refreshing_google_reports": "Google Sheets رپورٹس اپ ڈیٹ ہو رہی ہیں...",
   "op.google_reports_refreshed": "Google Sheets رپورٹس کامیابی سے اپ ڈیٹ ہو گئیں",
   "op.google_reports_refresh_failed": "Google Sheets رپورٹس اپ ڈیٹ کرنے میں ناکامی",
+  "op.google_reports_refresh_rate_limited": "Google Sheets عارضی طور پر رپورٹس کی اپ ڈیٹ کو محدود کر رہا ہے۔ کچھ دیر بعد دوبارہ کوشش کریں۔",
+  "op.google_reports_refresh_cooldown": "گوگل رپورٹس حال ہی میں اپ ڈیٹ کی گئی ہیں۔ براہ کرم ایک منٹ سے کم وقت میں دوبارہ کوشش کریں۔",
   "op.last_google_report_refresh": "آخری Google رپورٹس اپ ڈیٹ: {at}",
   "op.no_change": "عملیاتی ترتیب میں کوئی تبدیلی نہیں پائی گئی۔",
   "op.save_failed": "ترتیب محفوظ نہ ہوسکی۔ اقدار اور تازہ منصوبہ دیکھیں؛ ربط یا آپریشن کے لیے منتقلی کا جائزہ درکار ہوسکتا ہے۔",

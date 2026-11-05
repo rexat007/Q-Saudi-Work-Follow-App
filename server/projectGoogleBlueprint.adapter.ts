@@ -71,6 +71,29 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(info.data.capabilities?.canAddChildren!==true)return gwsFail('DESTINATION_NOT_WRITABLE',403);
     });
   };
+  const withRetry = async <T>(fn: () => Promise<T>): Promise<T> => {
+    let attempt = 0;
+    while (true) {
+      await deliveryFence();
+      try {
+        return await fn();
+      } catch (error) {
+        if (error instanceof GoogleWorkspaceCommandError && error.code !== 'GOOGLE_RATE_LIMITED') throw error;
+        if (error instanceof OperationalTabError) throw error;
+        const failure = classifyGoogleProviderFailure(error);
+        const isRateLimit = failure.code === 'GOOGLE_RATE_LIMITED' || (error instanceof GoogleWorkspaceCommandError && error.code === 'GOOGLE_RATE_LIMITED');
+        if (isRateLimit && attempt < 3) {
+          attempt++;
+          await deliveryFence();
+          const delayMs = process.env.NODE_ENV === 'test' ? 1 : Math.min(1000 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 200), 3000);
+          await new Promise(r => setTimeout(r, delayMs));
+          continue;
+        }
+        if (isRateLimit) return gwsFail('GOOGLE_RATE_LIMITED', 429);
+        throw error;
+      }
+    }
+  };
   const rootTags=(subjectHash:string,resourceRole:string)=>({owner:'Q_SAUDI_WORK_FOLLOW',schemaVersion:'1',subjectHash,resourceRole});
   return {...base,
     async findManagedFolders(subjectHash,role){return guarded('WORKSPACE_ROOT_RECOVERY_REQUIRED',async()=>{
@@ -88,13 +111,11 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
     });},
     async projectProfileReports(fileId,report){
       if(report.rows.some(row=>row.projectId!==projectId)||!report.configuration)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
-      await guarded('PROFILE_REPORT_SYNC_FAILED',()=>owned(fileId));
+      await withRetry(()=>guarded('PROFILE_REPORT_SYNC_FAILED',()=>owned(fileId)));
       const template=resolveWorkspaceTemplate(report.configuration),templateId=template.templateId;
-      // Migration rehydrates the new owned register even when old V1 outbox events were delivered.
-      await guarded(OperationalReportTabRegistry.TRIPS.failureCode,()=>serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.TRIPS.title,'tripId',report.rows,[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true,{tabId:'TRIPS',templateId}));
-      // Audit is append-only local review evidence; never snapshot-clear it.
-      await guarded(OperationalReportTabRegistry.AUDIT.failureCode,()=>serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.AUDIT.title,'Trip ID',[],operationalTabHeaders('AUDIT'),token,'RAW',()=>deliveryFence(),true,{tabId:'AUDIT',templateId}));
-      for(const table of operationalReportTables(report))await guarded(OperationalReportTabRegistry[table.tabId].failureCode,()=>serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence(),{tabId:table.tabId,templateId}));
+      for(const table of operationalReportTables(report)){
+        await withRetry(()=>guarded(OperationalReportTabRegistry[table.tabId].failureCode,()=>serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence(),{tabId:table.tabId,templateId})));
+      }
     },
     async projectProfileTrip(fileId,trip,blueprint){await guarded(OperationalReportTabRegistry.TRIPS.failureCode,async()=>{
       if(trip.projectId!==projectId||!trip.operationalSnapshot)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);

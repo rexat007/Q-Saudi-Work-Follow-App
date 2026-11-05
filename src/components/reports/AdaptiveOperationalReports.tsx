@@ -11,10 +11,11 @@ import {clientWorkspaceService} from '../../services/workspace.service';
 export function AdaptiveOperationalReports({projectId,configuration}:{projectId:string;configuration?:OperationalConfiguration}){
  const {t}=useI18n(),[trips,setTrips]=useState<TripEntity[]>([]),[error,setError]=useState(false),[filters,setFilters]=useState<Record<string,string>>({}),[family,setFamily]=useState('DAILY');
  const [refreshStatus, setRefreshStatus] = useState<'IDLE'|'REFRESHING'|'SUCCESS'|'FAILURE'>('IDLE');
+ const [refreshError, setRefreshError] = useState<string | null>(null);
  const [lastRefreshAt, setLastRefreshAt] = useState<string | null>(null);
 
  useEffect(()=>{
-  setTrips([]);setFilters({});setError(false);setRefreshStatus('IDLE');
+  setTrips([]);setFilters({});setError(false);setRefreshStatus('IDLE');setRefreshError(null);
   let active = true;
   void tripRepository.listByProject(projectId, 500)
    .then(list => { if (active) setTrips(list); })
@@ -25,13 +26,15 @@ export function AdaptiveOperationalReports({projectId,configuration}:{projectId:
  const onRefreshReports = async () => {
   if (refreshStatus === 'REFRESHING') return;
   setRefreshStatus('REFRESHING');
+  setRefreshError(null);
   try {
    const status = await clientWorkspaceService.refreshOperationalReports(projectId);
    setLastRefreshAt(status.lastReportRefreshAt || new Date().toISOString());
    setRefreshStatus('SUCCESS');
-  } catch (err) {
+  } catch (err: any) {
    console.error('Google report refresh failed:', err);
    setRefreshStatus('FAILURE');
+   setRefreshError(err?.message === 'REPORT_REFRESH_COOLDOWN' ? 'COOLDOWN' : err?.message === 'GOOGLE_RATE_LIMITED' ? 'RATE_LIMITED' : 'GENERIC');
   }
  };
 
@@ -55,7 +58,7 @@ export function AdaptiveOperationalReports({projectId,configuration}:{projectId:
      {refreshStatus === 'REFRESHING' ? t('op.refreshing_google_reports') : t('op.refresh_google_reports')}
     </button>
     {refreshStatus === 'SUCCESS' && <span className="text-xs text-green-500">{t('op.google_reports_refreshed')}</span>}
-    {refreshStatus === 'FAILURE' && <span className="text-xs text-red-500">{t('op.google_reports_refresh_failed')}</span>}
+    {refreshStatus === 'FAILURE' && <span className="text-xs text-red-500">{refreshError === 'COOLDOWN' ? t('op.google_reports_refresh_cooldown') : refreshError === 'RATE_LIMITED' ? t('op.google_reports_refresh_rate_limited') : t('op.google_reports_refresh_failed')}</span>}
     {lastRefreshAt && <span className="text-xs text-stone-500">{t('op.last_google_report_refresh', { at: new Date(lastRefreshAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' }) })}</span>}
    </div>
   </div>
