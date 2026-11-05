@@ -11,6 +11,10 @@ export const enTranslations: TranslationDictionary = {
   "import.material.confirm": "Confirm import material",
   "import.material.code": "Find a global material by code; creation is available after confirmed absence",
   "import.registry.lookup": "Find global identity by registration number or material code",
+  "import.roster.mergeAdditive": "Merge / Additive",
+  "import.roster.mergeAdditiveHelp": "The file adds or reconciles included entities. Existing project entities missing from this file remain unchanged.",
+  "import.roster.identityMatch": "Identity match with existing entity",
+  "import.roster.identityMatchNotReplacement": "This option is used only if the file data belongs to the same entity already in the system. This option does not replace an old entity with a new one.",
 
   "import.assurance.search": "Search by name, ID or natural identity",
   "import.assurance.previous": "Previous",

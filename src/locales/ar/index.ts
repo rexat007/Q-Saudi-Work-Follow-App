@@ -11,6 +11,10 @@ export const arTranslations: TranslationDictionary = {
   "import.material.confirm": "تأكيد مادة الاستيراد",
   "import.material.code": "اكتشاف مادة عالمية برمزها؛ الإنشاء متاح بعد إثبات غيابها",
   "import.registry.lookup": "اكتشاف هوية عالمية بالسجل التجاري أو رمز المادة",
+  "import.roster.mergeAdditive": "دمج / إضافة",
+  "import.roster.mergeAdditiveHelp": "يضيف الملف الكيانات المضمنة أو يطابقها. الكيانات الموجودة في المشروع والتي لم تُذكر في هذا الملف تبقى دون تغيير.",
+  "import.roster.identityMatch": "مطابقة الهوية مع كيان موجود",
+  "import.roster.identityMatchNotReplacement": "استخدم هذا الخيار فقط إذا كانت بيانات الملف تخص نفس الكيان الموجود بالفعل في النظام. هذا الخيار لا يستبدل كياناً قديماً بكيان جديد.",
 
   "import.assurance.search": "ابحث بالاسم أو المعرّف أو الهوية",
   "import.assurance.previous": "السابق",

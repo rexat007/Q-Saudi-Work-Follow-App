@@ -11,6 +11,10 @@ export const urTranslations: TranslationDictionary = {
   "import.material.confirm": "درآمد کے مواد کی تصدیق کریں",
   "import.material.code": "کوڈ سے عالمی مواد تلاش کریں؛ عدم موجودگی کی تصدیق کے بعد تخلیق ممکن ہے",
   "import.registry.lookup": "رجسٹریشن نمبر یا مواد کے کوڈ سے عالمی شناخت تلاش کریں",
+  "import.roster.mergeAdditive": "ضم / اضافہ",
+  "import.roster.mergeAdditiveHelp": "فائل شامل کردہ اداروں کو شامل کرتی ہے یا مطابقت پیدا کرتی ہے۔ منصوبے کے موجودہ ادارے جو اس فائل میں شامل نہیں ہیں، وہ تبدیل نہیں ہوں گے۔",
+  "import.roster.identityMatch": "موجودہ ادارے کے ساتھ شناخت کی مطابقت",
+  "import.roster.identityMatchNotReplacement": "یہ آپشن صرف تب استعمال کریں اگر فائل کا ڈیٹا اسی ادارے سے متعلق ہو جو پہلے سے سسٹم میں موجود ہے۔ یہ آپشن پرانے ادارے کو نئے سے تبدیل نہیں کرتا۔",
 
   "import.assurance.search": "نام، شناخت کنندہ یا قدرتی شناخت سے تلاش کریں",
   "import.assurance.previous": "پچھلا",

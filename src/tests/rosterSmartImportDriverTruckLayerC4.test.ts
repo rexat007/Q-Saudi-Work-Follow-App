@@ -73,14 +73,28 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
     expect(wizardContent).toContain('handleSmartImportContinueToDriverTruck');
     expect(wizardContent.includes("transitionToRosterStage('DRIVER_TRUCK_RESOLUTION')") || wizardContent.includes("setRosterImportStage('DRIVER_TRUCK_RESOLUTION')")).toBe(true);
     expect(materialLayerContent).toContain('onContinueToDriverTruck');
-    expect(materialLayerContent).toContain("t('entityResolution.labels.continue_driver_truck_review')");
-    for (const locale of ['ar', 'en', 'ur'] as const) {
-      const key = 'entityResolution.labels.continue_driver_truck_review';
-      const label = dictionaries[locale][key];
-      expect(typeof label).toBe('string');
-      expect(label.trim().length).toBeGreaterThan(0);
-      expect(resolveTranslation(key, locale)).toBe(label);
+    const keys = [
+      'entityResolution.labels.continue_driver_truck_review',
+      'import.roster.mergeAdditive',
+      'import.roster.mergeAdditiveHelp',
+      'import.roster.identityMatch',
+      'import.roster.identityMatchNotReplacement'
+    ];
+    for (const key of keys) {
+      for (const locale of ['ar', 'en', 'ur'] as const) {
+        const label = dictionaries[locale][key];
+        expect(typeof label).toBe('string');
+        expect(label.trim().length).toBeGreaterThan(0);
+        expect(resolveTranslation(key, locale)).toBe(label);
+      }
     }
+  });
+
+  it('34. UI clearly indicates merge/additive behavior and correct identity match wording', () => {
+    expect(driverTruckLayerContent).toContain("t('import.roster.mergeAdditive')");
+    expect(driverTruckLayerContent).toContain("t('import.roster.mergeAdditiveHelp')");
+    expect(driverTruckLayerContent).toContain("t('import.roster.identityMatch')");
+    expect(driverTruckLayerContent).toContain("t('import.roster.identityMatchNotReplacement')");
   });
 
   it('2. Group keys for drivers and trucks incorporate carrier context to prevent leakage', () => {

@@ -7,7 +7,7 @@ import type { RelationshipContext } from '../../types/dataQuality';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
-import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ArrowLeft } from 'lucide-react';
+import { Users, Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ArrowLeft, Info } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
 import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 
@@ -171,6 +171,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
         {/* Content Body */}
         <div className="p-5 space-y-6 overflow-y-auto flex-1 text-xs text-stone-300">
           {/* Summary Stats Grid */}
+          <div className="bg-sky-950/20 border border-sky-800/50 p-3.5 rounded-xl flex items-center gap-3 text-sky-200">
+            <Info className="w-5 h-5 text-sky-400 shrink-0" />
+            <div className="text-xs">
+              <span className="font-bold block">{t('import.roster.mergeAdditive')}</span>
+              <span className="text-[11px] text-sky-300/80">{t('import.roster.mergeAdditiveHelp')}</span>
+            </div>
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-950 p-3.5 rounded-xl border border-stone-850 text-center font-bold">
             <div>
               <span className="block text-stone-500 text-[10px]">{t('entityResolution.labels.driver_groups')}</span>
@@ -356,10 +363,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   type="button"
                                   disabled={isProcessing}
                                   onClick={() => onAcceptCandidate(group, cand.candidateEntityId)}
-                                  className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
+                                  className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex flex-col items-start gap-1"
                                 >
-                                  <UserCheck className="w-3 h-3 text-amber-400" />
-                                  <span>{t('entityResolution.labels.accept_suggested_match')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  <div className="flex items-center gap-1">
+                                    <UserCheck className="w-3 h-3 text-amber-400" />
+                                    <span>{t('import.roster.identityMatch')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  </div>
+                                  <span className="text-[9px] text-stone-400 font-normal italic">{t('import.roster.identityMatchNotReplacement')}</span>
                                 </button>
                               ))
                             )}
@@ -522,10 +532,13 @@ export const RosterDriverTruckResolutionLayer: React.FC<RosterDriverTruckResolut
                                   type="button"
                                   disabled={isProcessing}
                                   onClick={() => onAcceptCandidate(group, cand.candidateEntityId)}
-                                  className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
+                                  className="px-2.5 py-1 bg-stone-850 hover:bg-amber-600 hover:text-white text-stone-200 rounded-lg text-[10px] font-bold transition-colors disabled:opacity-50 flex flex-col items-start gap-1"
                                 >
-                                  <UserCheck className="w-3 h-3 text-amber-400" />
-                                  <span>{t('entityResolution.labels.accept_suggested_match')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  <div className="flex items-center gap-1">
+                                    <UserCheck className="w-3 h-3 text-amber-400" />
+                                    <span>{t('import.roster.identityMatch')}: {cand.candidateDisplayName || cand.candidateNameAr || cand.candidateEntityId}</span>
+                                  </div>
+                                  <span className="text-[9px] text-stone-400 font-normal italic">{t('import.roster.identityMatchNotReplacement')}</span>
                                 </button>
                               ))
                             )}
