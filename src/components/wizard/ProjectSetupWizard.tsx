@@ -1075,7 +1075,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       const currentGen = rosterImportSessionGenerationRef.current;
       try {
         setIsRestoringImportSession(true);
-        const sessions = await importSessionClientService.listResumableSessions(targetProjectId, undefined, true);
+        const sessions = await importSessionClientService.listResumableSessions(targetProjectId);
         if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
         if (!projectContext.isCurrent(requestContext, targetProjectId) || currentGen !== rosterImportSessionGenerationRef.current) {
           return;
