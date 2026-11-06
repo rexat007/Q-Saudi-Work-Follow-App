@@ -884,12 +884,20 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
     const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
-    const readinessRequest = Symbol('readiness');
-    readinessRequestRef.current = readinessRequest;
-    const isCurrentReadiness = () => projectContext.isCurrent(requestContext, targetProjectId) && readinessRequestRef.current === readinessRequest;
+    const callerSymbol = Symbol('readiness');
+    readinessRequestRef.current = callerSymbol;
+
+    const isCurrentCaller = () =>
+      projectContext.isCurrent(requestContext, targetProjectId) &&
+      readinessRequestRef.current === callerSymbol;
+
+    const isCurrentProjectContext = () =>
+      projectContext.isCurrent(requestContext, targetProjectId);
+
     setIsLoadingReadiness(true);
     setServerReadiness(null);
     setReadinessError(null);
+
     try {
       let snapshotPromise: Promise<ProjectCanonicalRefreshSnapshot>;
       if (
@@ -900,22 +908,31 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       ) {
         snapshotPromise = inFlightReadinessRef.current.promise;
       } else {
-        snapshotPromise = projectCanonicalRefreshService.refresh(targetProjectId, { isCurrent: isCurrentReadiness });
+        snapshotPromise = projectCanonicalRefreshService.refresh(targetProjectId, {
+          isCurrent: isCurrentProjectContext
+        });
         inFlightReadinessRef.current = {
           projectId: targetProjectId,
           generation: requestContext.generation,
           canonicalRevision,
           promise: snapshotPromise,
         };
-        snapshotPromise.finally(() => {
-          if (inFlightReadinessRef.current && inFlightReadinessRef.current.promise === snapshotPromise) {
-            inFlightReadinessRef.current = null;
+        snapshotPromise.then(
+          () => {
+            if (inFlightReadinessRef.current?.promise === snapshotPromise) {
+              inFlightReadinessRef.current = null;
+            }
+          },
+          () => {
+            if (inFlightReadinessRef.current?.promise === snapshotPromise) {
+              inFlightReadinessRef.current = null;
+            }
           }
-        });
+        );
       }
 
       const snapshot = await snapshotPromise;
-      if (!isCurrentReadiness()) return;
+      if (!isCurrentCaller()) return;
       const data = snapshot.readiness;
       if (!isEvaluatedReadiness(data, targetProjectId)) throw Error('READINESS_UNAVAILABLE');
       applyCanonicalSnapshot(targetProjectId, snapshot, requestContext.generation, false);
@@ -923,15 +940,14 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      if (isCurrentReadiness()) {
+      if (isCurrentCaller()) {
         setServerReadiness(null);
         setReadinessError(t('readiness.unavailable'));
-        setServerReadiness(null);
       }
     } finally {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
 
-      if (isCurrentReadiness()) {
+      if (isCurrentCaller()) {
         setIsLoadingReadiness(false);
       }
     }

@@ -7,8 +7,8 @@ import type { WorkspaceEnsureStatus } from '../../types/workspaceProvisioning';
 interface Props {actorId?:string;projectId:string;t:(key:string)=>string;onReady?:()=>void;service?:WorkspaceEnsureClient}
 const progressKeys={AUTHORIZATION:'gws.one.phase_authorization',BINDING:'gws.one.phase_binding',WORKBOOK:'gws.one.phase_workbook',MASTER_DATA:'gws.one.phase_master_data',SCRIPT:'gws.one.phase_script',FINAL_VERIFY:'gws.one.phase_final_verify'};
 const stateKey={NOT_CONFIGURED:'gws.one.not_configured',PREPARING:'gws.one.preparing',ACTION_REQUIRED:'gws.one.action_required',READY:'gws.one.ready',ATTENTION_REQUIRED:'gws.one.attention_required'};
-// Module-level guard to prevent multiple panels from polling the same project simultaneously
-const inFlightProjectObservations = new Set<string>();
+// Module-level owner-aware lock map to prevent multiple panels from polling the same project simultaneously
+const activeProjectObservationOwners = new Map<string, symbol>();
 
 /** One serialized read observer; automatic resume is once per durable progress/build. */
 export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=clientWorkspaceService}:Props){
@@ -18,12 +18,15 @@ export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=cli
  const active=useRef(0),running=useRef(false),observing=useRef(false),generationBlocked=useRef(false),ready=useRef(onReady),timer=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),transport=useRef<AbortController|undefined>(undefined),interaction=useRef<(()=>void)|undefined>(undefined);
  ready.current=onReady;
  useEffect(()=>{
-  const generation=++active.current;let polls=0;running.current=false;observing.current=false;generationBlocked.current=false;setBusy(false);setFailure(false);setQuotaExhausted(false);setSyncState('IDLE');setStatus(null);
+  const generation=++active.current;
+  const ownerToken=Symbol('panel-owner');
+  let polls=0;running.current=false;observing.current=false;generationBlocked.current=false;setBusy(false);setFailure(false);setQuotaExhausted(false);setSyncState('IDLE');setStatus(null);
   const observe=async()=>{
    if(generationBlocked.current||running.current||observing.current||active.current!==generation)return;
-   if(inFlightProjectObservations.has(projectId))return;
+   const currentOwner=activeProjectObservationOwners.get(projectId);
+   if(currentOwner && currentOwner!==ownerToken)return;
    observing.current=true;
-   inFlightProjectObservations.add(projectId);
+   activeProjectObservationOwners.set(projectId,ownerToken);
    try{
     const controller=new AbortController();transport.current=controller;
     const value=await service.observeWorkspaceProvisioning(projectId,controller.signal);if(active.current!==generation||running.current)return;
@@ -49,7 +52,9 @@ export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=cli
     }
    }finally{
     observing.current=false;
-    inFlightProjectObservations.delete(projectId);
+    if(activeProjectObservationOwners.get(projectId)===ownerToken){
+     activeProjectObservationOwners.delete(projectId);
+    }
    }
   };
   if(typeof service.observeWorkspaceProvisioning==='function')void observe();
@@ -60,7 +65,9 @@ export function WorkspaceEnsurePanel({projectId,actorId='',t,onReady,service=cli
    interaction.current?.();
    interaction.current=undefined;
    observing.current=false;
-   inFlightProjectObservations.delete(projectId);
+   if(activeProjectObservationOwners.get(projectId)===ownerToken){
+    activeProjectObservationOwners.delete(projectId);
+   }
    if(!generationBlocked.current)clearWorkspaceContinuation(actorId,projectId);
   };
  },[projectId,actorId,service]);
