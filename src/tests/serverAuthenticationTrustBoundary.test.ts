@@ -494,4 +494,96 @@ describe('Server Authentication Trust Boundary Test Suite', () => {
     expect(getStatus()).toBe(503);
     expect(getBody()?.code).toBe('SERVICE_UNAVAILABLE');
   });
+
+  it('TC-AUTH-25: Returns 503 FIRESTORE_QUOTA_EXHAUSTED when Firestore lookup throws gRPC 8 or RESOURCE_EXHAUSTED', async () => {
+    setTestDbOverride({
+      collection(colName: string) {
+        return {
+          doc(docId: string) {
+            return {
+              async get() {
+                throw { code: 8, message: '8 RESOURCE_EXHAUSTED: Quota exceeded.' };
+              }
+            };
+          }
+        };
+      }
+    });
+
+    const req: any = { headers: { authorization: 'Bearer active-supervisor-token' } };
+    const { res, getStatus, getBody } = createMockResponse();
+    await authenticateUser(req, res, () => {});
+    expect(getStatus()).toBe(503);
+    expect(getBody()?.code).toBe('FIRESTORE_QUOTA_EXHAUSTED');
+  });
+
+  it('TC-AUTH-26: Returns 503 FIRESTORE_QUOTA_EXHAUSTED when Firestore lookup throws resource-exhausted string code', async () => {
+    setTestDbOverride({
+      collection(colName: string) {
+        return {
+          doc(docId: string) {
+            return {
+              async get() {
+                throw { code: 'resource-exhausted', message: 'Quota exceeded for project' };
+              }
+            };
+          }
+        };
+      }
+    });
+
+    const req: any = { headers: { authorization: 'Bearer active-supervisor-token' } };
+    const { res, getStatus, getBody } = createMockResponse();
+    await authenticateUser(req, res, () => {});
+    expect(getStatus()).toBe(503);
+    expect(getBody()?.code).toBe('FIRESTORE_QUOTA_EXHAUSTED');
+  });
+
+  it('TC-AUTH-27: Returns 503 SERVICE_UNAVAILABLE when Firestore lookup throws deadline-exceeded or code 4', async () => {
+    setTestDbOverride({
+      collection(colName: string) {
+        return {
+          doc(docId: string) {
+            return {
+              async get() {
+                throw { code: 'deadline-exceeded' };
+              }
+            };
+          }
+        };
+      }
+    });
+
+    const req: any = { headers: { authorization: 'Bearer active-supervisor-token' } };
+    const { res, getStatus, getBody } = createMockResponse();
+    await authenticateUser(req, res, () => {});
+    expect(getStatus()).toBe(503);
+    expect(getBody()?.code).toBe('SERVICE_UNAVAILABLE');
+  });
+
+  it('TC-AUTH-28: Proves zero quota/transient authority failures are mapped to 401 INVALID_TOKEN', async () => {
+    const errorCodes = [8, '8', 'RESOURCE_EXHAUSTED', 'resource-exhausted', 14, '14', 'unavailable', 4, '4', 'deadline-exceeded'];
+    for (const code of errorCodes) {
+      setTestDbOverride({
+        collection() {
+          return {
+            doc() {
+              return {
+                async get() {
+                  throw { code };
+                }
+              };
+            }
+          };
+        }
+      });
+
+      const req: any = { headers: { authorization: 'Bearer active-supervisor-token' } };
+      const { res, getStatus, getBody } = createMockResponse();
+      await authenticateUser(req, res, () => {});
+      expect(getStatus()).toBe(503);
+      expect(getBody()?.code).not.toBe('INVALID_TOKEN');
+      expect(getBody()?.code).not.toBe('USER_NOT_FOUND');
+    }
+  });
 });

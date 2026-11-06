@@ -1666,7 +1666,17 @@ app.post('/api/projects/:projectId/fleet-profile/:kind/:entityId', enforceProjec
 app.get('/api/projects/:projectId/foundation-snapshot', enforceProjectIsolation, async(req,res)=>{
   try { const {ProjectFleetQueryService}=await import('../src/services/projectFleetQuery.server');
     res.json({success:true,data:await new ProjectFleetQueryService().foundation(req.params.projectId,(req as any).user)});
-  } catch(error:any){res.status(error.status||400).json({success:false,code:error.code||'FOUNDATION_READ_FAILED'});}
+  } catch(error:any){
+    const { isFirestoreQuotaError, isFirestoreTransientError } = await import('./security.middleware');
+    if (isFirestoreQuotaError(error)) {
+      return res.status(503).json({ success: false, code: 'FIRESTORE_QUOTA_EXHAUSTED', error: 'FIRESTORE_QUOTA_EXHAUSTED' });
+    }
+    if (isFirestoreTransientError(error)) {
+      return res.status(503).json({ success: false, code: 'SERVICE_UNAVAILABLE', error: 'SERVICE_UNAVAILABLE' });
+    }
+    const status = (typeof error.status === 'number' && error.status >= 100 && error.status <= 599) ? error.status : 400;
+    res.status(status).json({success:false,code:error.code||'FOUNDATION_READ_FAILED'});
+  }
 });
 
 app.get('/api/projects/:projectId/fleet-read-model', enforceProjectIsolation, async (req, res) => {

@@ -22,7 +22,7 @@ import { ProjectDriverTruckAssignmentEntity } from '../types/projectDriverTruckA
 import { ProjectTruckMaterialAllocationEntity } from '../types/projectTruckMaterialAllocation';
 
 export class ProjectReadinessAdminReadContext implements ProjectReadinessReadContext {
-  constructor(private database?: any, private reader?: (reference: any) => Promise<any>) {}
+  constructor(private database?: any, private reader?: (reference: any) => Promise<any>, private cachedProject?: ProjectEntity | null) {}
   private get db() { return this.database || adminDb; }
   private get(reference: any) { return this.reader ? this.reader(reference) : reference.get(); }
   getSetupReadiness(projectId: string, project: ProjectEntity) {
@@ -85,6 +85,9 @@ export class ProjectReadinessAdminReadContext implements ProjectReadinessReadCon
   }
 
   async getProject(projectId: string): Promise<ProjectEntity | null> {
+    if (this.cachedProject && this.cachedProject.projectId === projectId) {
+      return this.cachedProject;
+    }
     const snap = await this.get(this.db.collection('projects').doc(projectId));
     return snap.exists ? (decodeProject<ProjectEntity>(snap.data(), projectId)) : null;
   }

@@ -873,6 +873,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   const readinessRequestRef = useRef<symbol | null>(null);
+  const inFlightReadinessRef = useRef<{
+    projectId: string;
+    generation: number;
+    canonicalRevision: number;
+    promise: Promise<ProjectCanonicalRefreshSnapshot>;
+  } | null>(null);
   const fetchServerReadiness = useCallback(async (targetProjectId: string) => {
     const requestContext = projectContext.capture();
     if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
@@ -885,11 +891,34 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setServerReadiness(null);
     setReadinessError(null);
     try {
-      const snapshot=await projectCanonicalRefreshService.refresh(targetProjectId,{isCurrent:isCurrentReadiness});
-      if(!isCurrentReadiness())return;
-      const data=snapshot.readiness;
-      if(!isEvaluatedReadiness(data,targetProjectId))throw Error('READINESS_UNAVAILABLE');
-      applyCanonicalSnapshot(targetProjectId,snapshot,requestContext.generation,false);
+      let snapshotPromise: Promise<ProjectCanonicalRefreshSnapshot>;
+      if (
+        inFlightReadinessRef.current &&
+        inFlightReadinessRef.current.projectId === targetProjectId &&
+        inFlightReadinessRef.current.generation === requestContext.generation &&
+        inFlightReadinessRef.current.canonicalRevision === canonicalRevision
+      ) {
+        snapshotPromise = inFlightReadinessRef.current.promise;
+      } else {
+        snapshotPromise = projectCanonicalRefreshService.refresh(targetProjectId, { isCurrent: isCurrentReadiness });
+        inFlightReadinessRef.current = {
+          projectId: targetProjectId,
+          generation: requestContext.generation,
+          canonicalRevision,
+          promise: snapshotPromise,
+        };
+        snapshotPromise.finally(() => {
+          if (inFlightReadinessRef.current && inFlightReadinessRef.current.promise === snapshotPromise) {
+            inFlightReadinessRef.current = null;
+          }
+        });
+      }
+
+      const snapshot = await snapshotPromise;
+      if (!isCurrentReadiness()) return;
+      const data = snapshot.readiness;
+      if (!isEvaluatedReadiness(data, targetProjectId)) throw Error('READINESS_UNAVAILABLE');
+      applyCanonicalSnapshot(targetProjectId, snapshot, requestContext.generation, false);
       setServerReadiness(snapshot.readiness as ServerReadinessDTO);
     } catch (err: any) {
       if (!projectContext.isCurrent(requestContext, editingProjectId)) return;
@@ -906,7 +935,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
         setIsLoadingReadiness(false);
       }
     }
-  }, [editingProjectId, projectScopeKey, projectContext]);
+  }, [editingProjectId, projectScopeKey, projectContext, canonicalRevision]);
 
   const [canonicalSetupSnapshot,setCanonicalSetupSnapshot]=useState<import('../../types/setupFleet').SetupFleetContext|null>(null);
   const applyCanonicalSnapshot = useCallback((
@@ -931,7 +960,10 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if(snapshot.pricingRules)setPricingRules(snapshot.pricingRules);
     setCanonicalSetupSnapshot(snapshot.setup||null);
     setProjectDataLoadError(null);
-    if(advanceRevision)setCanonicalRevision(value => value + 1);
+    if(advanceRevision) {
+      inFlightReadinessRef.current = null;
+      setCanonicalRevision(value => value + 1);
+    }
     setMaterials(snapshot.materials || []);
     setCarriers(snapshot.carriers || []);
     setFleetRows(snapshot.fleetRows || []);
@@ -999,6 +1031,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     setSmartImportCommitResult(null);
     setSmartImportCommitError(null);
     durableSessionRef.current = null;
+    inFlightReadinessRef.current = null;
     rosterJourneyLifetime.invalidate(); setRosterExecution(null); setRosterRecoveryVisible(false); setRosterSheetValues(null);
     pendingSessionCreation.current = null;
     pendingRosterCheckpoint.current = null;

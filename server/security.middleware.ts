@@ -185,20 +185,58 @@ export async function authenticateUser(req: Request, res: Response, next: NextFu
 
     next();
   } catch (err: any) {
+    // 1. Quota Exhaustion Detection (gRPC code 8 / RESOURCE_EXHAUSTED)
+    if (isFirestoreQuotaError(err)) {
+      console.warn('[SecurityMiddleware] Firestore quota exhausted during authentication lookup');
+      return res.status(503).json({
+        success: false,
+        code: 'FIRESTORE_QUOTA_EXHAUSTED',
+        error: 'تم تجاوز حصة قاعدة البيانات (Firestore Quota Exhausted). يرجى المحاولة لاحقاً.'
+      });
+    }
+
+    // 2. Transient Firestore/Admin errors (unavailable, deadline-exceeded, code 14, code 4)
+    if (isFirestoreTransientError(err) || ['unavailable', 'deadline-exceeded'].includes(err?.code)) {
+      return res.status(503).json({
+        success: false,
+        code: 'SERVICE_UNAVAILABLE',
+        error: 'الخدمة غير متوفرة مؤقتاً، يرجى المحاولة لاحقاً.'
+      });
+    }
+
     const firebaseCodes: Record<string, string> = {
       'auth/id-token-expired': 'TOKEN_EXPIRED',
       'auth/id-token-revoked': 'TOKEN_REVOKED',
       'auth/user-disabled': 'IDENTITY_DISABLED',
     };
 
-    // Check for transient Firestore/Admin errors
-    if (['unavailable', 'deadline-exceeded'].includes(err?.code)) {
-      return res.status(503).json({ success: false, code: 'SERVICE_UNAVAILABLE', error: 'الخدمة غير متوفرة مؤقتاً، يرجى المحاولة لاحقاً.' });
-    }
-
     const code = err instanceof PrincipalError ? err.code : firebaseCodes[err?.code] || 'INVALID_TOKEN';
     return res.status(err instanceof PrincipalError ? 403 : 401).json({ success: false, code, error: err instanceof PrincipalError ? err.message : code });
   }
+}
+
+export function isFirestoreQuotaError(err: any): boolean {
+  if (!err) return false;
+  const code = err.code ?? err.status;
+  if (code === 8 || code === '8' || code === 'RESOURCE_EXHAUSTED' || code === 'resource-exhausted') {
+    return true;
+  }
+  const msg = typeof err.message === 'string' ? err.message : '';
+  const details = typeof err.details === 'string' ? err.details : '';
+  const combined = `${msg} ${details}`.toUpperCase();
+  return combined.includes('RESOURCE_EXHAUSTED') || combined.includes('QUOTA EXCEEDED');
+}
+
+export function isFirestoreTransientError(err: any): boolean {
+  if (!err) return false;
+  const code = err.code ?? err.status;
+  if (
+    code === 14 || code === '14' || code === 'unavailable' || code === 'UNAVAILABLE' ||
+    code === 4 || code === '4' || code === 'deadline-exceeded' || code === 'DEADLINE_EXCEEDED'
+  ) {
+    return true;
+  }
+  return false;
 }
 
 /**

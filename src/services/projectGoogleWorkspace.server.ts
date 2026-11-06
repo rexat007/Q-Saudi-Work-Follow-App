@@ -140,7 +140,6 @@ export class ProjectGoogleWorkspaceServer {
   }
   async approveDestination(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);
-    await this.db.runTransaction((tx:any)=>this.authorized(tx,projectId,who));
     if((await this.status(projectId,who)).binding)return gwsFail('AUTHORIZATION_REQUIRED',401);
     const subject=await google.subject();await google.authorizeBinding();
     const {project}=await this.db.runTransaction((tx:any)=>this.authorized(tx,projectId,who));assertBlueprint(this.resolvedBlueprint(project),false);

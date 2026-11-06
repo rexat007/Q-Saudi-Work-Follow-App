@@ -4759,6 +4759,7 @@ export const enTranslations: TranslationDictionary = {
   "gws.one.action_required": "Your action is required",
   "gws.one.ready": "Google Workspace is ready",
   "gws.one.attention_required": "Google Workspace needs administrator review",
+  "gws.one.quota_exhausted": "Database quota exceeded temporarily, please retry later",
   "gws.one.prepare": "Set up and sync Google",
   "gws.one.verify": "Verify Google Workspace",
   "gws.one.sync": "Synchronize Google Sheets data now",

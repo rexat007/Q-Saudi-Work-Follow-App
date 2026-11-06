@@ -4759,6 +4759,7 @@ export const arTranslations: TranslationDictionary = {
   "gws.one.action_required": "مطلوب إجراء من المستخدم",
   "gws.one.ready": "مساحة Google جاهزة",
   "gws.one.attention_required": "مساحة Google تحتاج مراجعة من مسؤول النظام",
+  "gws.one.quota_exhausted": "تم تجاوز حصة العمليات مؤقتاً، يرجى إعادة المحاولة لاحقاً",
   "gws.one.prepare": "إعداد ومزامنة Google",
   "gws.one.verify": "التحقق من مساحة Google",
   "gws.one.sync": "مزامنة بيانات Google Sheets الآن",

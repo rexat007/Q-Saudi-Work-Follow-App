@@ -4759,6 +4759,7 @@ export const urTranslations: TranslationDictionary = {
   "gws.one.action_required": "آپ کی کارروائی درکار ہے",
   "gws.one.ready": "Google ورک اسپیس تیار ہے",
   "gws.one.attention_required": "Google ورک اسپیس کو منتظم کے جائزے کی ضرورت ہے",
+  "gws.one.quota_exhausted": "ڈیٹا بیس کا کوٹہ عارضی طور پر ختم ہو گیا ہے، براہ کرم بعد میں دوبارہ کوشش کریں",
   "gws.one.prepare": "Google ترتیب دیں اور ہم وقت کریں",
   "gws.one.verify": "Google ورک اسپیس کی تصدیق کریں",
   "gws.one.sync": "ابھی Google Sheets ڈیٹا کو ہم وقت ساز کریں",
