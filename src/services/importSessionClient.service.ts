@@ -24,13 +24,23 @@ export class ImportSessionVersionConflictError extends Error {
 }
 
 export class ImportSessionClientService {
+  private static readonly REFRESHABLE_AUTH_CODES = new Set(['TOKEN_EXPIRED', 'INVALID_TOKEN']);
+
   public async commitReviewedIntent(projectId: string, importSessionId: string, expectedVersion: number): Promise<import('../types/importExecution').RosterExecutionCommitResponse> {
-    const token = await this.getAuthToken();
-    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`, {
-      method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({expectedVersion})
-    });
-    const json = await response.json();
-    if(!response.ok || !json.success) throw Object.assign(new Error(json.code || 'REVIEWED_COMMIT_FAILED'),{code:json.code,serverVersion:json.serverVersion});
+    const { response, json } = await this.authenticatedRequest(
+      `/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(importSessionId)}/commit-reviewed-intent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expectedVersion }),
+        signal: (typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal)
+          ? AbortSignal.timeout(30000)
+          : undefined
+      }
+    );
+    if (!response.ok || !json?.success) {
+      throw Object.assign(new Error(json?.code || 'REVIEWED_COMMIT_FAILED'), { code: json?.code, serverVersion: json?.serverVersion });
+    }
     return json.data;
   }
 
@@ -45,25 +55,77 @@ export class ImportSessionClientService {
     return this.executionCommand(projectId,sessionId,'cancel',expectedOperationVersion);
   }
   private async executionCommand(projectId:string,sessionId:string,action?:'retry'|'cancel',expectedOperationVersion?:number) {
-    const token=await this.getAuthToken();
-    const response=await importRequest(`/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(sessionId)}/execution${action?'/'+action:''}`,{
-      method:action?'POST':'GET',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},...(action?{body:JSON.stringify({expectedOperationVersion})}:{})
-    });
-    const json=await response.json();if(!response.ok||!json.success)throw Object.assign(new Error(json.code||'EXECUTION_REQUEST_FAILED'),{code:json.code});return json.data;
+    const { response, json } = await this.authenticatedRequest(
+      `/api/projects/${encodeURIComponent(projectId)}/import-sessions/${encodeURIComponent(sessionId)}/execution${action ? '/' + action : ''}`,
+      {
+        method: action ? 'POST' : 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        ...(action ? { body: JSON.stringify({ expectedOperationVersion }) } : {})
+      }
+    );
+    if (!response.ok || !json?.success) {
+      throw Object.assign(new Error(json?.code || 'EXECUTION_REQUEST_FAILED'), { code: json?.code });
+    }
+    return json.data;
   }
 
-  private async getAuthToken(overrideToken?: string): Promise<string> {
+  private async getAuthToken(overrideToken?: string, forceRefresh = false): Promise<string> {
     assertProfileAuthorityAvailable();
-    if (overrideToken) return overrideToken;
+    if (overrideToken && !forceRefresh) return overrideToken;
     const currentUser = auth.currentUser;
     if (!currentUser) {
+      if (overrideToken) return overrideToken;
       throw Object.assign(new Error('المستخدم غير موثق'), { code: 'UNAUTHENTICATED' });
     }
-    const token = await currentUser.getIdToken();
+    const token = forceRefresh ? await currentUser.getIdToken(true) : await currentUser.getIdToken();
     if (!token) {
       throw new Error('تعذر استخراج رمز المصادقة');
     }
     return token;
+  }
+
+  private async authenticatedRequest(
+    url: string,
+    init: RequestInit,
+    overrideToken?: string
+  ): Promise<{ response: Response; json: any }> {
+    let token = await this.getAuthToken(overrideToken, false);
+    const buildHeaders = (authToken: string) => {
+      const h: Record<string, string> = {};
+      if (init.headers) {
+        if (typeof Headers !== 'undefined' && init.headers instanceof Headers) {
+          init.headers.forEach((v, k) => { h[k] = v; });
+        } else if (Array.isArray(init.headers)) {
+          init.headers.forEach(([k, v]) => { h[k] = v; });
+        } else {
+          Object.assign(h, init.headers);
+        }
+      }
+      h['Authorization'] = `Bearer ${authToken}`;
+      return h;
+    };
+
+    const response = await importRequest(url, { ...init, headers: buildHeaders(token) });
+    let json: any = null;
+    try {
+      json = await response.json();
+    } catch {
+      // Body not JSON
+    }
+
+    if (response.status === 401 && json && ImportSessionClientService.REFRESHABLE_AUTH_CODES.has(json.code)) {
+      token = await this.getAuthToken(overrideToken, true);
+      const retryResponse = await importRequest(url, { ...init, headers: buildHeaders(token) });
+      let retryJson: any = null;
+      try {
+        retryJson = await retryResponse.json();
+      } catch {
+        // Body not JSON
+      }
+      return { response: retryResponse, json: retryJson };
+    }
+
+    return { response, json };
   }
 
   /**
@@ -79,22 +141,20 @@ export class ImportSessionClientService {
       throw new Error('معرف المشروع مطلوب لإنشاء جلسة استيراد');
     }
 
-    const token = await this.getAuthToken(overrideToken);
-
     assertSessionPayload(payload);
-    const response = await importRequest(`/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+    const { response, json } = await this.authenticatedRequest(
+      `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+      overrideToken
+    );
 
-    let json: any;
-    try {
-      json = await response.json();
-    } catch {
+    if (!json) {
       throw new Error(`فشل الاتصال بالخادم HTTP ${response.status}`);
     }
 
@@ -123,22 +183,15 @@ export class ImportSessionClientService {
       throw new Error('معرف جلسة الاستيراد مطلوب');
     }
 
-    const token = await this.getAuthToken(overrideToken);
-
-    const response = await importRequest(
+    const { response, json } = await this.authenticatedRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions/${encodeURIComponent(importSessionId.trim())}`,
       {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      }
+      },
+      overrideToken
     );
 
-    let json: any;
-    try {
-      json = await response.json();
-    } catch {
+    if (!json) {
       throw new Error(`فشل الاتصال بالخادم HTTP ${response.status}`);
     }
 
@@ -164,22 +217,15 @@ export class ImportSessionClientService {
       throw new Error('معرف المشروع مطلوب');
     }
 
-    const token = await this.getAuthToken(overrideToken);
-
-    const response = await importRequest(
+    const { response, json } = await this.authenticatedRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions${includeRosterResults ? "?includeRosterResults=true" : ""}`,
       {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      }
+      },
+      overrideToken
     );
 
-    let json: any;
-    try {
-      json = await response.json();
-    } catch {
+    if (!json) {
       throw new Error(`فشل الاتصال بالخادم HTTP ${response.status}`);
     }
 
@@ -213,8 +259,6 @@ export class ImportSessionClientService {
       throw new Error('رقم الإصدار المتوقع (expectedVersion) مطلوب للتحكم بالتزامن المتفائل');
     }
 
-    const token = await this.getAuthToken(overrideToken);
-
     assertSessionPayload(updates);
     if (updates.importBatch) updates = { ...updates, importBatch: prepareDurableBatch(updates.importBatch) };
     const requiresChunks = JSON.stringify(updates).length > 40000;
@@ -226,25 +270,22 @@ export class ImportSessionClientService {
       updates = { checkpointArtifact: manifest };
     }
 
-    const response = await importRequest(
+    const { response, json } = await this.authenticatedRequest(
       `/api/projects/${encodeURIComponent(projectId.trim())}/import-sessions/${encodeURIComponent(importSessionId.trim())}`,
       {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           ...updates,
           expectedVersion,
         }),
-      }
+      },
+      overrideToken
     );
 
-    let json: any;
-    try {
-      json = await response.json();
-    } catch {
+    if (!json) {
       throw new Error(`فشل الاتصال بالخادم HTTP ${response.status}`);
     }
 
