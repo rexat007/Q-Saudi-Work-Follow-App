@@ -45,6 +45,7 @@ export class ProjectFleetQueryService {
     const {ProjectPricingServerService}=await import('./projectPricing.server');
     return this.database.runTransaction(async(tx:any)=>{
       const principal=await this.authorize(tx,p,identity);
+      tx = withTxCache(tx);
       if(!['PROJECT_ADMIN','SUPER_ADMIN','FINANCE_AUDITOR'].includes(principal.role))throw new GlobalIdentityError('FORBIDDEN_PROJECT_ACCESS','',403);
       const reads=new ProjectFleetReadModelAdminReadContext(this.database,ref=>tx.get(ref));
       const provisioning=new ProjectProvisioningAdminService();
