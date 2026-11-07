@@ -1,3 +1,7 @@
+## DATA-LIVE-02 source publication decision and remaining live cost debt — 2026-11-07
+
+OWNER_PUSH_COMPLETED: `cf7ac517be93492125c6dabad0ea38f291da7ed3`; verified one-line `tx = withTxCache(tx)` in Foundation outer transaction, exactly one file, no extraneous changes. Retain existing canonical authorization and snapshot invariants. OPEN: controlled live comparison against previous 12K read spike; source/build deployment correlation, per-request Firestore read attribution, overlapping SetupFleet/Fleet/Readiness projections, repeated client foundation-snapshot calls, persistent idle/worker amplification, real SDK transaction cache behavior. LIVE-01 source suspicion remains distinct from numeric production attribution. LIVE-02 did not implement frontend request coalescing or measured query reduction. No Phase 10.
+
 ## Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`.
@@ -1173,3 +1177,22 @@ Baseline `303469ef29b7cf906964316691e491c0df6d5e45` merges P9-U1 through PR #62.
 - ROUTED_TO_LATER_PHASE: Trip FSM, offline and audit subsystem reconstruction retain their existing phase owners. No Phase 10 work is started.
 
 Historical records and original design bodies are retained. Phase 9 source closure readiness is conditional on the ledger's completed verification matrix and owner merge, not live deployment or release certification.
+
+## DATA-F1 publication, architecture and execution-method reconciliation — 2026-11-07
+
+DECISION-DATA-001: Keep only transaction-attempt-local **document point-read** memoization as a limited, reported benefit. F1 removed `cachedQuery` and temporal query-result memoization. Query traffic of 451 logical calls in reference fixture remains unchanged.
+DECISION-DATA-002: Do not label B2/B3/C1/C2/C3 as implemented Scoped Execution Authority. Canonical intent signature (`buildRosterCanonicalIntent`) includes reviewed decisions, active current proofs and indirectly displaced/prepared dependencies; safe scoped redesign is unresolved.
+DECISION-DATA-003: Reported F1 616 versus earlier B1 628 point-read calls is a measurement difference requiring raw event explanation. Neither metric is equal to billed reads.
+DECISION-DATA-004: Keep historical 7-file source/test change separate from measurement artifacts; owner review of **actual Google AI Studio GitHub Sync UI** governs manual Push. Branch-first publishing is not universally mandatory. `main` pushes have been used previously after owner scope acceptance and post-push audit.
+DECISION-DATA-005: Do not claim local Git commit, clean Git worktree, exported ZIP, or remote push from a Studio text report without actual artifact / Git evidence.
+OPEN-DEBT: Firestore query read amplification (451 logical calls; many temporal history queries); full end-to-end real billing/quiescence attribution; async Google Sheets projection architecture; SDK transaction cache implementation safety; final Foundation live acceptance; exact before/after source diff and post-push SHA verification.
+HARD_INVARIANTS: project tenant isolation, server authority, temporal history integrity, prepared natural-key uniqueness, reviewed intent and approval signatures, durable recovery receipts, fencing/cancellation, historical trip snapshots and pricing stability.
+BLOCKERS: exact 14-file Sync mismatch must be resolved before publishing a seven-file F1-only batch. If user elects wider diagnostic publication, explicitly document it as a different controlled scope rather than silently relabeling it F1-only.
+
+## DATA-F1 owner publication verified — 2026-11-07
+
+CLOSED_FOR_SOURCE_PUBLICATION: exact seven-file DATA-F1 source/test Push reached GitHub `main` at `17977ffaac67f11e55b8a8471d0f1cf455fd18be`, parent `99f01eefe386ba840951f547069cb023f889b8c1`; post-push GitHub comparison showed no unrelated files.
+RETAINED: point document read memoization within transaction attempts, wrapper integration; no generic query-result cache.
+DEBT_OPEN: real Firestore SDK semantics for mutable raw transaction property `__cachedTxProxy`, converter/database-specific document identity, live billing/cost-scale measurements, explain reported 628→616 logical count variance with original raw event trace, Foundation live assurance, and the broader unimplemented scoped-execution/Google Sheets projection redesign.
+NOT_CLAIMED: full architecture convergence, 451-query reduction, Firestore billed reads reduction, complete live UI acceptance, new phase authorization.
+

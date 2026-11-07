@@ -1,3 +1,7 @@
+## DATA-LIVE-02 continuation — 2026-11-07
+
+DATA-F1 was previously owner-pushed and source-verified at `17977ffaac67f11e55b8a8471d0f1cf455fd18be` (seven authorized source/test files). The owner subsequently pushed DATA-LIVE-02 to `main`: `cf7ac517be93492125c6dabad0ea38f291da7ed3` (parent F1), 1 production file, 1 added line only, no surprises. The change wraps `foundation()`'s raw transaction using the existing `withTxCache` after authorization. Studio reported 101/101 focused tests, but no measured Foundation-specific point get count; the 25–40% claim is not independently supported. In observed live run, opening an existing project coincided with ~12K reads displayed in Firebase usage over an hour and 3 foundation-snapshot XHRs, without proof of exact causality. Immediate continuation: controlled deployed runtime A/B-style comparison of snapshot invocations and Firestore billed reads, establish worker contribution. Do not turn test fixture call reductions into billed-read guarantees. Foundation final acceptance BLOCKED; Phase 10 NOT_STARTED.
+
 ## Controlled Incremental Workspace Projection handoff checkpoint — 2026-11-03
 
 Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`. Working source contains the completed Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence.
@@ -217,3 +221,22 @@ Open [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) for current continuation. [The dat
 ### Pricing authority continuation
 
 Exact current unit/status is owned by [the ledger](02_PHASE_LEDGER.md). Merged P9-U1 established canonical server pricing and fixed Trip snapshots. P9-U2 adds server-decided copy-on-write, explicit replacement cutoffs, status UX, correlated existing audit records, stored tax/minimum-weight preservation and closure evidence. Setup and operations share the same pricing policy; old rule/configuration changes do not reprice historical Trips. Unsupported legacy calculators and unused browser adjustment approvals are not activated. The source-closure decision and owner-merge gate are defined only in the ledger; Phase 10 is not started.
+
+## Current conversation handoff — DATA-F1 and owner-controlled Google AI Studio publication (2026-11-07)
+
+Repository `rexat007/Q-Saudi-Work-Follow-App`. Verified pre-push `main` HEAD: `99f01eefe386ba840951f547069cb023f889b8c1`. Existing separate branch `reconstruction/data-f1-transaction-point-read-closure` was created at baseline but is not a Studio publication channel.
+
+Historical sequence: DATA-A2 isolated read probe; DATA-B1 transaction point read cache; DATA-B2 query caching attempt removed; DATA-B3/B3P and DATA-C1/C2/C3 attempts to prove targeted canonical execution did not implement measured scoped authority; DATA-F1 retained B1 only. Studio reports point get calls 1,612 -> 616, query calls 451 -> 451, queries returned docs 618 -> 618, 92 writes, 30 callback attempts, 104/104 focused tests PASS. This is reported fake-db evidence, not independently billed/live measurement.
+
+**Immediate danger at handoff:** owner's Google AI Studio screenshot shows `main` destination and 14 changed files: 7 intended F1 files plus 7 probe/report/manifest/test-artifact files. Do not describe all 14 as approved F1. Owner intends to push; first reconcile the actual Sync panel, with any cleanup preserving source and diagnostic evidence. If owner already pushed, retrieve real HEAD and audit before doing anything else.
+
+Binding methodology: Review authoritative repo source and project governance -> one bounded execution unit -> scoped test/build and actual Sync screenshot -> owner-controlled manual Push -> independent GitHub commit verification -> document/ledger update. Preserve direct GitHub raw links when asking Studio to read source; never infer Studio can browse repo by name. Prefer decision+executable prompt together. No unnecessary PR/branch requirements, repeated speculative audits, automatic merge, or moving to the next unit before owner acceptance.
+
+Open gates: final Foundation acceptance blocked; Phase 10 not started. Workspace Sheets architecture target is App <-> Firebase canonical state; trigger-driven bounded Sheets projection, but not yet implemented/accepted as part of F1. No broad claim that all Firestore read amplification is fixed.
+
+## DATA-F1 published-source handoff — 2026-11-07
+
+OWNER_PUSH: DONE. Independent GitHub verification established `main` HEAD `17977ffaac67f11e55b8a8471d0f1cf455fd18be`, parent `99f01eefe386ba840951f547069cb023f889b8c1`, exactly 7 authorized F1 files; no diagnostics/artifacts included. Studio Sync final scope had 7, and owner manually pushed. Code uses transaction-local document point-read memoization, leaves collection queries uncached. Reported isolated fixture improvement 1612→616 point get calls; 451 queries unchanged. Last Studio verification 101/101 focused tests; no independent production/emulator/live check yet.
+
+NEXT: obtain targeted live runtime and Firebase usage evidence (active and idle), keep final Foundation acceptance blocked until verified and explicitly owner-authorized, do not initiate Phase 10. Broad scoped-execution redesign remains outstanding, not implemented by B2–C3. Separate documentation branch publication must be merged/reconciled by owner, not silently presumed on main.
+
