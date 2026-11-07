@@ -83,3 +83,12 @@ P0-U5 is documentation-only. Whole-App i18n and residual remediation are merged 
 - **Decision & Debt Log**: `docs/reconstruction/05_DECISION_AND_DEBT_LOG.md`
 - **Master Reconstruction Plan**: `docs/reconstruction/RECONSTRUCTION_PLAN.md`
 - **Foundational Plan (Phases 0–18)**: `docs/reconstruction/FOUNDATIONAL_PLAN_PHASE_0_TO_18.md`
+
+## DATA-F1 operational checkpoint — 2026-11-07 (publication pending)
+
+CURRENT VERIFIED GITHUB MAIN (pre-owner push): `99f01eefe386ba840951f547069cb023f889b8c1`.
+GOOGLE AI STUDIO SOURCE: DATA-F1 point-read transaction memoization; reported local 104/104 PASS; **not yet independently source-accepted or published**.
+GITHUB SYNC UI: **14 changed files, destination `main`**. Exactly 7 are in retained DATA-F1 source/test scope and 7 are measurement/report/manifest artifacts not approved in the production code batch. **Do not push the current 14-file selection as a seven-file DATA-F1 release.** Review/clean the actual Sync UI before the owner manually pushes.
+OWNER WORKFLOW: AI Studio implementation and targeted verification -> actual GitHub Sync panel exact-file review -> owner-controlled Push (default `main` if expressly approved; a branch is not universally required) -> independent remote commit SHA/file audit -> acceptance and ledger closure. No automatic PR/merge or fabricated SHA. Google AI Studio's local workspace is not assumed to be a Git repository or to select non-default branches.
+NEXT_ACTION: reconcile 14 pending changes against the exact 7-file F1 scope; preserve measurement artifacts separately; owner decides the publication target; verify the resulting remote commit. Keep Foundation acceptance gated and Phase 10 NOT_STARTED.
+

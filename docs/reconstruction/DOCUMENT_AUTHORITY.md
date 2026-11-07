@@ -36,3 +36,12 @@ Never infer current code from old reports or conflate historical numbering with 
 User acceptance remains explicit where product/owner acceptance is required, and owner merge remains manual unless explicitly changed. Under the current streamlined method, commit + push + PR may be one publication step after scope review; the normal independent GitHub gate is a single post-merge verification. Separate pre-PR publication audits are reserved for cases where risk materially justifies them. Historical unit-specific rules remain evidence of their period and do not override the current execution method.
 
 Use actual local Git evidence in Codex. Current P8-B3 work stops for owner review; commit, publication and PR creation need a later explicit owner instruction. Historical editor/synchronization workflows do not authorize an action in the current environment.
+
+## DATA-F1 evidence precedence clarification — 2026-11-07
+
+1. Actual GitHub committed source and commit metadata override narrative Studio status labels.
+2. Actual Google AI Studio Sync UI is authoritative for the pending changed-file inventory; it presently shows 14 files targeting `main`.
+3. Owner manual Push requires scope approval and independent post-push commit verification. Branch-only prohibition for all Studio workflows is not a project-wide law.
+4. DATA-A2 through F1 summaries are historical/local evidence, not successful implementation of scoped execution or production billing proof.
+5. Documentation patches are prepared artifacts until applied to the repository and verified remotely. Do not mark repository docs UPDATED/SYNCED on the basis of this handoff package alone.
+
