@@ -1,5 +1,6 @@
 import { GlobalIdentityError, validGlobalId } from './globalIdentityPolicy';
 import { TEMPORAL, decodeTemporal, isCurrentTemporal, assignmentSlotsAgree, type TemporalKind } from './temporalRelationshipPolicy';
+import { withTxCache } from './txReadCache';
 const integrity = (kind: TemporalKind): never => { throw new GlobalIdentityError(kind === 'ASSIGNMENT' ? 'ASSIGNMENT_POINTER_INTEGRITY_ERROR' : 'ALLOCATION_POINTER_CORRUPTION'); };
 const base = (db: any, p: string) => db.collection('projects').doc(p);
 function slotValue(snapshot: any, projectId: string, ownerField: string, ownerId: string, key: string, kind: TemporalKind) {
@@ -12,13 +13,16 @@ function checkedTemporal(kind: TemporalKind, raw: unknown, id: string, p: string
   try { return decodeTemporal(kind, raw, id, p); } catch { return integrity(kind); }
 }
 async function activeHistory(tx: any, db: any, p: string, kind: TemporalKind, field: string, id: string, at: Date) {
-  const spec = TEMPORAL[kind], snap = await tx.get(base(db, p).collection(spec.collection).where(field, '==', id));
+  tx = withTxCache(tx);
+  const spec = TEMPORAL[kind];
+  const snap = await tx.get(base(db, p).collection(spec.collection).where(field, '==', id));
   const result = snap.docs.filter((d: any) => d.data()?.status === 'ACTIVE').map((d: any) => checkedTemporal(kind, d.data(), d.id, p));
   if (result.length > 1 || result.some((r: any) => !isCurrentTemporal(r, at))) integrity(kind);
   return result;
 }
 /** Validate slots AND history, including the displaced counterpart. Never repair in a normal command. */
 export async function readCurrentAssignment(tx: any, db: any, p: string, field: 'driverId' | 'truckId', id: string, at: Date) {
+  tx = withTxCache(tx);
   const root = base(db, p), collection = field === 'driverId' ? 'driver_active_assignments' : 'truck_active_assignments';
   const slot = slotValue(await tx.get(root.collection(collection).doc(id)), p, field, id, 'assignmentId', 'ASSIGNMENT');
   const history = await activeHistory(tx, db, p, 'ASSIGNMENT', field, id, at);
@@ -36,6 +40,7 @@ export async function readCurrentAssignment(tx: any, db: any, p: string, field: 
   return record;
 }
 export async function readCurrentAllocation(tx: any, db: any, p: string, truckId: string, at: Date) {
+  tx = withTxCache(tx);
   const root = base(db, p), slot = slotValue(await tx.get(root.collection('truck_active_material_allocations').doc(truckId)), p, 'truckId', truckId, 'allocationId', 'ALLOCATION');
   const history = await activeHistory(tx, db, p, 'ALLOCATION', 'truckId', truckId, at);
   if (!slot) { if (history.length) integrity('ALLOCATION'); return null; }

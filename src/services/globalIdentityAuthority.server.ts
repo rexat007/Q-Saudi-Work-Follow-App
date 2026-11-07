@@ -6,9 +6,11 @@ import { buildPrincipal } from '../utils/principal';
 import {invalidateGlobalWorkspaceProjection} from './projectWorkspaceGlobalInvalidation.server';
 import { sanitizeUndefined } from '../utils/sanitize';
 import { GLOBAL_IDENTITIES, decodeGlobalIdentity, GlobalIdentityError, normalizeNaturalKey, computeNaturalKeyToken, legacyNaturalKeyTokens, validGlobalId, type GlobalKind } from '../utils/globalIdentityPolicy';
+import { withTxCache } from '../utils/txReadCache';
 
 export const decodeAuthoritativeGlobal = decodeGlobalIdentity;
 export async function assertGlobalEntityExists(tx: any, db: any, kind: GlobalKind, id: string) {
+  tx = withTxCache(tx);
   if (!validGlobalId(id)) throw new GlobalIdentityError('IDENTITY_LOOKUP_INTEGRITY_ERROR');
   const snap = await tx.get(db.collection(GLOBAL_IDENTITIES[kind].collection).doc(id));
   if (!snap.exists) throw new GlobalIdentityError('GLOBAL_ENTITY_NOT_FOUND', kind);
@@ -16,6 +18,7 @@ export async function assertGlobalEntityExists(tx: any, db: any, kind: GlobalKin
 }
 /** Reads only: caller reserves canonicalRef in its existing write phase after all command reads. */
 export async function resolveGlobalNaturalIdentity(tx: any, db: any, kind: GlobalKind, raw: string) {
+  tx = withTxCache(tx);
   const spec = GLOBAL_IDENTITIES[kind], key = normalizeNaturalKey(kind, raw);
   const canonicalRef = db.collection('natural_identity_lookups').doc(computeNaturalKeyToken(kind, key));
   const tokens = [computeNaturalKeyToken(kind, key), ...legacyNaturalKeyTokens(kind, key)];
@@ -41,6 +44,7 @@ export async function resolveGlobalNaturalIdentity(tx: any, db: any, kind: Globa
   return { id, entity, canonicalRef, mustReserve: !lookups[0].exists };
 }
 export async function authorizeGlobalCommand(tx: any, db: any, authenticated: { userId: string; email?: string }, projectId?: string, globalGovernance = false, mutationClass?:FoundationMutationClass) {
+  tx = withTxCache(tx);
   if (!validGlobalId(authenticated?.userId) || (projectId !== undefined && !validGlobalId(projectId))) throw new GlobalIdentityError('FORBIDDEN_GLOBAL_COMMAND', '', 403);
   const account = await tx.get(db.collection('users').doc(authenticated.userId));
   const actor = buildPrincipal(account.exists ? account.data() : null, authenticated.userId, { email: authenticated.email });

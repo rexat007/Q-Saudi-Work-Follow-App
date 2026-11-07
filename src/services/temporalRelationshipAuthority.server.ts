@@ -8,6 +8,7 @@ import { assertOperationallyEligible, validGlobalId, GlobalIdentityError } from 
 import { TEMPORAL, decodeTemporal, isCurrentTemporal, assignmentSlotsAgree, type TemporalKind } from '../utils/temporalRelationshipPolicy';
 import { markDirtyInTransaction } from './projectWorkspaceProjectionState.server';
 import { sanitizeUndefined } from '../utils/sanitize';
+import { withTxCache } from '../utils/txReadCache';
 type Actor = Awaited<ReturnType<typeof authorizeGlobalCommand>>;
 export type TemporalPlan = { parentMembership?: {kind:string;entityId:string;command:string}; kind: TemporalKind; projectId: string; command: string; actor: Actor; before: any[]; record: any; changed: boolean; reason?: string };
 const integrity = (kind: TemporalKind): never => { throw new GlobalIdentityError(kind === 'ASSIGNMENT' ? 'ASSIGNMENT_POINTER_INTEGRITY_ERROR' : 'ALLOCATION_POINTER_CORRUPTION'); };
@@ -70,6 +71,7 @@ export function writeTemporalPlan(tx: any, db: any, plan: TemporalPlan, at: Date
   tx.set(db.collection('audit_logs').doc(auditLogId), sanitizeUndefined({ auditLogId, projectId, entityType: 'TRUCK', entityId: record.truckId, command, action: before.length ? 'UPDATE' : 'CREATE', actor: { userId: actor.userId, role: actor.role, email: actor.email }, changes: { parentMembership:plan.parentMembership, before, after: record, oldAssignmentIds: kind === 'ASSIGNMENT' ? before.map(r => r.assignmentId) : undefined, newAssignmentId: kind === 'ASSIGNMENT' && command !== 'CLOSE' ? record.assignmentId : undefined, driverId: record.driverId, oldTruckIds: kind === 'ASSIGNMENT' ? before.map(r => r.truckId) : undefined, newTruckId: record.truckId, oldAllocationId: kind === 'ALLOCATION' ? before[0]?.allocationId : undefined, newAllocationId: kind === 'ALLOCATION' && command !== 'CLOSE' ? record.allocationId : undefined, oldMaterialId: kind === 'ALLOCATION' ? before[0]?.materialId : undefined, newMaterialId: record.materialId, reason }, createdAt: now, updatedAt: now, createdBy: actor.userId, updatedBy: actor.userId }));
 }
 async function participation(tx: any, db: any, p: string, driverId: string | undefined, truckId: string, materialId?: string) {
+  tx = withTxCache(tx);
   const root = base(db, p), read = async (collection: string, id: string) => { const s = await tx.get(root.collection(collection).doc(id)); return s.exists ? s.data() : null; };
   const truckGlobal = await assertGlobalEntityExists(tx, db, 'TRUCK', truckId), truckMembership = await read('truck_memberships', truckId), truckAffiliation = await read('truck_carrier_affiliations', truckId);
   const result: any = { truckGlobal, truckMembership, truckAffiliation };

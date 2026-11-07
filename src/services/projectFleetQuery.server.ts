@@ -8,6 +8,7 @@ import { GLOBAL_IDENTITIES, evaluateGlobalEligibility, validGlobalId, GlobalIden
 import { relationshipContextFromFleet } from '../utils/relationshipContextProjection';
 import { ProjectFleetReadModelAdminReadContext } from './projectFleetReadModel.server';
 import { projectFleetReadModelService, isFleetRowDefect, decodeFleetGlobal } from './projectFleetReadModel.service';
+import { withTxCache } from '../utils/txReadCache';
 /** Retains participation even if display identity is missing/ineligible; never caches or writes. */
 export async function readProjectMasterList(ctx: ProjectFleetReadModelAdminReadContext, p: string, kind: GlobalKind) {
   const memberships = await ctx.listActiveMemberships(kind, p), spec = GLOBAL_IDENTITIES[kind];
@@ -24,6 +25,7 @@ export async function readProjectMasterList(ctx: ProjectFleetReadModelAdminReadC
 export class ProjectFleetQueryService {
   constructor(private database: any = adminDb) {}
   private async authorize(tx: any, p: string, identity: { userId: string; email?: string }) {
+    tx = withTxCache(tx);
     if (!validGlobalId(p) || !validGlobalId(identity?.userId)) throw new GlobalIdentityError('FORBIDDEN_PROJECT_ACCESS', '', 403);
     const account = await tx.get(this.database.collection('users').doc(identity.userId));
     let actor: ReturnType<typeof buildPrincipal>;
@@ -72,6 +74,7 @@ export class ProjectFleetQueryService {
   }
   /** Internal read composition; outer authority owns the transaction and current actor. */
   async contextInTransaction(tx: any, p: string, actor: { userId: string; email?: string }, principal: ReturnType<typeof buildPrincipal>, options?: ImportResolutionReadOptions) {
+      tx = withTxCache(tx);
       const ctx = new ProjectFleetReadModelAdminReadContext(this.database, ref => tx.get(ref));
       const [fleet, carriers, materials, drivers, trucks] = await Promise.all([projectFleetReadModelService.getProjectFleetReadModel(p, ctx), readProjectMasterList(ctx, p, 'CARRIER'), readProjectMasterList(ctx, p, 'MATERIAL'), readProjectMasterList(ctx, p, 'DRIVER'), readProjectMasterList(ctx, p, 'TRUCK')]);
       const knownCarriers = carriers.filter(c => c.eligible).map(c => ({ carrierId: c.id, name: c.global.nameAr || c.id, status: 'ACTIVE' as const }));

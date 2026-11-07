@@ -15,6 +15,7 @@ import { buildRosterCanonicalIntent } from './rosterCanonicalIntent.service';
 import { ImportProjectContextAdapter } from './importProjectContext.adapter';
 import type { IntentEntity, RosterCanonicalIntent } from '../../types/rosterCanonicalIntent';
 import type { ReviewedRosterCommitReceipt, ReviewedRosterCommitResponse } from '../../types/importSession';
+import { withTxCache } from '../../utils/txReadCache';
 
 export const ATOMIC_IMPORT_WRITE_LIMIT = 400;
 export const ATOMIC_IMPORT_BYTES_LIMIT = 8_000_000;
@@ -49,6 +50,7 @@ export class ReviewedRosterCommitServer {
     scope?: import('../../types/importExecution').ImportExecutionGroup;
     publish?: (writes:any, facts:any)=>Promise<void>;
   }):Promise<any> {
+    tx = withTxCache(tx);
     const db=this.db, ref=db.collection('projects').doc(projectId).collection('importSessions').doc(importSessionId);
       const actor=await authorizeGlobalCommand(tx,db,authenticated,projectId,false,'NEW_OPERATION');
       const snap=await tx.get(ref);if(!snap.exists)fail('IMPORT_SESSION_NOT_FOUND');
