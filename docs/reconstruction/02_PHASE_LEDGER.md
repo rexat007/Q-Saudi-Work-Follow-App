@@ -1615,3 +1615,32 @@ BLOCKING = 0 for the approved Phase 9 source contract. New accounting/invoicing,
 Exact merged baseline: 523/531 across the same relevant regression + i18n selection. Final: 550/558, including 27/27 new P9-U2 tests; P9-U1 remains 31/31. NEW_FAILURES = 0; REMOVED_TESTS = 0; SKIPPED_TESTS = 0. No existing test file was modified. The eight reproduced failures are canonical dispatch cases A/U, activation-readiness M, three Trip-command legacy allocation fixture cases, the persistence import-session ISO/metadata case, and TBC-B4's historical Smart Import checkpoint-key expectation. These suites are NOT represented as wholly passing and are not repaired outside scope.
 
 Build PASS. Diagnostics 440→440, added 0 / removed 0; lint EXIT 2 / NOT PASS. Browser/runtime 8/8 with actual Wizard and pricing/Trip services, transactional IN_MEMORY persistence and controlled authentication transport. No emulator/live Firebase acceptance. AR/EN/UR each 4384 keys (nine lifecycle/hint keys added); duplicate keys/parity gaps/empty values 0. `git diff --check` PASS. Historical specification bodies, old handoffs and Studio snapshots are preserved. Dependencies/config/workflows/rules, offline/Trip FSM and report/dashboard architecture are unchanged.
+
+### DATA-A2 → DATA-F1 Firestore Read-Amplification & Publication Checkpoint — 2026-11-07
+
+BASELINE_AT_ANALYSIS: `99f01eefe386ba840951f547069cb023f889b8c1` (`main` verified before owner's pending publication).
+DATA_A2: LOGICAL_MEASUREMENT_BASELINE (6 rows, 12 consequences, 6 execution groups); baseline 1,612 point gets; 451 query calls; 618 returned query documents; 92 write calls; 30 transaction callbacks. This is fake Firestore instrumentation, **not billable Firebase reads**.
+DATA_B1: POINT_READ_CACHE_IMPLEMENTED / STUDIO_FOCUSED_VERIFIED / REMOTE_SOURCE_ACCEPTANCE_PENDING.
+DATA_B2: APPLICATION_QUERY_MEMOIZATION_REMOVED; earlier version showed ZERO MEASURED QUERY REDUCTION and was removed by F1.
+DATA_B3_B3P: DESIGN_AND_INCOMPLETE_TEST_PROTOTYPE / NO_PRODUCTION_SCOPED_PATH.
+DATA_C1_C2_C3: PROPOSED_EXECUTION_READ_SCOPE_NOT_IMPLEMENTED / NO_ADDITIONAL_MEASURED_GAIN. Do not classify any as production-scoped execution complete.
+DATA_F1: RETAINED_B1_POINT_READ_OPTIMIZATION / STUDIO_TEST_REPORTED_104_OF_104_PASS / PUBLICATION_NOT_VERIFIED.
+DATA_F1_REPORTED_FINAL_METRICS: point gets 616 (−996; −61.8% logical SDK call reduction), query gets 451, query docs 618, write calls 92, transaction callbacks 30. Variation versus previous 628 not independently reconciled with raw event evidence. Independent GitHub code diff, SDK integration audit, and post-push check still due.
+DATA_F1_RETAINED_FILES: 6 production modules (`txReadCache.ts`, `temporalRelationshipReads.ts`, `temporalRelationshipAuthority.server.ts`, `globalIdentityAuthority.server.ts`, `projectFleetQuery.server.ts`, `reviewedRosterCommit.server.ts`) + 1 test (`txReadCacheCorrectness.test.ts`).
+GITHUB_SYNC_2026_11_07: UI shows **14 changed files and `main` target**; 7 F1 intended and 7 extraneous measuring/reporting/manifest files. Owner indicated intention to push, but NO REMOTE COMMIT HAS BEEN VERIFIED. STATUS: PRE_PUSH_SCOPE_MISMATCH / OWNER_ACTION_PENDING. Do not claim synced/closed.
+EXISTING_ISOLATED_BRANCH: `reconstruction/data-f1-transaction-point-read-closure` created at same baseline; it does not mean Studio can target that branch. Creating a branch was an optional protection, not mandatory owner workflow. No DATA-F1 code has been confirmed on that branch.
+FOUNDATION_FINAL_ACCEPTANCE: BLOCKED / LIVE_VERIFICATION_REQUIRED. PHASE_10: NOT_STARTED.
+NEXT_ACTION: owner-visible Sync scope reconciliation, bounded push decision, actual remote commit audit and ledger reconciliation; defer broad dataflow/Firestore/Sheets redesign to separately authorized work.
+
+### DATA-F1 POST-PUSH SOURCE VERIFICATION — 2026-11-07
+
+DATA_F1_PUBLICATION: `PUSHED_MAIN / SOURCE_SCOPE_VERIFIED / STUDIO_TEST_REPORTED / LIVE_ACCEPTANCE_PENDING`.
+MAIN_HEAD: `17977ffaac67f11e55b8a8471d0f1cf455fd18be`.
+PARENT: `99f01eefe386ba840951f547069cb023f889b8c1`.
+COMMIT_MESSAGE: `perf: wrap database transactions with read cache`.
+GITHUB_DIFF: 7 EXACT files: `src/utils/txReadCache.ts` (added), `src/utils/temporalRelationshipReads.ts`, `src/services/temporalRelationshipAuthority.server.ts`, `src/services/globalIdentityAuthority.server.ts`, `src/services/projectFleetQuery.server.ts`, `src/services/import/reviewedRosterCommit.server.ts` (five modified), `src/tests/txReadCacheCorrectness.test.ts` (added). EXTRA_CHANGED_FILES: 0.
+CODE_INSPECTION: no `cachedQuery` helper in pushed `txReadCache.ts`; query reads go to `target.get(ref)`; `withTxCache` point memoization and `tx.__cachedTxProxy` raw proxy marker are present.
+TEST_EVIDENCE: last Studio report after diagnostic cleanup **101/101 PASS**, not a fresh independent post-push run. Published dedicated cache test file has 7 executable `it()` cases; some titles cover multiple conceptual gates. No native Firestore emulator or production billing equivalence verified.
+F1_REPORTED_FAKE_METRICS: baseline 1,612 point gets, F1 616, query gets 451 unchanged, returned query docs 618 unchanged, write calls 92 unchanged, transaction callbacks 30 unchanged. Do not claim production billing savings until telemetry.
+CLOSURE_SCOPE: SOURCE_PUBLISHED / REMOTE_DIFF_VERIFIED; PRODUCT_LIVE_ACCEPTANCE_NOT_DONE. FOUNDATION: BLOCKED; PHASE_10: NOT_STARTED.
+

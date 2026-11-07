@@ -122,3 +122,11 @@ Compare observed document-operation usage with actual pending work/history and t
 - **Cost Model**: Idle automatic Google sync calls = 0; scheduled infrastructure cost = none; Google projection cost = user-triggered only.
 - **Foundation Status**: Three-hour scheduler blocker removed by product decision; scheduled worker deployment not required; foundation technical blockers = none known. Foundation acceptance = READY FOR OWNER FINAL ACCEPTANCE. Phase 10 = NOT STARTED.
 
+## DATA-F1 read-amplification distinction — 2026-11-07
+
+The isolated DATA-A2 workload (6 source rows; 12 consequences; 6 execution groups) reported 1,612 point-read SDK calls, 451 query calls and 618 returned query documents before B1. F1's retained transaction-scoped point-read memoization reports 616 point gets while query calls remain 451. These logical in-memory measurements neither attribute the original production 39K+/hour spike nor establish billable Firebase savings in production. Temporal history queries remain a nontrivial source of growth. Future cost architecture should separately monitor active/idle clients, Firestore read/write billing, project-size scaling, background retries, and Google Sheets projection traffic. Do not conflate F1 with the previously recorded Workspace quiescence and controlled incremental projection work; each needs its own live acceptance gate.
+
+## DATA-F1 verified code Push, billing evidence still pending — 2026-11-07
+
+GitHub source for F1 now verified on main `17977ffaac67f11e55b8a8471d0f1cf455fd18be` with 7 approved changes. Optimized logical point reads in isolated fake transaction workload do not establish any reduction in production billed reads. Temporal query invocations remained 451. Workspace quiescence and Google Sheets projection have separate operational verification gates and must not be described as solved by DATA-F1.
+
