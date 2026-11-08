@@ -6,15 +6,23 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import * as crypto from 'crypto';
-import { execSync } from 'child_process';
-import { getPool, closePool, withTransaction } from '../db/pool.js';
+import { execFileSync } from 'child_process';
+import { mkdtempSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import pg from 'pg';
+import { getPool, getAuthPool, getMigrationPool, closePool, withTransaction } from '../db/pool.js';
 import { applyMigrations, verifyMigrations } from '../db/migrator.js';
 import { withUnitOfWork } from '../db/unitOfWork.js';
 import { resolveUserAuthContext, assertProjectAccess, AuthenticationError, AuthorizationError } from '../db/authAdapter.js';
 import { resolveFirestorePath } from '../db/firestoreMapping.js';
 
 describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
-  const pool = getPool({ database: 'qsaudi_test' });
+  if (process.env.QSA_TEST_DATABASE_ISOLATED !== '1' || !process.env.TEST_DATABASE_URL) {
+    throw new Error('An explicitly isolated TEST_DATABASE_URL is required');
+  }
+  const pool = new pg.Pool({ connectionString: process.env.TEST_DATABASE_URL });
+  getPool();
 
   beforeAll(async () => {
     // Fail-closed verification: Ensure real PostgreSQL is reachable
@@ -26,12 +34,13 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
     }
 
     // Apply migrations
-    const migrationRes = await applyMigrations(pool);
+    const migrationRes = await applyMigrations(getMigrationPool());
     expect(migrationRes.applied.length + migrationRes.verified.length).toBeGreaterThanOrEqual(2);
   });
 
   afterAll(async () => {
     await closePool();
+    await pool.end();
   });
 
   describe('1. Engine & Extension Contracts', () => {
@@ -49,7 +58,7 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
     });
 
     it('verifies migration runner is idempotent and verifies checksums', async () => {
-      const verification = await verifyMigrations(pool);
+      const verification = await verifyMigrations(getMigrationPool());
       expect(verification.allValid).toBe(true);
       expect(verification.pendingCount).toBe(0);
       expect(verification.appliedCount).toBeGreaterThanOrEqual(2);
@@ -149,7 +158,7 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
           )`,
           [crypto.randomUUID(), companyId, projectId, driverId, truckId2]
         );
-      });
+      }, pool);
     });
   });
 
@@ -190,7 +199,7 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
       });
 
       // Query under qsa_runtime with NO company_id set: fail-closed (0 rows returned)
-      const unauthenticatedClient = await pool.connect();
+      const unauthenticatedClient = await getPool().connect();
       try {
         await unauthenticatedClient.query('SET ROLE qsa_runtime');
         const res = await unauthenticatedClient.query('SELECT * FROM projects');
@@ -211,10 +220,10 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
       });
 
       // Fresh client checkout from pool must have empty context
-      const freshClient = await pool.connect();
+      const freshClient = await getPool().connect();
       try {
         const res = await freshClient.query("SELECT current_setting('app.company_id', true) AS cid");
-        expect(res.rows[0].cid).toBe('');
+        expect(res.rows[0].cid || '').toBe('');
       } finally {
         freshClient.release();
       }
@@ -357,7 +366,7 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
         [crypto.randomUUID(), companyId, projectId, userId]
       );
 
-      const authContext = await resolveUserAuthContext({ uid: firebaseUid }, companyId, pool);
+      const authContext = await resolveUserAuthContext({ uid: firebaseUid }, companyId, getAuthPool());
       expect(authContext.userId).toBe(userId);
       expect(authContext.companyId).toBe(companyId);
       expect(authContext.role).toBe('PROJECT_OFFICER');
@@ -378,11 +387,11 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
         [crypto.randomUUID(), suspendedUid]
       );
 
-      await expect(resolveUserAuthContext({ uid: suspendedUid }, undefined, pool)).rejects.toThrow(
+      await expect(resolveUserAuthContext({ uid: suspendedUid }, undefined, getAuthPool())).rejects.toThrow(
         AuthenticationError
       );
 
-      await expect(resolveUserAuthContext({ uid: 'non-existent-uid' }, undefined, pool)).rejects.toThrow(
+      await expect(resolveUserAuthContext({ uid: 'non-existent-uid' }, undefined, getAuthPool())).rejects.toThrow(
         AuthenticationError
       );
     });
@@ -411,34 +420,35 @@ describe('AR2-U01: PostgreSQL 17 Infrastructure & Canonical Schema', () => {
   });
 
   describe('7. Backup and Restore Rehearsal', () => {
-    it('rehearses pg_dump export and pg_restore / psql restore into rehearsal database', () => {
-      const dumpFile = '/tmp/qsaudi_backup_rehearsal.sql';
-      const restoreDb = 'qsaudi_restore_test';
-
-      // 1. Dump schema from test database
-      execSync(`pg_dump -h /tmp -U postgres -d qsaudi_test --schema-only -f ${dumpFile}`);
-
-      // 2. Create rehearsal database (separate commands to prevent transaction block error)
-      execSync(`psql -h /tmp -U postgres -c "DROP DATABASE IF EXISTS ${restoreDb};"`);
-      execSync(`psql -h /tmp -U postgres -c "CREATE DATABASE ${restoreDb};"`);
-
-      // 3. Restore schema into rehearsal database
-      execSync(`psql -h /tmp -U postgres -d ${restoreDb} -f ${dumpFile}`);
-
-      // 4. Verify table count matches exactly
-      const originalCount = execSync(
-        `psql -h /tmp -U postgres -d qsaudi_test -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';"`
-      ).toString().trim();
-
-      const restoredCount = execSync(
-        `psql -h /tmp -U postgres -d ${restoreDb} -t -c "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public';"`
-      ).toString().trim();
-
-      expect(Number(restoredCount)).toBe(Number(originalCount));
-      expect(Number(restoredCount)).toBeGreaterThanOrEqual(42);
-
-      // Clean up rehearsal database
-      execSync(`psql -h /tmp -U postgres -c "DROP DATABASE ${restoreDb};"`);
-    });
+    it('rehearses pg_dump export and pg_restore / psql restore into rehearsal database', async () => {
+      const directory = mkdtempSync(join(tmpdir(), 'qsa-sg1-restore-'));
+      const dumpFile = join(directory, 'schema.sql');
+      const restoreDb = `qsa_restore_${crypto.randomUUID().replaceAll('-', '')}`;
+      const url = new URL(process.env.TEST_DATABASE_URL!);
+      const env = { ...process.env, PGHOST: url.hostname, PGPORT: url.port || '5432',
+        PGUSER: decodeURIComponent(url.username), PGPASSWORD: decodeURIComponent(url.password),
+        PGDATABASE: url.pathname.slice(1) };
+      const bin = (name: string) => process.env.PG_BIN_DIR
+        ? join(process.env.PG_BIN_DIR, name + (process.platform === 'win32' ? '.exe' : '')) : name;
+      let restored: pg.Pool | undefined;
+      let created = false;
+      try {
+        execFileSync(bin('pg_dump'), ['--schema-only', '-f', dumpFile], { env });
+        await pool.query(`CREATE DATABASE ${restoreDb}`);
+        created = true;
+        execFileSync(bin('psql'), ['-X', '-v', 'ON_ERROR_STOP=1', '-d', restoreDb, '-f', dumpFile], { env });
+        url.pathname = '/' + restoreDb;
+        restored = new pg.Pool({ connectionString: url.toString() });
+        const sql = "SELECT count(*)::int AS count FROM information_schema.tables WHERE table_schema = 'public'";
+        const originalCount = (await pool.query(sql)).rows[0].count;
+        const restoredCount = (await restored.query(sql)).rows[0].count;
+        expect(restoredCount).toBe(originalCount);
+        expect(restoredCount).toBeGreaterThanOrEqual(42);
+      } finally {
+        await restored?.end();
+        if (created) await pool.query(`DROP DATABASE ${restoreDb}`);
+        rmSync(directory, { recursive: true });
+      }
+    }, 30000);
   });
 });

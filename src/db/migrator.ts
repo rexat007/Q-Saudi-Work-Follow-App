@@ -9,7 +9,7 @@ import * as path from 'path';
 import * as crypto from 'crypto';
 import type { Pool, PoolClient } from 'pg';
 import { fileURLToPath } from 'url';
-import { getPool, closePool } from './pool.js';
+import { getMigrationPool, closePool } from './pool.js';
 import type { MigrationRecord, MigrationResult } from './types.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -42,11 +42,16 @@ export function loadMigrationFiles(dir: string = MIGRATIONS_DIR): MigrationFile[
     .filter(file => file.endsWith('.sql'))
     .sort((a, b) => a.localeCompare(b));
 
+  const versions = new Set<number>();
   return files.map(filename => {
     const filepath = path.join(dir, filename);
     const sql = fs.readFileSync(filepath, 'utf8');
     const checksum = computeChecksum(sql);
     const match = filename.match(/^(\d+)_(.+)\.sql$/);
+    if (!match || versions.has(Number(match[1])) || Number(match[1]) !== versions.size + 1) {
+      throw new Error(`Invalid, duplicate or out-of-order migration: ${filename}`);
+    }
+    versions.add(Number(match[1]));
     const version = match ? match[1] : filename.replace(/\.sql$/, '');
     const name = match ? match[2] : filename.replace(/\.sql$/, '');
 
@@ -96,7 +101,7 @@ export async function getAppliedMigrations(client: PoolClient): Promise<Map<stri
 }
 
 export async function applyMigrations(poolOverride?: Pool): Promise<MigrationResult> {
-  const pool = poolOverride || getPool();
+  const pool = poolOverride || getMigrationPool();
   const client = await pool.connect();
 
   const result: MigrationResult = {
@@ -111,6 +116,14 @@ export async function applyMigrations(poolOverride?: Pool): Promise<MigrationRes
 
     const migrationFiles = loadMigrationFiles();
     const appliedMap = await getAppliedMigrations(client);
+
+    // Validate the entire applied history before executing any pending SQL.
+    for (const [version, applied] of appliedMap) {
+      const file = migrationFiles.find(m => m.version === version);
+      if (!file || file.checksum !== applied.checksum) {
+        throw new Error(`Migration checksum mismatch or missing file for version ${version}`);
+      }
+    }
 
     for (const m of migrationFiles) {
       const existing = appliedMap.get(m.version);
@@ -145,12 +158,13 @@ export async function applyMigrations(poolOverride?: Pool): Promise<MigrationRes
 
     return result;
   } finally {
+    let discard = false;
     try {
       await releaseMigrationLock(client);
     } catch (unlockErr) {
-      console.error('Failed to release migration advisory lock:', unlockErr);
+      discard = true;
     }
-    client.release();
+    client.release(discard);
   }
 }
 
@@ -158,9 +172,9 @@ export async function verifyMigrations(poolOverride?: Pool): Promise<{
   allValid: boolean;
   appliedCount: number;
   pendingCount: number;
-  details: Array<{ version: string; status: 'VALID' | 'PENDING' | 'CHECKSUM_MISMATCH' }>;
+  details: Array<{ version: string; status: 'VALID' | 'PENDING' | 'CHECKSUM_MISMATCH' | 'MISSING_FILE' }>;
 }> {
-  const pool = poolOverride || getPool();
+  const pool = poolOverride || getMigrationPool();
   const client = await pool.connect();
 
   try {
@@ -171,7 +185,13 @@ export async function verifyMigrations(poolOverride?: Pool): Promise<{
     let allValid = true;
     let appliedCount = 0;
     let pendingCount = 0;
-    const details: Array<{ version: string; status: 'VALID' | 'PENDING' | 'CHECKSUM_MISMATCH' }> = [];
+    const details: Array<{ version: string; status: 'VALID' | 'PENDING' | 'CHECKSUM_MISMATCH' | 'MISSING_FILE' }> = [];
+    for (const version of appliedMap.keys()) {
+      if (!migrationFiles.some(file => file.version === version)) {
+        allValid = false;
+        details.push({ version, status: 'MISSING_FILE' });
+      }
+    }
 
     for (const m of migrationFiles) {
       const existing = appliedMap.get(m.version);

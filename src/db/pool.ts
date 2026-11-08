@@ -6,7 +6,6 @@
 
 import pg from 'pg';
 import type { PoolClient, QueryResult, QueryResultRow } from 'pg';
-import type { DbRole } from './types.js';
 
 const { Pool } = pg;
 
@@ -25,6 +24,35 @@ export interface PoolConfig {
 
 let activePool: pg.Pool | null = null;
 let currentConfig: PoolConfig | null = null;
+let authPool: pg.Pool | null = null;
+let migrationPool: pg.Pool | null = null;
+
+function credentialPool(variable: 'AUTH_DATABASE_URL' | 'MIGRATION_DATABASE_URL'): pg.Pool {
+  const connectionString = process.env[variable];
+  if (!connectionString) throw new Error(`${variable} is required; runtime credentials are never used as a fallback`);
+  return new Pool({ connectionString, max: 4, connectionTimeoutMillis: 5000, statement_timeout: 30000 });
+}
+
+export function getAuthPool(): pg.Pool {
+  return authPool ||= credentialPool('AUTH_DATABASE_URL');
+}
+
+export function getMigrationPool(): pg.Pool {
+  return migrationPool ||= credentialPool('MIGRATION_DATABASE_URL');
+}
+
+export async function assertServiceIdentity(pool: pg.Pool | PoolClient, role: 'qsa_runtime' | 'qsa_auth'): Promise<void> {
+  const result = await pool.query(`
+    SELECT r.rolname FROM pg_catalog.pg_roles r
+    WHERE r.rolname = session_user AND r.rolname = $1
+      AND NOT (r.rolsuper OR r.rolbypassrls OR r.rolcreaterole OR r.rolcreatedb OR r.rolreplication)
+      AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = 'public' AND c.relowner = r.oid)
+      AND NOT EXISTS (SELECT 1 FROM pg_catalog.pg_auth_members m WHERE m.member = r.oid)
+  `, [role]);
+  if (result.rows.length !== 1) throw new Error(`Unsafe database identity: connect directly as non-owner ${role}`);
+}
 
 export function buildPoolConfig(overrides: Partial<PoolConfig> = {}): PoolConfig {
   const databaseUrl = process.env.DATABASE_URL;
@@ -42,7 +70,7 @@ export function buildPoolConfig(overrides: Partial<PoolConfig> = {}): PoolConfig
   return {
     host: overrides.host || process.env.PGHOST || '/tmp',
     port: overrides.port || Number(process.env.PGPORT || 5432),
-    user: overrides.user || process.env.PGUSER || 'postgres',
+    user: overrides.user || process.env.PGUSER || 'qsa_runtime',
     password: overrides.password !== undefined ? overrides.password : (process.env.PGPASSWORD || ''),
     database: overrides.database || process.env.PGDATABASE || 'qsaudi_test',
     max: overrides.max || Number(process.env.PG_POOL_MAX || 20),
@@ -70,6 +98,10 @@ export function getPool(configOverrides?: Partial<PoolConfig>): pg.Pool {
 }
 
 export async function closePool(): Promise<void> {
+  const auxiliaryPools = [authPool, migrationPool];
+  authPool = null;
+  migrationPool = null;
+  await Promise.all(auxiliaryPools.map(pool => pool?.end()));
   if (activePool) {
     const poolToClose = activePool;
     activePool = null;
@@ -102,6 +134,9 @@ export async function withTransaction<T>(
     : await pool.connect();
 
   const isDedicatedClient = !(clientOrPool && !(clientOrPool instanceof Pool));
+  let discard = false;
+  const onConnectionError = () => { discard = true; };
+  client.on('error', onConnectionError);
 
   try {
     await client.query('BEGIN');
@@ -112,12 +147,18 @@ export async function withTransaction<T>(
     try {
       await client.query('ROLLBACK');
     } catch (rollbackErr) {
-      console.error('Failed to rollback transaction:', rollbackErr);
+      discard = true;
     }
     throw error;
   } finally {
     if (isDedicatedClient) {
-      client.release();
+      try {
+        if (!discard) await client.query('DISCARD ALL');
+      } catch {
+        discard = true;
+      }
+      client.release(discard);
     }
+    client.removeListener('error', onConnectionError);
   }
 }
