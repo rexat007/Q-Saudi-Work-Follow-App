@@ -571,8 +571,8 @@ describe('AR2-U03 real PostgreSQL 17 temporal authority',()=>{
   });
 
   check('migration 005 repeats without reapplication and rejects changed checksums',async()=>{
-    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006']);
-    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:6,pendingCount:0});
+    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007']);
+    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:7,pendingCount:0});
     await admin.query("UPDATE schema_migrations SET checksum='tampered' WHERE version='005'");
     try{await expect(applyMigrations(migrator)).rejects.toThrow('checksum mismatch');}
     finally{await admin.query("UPDATE schema_migrations SET checksum=$1 WHERE version='005'",[loadMigrationFiles()[4].checksum]);}

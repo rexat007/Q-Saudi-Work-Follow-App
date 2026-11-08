@@ -135,14 +135,17 @@ export class SqlCanonicalAuthority {
     const profile = canonicalProfile(input);
     // Hash normalized identity/profile semantics; never write raw request hashes.
     const payload = { type:'CREATE',kind:input.kind,profile,externalId:input.externalId,source:input.source };
-    return this.command(token,input,payload,false,async (uow,repository,protection) => {
+    return this.command(token,input,payload,false,(uow,repository,protection) => this.createWithin(uow,repository,protection,input));
+  }
+
+  /** Internal composition: caller must hold this authority's scoped command UoW. */
+  protected async createWithin(uow:UnitOfWork,repository:CanonicalIdentityRepository,protection:IdentityProtection,input:CreateCanonicalCommand) {
       await this.lifecycle(uow,false);
       const result = await repository.create(input,input.operationId);
       if (result.changed) await this.consequence(uow,protection,input.kind,result.identity.externalId,input.operationId,
         result.created ? 'CANONICAL_IDENTITY_CREATED' : 'LEGACY_IDENTITY_MAPPED',null,
         { id:result.identity.id,status:result.identity.status },result.identity.revision);
       return { identity:result.identity,created:result.created,idempotent:!result.changed };
-    });
   }
 
   async resolve(token: string, scope: Scope, kind: GlobalKind, naturalKey: string) {
@@ -187,7 +190,11 @@ export class SqlCanonicalAuthority {
     keys(input,[...scopeKeys,'kind','entityId','command','expectedRevision','reason']);
     const spec = identitySpec(input.kind); revision(input.expectedRevision);
     if (input.reason !== undefined && (typeof input.reason !== 'string' || input.reason.length > 2000)) fail('INVALID_PARTICIPATION_COMMAND');
-    return this.command(token,input,{ type:'MEMBERSHIP',...input },false,async (uow,repository,protection) => {
+    return this.command(token,input,{ type:'MEMBERSHIP',...input },false,(uow,repository,protection) => this.membershipWithin(uow,repository,protection,input));
+  }
+
+  protected async membershipWithin(uow:UnitOfWork,repository:CanonicalIdentityRepository,protection:IdentityProtection,input:MembershipMutation) {
+      const spec=identitySpec(input.kind);
       const cleanup = ['SUSPEND','REMOVE'].includes(input.command);
       await this.lifecycle(uow,cleanup);
       const global = await repository.get(input.kind,input.entityId,true);
@@ -229,7 +236,6 @@ export class SqlCanonicalAuthority {
       await this.consequence(uow,protection,input.kind,global.external_id,input.operationId,`MEMBERSHIP_${input.command}`,
         before ? { status:before.status,revision:before.revision } : null,{ status:after.status,revision:after.revision },next);
       return { membership:await this.membershipRecord(uow,input.kind,after,global.external_id),idempotent:false,closedRelationships };
-    });
   }
 
   private async membershipRecord(uow: UnitOfWork, kind: GlobalKind, row: any, external: string) {
