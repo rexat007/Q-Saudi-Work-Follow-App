@@ -227,8 +227,8 @@ describe('AR2-U01-SG1 real PostgreSQL 17 authority boundary', () => {
   it('keeps migrations ordered, idempotent and checksum-protected', async () => {
     const rerun = await applyMigrations(migrator);
     expect(rerun.applied).toEqual([]);
-    expect(rerun.verified).toEqual(['001', '002', '003', '004', '005', '006', '007']);
-    expect(await verifyMigrations(migrator)).toMatchObject({ allValid: true, appliedCount: 7, pendingCount: 0 });
+    expect(rerun.verified).toEqual(['001', '002', '003', '004', '005', '006', '007', '008']);
+    expect(await verifyMigrations(migrator)).toMatchObject({ allValid: true, appliedCount: 8, pendingCount: 0 });
     await admin.query("UPDATE schema_migrations SET checksum='tampered' WHERE version='003'");
     try {
       await expect(applyMigrations(migrator)).rejects.toThrow('checksum mismatch');

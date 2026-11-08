@@ -50,6 +50,11 @@ export class SqlCanonicalAuthority {
     return resolveUserAuthContext({ uid: token.uid }, company, this.dependencies.authPool);
   }
 
+  /** Server-owned specialization for later command domains; never request configurable. */
+  protected async authorize(uow:UnitOfWork,governance:boolean) {
+    return (await uow.query('SELECT * FROM qsa_authorize_canonical_command($1)',[governance])).rows[0];
+  }
+
   protected async scoped<T>(idToken: string, scope: Scope, governance: boolean,
     work: (uow: UnitOfWork, protection: IdentityProtection, repository: CanonicalIdentityRepository) => Promise<T>): Promise<T> {
     const protection = new IdentityProtection();
@@ -65,7 +70,7 @@ export class SqlCanonicalAuthority {
         await uow.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`canonical-project/${auth.companyId}/${projectId}`]);
         uow.context.projectId = projectId;
         await uow.query("SELECT set_config('app.project_id',$1,true)", [projectId]);
-        const authorized = (await uow.query('SELECT * FROM qsa_authorize_canonical_command($1)', [governance])).rows[0];
+        const authorized = await this.authorize(uow,governance);
         this.actorRoles.set(uow,authorized.commercial_role);
         await uow.query("SELECT set_config('app.commercial_role',$1,true)",[authorized.commercial_role]);
         try { return await work(uow,protection,new CanonicalIdentityRepository(uow,protection)); }

@@ -100,3 +100,69 @@ jobs:
             echo '::error::Verification mutated repository state.'
             exit 1
           fi
+
+
+  postgres-authority:
+    name: PostgreSQL 17 authority regressions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # Both job clients and the isolated engine use PG17. No production service.
+    container: postgres:17.6-bookworm
+    services:
+      postgres:
+        image: postgres:17.6-bookworm
+        env:
+          # Ephemeral, job-private test network only; no stored credentials.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      QSA_TEST_DATABASE_ISOLATED: '1'
+      TEST_DATABASE_URL: postgresql://postgres@postgres:5432/qsaudi_sql
+      MIGRATION_DATABASE_URL: postgresql://qsa_migrator@postgres:5432/qsaudi_sql
+      DATABASE_URL: postgresql://qsa_runtime@postgres:5432/qsaudi_sql
+      AUTH_DATABASE_URL: postgresql://qsa_auth@postgres:5432/qsaudi_sql
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Set up project Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Clean install
+        run: npm ci --no-audit --no-fund
+      - name: Provision separated isolated database owner
+        env:
+          PGHOST: postgres
+          PGUSER: postgres
+          PGDATABASE: postgres
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -c 'CREATE ROLE qsa_migrator LOGIN CREATEROLE;'
+          psql -X -v ON_ERROR_STOP=1 -c 'CREATE DATABASE qsaudi_sql OWNER qsa_migrator;'
+          npx tsx src/db/migrator.ts
+      - name: Verify native SQL authorities without skipped cases
+        run: >-
+          npx vitest run --no-file-parallelism
+          src/tests/ar2U01PostgresInfrastructure.test.ts
+          src/tests/ar2U01SecurityGate.test.ts
+          src/tests/ar2U01ConnectionCleanup.test.ts
+          src/tests/ar2U02CanonicalIdentityMemberships.test.ts
+          src/tests/ar2U03TemporalAuthority.test.ts
+          src/tests/ar2U04BoundedReads.test.ts
+          src/tests/ar2U04PresentationSession.test.ts
+          src/tests/ar2U05DurableImport.test.ts
+          src/tests/ar2U06TripsPricing.test.ts
+          src/tests/ar2U06TripPerformance.test.ts
+      - name: Verify explicit 148 authority bundle
+        run: >-
+          npx vitest run
+          src/tests/reviewedRosterCommitP8B2.test.ts
+          src/tests/rosterExecutionRecoveryP8B3.test.ts
+          src/tests/temporalRelationshipAuthority.test.ts
+          src/tests/txReadCacheCorrectness.test.ts
