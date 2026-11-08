@@ -6,6 +6,7 @@ import { sanitizeUndefined } from '../utils/sanitize';
 import { GLOBAL_IDENTITIES, GlobalIdentityError, validGlobalId, assertOperationallyEligible, type GlobalKind } from '../utils/globalIdentityPolicy';
 import { authorizeGlobalCommand, assertGlobalEntityExists } from './globalIdentityAuthority.server';
 import { planMembershipStatus } from '../utils/projectMembershipPolicy';
+import { planCarrierAffiliationState } from '../utils/carrierAffiliationPolicy';
 
 export type MembershipCommand = 'ENROLL' | 'SUSPEND' | 'REMOVE' | 'REACTIVATE';
 export type AffiliationCommand = 'SET_AFFILIATION' | 'REACTIVATE_AFFILIATION' | 'REASSIGN' | 'INACTIVATE';
@@ -60,11 +61,8 @@ export function planAffiliation(input: { kind: 'DRIVER' | 'TRUCK'; projectId: st
     if (!input.entityMembership || decodeParticipation(input.entityMembership, kind, projectId, entityId).status !== 'ACTIVE') fail('ENTITY_MEMBERSHIP_NOT_ACTIVE');
     if (!input.carrierMembership || decodeParticipation(input.carrierMembership, 'CARRIER', projectId, carrierId).status !== 'ACTIVE') fail('CARRIER_NOT_ACTIVE_IN_PROJECT');
   }
-  if (!before && command !== 'SET_AFFILIATION') fail('AFFILIATION_NOT_FOUND');
-  if (before && command !== 'REASSIGN' && before.carrierId !== carrierId) fail(`${kind}_CARRIER_AFFILIATION_CONFLICT`);
-  if (before && (command === 'SET_AFFILIATION' || (command === 'REASSIGN' && before.carrierId === carrierId)) && before.status !== 'ACTIVE') fail('AFFILIATION_STATE_CONFLICT');
-  const status = command === 'INACTIVATE' ? 'INACTIVE' : 'ACTIVE';
-  if (before && before.carrierId === carrierId && before.status === status) return { ...input, category: 'AFFILIATION', before, after: before, changed: false };
+  const {status,changed}=planCarrierAffiliationState(kind,command,carrierId,before?{carrierId:before.carrierId,status:before.status}:null);
+  if (!changed) return { ...input, category: 'AFFILIATION', before, after: before, changed: false };
   const now = new Date(), idKey = GLOBAL_IDENTITIES[kind].id;
   const after = {
     ...(before ? canonicalFields(input.before, [...affiliationFields, idKey]) : { projectId, [idKey]: entityId, createdAt: now, createdBy: actor.userId }),
