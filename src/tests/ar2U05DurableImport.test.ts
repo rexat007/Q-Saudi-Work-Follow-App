@@ -1,3 +1,4 @@
+import {unavailablePostgres} from './helpers/unavailablePostgres.js';
 import {beforeAll,afterAll,describe,it,expect} from 'vitest';
 import {randomUUID,randomBytes} from 'node:crypto';
 import pg from 'pg';
@@ -478,12 +479,20 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     const started=await start(s);expect((await status(s)).operation.state).toBe('READY');expect(started.operation.groupCount).toBe(1);
   });
   check('unavailable authentication transport and confirmed missing account never become identity registration authority',async()=>{
-    const missing=new SqlImportAuthority({...dependencies,verifyToken:async()=>({uid:'unregistered-'+randomUUID()}),sourceStore});
+    const missingUid='unregistered-'+randomUUID();
+    const state=async()=>(await admin.query(`SELECT (SELECT count(*) FROM users) AS users,
+      (SELECT count(*) FROM import_sessions WHERE company_id=$1) AS sessions,
+      (SELECT jsonb_agg(to_jsonb(p) ORDER BY p.id) FROM projects p WHERE company_id=$1) AS projects`,[company])).rows[0];
+    const before=await state();
+    const missing=new SqlImportAuthority({...dependencies,verifyToken:async()=>({uid:missingUid}),sourceStore});
     const request={sessionId:`IMP-${randomUUID()}`,requestId:randomUUID(),expectedVersion:0,operationId:randomUUID(),importBatchId:'BATCH',sourceType:'CSV'};
     await expect(missing.createSession('verified',scope,request)).rejects.toMatchObject({code:'USER_NOT_REGISTERED'});
-    const badPool=new pg.Pool({connectionString:process.env.AUTH_DATABASE_URL?.replace(':55439/',':55440/'),connectionTimeoutMillis:200});
-    try{const unavailable=new SqlImportAuthority({...dependencies,authPool:badPool,sourceStore});await expect(unavailable.createSession('admin',scope,request)).rejects.toMatchObject({code:'IMPORT_AUTHORITY_UNAVAILABLE',status:503});}
-    finally{await badPool.end();}
+    const badPool=await unavailablePostgres(process.env.AUTH_DATABASE_URL,200);
+    try{const unavailable=new SqlImportAuthority({...dependencies,authPool:badPool.pool,sourceStore});await expect(unavailable.createSession('admin',scope,request).catch(error=>{expect(error.message).toBe('IMPORT_AUTHORITY_UNAVAILABLE');throw error;})).rejects.toMatchObject({code:'IMPORT_AUTHORITY_UNAVAILABLE',status:503});
+      expect(badPool.rejectedConnections()).toBeGreaterThan(1);}
+    finally{await badPool.close();}
+    expect(await state()).toEqual(before);
+    expect(Number((await admin.query('SELECT count(*) FROM users WHERE firebase_uid=$1',[missingUid])).rows[0].count)).toBe(0);
     expect(Number((await admin.query('SELECT count(*) FROM import_sessions WHERE external_id=$1',[request.sessionId])).rows[0].count)).toBe(0);
   });
   check('forged plan and receipt ciphertext fail closed rather than inventing recovery success',async()=>{
