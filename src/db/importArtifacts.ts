@@ -8,10 +8,11 @@ export const importFail=(code:string):never=>{throw new GlobalIdentityError(code
 export const sha=(bytes:string|Buffer)=>createHash('sha256').update(bytes).digest('hex');
 export const IMPORT_ARTIFACT_BYTES=8_000_000;
 export interface ImportSourceProvenance {sourceType:string;sourceRevisionId:string;metadata:Record<string,unknown>}
-export interface ImportSourceReceipt {artifactId:string;contentSha256:string;sourceType:string;sourceRevisionId:string;provider:string}
+export interface ImportSourceReceipt {artifactId:string;contentSha256:string;sourceType:string;sourceRevisionId:string;provider:string;
+  rowFormat?:'CSV_UTF8'|'XLSX';sheetName?:string;headerRowIndex?:number}
 /** Production source object storage has no configured provider in U05. */
 export interface ImportSourceStore {
-  /** A real provider verifies remote ownership/provenance and freezes bytes before issuing this receipt. */
+  /** A real provider verifies remote ownership, format, header/sheet selection and immutable bytes before issuing this receipt. */
   put(uow:UnitOfWork,session:string,bytes:Buffer,provenance:ImportSourceProvenance):Promise<ImportSourceReceipt>;
   get(uow:UnitOfWork,session:string,id:string):Promise<Buffer>;
 }
@@ -24,10 +25,14 @@ export class UnavailableImportSourceStore implements ImportSourceStore {
  */
 export class IsolatedSqlImportSourceStore implements ImportSourceStore {
   constructor(){if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('ISOLATED_SOURCE_ADAPTER_REQUIRED');}
-  async put(uow:UnitOfWork,session:string,bytes:Buffer,proof:ImportSourceProvenance){
+  async put(uow:UnitOfWork,session:string,bytes:Buffer,proof:ImportSourceProvenance):Promise<ImportSourceReceipt>{
     if(!bytes.length||bytes.length>2_000_000)importFail('SOURCE_SIZE_LIMIT');
     const artifactId=await new ImportArtifacts(uow).write(session,'SOURCE',{base64:bytes.toString('base64')});
-    return {artifactId,contentSha256:sha(bytes),sourceType:proof.sourceType,sourceRevisionId:proof.sourceRevisionId,provider:'ISOLATED_SQL_TEST'};
+    const rowFormat=proof.sourceType==='CSV'?'CSV_UTF8':proof.sourceType==='EXCEL'?'XLSX':proof.metadata.rowFormat;
+    if(rowFormat!=='CSV_UTF8'&&rowFormat!=='XLSX')importFail('SOURCE_VERIFICATION_UNAVAILABLE');
+    return {artifactId,contentSha256:sha(bytes),sourceType:proof.sourceType,sourceRevisionId:proof.sourceRevisionId,provider:'ISOLATED_SQL_TEST',
+      rowFormat:rowFormat as 'CSV_UTF8'|'XLSX',sheetName:proof.sourceType==='GOOGLE_SHEETS'?String(proof.metadata.sheetTitle):typeof proof.metadata.sheetName==='string'?proof.metadata.sheetName:undefined,
+      headerRowIndex:proof.metadata.headerRowIndex===undefined?0:Number(proof.metadata.headerRowIndex)};
   }
   async get(uow:UnitOfWork,session:string,id:string){
     const value=await new ImportArtifacts(uow).read(session,id,'SOURCE');

@@ -14,6 +14,7 @@ import {ImportProjectContextAdapter} from '../services/import/importProjectConte
 import {executionDigest,prepareExecutionGroups,validateRecoveryScope,scopedExecutionBatch} from '../services/import/rosterExecutionPlan.server';
 import type {ImportExecutionGroup} from '../types/importExecution';
 import {GlobalIdentityError} from '../utils/globalIdentityPolicy';
+import {BoundedImportSourceRowVerifier,bindSourceRows,sourceMapping,mappedSource,ROSTER_FIELDS,type SourceCorrection} from './importSourceRows.js';
 
 interface SessionCommand {sessionId:string;requestId:string;expectedVersion:number}
 const uuid=(v:unknown):v is string=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -25,6 +26,7 @@ export const SQL_IMPORT_LIMITS={sourceBytes:2_000_000,checkpointBytes:8_000_000,
   groupRows:10000,groupEntities:16,groupConsequences:64,groupBytes:1_000_000,groupQueries:1200,reviewQueries:12000,statusLimit:50} as const;
 export class SqlImportAuthority extends SqlCanonicalAuthority {
   private readonly sources:ImportSourceStore;
+  private readonly sourceRows=new BoundedImportSourceRowVerifier();
   constructor(deps:SqlAuthorityDependencies & {sourceStore?:ImportSourceStore}={}){super(deps);this.sources=deps.sourceStore||new UnavailableImportSourceStore();}
   protected async scoped<T>(token:string,scope:Scope,governance:boolean,
     work:(uow:UnitOfWork,crypto:IdentityProtection,ids:CanonicalIdentityRepository)=>Promise<T>):Promise<T>{
@@ -73,6 +75,10 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       ||receipt.sourceType!==checkpoint.sourceType||receipt.sourceRevisionId!==checkpoint.source.sourceRevisionId||!receipt.provider)importFail('SOURCE_PROVENANCE_REQUIRED');
     const bytes=await this.sources.get(uow,row.id,row.source_artifact);
     if(sha(bytes)!==row.source_hash)importFail('SOURCE_HASH_MISMATCH');
+    const inventory=this.sourceRows.read(bytes,checkpoint.source);
+    if(!checkpoint.source.rowInventory||checkpoint.source.rowInventory.digest!==inventory.digest
+      ||checkpoint.source.rowInventory.rowCount!==inventory.rows.length||checkpoint.source.rowInventory.columnsDigest!==inventory.columnsDigest)importFail('SOURCE_ROW_PROVENANCE_REQUIRED');
+    return inventory;
   }
   private async saveCheckpoint(uow:UnitOfWork,row:any,next:any,actor:string,source?:{id:string;hash:string}){
     const artifact=await new ImportArtifacts(uow).write(row.id,'CHECKPOINT',next);
@@ -119,6 +125,10 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
         source:{sourceRevisionId:r.sourceRevisionId,sourceType:r.sourceType,fingerprint:r.contentSha256,requiresReattach:r.sourceType!=='GOOGLE_SHEETS',providerSnapshot:receipt,
           fileName:r.metadata.fileName,fileSize:bytes.length,mimeType:r.metadata.mimeType,
           ...(r.sourceType==='GOOGLE_SHEETS'?{remote:{spreadsheetId:r.metadata.spreadsheetId,sheetTitle:r.metadata.sheetTitle,modifiedTime:r.metadata.modifiedTime}}:{})}};
+      const inventory=this.sourceRows.read(bytes,next.source);
+      (next.source as any).rowInventory={contract:inventory.contract,digest:inventory.digest,columnsDigest:inventory.columnsDigest,rowCount:inventory.rows.length};
+      // A new source revision has no authority to reuse an earlier mapping or corrections.
+      for(const key of ['mapping','importBatch','reviewSnapshot','sourceCorrections','reviewedCanonicalIntent'])delete (next as any)[key];
       validateDurableCheckpoint(previous,next,uow.context.actorId,at);
       await this.saveCheckpoint(uow,row,next,uow.context.actorId,{id,hash:r.contentSha256});
       await this.consequence(uow,crypto,'IMPORT_SESSION',r.sessionId,r.requestId,'IMPORT_SOURCE_ATTACHED',null,{sha:r.contentSha256},Number(row.version)+1);
@@ -136,7 +146,13 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       const previous=await this.checkpointValue(uow,row),at=new Date().toISOString(),next={...previous,...structuredClone(r.patch),version:Number(row.version)+1,updatedAt:at,updatedBy:uow.context.actorId};
       if(next.importBatch){next.importBatch=prepareDurableBatch(next.importBatch);
         const rows=next.importBatch.rows;if(!Array.isArray(rows)||rows.length>10000||new Set(rows.map((v:any)=>v.rowNumber)).size!==rows.length||rows.some((v:any)=>!Number.isSafeInteger(v.rowNumber)||v.rowNumber<1))importFail('INVALID_IMPORT_SESSION_BATCH');}
-      validateDurableCheckpoint(previous,next,uow.context.actorId,at);await this.saveCheckpoint(uow,row,next,uow.context.actorId);
+      validateDurableCheckpoint(previous,next,uow.context.actorId,at);
+      if(next.mapping&&next.source){
+        const inventory=await this.verifySource(uow,row,next);sourceMapping(next,inventory);
+        if(next.mapping.mappingRevisionId!==previous.mapping?.mappingRevisionId)delete next.sourceCorrections;
+        if(next.importBatch)next.importBatch=bindSourceRows(next,inventory);
+      }
+      await this.saveCheckpoint(uow,row,next,uow.context.actorId);
       await this.consequence(uow,crypto,'IMPORT_SESSION',r.sessionId,r.requestId,'IMPORT_CHECKPOINT',null,{version:next.version},next.version);
       return {sessionId:r.sessionId,version:next.version,lifecycleState:next.lifecycleState};
     });
@@ -145,10 +161,49 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
     const row=await this.header(uow,sessionId),checkpoint=await this.checkpointValue(uow,row);
     return {...checkpoint,version:Number(row.version),lifecycleState:row.state};
   });}
+  async correctRows(token:string,scope:Scope,r:SessionCommand & {corrections:{sourceRowId:string;field:string;originalValue:unknown;correctedValue:string|number|null;reason:string}[]}){
+    strict(r,['sessionId','requestId','expectedVersion','corrections']);assertSessionPayload(r.corrections);
+    if(!Array.isArray(r.corrections)||!r.corrections.length||r.corrections.length>100)importFail('SOURCE_CORRECTION_INVALID');
+    return this.run(token,scope,r,'SOURCE_CORRECTION',r,async(uow,_ids,crypto)=>{
+      const row=await this.header(uow,r.sessionId);this.checkVersion(row,r.expectedVersion);
+      if(!['RESOLUTION','REVIEW','INTENT_REVIEWED'].includes(row.state))importFail('IMPORT_REVIEW_STAGE_REQUIRED');
+      if((await uow.query('SELECT 1 FROM import_executions WHERE company_id=$1 AND project_id=$2 AND session_id=$3',[uow.context.companyId,uow.context.projectId,row.id])).rowCount)importFail('IMPORT_EXECUTION_MANAGED');
+      const previous=await this.checkpointValue(uow,row),inventory=await this.verifySource(uow,row,previous),mappingDigest=sourceMapping(previous,inventory);
+      previous.importBatch=bindSourceRows(previous,inventory);
+      const records=new Map<string,SourceCorrection>((previous.sourceCorrections||[]).map((c:SourceCorrection)=>[c.sourceRowId+'/'+c.field,c]));
+      const seen=new Set<string>(),at=new Date().toISOString(),affected=new Map<string,Set<string>>();
+      for(const c of r.corrections){
+        strict(c,['sourceRowId','field','originalValue','correctedValue','reason']);
+        if(!ROSTER_FIELDS.includes(c.field as any)||typeof c.reason!=='string'||!c.reason.trim()||c.reason.length>500
+          ||c.correctedValue!==null&&!['string','number'].includes(typeof c.correctedValue)||String(c.correctedValue??'').length>8192)importFail('SOURCE_CORRECTION_INVALID');
+        const key=c.sourceRowId+'/'+c.field,source=inventory.rows.find(v=>v.id===c.sourceRowId);
+        if(!source||seen.has(key))importFail('SOURCE_CORRECTION_INVALID');seen.add(key);
+        const original=mappedSource(source,previous.mapping.mappings)[c.field]??null;
+        if(c.originalValue!==original)importFail('SOURCE_CORRECTION_INVALID');
+        const corrected=mappedSource({...source,raw:{Correction:String(c.correctedValue??'')}},{Correction:c.field});
+        if(corrected._invalidNumericFields?.length)importFail('SOURCE_CORRECTION_INVALID');
+        records.set(key,{sourceRowId:c.sourceRowId,field:c.field,originalValue:original,correctedValue:corrected[c.field]??null,reason:c.reason.trim(),
+          sourceRevisionId:previous.source.sourceRevisionId,mappingRevisionId:previous.mapping.mappingRevisionId,mappingDigest,approvedBy:uow.context.actorId,approvedAt:at});
+        const family=c.field.startsWith('driver')?'driver':c.field.startsWith('material')?'material':c.field==='carrierName'?'carrier':'truck';
+        if(!affected.has(source.id))affected.set(source.id,new Set());affected.get(source.id)!.add(family);
+      }
+      const next={...previous,sourceCorrections:[...records.values()].sort((a,b)=>(a.sourceRowId+'/'+a.field).localeCompare(b.sourceRowId+'/'+b.field)),
+        lifecycleState:row.state==='INTENT_REVIEWED'?'REVIEW':row.state,version:Number(row.version)+1,invalidateReview:true,updatedAt:at,updatedBy:uow.context.actorId};
+      next.importBatch=bindSourceRows(next,inventory,{rebuildCanonical:true});
+      for(const value of next.importBatch.rows)for(const family of affected.get(value.sourceRowId)||[])if(value.entityResolutions)delete value.entityResolutions[family];
+      validateDurableCheckpoint(previous,next,uow.context.actorId,at);await this.saveCheckpoint(uow,row,next,uow.context.actorId);
+      await this.consequence(uow,crypto,'IMPORT_SESSION',r.sessionId,r.requestId,'IMPORT_SOURCE_CORRECTIONS_APPROVED',null,
+        {correctionDigest:executionDigest(next.sourceCorrections),count:r.corrections.length},next.version);
+      return {sessionId:r.sessionId,version:next.version,lifecycleState:next.lifecycleState};
+    });
+  }
   private async facts(uow:UnitOfWork,ids:CanonicalIdentityRepository,crypto:IdentityProtection,row:any,checkpoint:any,batch=checkpoint.importBatch){
-    await this.verifySource(uow,row,checkpoint);
+    const inventory=await this.verifySource(uow,row,checkpoint);
     if(!checkpoint.mapping?.approved||checkpoint.mapping.sourceRevisionId!==checkpoint.source?.sourceRevisionId||!batch?.rows
       ||batch.source?.sourceType!==checkpoint.sourceType)importFail('INVALID_REVIEWED_INTENT_BINDING');
+    const verified=bindSourceRows(checkpoint,inventory,{checkPrepared:true});
+    // Verify the complete source inventory even when executing one sealed group.
+    batch=batch===checkpoint.importBatch?verified:scopedExecutionBatch(verified,batch.rows.map((r:any)=>r.rowNumber));
     const current=await sqlImportContext(uow,ids,this.temporal(uow,ids,crypto,row.operation_id),batch);
     const actor={userId:uow.context.actorId,role:this.actorRoles.get(uow)!};
     const context=ImportProjectContextAdapter.createPipelineContext({relContext:current as any,projectId:batch.projectId,userId:actor.userId,role:actor.role,operationId:row.operation_id});

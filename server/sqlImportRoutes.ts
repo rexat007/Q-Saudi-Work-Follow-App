@@ -25,6 +25,7 @@ export function mountIsolatedSqlImportRoutes(app:Express,imports:SqlImportAuthor
     return imports.attachSource(t,s,{...rest,sessionId:String(req.params.sessionId)},Buffer.from(base64,'base64'));
   }));
   router.post('/checkpoint',handle((req,t,s)=>imports.checkpoint(t,s,command(req))));
+  router.post('/corrections',handle((req,t,s)=>imports.correctRows(t,s,command(req))));
   router.get('/checkpoint',handle((req,t,s)=>imports.readCheckpoint(t,s,String(req.params.sessionId))));
   router.get('/intent',handle((req,t,s)=>imports.preview(t,s,String(req.params.sessionId))));
   router.post('/review',handle((req,t,s)=>imports.review(t,s,command(req))));

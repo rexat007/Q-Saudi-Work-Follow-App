@@ -9,6 +9,10 @@ import {IsolatedSqlImportSourceStore,sha} from '../db/importArtifacts.js';
 import {applyMigrations,verifyMigrations,loadMigrationFiles} from '../db/migrator.js';
 import {withUnitOfWork} from '../db/unitOfWork.js';
 import {mountIsolatedSqlImportRoutes} from '../../server/sqlImportRoutes.js';
+import {normalizePlate} from '../utils/normalization';
+import * as XLSX from 'xlsx';
+import {encodeSessionChunks} from '../services/import/sessionArtifactCodec';
+import {IdentityProtection} from '../db/identityProtection';
 
 if(process.env.QSA_TEST_DATABASE_ISOLATED!=='1'||!process.env.TEST_DATABASE_URL)throw Error('Isolated PostgreSQL required');
 const check=(name:string,fn:()=>Promise<void>)=>it(name,fn,30000);
@@ -29,24 +33,32 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
       profile:profile||(kind==='DRIVER'?{fullNameAr:'سائق اختبار',phone:''}:kind==='TRUCK'?{truckType:'DUMPER'}:kind==='CARRIER'?{nameAr:'ناقل اختبار'}:{nameAr:'مادة اختبار',unitOfMeasure:'TON'})});
     await canonical.membership('admin',{...command(at),kind,entityId:result.identity.externalId,command:'ENROLL',expectedRevision:0});return result.identity;
   };
-  const row=(number=1):any=>{const n=++sequence;return {rowNumber:number,status:'VALID',reviewStatus:'accepted',raw:{Driver:'Synthetic'},
-    canonical:{carrierName:'ناقل اختبار',driverName:'سائق اختبار',truckPlate:`ا ب ج ${n}`},validationIssues:[],entityResolutions:{
+  const mappings={Carrier:'carrierName',Driver:'driverName',Identity:'driverIdentity',Plate:'truckPlate',TruckType:'truckType',Phone:'driverPhone',Material:'materialName',Code:'materialCode',Tare:'tareWeightKg',Gross:'maxGrossWeightKg',AlternateDriver:'unmapped'};
+  const sourceBytes=(rows:any[])=>{
+    const headers=Object.keys(rows[0].raw).filter(k=>!k.startsWith('_'));
+    const cell=(v:unknown)=>'"'+String(v??'').replaceAll('"','""')+'"';
+    return Buffer.from([headers.map(cell).join(','),...rows.map(r=>headers.map(h=>cell(r.raw[h])).join(','))].join('\n')+'\n');
+  };
+  const row=(number=1):any=>{const n=++sequence;return {rowNumber:number,status:'VALID',reviewStatus:'accepted',
+    raw:{Carrier:'ناقل اختبار',Driver:'سائق اختبار',Identity:`2${String(n).padStart(9,'0')}`,Plate:`ا ب ج ${n}`,TruckType:'DUMPER',Phone:'',Material:'',Code:'',Tare:'',Gross:'',AlternateDriver:'سائق اختبار'},
+    canonical:{carrierName:'ناقل اختبار',driverName:'سائق اختبار',driverIdentity:`2${String(n).padStart(9,'0')}`,driverPhone:'',truckPlate:normalizePlate(`ا ب ج ${n}`),truckType:'DUMPER'},validationIssues:[],entityResolutions:{
       carrier:{entityType:'CARRIER',matchedId:carrier,isAuthorized:true,recommendation:'ACCEPT'},
       material:{entityType:'MATERIAL',matchedId:material,isAuthorized:true,recommendation:'ACCEPT'},
       driver:{entityType:'DRIVER',creationDisposition:'PREPARED_NEW',isAuthorized:true,recommendation:'ACCEPT',preparedDriverPlan:{driverName:'سائق اختبار',residencyId:`2${String(n).padStart(9,'0')}`,phone:'',carrierId:carrier}},
       truck:{entityType:'TRUCK',creationDisposition:'PREPARED_NEW',isAuthorized:true,recommendation:'ACCEPT',preparedTruckPlan:{plateNumber:`ا ب ج ${n}`,truckType:'DUMPER',carrierId:carrier}}}};};
-  const session=async(rows=[row()],options:{review?:boolean;domain?:'ROSTER'|'TRIP';sourceType?:string;at?:typeof scope}={})=>{
+  const session=async(rows=[row()],options:{review?:boolean;domain?:'ROSTER'|'TRIP';sourceType?:string;at?:typeof scope;bytes?:Buffer}={})=>{
     const sourceType=options.sourceType||'CSV',at=options.at||scope;
     const s={sessionId:`IMP-${randomUUID()}`,operationId:randomUUID(),importBatchId:`BATCH-${randomUUID()}`,sourceRevisionId:randomUUID(),version:1,rows,scope:at};
     await service.createSession('admin',at,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:0,operationId:s.operationId,importBatchId:s.importBatchId,sourceType,domain:options.domain||'ROSTER'});
-    const bytes=Buffer.from('row,driver,truck\n1,Synthetic,Synthetic\n');
+    const bytes=options.bytes||sourceBytes(rows);
     const attached=await service.attachSource('admin',at,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:1,sourceRevisionId:s.sourceRevisionId,contentSha256:sha(bytes),sourceType,
-      metadata:sourceType==='GOOGLE_SHEETS'?{spreadsheetId:'synthetic-existing-sheet',sheetTitle:'Snapshot',modifiedTime:'2026-11-08T00:00:00Z'}:{fileName:'synthetic.csv',mimeType:'text/csv'}},bytes);s.version=attached.version;
+      metadata:sourceType==='GOOGLE_SHEETS'?{rowFormat:'CSV_UTF8',spreadsheetId:'synthetic-existing-sheet',sheetTitle:'Snapshot',modifiedTime:'2026-11-08T00:00:00Z'}:
+        sourceType==='EXCEL'?{fileName:'synthetic.xlsx',sheetName:'Roster'}:sourceType==='GOOGLE_DRIVE'?{rowFormat:'CSV_UTF8',fileName:'synthetic.csv'}:{fileName:'synthetic.csv',mimeType:'text/csv'}},bytes);s.version=attached.version;
     const save=async(patch:any)=>{const next=await service.checkpoint('admin',at,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch});s.version=next.version;};
     const batch={projectId:at.projectId,operationId:s.operationId,importBatchId:s.importBatchId,source:{sourceType,importBatchId:s.importBatchId},rows,
       metadata:{batchMaterialBinding:{materialId:material,provenance:'PROJECT_IMPORT_SELECTION',confirmed:true}},issues:[],warningConfirmation:{confirmed:true}};
     if(options.domain==='TRIP')return s;
-    await save({lifecycleState:'MAPPING',rosterStage:'MAPPING_APPROVAL',currentStage:'MAPPING_APPROVAL',mapping:{mappingRevisionId:randomUUID(),sourceRevisionId:s.sourceRevisionId,mappings:{driverName:'Driver'},approved:true}});
+    await save({lifecycleState:'MAPPING',rosterStage:'MAPPING_APPROVAL',currentStage:'MAPPING_APPROVAL',mapping:{mappingRevisionId:randomUUID(),sourceRevisionId:s.sourceRevisionId,mappings,approved:true}});
     for(const stage of ['CARRIER_RESOLUTION','MATERIAL_RESOLUTION','DRIVER_TRUCK_RESOLUTION'])await save({lifecycleState:'RESOLUTION',rosterStage:stage,currentStage:stage,importBatch:batch});
     await save({lifecycleState:'REVIEW',rosterStage:'FINAL_REVIEW',currentStage:'FINAL_REVIEW'});
     if(options.review!==false){const p=await service.preview('admin',at,s.sessionId);expect(p.intent.blockers).toEqual([]);
@@ -65,7 +77,8 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     const id=(await admin.query('SELECT id FROM import_sessions WHERE company_id=$1 AND external_id=$2',[company,s.sessionId])).rows[0].id;
     const result:any={};for(const table of ['import_execution_receipts','import_execution_groups'])result[table]=Number((await admin.query(`SELECT count(*) FROM ${table} WHERE session_id=$1`,[id])).rows[0].count);
     result.identities=Number((await admin.query('SELECT (SELECT count(*) FROM drivers WHERE company_id=$1)+(SELECT count(*) FROM trucks WHERE company_id=$1) AS count',[company])).rows[0].count);
-    for(const table of ['audit_events','outbox_events'])result[table]=Number((await admin.query(`SELECT count(*) FROM ${table} WHERE company_id=$1`,[company])).rows[0].count);return result;
+    for(const table of ['audit_events','outbox_events','idempotency_receipts','carriers','materials','identity_keys','project_carriers','project_materials','project_drivers','project_trucks','driver_carrier_affiliations','truck_carrier_affiliations','driver_truck_assignments','truck_material_allocations'])
+      result[table]=Number((await admin.query(`SELECT count(*) FROM ${table} WHERE company_id=$1`,[company])).rows[0].count);return result;
   };
   const sqlSession=async(s:any)=>(await admin.query('SELECT * FROM import_sessions WHERE company_id=$1 AND external_id=$2',[company,s.sessionId])).rows[0];
   beforeAll(async()=>{
@@ -86,6 +99,74 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
   },30000);
   afterAll(async()=>{if(server)await new Promise<void>(resolve=>server.close(()=>resolve()));for(const [key,value]of Object.entries(old)){if(value===undefined)delete process.env[key];else process.env[key]=value;}
     await Promise.all([admin.end(),runtime.end(),auth.end(),migrator.end()]);});
+  check('one frozen CSV row cannot authorize 1,000 invented checkpoint rows',async()=>{
+    const s=await session([row()],{review:false}),cp=await service.readCheckpoint('admin',scope,s.sessionId),before=await counts(s);
+    const batch=structuredClone(cp.importBatch);batch.rows=Array.from({length:1000},(_,i)=>({...row(i+1)}));
+    await expect(service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{importBatch:batch}})).rejects.toMatchObject({code:'SOURCE_ROW_INVENTORY_MISMATCH'});
+    expect(await counts(s)).toEqual(before);
+  });
+  for(const fault of ['extra','missing','duplicate','identity','physical','original','canonical'] as const)check(`source provenance rejects ${fault} without any SQL consequences`,async()=>{
+    const s=await session([row(1),row(2)],{review:false}),cp=await service.readCheckpoint('admin',scope,s.sessionId),batch=structuredClone(cp.importBatch),before=await counts(s);
+    if(fault==='extra')batch.rows.push({...row(3)});
+    if(fault==='missing')batch.rows.pop();
+    if(fault==='duplicate')batch.rows[1]=structuredClone(batch.rows[0]);
+    if(fault==='identity')batch.rows[0].sourceRowId='0'.repeat(64);
+    if(fault==='physical')batch.rows[0].sourceLocation.sourceRowNumber=99;
+    if(fault==='original')batch.rows[0].raw.Driver='invented original';
+    if(fault==='canonical')batch.rows[0].canonical.driverName='unapproved correction';
+    await expect(service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{importBatch:batch}})).rejects.toHaveProperty('code');
+    expect(await counts(s)).toEqual(before);
+  });
+  check('authorized corrections preserve original bytes, invalidate review and execute only after renewed resolution',async()=>{
+    const s=await session(),original=await service.readCheckpoint('admin',scope,s.sessionId),r=original.importBatch.rows[0],oldSignature=sha(original.reviewedCanonicalIntent.intent.signature);
+    const corrected=await service.correctRows('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,corrections:[{sourceRowId:r.sourceRowId,field:'driverName',originalValue:r.canonical.driverName,correctedValue:'سائق مصحح',reason:'Reviewed spelling correction'}]});s.version=corrected.version;
+    const cp=await service.readCheckpoint('admin',scope,s.sessionId);expect(cp.lifecycleState).toBe('REVIEW');expect(cp.source.fingerprint).toBe(original.source.fingerprint);
+    expect(cp.importBatch.rows[0].raw.Driver).toBe(r.raw.Driver);expect(cp.importBatch.rows[0].canonical.driverName).toBe('سائق مصحح');expect(cp.importBatch.rows[0].entityResolutions.driver).toBeUndefined();
+    expect(cp.sourceCorrections[0]).toMatchObject({sourceRowId:r.sourceRowId,originalValue:r.canonical.driverName,correctedValue:'سائق مصحح',sourceRevisionId:s.sourceRevisionId});expect(cp.sourceCorrections[0].approvedBy).toBe(actor);
+    await expect(service.review('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,reviewedSignature:oldSignature})).rejects.toHaveProperty('code');
+    cp.importBatch.rows[0].entityResolutions.driver=structuredClone(r.entityResolutions.driver);cp.importBatch.rows[0].entityResolutions.driver.preparedDriverPlan.driverName='سائق مصحح';
+    s.version=(await service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{importBatch:cp.importBatch}})).version;
+    const preview=await service.preview('admin',scope,s.sessionId);expect(preview.reviewedSignature).not.toBe(oldSignature);expect(preview.intent.blockers).toEqual([]);
+    s.version=(await service.review('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,reviewedSignature:preview.reviewedSignature,warningConfirmation:true})).version;
+    const started=await start(s);expect((await advance(s,started.operation.version)).operation.state).toBe('COMPLETED');
+  });
+  check('correction authority rejects forged provenance and wrong originals without effects',async()=>{
+    const s=await session(),cp=await service.readCheckpoint('admin',scope,s.sessionId),r=cp.importBatch.rows[0],before=await counts(s);
+    const correction={sourceRowId:r.sourceRowId,field:'driverName',originalValue:'forged',correctedValue:'other',reason:'reason'};
+    for(const c of [correction,{...correction,originalValue:r.canonical.driverName,approvedBy:actor}])await expect(service.correctRows('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,corrections:[c]})).rejects.toHaveProperty('code');
+    await expect(service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{sourceCorrections:[correction]}})).rejects.toHaveProperty('code');expect(await counts(s)).toEqual(before);
+  });
+  check('reviewed signatures bind the frozen row inventory even for equal canonical decisions',async()=>{
+    const r=row(),a=await session([r],{review:false}),b=await session([structuredClone(r),{...structuredClone(r),rowNumber:2}],{review:false});
+    const pa=await service.preview('admin',scope,a.sessionId),pb=await service.preview('admin',scope,b.sessionId),before=await counts(b);expect(pa.reviewedSignature).not.toBe(pb.reviewedSignature);
+    await expect(service.review('admin',scope,{sessionId:b.sessionId,requestId:randomUUID(),expectedVersion:b.version,reviewedSignature:pa.reviewedSignature})).rejects.toHaveProperty('code');expect(await counts(b)).toEqual(before);
+  });
+  for(const sourceType of ['EXCEL','GOOGLE_DRIVE'])check(`trusted ${sourceType} frozen adapter proves actual mapped rows`,async()=>{
+    const r=row();let bytes=sourceBytes([r]);if(sourceType==='EXCEL'){const book=XLSX.utils.book_new();XLSX.utils.book_append_sheet(book,XLSX.utils.json_to_sheet([r.raw]),'Roster');bytes=XLSX.write(book,{type:'buffer',bookType:'xlsx',compression:true});}
+    const s=await session([r],{sourceType,bytes}),cp=await service.readCheckpoint('admin',scope,s.sessionId);expect(cp.source.rowInventory.rowCount).toBe(1);expect(cp.importBatch.rows[0].sourceRowId).toMatch(/^[a-f0-9]{64}$/);
+    const started=await start(s);expect((await advance(s,started.operation.version)).operation.state).toBe('COMPLETED');
+  });
+  for(const sourceType of ['EXCEL','GOOGLE_DRIVE'])check(`unsupported ${sourceType} source verification fails closed without effects`,async()=>{
+    const s={sessionId:`IMP-${randomUUID()}`,operationId:randomUUID(),importBatchId:`BATCH-${randomUUID()}`};
+    await service.createSession('admin',scope,{...s,requestId:randomUUID(),expectedVersion:0,sourceType});const before=await counts(s),bytes=Buffer.from('unverified legacy binary');
+    await expect(service.attachSource('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:1,sourceRevisionId:randomUUID(),contentSha256:sha(bytes),sourceType,metadata:{sheetName:'Roster',rowFormat:'UNVERIFIED'}},bytes)).rejects.toHaveProperty('code');expect(await counts(s)).toEqual(before);
+  });
+  for(const phase of ['start','recovery'] as const)check(`${phase} recomputes full inventory despite a valid sealed cached checkpoint`,async()=>{
+    const s=await session([row(1),row(2)]);let lease:any;
+    if(phase==='recovery'){const started=await start(s);lease=await service.acquire('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,requestId:randomUUID(),expectedVersion:started.operation.version});}
+    const cp=await service.readCheckpoint('admin',scope,s.sessionId),h=await sqlSession(s);cp.importBatch.rows[1].raw.Driver='invented after review';
+    // Privileged fault injection bypasses the public checkpoint validator while
+    // preserving valid artifact encryption, hashes and cached signed evidence.
+    const chunks=encodeSessionChunks(cp),digest=sha(chunks.join('')),crypto=new IdentityProtection(),client=await admin.connect();
+    try{await client.query('BEGIN');await client.query('DELETE FROM import_artifact_chunks WHERE artifact_id=$1',[h.checkpoint_artifact]);
+      for(let i=0;i<chunks.length;i++)await client.query('INSERT INTO import_artifact_chunks(company_id,project_id,session_id,artifact_id,chunk_index,content_sha256,content_encrypted) VALUES($1,$2,$3,$4,$5,$6,$7)',[company,project,h.id,h.checkpoint_artifact,i,sha(chunks[i]),crypto.seal(chunks[i],`${company}/${project}/import/${h.id}/${h.checkpoint_artifact}/${i}`)]);
+      await client.query('UPDATE import_source_artifacts SET content_sha256=$1,manifest=$2,byte_length=$3 WHERE id=$4',[digest,{count:chunks.length,digest},chunks.reduce((n,c)=>n+Buffer.byteLength(c),0),h.checkpoint_artifact]);await client.query('COMMIT');
+    }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}const before=await counts(s);
+    const fresh=new SqlImportAuthority({...dependencies,sourceStore:new IsolatedSqlImportSourceStore()});
+    if(phase==='start')await expect(fresh.start('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,requestId:randomUUID(),expectedVersion:s.version,reviewedSignature:sha(cp.reviewedCanonicalIntent.intent.signature)})).rejects.toMatchObject({code:'SOURCE_ROW_VALUE_MISMATCH'});
+    else await expect(fresh.commitNext('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,groupId:lease.groupId,fence:lease.fence,bindingHash:lease.bindingHash})).rejects.toMatchObject({code:'SOURCE_ROW_VALUE_MISMATCH'});
+    expect(await counts(s)).toEqual(before);
+  });
   check('reviewed prepared group commits identities, memberships, affiliations, assignment, allocation and one receipt',async()=>{
     const s=await session(),started=await start(s),result=await advance(s,started.operation.version);
     expect(result.operation.state).toBe('COMPLETED');expect(result.receipts).toHaveLength(1);expect(result.receipts[0].resultSummary).toMatchObject({createdIdentities:2,contributingRows:1});
@@ -164,9 +245,9 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     expect((await sqlSession(s)).checkpoint_artifact).toBe(before.checkpoint_artifact);
   });
   check('explicit same-content source revision replacement invalidates prior approval',async()=>{
-    const s=await session(),bytes=Buffer.from('row,driver,truck\n1,Synthetic,Synthetic\n');
+    const s=await session(),bytes=sourceBytes(s.rows);
     await service.attachSource('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,sourceRevisionId:randomUUID(),contentSha256:sha(bytes),sourceType:'CSV',metadata:{fileName:'synthetic.csv',mimeType:'text/csv'}},bytes);
-    const cp=await service.readCheckpoint('admin',scope,s.sessionId);expect(cp.lifecycleState).toBe('DISCOVERED');expect(cp.reviewedCanonicalIntent).toBeUndefined();
+    const cp=await service.readCheckpoint('admin',scope,s.sessionId);expect(cp.lifecycleState).toBe('DISCOVERED');expect(cp.reviewedCanonicalIntent).toBeUndefined();expect(cp.mapping).toBeUndefined();expect(cp.importBatch).toBeUndefined();expect(cp.sourceCorrections).toBeUndefined();
   });
   check('mapping provenance is actor-stamped and wrong source/missing mapping revisions fail closed',async()=>{
     const s=await session([row()],{review:false}),cp=await service.readCheckpoint('admin',scope,s.sessionId);expect(cp.mapping.approvedBy).toBe(actor);
@@ -175,7 +256,7 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
   });
   check('explicit mapping replacement clears approval and prevents old reviewed signature execution',async()=>{
     const s=await session(),cp=await service.readCheckpoint('admin',scope,s.sessionId),signature=sha(cp.reviewedCanonicalIntent.intent.signature);
-    const next=await service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{lifecycleState:'MAPPING',rosterStage:'MAPPING_APPROVAL',currentStage:'MAPPING_APPROVAL',invalidateReview:true,mapping:{...cp.mapping,mappingRevisionId:randomUUID(),mappings:{driverName:'Changed'}}}});
+    const next=await service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{lifecycleState:'MAPPING',rosterStage:'MAPPING_APPROVAL',currentStage:'MAPPING_APPROVAL',invalidateReview:true,mapping:{...cp.mapping,mappingRevisionId:randomUUID(),mappings:{...mappings,Driver:'unmapped',AlternateDriver:'driverName'}}}});
     expect((await service.readCheckpoint('admin',scope,s.sessionId)).reviewedCanonicalIntent).toBeUndefined();
     await expect(service.start('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,requestId:randomUUID(),expectedVersion:next.version,reviewedSignature:signature})).rejects.toHaveProperty('code');
   });
@@ -209,7 +290,7 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     await service.commitNext('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,groupId:lease.groupId,fence:lease.fence,bindingHash:lease.bindingHash});expect((await status(s)).operation.state).toBe('COMPLETED');
   });
   check('lost HTTP acknowledgment reads committed receipt and exact retry adds no effects',async()=>{
-    const s=await session(),started=await start(s),request={sessionId:s.sessionId,operationId:s.operationId,expectedVersion:started.operation.version,requestId:randomUUID()};
+    const s=await session(),proof=(await service.readCheckpoint('admin',scope,s.sessionId)).importBatch.rows[0].raw._sourceProof,started=await start(s),request={sessionId:s.sessionId,operationId:s.operationId,expectedVersion:started.operation.version,requestId:randomUUID()};
     const app=express();app.post('/lost',async(_req,res)=>{await service.advance('admin',scope,request);res.socket?.destroy();});
     const broken=await new Promise<Server>(resolve=>{const server=app.listen(0,'127.0.0.1',()=>resolve(server));});
     try{await expect(fetch(`http://127.0.0.1:${(broken.address() as any).port}/lost`,{method:'POST'})).rejects.toThrow();}
@@ -217,6 +298,7 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     expect((await status(s)).operation.state).toBe('COMPLETED');const before=await counts(s);
     expect((await service.advance('admin',scope,request)).operation.state).toBe('COMPLETED');expect(await counts(s)).toEqual(before);
     expect((await service.start('admin',scope,{...started.request})).state).toBe('COMPLETED');
+    expect((await new SqlImportAuthority({...dependencies,sourceStore:new IsolatedSqlImportSourceStore()}).readCheckpoint('admin',scope,s.sessionId)).importBatch.rows[0].raw._sourceProof).toEqual(proof);
   });
   check('a separate Node process reconstructs committed execution truth without the original service object',async()=>{
     const s=await session(),started=await start(s);await advance(s,started.operation.version);
@@ -232,6 +314,7 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
   });
   check('1,000 repeated source rows use one bounded group and constant distinct canonical effects',async()=>{
     const seed=row(),rows=Array.from({length:1000},(_,i)=>({...structuredClone(seed),rowNumber:i+1})),s=await session(rows),started=await start(s);
+    const proof=await service.readCheckpoint('admin',scope,s.sessionId);expect(proof.source.rowInventory.rowCount).toBe(1000);expect(new Set(proof.importBatch.rows.map((r:any)=>r.sourceRowId)).size).toBe(1000);expect(proof.importBatch.rows[999].sourceLocation.sourceRowNumber).toBe(1001);
     expect(started.operation.groupCount).toBe(1);const fence=await service.acquire('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,requestId:randomUUID(),expectedVersion:started.operation.version});
     const result=await service.commitNext('admin',scope,{sessionId:s.sessionId,operationId:s.operationId,groupId:fence.groupId,fence:fence.fence,bindingHash:fence.bindingHash});
     expect(result.queries).toBeLessThan(SQL_IMPORT_LIMITS.groupQueries);expect(result.receipt.resultSummary).toMatchObject({contributingRows:1000,createdIdentities:2});
@@ -356,7 +439,8 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     const cp=await service.readCheckpoint('admin',scope,s.sessionId);cp.importBatch.rows.push({...cp.importBatch.rows[0]});
     await expect(service.checkpoint('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,patch:{importBatch:cp.importBatch}})).rejects.toMatchObject({code:'INVALID_IMPORT_SESSION_BATCH'});
     await expect(service.attachSource('admin',scope,{sessionId:s.sessionId,requestId:randomUUID(),expectedVersion:s.version,sourceRevisionId:randomUUID(),sourceType:'CSV',contentSha256:'0'.repeat(64),metadata:{}},Buffer.alloc(2_000_001))).rejects.toHaveProperty('code');
-    const rows=Array.from({length:8},(_,i)=>row(i+1));for(const r of rows)r.entityResolutions.driver.preparedDriverPlan=rows[0].entityResolutions.driver.preparedDriverPlan;
+    const rows=Array.from({length:8},(_,i)=>row(i+1));for(const r of rows){r.entityResolutions.driver.preparedDriverPlan=rows[0].entityResolutions.driver.preparedDriverPlan;
+      r.raw.Identity=rows[0].raw.Identity;r.canonical.driverIdentity=rows[0].canonical.driverIdentity;}
     // A shared Driver with conflicting Trucks is rejected by the existing planner, not split into unsafe groups.
     const large=await session(rows,{review:false});expect((await service.preview('admin',scope,large.sessionId)).intent.blockers.some(b=>b.code==='CROSS_ROW_DRIVER_TRUCK_CONFLICT')).toBe(true);
   });

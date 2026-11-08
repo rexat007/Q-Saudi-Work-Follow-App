@@ -330,3 +330,201 @@ single-authority cutover and live browser/production acceptance. This branch doe
 not claim live storage, Trip-import or browser acceptance. No PR, merge, deployment,
 production migration, SQL activation or later-unit implementation is included.
 Status: ready for independent review, not closed before owner merge.
+
+
+## AR2-U05-RB1 corrective record — immutable source-to-reviewed rows
+
+Starting published U05 SHA: `1605571e9ed23f0933d2e4724d80118b36b89991`.
+Branch: `reconstruction/ar2-u05-durable-smart-import`. This is an additive
+corrective commit; the published implementation and migrations remain in history.
+ARCH-R1 Revision 1.2 section 8.3 remains the architecture authority. U05 is not
+rebuilt and no U06 work, production route or SQL activation is included.
+
+### Confirmed root cause and corrected evidence claim
+
+At the starting SHA, `attachSource()` froze and hashed bytes, `checkpoint()`
+accepted client batch rows, and `facts()` verified the artifact hash but passed
+checkpoint rows to the retained reviewed-intent builder. There was no comparison
+between actual decoded source records and contributing rows. A source hash alone
+proved artifact integrity, not row equivalence.
+
+The old 1,000-row test froze one data row (`row,driver,truck` / synthetic values),
+then supplied 1,000 unrelated checkpoint rows. Running that untouched test against
+the exact starting commit on native PostgreSQL passed. Its old 126-query result
+proved bounded canonical deduplication only. It was **not** evidence of genuine
+1,000-row source provenance; that interpretation of the earlier record is withdrawn.
+The replacement serializes all 1,000 matching source records into the frozen CSV.
+No assertion or budget in the original test has been relaxed.
+
+### Server source-to-row proof
+
+`src/db/importSourceRows.ts` introduces `SQL_SOURCE_ROWS_V1`. Intake parses actual
+immutable bytes and seals an inventory digest, column digest and count into the
+checkpoint. Each row identity hashes the contract, raw artifact SHA, immutable
+source revision, column evidence, physical source location and original decoded
+values. Repeated equal values in different physical records have distinct IDs.
+The ordered inventory binds the complete row list, including rejected rows;
+filtering or inventing records is not a permissible checkpoint operation.
+
+Every mapped checkpoint, preview, review, start and group commit recomputes the
+inventory from source-store bytes, checks its sealed summary, and compares the
+**entire** checkpoint row inventory before selecting a group's rows. Counts,
+order, ordinal, optional claimed row ID/location, original raw keys/values and
+physical row position must agree. Canonical fields are derived by the retained
+approved-mapping normalizer. Submitted canonical edits require an authorized
+correction. Prepared driver/truck values must match the effective source values.
+Rejected rows retain source identities and evidence but create no group effects.
+
+Mapping keys must name actual source columns, active targets must be unique and
+valid, and the approved source/mapping revisions must match. The mapping digest
+also binds columns and the server-stamped approving actor/time. The row's
+`raw._sourceProof` carries the derived row, inventory, columns, mapping and
+correction digests. The retained pure intent builder signs raw source evidence;
+the retained group provenance digest and recovery validator therefore bind this
+proof, decisions and approved corrections without replacing the planner or
+signature algorithm. Incoming cached `_sourceProof` is never authority and is
+recomputed. Old unproved sessions require source reattachment and fresh mapping/
+review; completed receipt history remains read-only.
+
+Source replacement retains the existing immutable-artifact rule: different bytes
+require a new session; an explicit same-content source revision replacement
+clears mapping, batch, review and corrections. Previous approvals cannot migrate
+to a new revision.
+
+### Trusted adapters and bounded parsing
+
+CSV uses fatal UTF-8 decoding and the retained strict roster CSV contract. XLSX
+uses the retained selected-sheet parser after a bounded ZIP validation pass:
+2 MB compressed input, 256 archive entries, 8 MB total expanded bytes, bounded
+inflate output, consistent central/local metadata and data descriptors, no
+ZIP64, encryption, unsupported compression, overlapping entries or ambiguous
+archive names. The retained roster dimensions constrain rows, columns and cells;
+individual decoded cells are limited to 8,192 characters. Header selection is
+bounded to indices 0–100. Parsing does not fetch mutable provider content.
+
+Excel requires a trusted explicit sheet selection. Google Sheets and Google
+Drive require a trusted immutable provider receipt declaring CSV_UTF8 or XLSX;
+Sheets selection must match the receipt. Unattested formats, legacy XLS and
+malformed files fail closed. `ImportSourceStore` remains the trusted byte and
+provider-selection boundary. Its SQL implementation is restricted to isolated
+tests and interprets fixture metadata only there. The production default remains
+`UnavailableImportSourceStore`; real provider credentials, ownership verification,
+format/selection attestation and storage availability remain deferred. No claim
+of live provider activation is made.
+
+The exact existing `DriverTruckImportNormalizer` class was moved to the pure
+`rosterValueNormalizer.ts` module and re-exported from its existing public module.
+Its behavior is unchanged; this avoids importing browser Firebase authentication
+into the SQL source verifier. The existing parsers and normalizer tests are kept.
+
+### Explicit approved corrections
+
+The versioned, authenticated `correctRows()` command (isolated router
+`POST /corrections`) accepts a source row ID, canonical field, expected original
+normalized value, proposed scalar value and reason. It verifies immutable source
+and mapping evidence, normalizes the correction on the server, stamps actor/time
+and source/mapping revisions/digest, and stores correction provenance separately
+in encrypted checkpoints. Each immutable checkpoint preserves prior correction
+versions; canonical fields never overwrite original raw values or source bytes.
+Limits are 100 corrections per command and 1,000 active row/field corrections.
+Client approval metadata and direct checkpoint writes to `sourceCorrections`
+are rejected. Revisions, original values, duplicate row/field keys and formats
+are validated. Correction approval invalidates reviewed intent and clears affected
+entity resolution; fresh resolution and review are needed before execution.
+Execution-managed sessions cannot be corrected. Audit/outbox payloads contain
+only correction digest/count, not raw source values.
+
+### RB1 verification
+
+Tests use native PostgreSQL 17.6 on isolated loopback databases with separate
+runtime/authentication/migration roles. No mocks or emulated database substitute
+for SQL evidence. The 54 original U05 cases remain and 17 focused cases are added.
+
+| Verification | Baseline | RB1 final |
+| --- | --- | --- |
+| U05 native PostgreSQL | Old 1,000-row/one-source-row reproducer passes | 71/71, no skips |
+| U01 infrastructure + backup/restore | Published baseline | 13/13 |
+| U01 security gate | Published baseline | 36/36 |
+| U02 canonical/membership | Published baseline | 55/55 |
+| U03 temporal authority | Published baseline | 63/63 |
+| U04 bounded reads | Published baseline | 34/34 |
+| Cleanup + U04 presentation/session | Published baseline | 6/6 + 11/11 |
+| Required four-file authority bundle | Published 148/148 | 148/148 |
+| 35-file Foundation/P8/review/recovery regression union | 913 pass / 46 fail / 959 | Identical case outcomes |
+| Additional CSV/XLSX + mapping approval suites | 30 pass / 1 fail / 31 | Identical case outcomes |
+| Typecheck (`npm run lint`) | 446 diagnostics | Same 446; no added/removed diagnostics after line normalization |
+| Production build | PASS | PASS; existing chunk warning |
+| Diff whitespace | N/A | PASS |
+
+The infrastructure restore initially exceeded its unchanged 30-second test limit.
+Native server logs showed long disk checkpoints (278.171 s and 23.858 s) after
+repeated SQL workloads; a fresh isolated database also waited behind that I/O.
+After checkpoints finished, the identical full 13-case suite passed in 11.14 s,
+including a 9.554 s schema dump/restore rehearsal. No timeout, durability setting,
+assertion or schema was weakened. Final evidence is
+`rb1-infrastructure-quiescent.json`; earlier timeout logs remain available.
+
+The required bundle was invoked separately as:
+
+```sh
+npx vitest run src/tests/reviewedRosterCommitP8B2.test.ts src/tests/rosterExecutionRecoveryP8B3.test.ts src/tests/temporalRelationshipAuthority.test.ts src/tests/txReadCacheCorrectness.test.ts
+```
+
+It remains 50+30+61+7 = 148. The extra source-suite failure is the unchanged
+`smartImportSourceMappingApprovalGateR1` source-text expectation for
+`MAPPING_REQUIRED`; no test expectation was edited to hide it. The regression
+union retains the same historical unhandled rejection. New provenance tests cover
+invented 1,000-row payloads, extra/missing/duplicate/wrong identities/locations,
+original and canonical edits, legitimate correction execution, forged correction
+approval/originals, different signed inventories, XLSX/Drive adapter execution,
+unsupported formats, and validly sealed stale checkpoint evidence at start and
+recovery. Privileged fault injection preserves checkpoint artifact identity,
+encryption, manifest hashes and cached signed proofs while changing an original
+row outside the selected execution group. Both start and group commit reject it
+with `SOURCE_ROW_VALUE_MISMATCH` before any domain, receipt, idempotency, audit or
+outbox effects. Production runtime grants cannot perform that fixture injection.
+
+Rejection snapshots count all identity kinds and identity keys, project memberships,
+affiliations, assignments, allocations, group/receipt rows, idempotency receipts,
+audit and outbox records. Existing lost-ACK, fresh-pool partial recovery and separate
+Node process restart cases remain; lost-ACK additionally asserts unchanged source
+proof after a fresh authority reads the checkpoint.
+
+The corrected 1,000-record frozen CSV produces 1,000 distinct source row IDs,
+physical last row 1,001, one safe group, two new identities, one assignment and one
+allocation. The real group commit remains **126 queries**, below the unchanged
+1,200 query ceiling, with a **1,658-byte receipt**. This is genuine matching source
+provenance plus the existing bounded-query/deduplication evidence.
+
+Local evidence files use the `rb1-*` prefix in sibling `.sg1-tools`; source bytes,
+database files, dumps, credentials, generated outputs and binaries are not
+committed. `rb1-baseline-repro.log` records the untouched starting-commit reproducer;
+`rb1-final-sql.json`, `rb1-u01-u04.json`, `rb1-required148.json`, baseline/final
+regression/source-contract JSON and lint/build logs record final comparisons.
+
+### Exact corrective file inventory
+
+- `docs/reconstruction/11_AR2_U05_DURABLE_SMART_IMPORT.md`
+- `server/sqlImportRoutes.ts`
+- `src/db/importArtifacts.ts`
+- `src/db/importAuthority.ts`
+- `src/db/importSourceRows.ts`
+- `src/services/import/driverTruckImport.ts`
+- `src/services/import/rosterValueNormalizer.ts`
+- `src/tests/ar2U05DurableImport.test.ts`
+
+Migrations 001–007, canonical/temporal authorities, production routing, package
+manifests and lockfile are unchanged by RB1. No new schema or dependency is added.
+
+
+### RB1 remaining debt and review boundary
+
+The unchanged baseline diagnostics and regression failures above remain. Real
+source providers/storage and their ownership/selection attestations remain
+unconfigured and fail closed by default. Legacy XLS and unsupported snapshot
+formats require an explicit bounded verifier before adoption. The other deferred
+U06–U09 work, browser acceptance and production cutover remain outside RB1.
+No PR, merge, deployment, production migration, activation or later-unit work is
+authorized or included. Independent review is required before owner merge.
+
+RB1 verification status: `AR2_U05_RB1_READY_FOR_INDEPENDENT_REVIEW`.
