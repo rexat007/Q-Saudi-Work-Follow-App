@@ -5,7 +5,7 @@
  */
 
 import type { Pool } from 'pg';
-import { getPool } from './pool.js';
+import { getAuthPool, assertServiceIdentity } from './pool.js';
 import type { UserAuthContext } from './types.js';
 
 export interface DecodedFirebaseToken {
@@ -41,7 +41,10 @@ export async function resolveUserAuthContext(
   targetCompanyId?: string,
   poolOverride?: Pool
 ): Promise<UserAuthContext> {
-  const pool = poolOverride || getPool();
+  // token must come from server-side Firebase Admin token verification. Neither
+  // token claims nor the requested company are a source of commercial roles.
+  const pool = poolOverride || getAuthPool();
+  await assertServiceIdentity(pool, 'qsa_auth');
 
   // 1. Resolve user by firebase_uid
   const userRes = await pool.query<{
@@ -69,6 +72,8 @@ export async function resolveUserAuthContext(
     FROM user_company_roles ucr
     JOIN companies c ON c.id = ucr.company_id
     WHERE ucr.user_id = $1 AND ucr.status = 'ACTIVE' AND c.status = 'ACTIVE'
+      AND ucr.valid_from <= clock_timestamp()
+      AND (ucr.valid_to IS NULL OR ucr.valid_to > clock_timestamp())
   `;
   const roleParams: unknown[] = [user.id];
 

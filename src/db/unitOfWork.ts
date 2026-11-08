@@ -6,7 +6,7 @@
 
 import * as crypto from 'crypto';
 import type { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
-import { getPool } from './pool.js';
+import { getPool, assertServiceIdentity } from './pool.js';
 import type { RequestContext, OutboxEvent, IdempotencyState } from './types.js';
 
 export interface IdempotencyCheckResult {
@@ -193,12 +193,18 @@ export async function withUnitOfWork<T>(
 
   const pool = poolOverride || getPool();
   const client = await pool.connect();
+  let discard = false;
+  // Checked-out clients emit socket errors independently of query rejection.
+  // Mark them unusable while the operation/cleanup owns the connection.
+  const onConnectionError = () => { discard = true; };
+  client.on('error', onConnectionError);
 
   try {
+    await assertServiceIdentity(client, 'qsa_runtime');
     await client.query('BEGIN');
 
     // Switch to runtime role to enforce RLS (no bypass)
-    await client.query('SET ROLE qsa_runtime');
+    await client.query('SET LOCAL ROLE qsa_runtime');
 
     // CRITICAL: is_local is set to true (3rd argument).
     // This ensures settings automatically reset when transaction terminates.
@@ -220,17 +226,19 @@ export async function withUnitOfWork<T>(
     try {
       await client.query('ROLLBACK');
     } catch (rbErr) {
-      console.error('Failed to rollback UnitOfWork transaction:', rbErr);
+      // A failed rollback leaves transaction/security state unknown.
+      discard = true;
     }
     throw error;
   } finally {
-    // Reset session parameters and role before returning to pool
+    // DISCARD ALL runs outside a transaction and removes role, GUCs, temporary
+    // objects and prepared statements. Any failure evicts the physical client.
     try {
-      await client.query('RESET ROLE');
-      await client.query('DISCARD TEMP');
+      if (!discard) await client.query('DISCARD ALL');
     } catch {
-      // Discard temp is best effort
+      discard = true;
     }
-    client.release();
+    client.release(discard);
+    client.removeListener('error', onConnectionError);
   }
 }
