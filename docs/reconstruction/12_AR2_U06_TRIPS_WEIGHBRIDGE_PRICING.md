@@ -768,3 +768,218 @@ npx vitest run src/tests/tripOperationalCommands.test.ts
 56. **Import command preserves the existing domain seam reuses canonical imported-trip creation without trusting supplied actor metadata**
 
    `Error: ALLOCATION_POINTER_CORRUPTION`
+
+## AR2-U06-RB1 — Event consistency and generic response disclosure gate
+
+### Verified starting state and reproduced findings
+
+Corrective work starts on the existing U06 branch at
+`c36c3854ab45ca375ebb4ba2ab688d8aacbfa463`, with a clean worktree. Its parent
+main remains `365134064ad790377cd0bc2c2b58c0044ce7952a`. This section supersedes
+the original event-integrity and generic-response security claims where described
+below; the original U06 verification remains historical evidence.
+
+Before implementation, an isolated native PostgreSQL 17 database applied the exact
+published migrations 001–008. A Trip created through SqlTripAuthority had parent
+version 1 / DISPATCHED. A separate transaction authenticated as qsa_runtime, with
+valid company/project context, inserted event sequence 2 / IN_TRANSIT without
+updating the Trip. COMMIT succeeded. Readback showed parent version 1 and latest
+event sequence 2. This was an actual restricted-role database reproduction, not
+an inference from a mock or a superuser-only insert.
+
+The same probe read the Trip as VIEWER and confirmed nationalId, phone and the
+nested canonical profile were present. Only disclosure booleans and synthetic
+fixture evidence were logged; no real person or production database was involved.
+The fresh reproduction database was qsaudi_rb1_repro and contained eight migrations.
+
+The event root cause: the deferred projection trigger existed only on trips.
+The immediate trip_events sequence trigger locked and checked ordering, but its
+SELECT FOR UPDATE did not constitute a parent UPDATE and could not schedule the
+parent deferred consistency check. The disclosure root cause:
+CanonicalIdentityRepository.toIdentity() intentionally decrypts full domain facts;
+U06 copied those complete objects into encrypted entitySnapshots/driverSnapshot
+and returned the decrypted Trip through commands, replay, reads and receipts.
+Stored encryption and frontend presentation did not provide a response boundary.
+
+### Migration 009 and transaction model
+
+Only new migration `009_u06_event_read_security_gate.sql` changes the schema.
+Migrations 001–008 remain byte-for-byte unchanged. The existing
+qsa_trip_projection_guard is replaced in 009 with an invoker-rights function using
+the same fixed pg_catalog/pg_temp search_path and existing scoped runtime grants.
+It identifies the parent from trips.id or trip_events.trip_id, locks the exact
+company/project parent, rejects missing/inaccessible parents, and reads the latest
+accepted event through the existing scoped sequence index.
+
+A new AFTER INSERT DEFERRABLE INITIALLY DEFERRED constraint trigger on trip_events
+schedules the same check as the existing Trip trigger. Every queued check reads the
+final parent and final latest event, not the intermediate NEW event. This permits
+all five RECORD_LOADING edges in one transaction while requiring latest sequence,
+Trip version, state, and encrypted-projection digest to agree at COMMIT. Classified
+Trips must have a nonempty encrypted projection and a real latest event. Explicit
+SET CONSTRAINTS ALL IMMEDIATE detects outstanding disagreement earlier.
+
+A restrictive INSERT-only policy for qsa_runtime additionally requires an existing
+U06-classified parent. Runtime cannot extend an unclassified legacy stream;
+privileged synthetic fixtures/reconciliation retain their existing classification.
+Existing historical rows are not backfilled, deleted, retimestamped or validated
+against invented facts. Company/project RLS, sequence and append-only triggers,
+account privileges, audit/outbox/receipt atomicity and published grants are retained.
+No new privilege grant, security-definer capability or runtime bypass is added.
+
+Migration 009 uses LF bytes under the repository checksum policy. Tested checksum
+and staged Git-blob evidence: `a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3`. Clean-checkout
+bootstrap, nine-version replay/checksum tests and backup/restore passed against the
+exact published LF migration bytes; staging also verifies byte equality. Two
+pre-existing local migration files used CRLF in the original worktree; those files
+were left untouched, and published-byte checks used a separate clean checkout.
+
+### Response DTO security contract
+
+The new tripResponseDto module builds explicit typed allowlists for generic Trip,
+event and measurement responses. Projection runs inside the authenticated scoped
+SQL callback while the current commercial role is available. It applies to first
+command responses, idempotent command replay, ordinary Trip/event reads, receipt
+readback and weight pages. The existing HTTP factory consumes these results;
+no new endpoint or production mounting is introduced.
+
+| Purpose | Permitted generic response | Explicitly excluded |
+| --- | --- | --- |
+| Trip/business display | Historical external IDs/numbers, revision/status, actor references, display names, truck plate/type, business carrier/material attributes | Driver national-ID aliases, private phones/email, carrier contact persons, driver licences/nationality, VIN and internal canonical database/profile metadata |
+| Operations | Frozen capability/profile interpretation, estimation basis, required checkpoints, actual timeline and existing time/weight metrics | Unknown configuration descendants or arbitrary nested objects |
+| Commercial | Existing authorized rule/revision references, frozen tariff calculation fields, exact decimal settlement values, pending/provisional/final status | Free-text tariff notes or arbitrary internal evidence objects |
+| Provenance | Source type, immutable source/mapping/inventory hashes, row/session/batch/revision references and relevant business ticket/serial IDs | Source filenames, raw source cells, provider payloads and unknown source metadata |
+| Event | Event envelope and per-event named operational metadata; correction pointers and settlement references | Full command bodies, private nested profiles, correction values/reasons and free-text audit narratives; unknown event types have an empty payload |
+| Weight | Measurement/event IDs, normalized kg/unit, source type/hash, observed/captured time, actor/status, correction pointer, numeric localized raw reading | Arbitrary raw narrative, private source cells, correction original/corrected values/reasons and unstructured source references |
+
+All currently authorized SQL read roles receive the safe operational/business
+field set. Existing commercial visibility is preserved; this unit does not invent
+a new financial permission matrix. DRIVER additionally remains restricted to its
+current linked Trip. Administrators retain permitted business information, but no
+role receives private identity details through these generic APIs. No explicit
+product permission for a generic personal-data disclosure purpose was found;
+RB1 introduces no such purpose or endpoint. The operationalSnapshot.profile enum
+remains public capability information; canonical profile objects do not.
+
+Projection creates new objects without mutating domain facts. The canonical
+identity repository, encrypted Trip projection, full encrypted idempotency result,
+server-only executeWithin/executeReviewedWithin, U05 source proofs and durable
+execution receipts remain complete. The U05 public status summary remains bounded.
+Previously committed full internal receipts are also projected on readback; the
+correction does not depend on rebuilding stored receipts or client-side hiding.
+
+### Native negative tests and role evidence
+
+New ar2U06Rb1Security cases cover:
+
+- Next sequential event-only COMMIT rejection; mismatched state, digest and missing
+  encrypted projection; invalid sequence and parent-only mutation; forced deferred
+  checking and exact rollback including audit/outbox/worker-job/idempotency rows.
+- Valid multi-edge loading, state-neutral events, independent-client concurrency,
+  replay without duplicate consequences, migration replay/checksum tampering and
+  preservation of existing legacy history with runtime extension denied.
+- Actual HTTP Trip reads for SUPER_ADMIN, PROJECT_ADMIN, DISPATCHER, SUPERVISOR,
+  SITE_SUPERVISOR, SCALE_OPERATOR, DRIVER, FINANCE_AUDITOR and VIEWER. Required
+  business display/pricing survives and private identity/contact/profile fields
+  and synthetic private-value sentinels are absent.
+- Initial command, replay and receipt HTTP responses for administrators,
+  dispatchers, scale operators and the linked driver; current role/link revocation
+  denies subsequent access. Driver weight pages enforce own-Trip scope.
+- Known and unknown event payloads plus nested source/configuration/correction
+  evidence cannot smuggle protected fields. Encrypted original Trip/receipt facts
+  are read back independently and retain the canonical private evidence.
+- Cross-company/project denial and account, commercial-role and project-access
+  revocation remain effective at the HTTP/service boundary.
+
+Acceptance uses native PostgreSQL 17 with separated migration, auth and runtime
+roles, Node 22.22.0 and npm 10.9.8. Final verification: | Verification | Actual result |
+| --- | --- |
+| New RB1 security cases | 28 pass / 0 fail / 0 skip |
+| Existing U06 authority / performance | 107 + 1 pass / 0 fail / 0 skip |
+| U01 infrastructure / SG1 / cleanup | 13 + 36 + 6 pass / 0 fail / 0 skip |
+| U02 / U03 | 55 + 63 pass / 0 fail / 0 skip |
+| U04 bounded reads / presentation | 34 + 11 pass / 0 fail / 0 skip |
+| U05 durable import/RB1 | 71 pass / 0 fail / 0 skip |
+| Unique native PostgreSQL cases | **425 pass / 0 fail / 0 skip** |
+| U01–U05 native subtotal | **289/289 pass** |
+| Separate four-file authority bundle | **148/148 pass**, no skips |
+| Fresh U06 baseline vs final, same 53 files | **1,185 pass / 56 fail / 0 skip** on both; all 1,241 file/name/status results identical |
+| Existing unhandled rejection | Same single projectContextLifetime `A failure` on both |
+| Typecheck/lint | Exit 2 on both; **446 diagnostics**, identical diagnostic/path/message multiset, no additions |
+| Production build | PASS on both; final Vite 36.98 s, server bundle built |
+| Backup/restore on published migration bytes | PASS, 6.862 s after durable CHECKPOINT; no timeout/fsync weakening |
+
+The 56 baseline failure names and per-file reproduction commands in the original
+appendix remain applicable; no source cases were removed or skipped. Comparison
+was remeasured at exact starting U06 SHA, not assumed from the preceding report.
+Tests first verified the original worktree, then the clean published-byte checkout
+additionally verified migration bootstrap/checksums, RB1 and performance plus
+backup/restore. Only unique cases are counted above, not repeated executions.
+
+Reproduction commands retain the isolated U01 environment/role setup and Node
+22.22.0/npm 10.9.8. Add the new suite to the existing native commands:
+
+```sh
+npx vitest run src/tests/ar2U06Rb1Security.test.ts
+npx vitest run --no-file-parallelism src/tests/ar2U06TripsPricing.test.ts src/tests/ar2U06TripPerformance.test.ts
+npx vitest run --no-file-parallelism src/tests/reviewedRosterCommitP8B2.test.ts src/tests/rosterExecutionRecoveryP8B3.test.ts src/tests/temporalRelationshipAuthority.test.ts src/tests/txReadCacheCorrectness.test.ts
+```
+
+Final local benchmark uses the same workload/hardware definition as U06: native
+PG17.6 / Windows loopback, Intel i7-6600U, four logical CPUs, 23.88 GiB RAM,
+three warmups then 40 dispatches per size at concurrency four. Historical fixtures
+remain explicitly legacy; live commands use the current authenticated authority.
+
+| Trucks / historical events | Command SQL / protocol calls per request | HTTP p50 / p95 ms | Body transaction p95 ms | Events / audit / outbox | Repeat creates |
+| --- | --- | --- | --- | --- | --- |
+| 24 / 207 | 25 / 50 | 106.78 / 257.27 | 122.80 | 40 / 40 / 40 | 0 |
+| 100 / 891 | 25 / 50 | 181.96 / 297.53 | 75.55 | 40 / 40 / 40 | 0 |
+| 1000 / 8991 | 25 / 50 | 133.24 / 315.42 | 47.45 | 40 / 40 / 40 | 0 |
+
+Client query count has no growth with history size. Server-internal trigger parent
+and latest-event checks are additional indexed work per event, not additional
+client protocol statements, and are not hidden in that query counter. Body timing
+excludes authentication, project-lock waiting and cleanup; HTTP timing includes
+them. Measured latencies are higher than the prior U06 local record and are reported
+without a production-performance acceptance claim or attribution to a controlled
+single-factor experiment. Project-lock contention and production guard overhead
+remain cutover workload-assessment concerns.
+
+EXPLAIN (ANALYZE, BUFFERS) still uses bounded indexed pricing and provenance reads:
+
+- pricing: `pricing_external_identity`, 1 rows, 2 shared hits / 0 reads, execution 0.057 ms.
+
+- measurement provenance: `trip_weight_page`, 3 rows, 3 shared hits / 0 reads, execution 0.030 ms..
+
+### Corrective change inventory and activation debt
+
+- `.github/workflows/ci-foundation.yml`
+- `docs/reconstruction/12_AR2_U06_TRIPS_WEIGHBRIDGE_PRICING.md`
+- `src/db/migrations/009_u06_event_read_security_gate.sql`
+- `src/db/tripAuthority.ts`
+- `src/db/tripResponseDto.ts`
+- `src/tests/ar2U01SecurityGate.test.ts`
+- `src/tests/ar2U02CanonicalIdentityMemberships.test.ts`
+- `src/tests/ar2U03TemporalAuthority.test.ts`
+- `src/tests/ar2U04BoundedReads.test.ts`
+- `src/tests/ar2U05DurableImport.test.ts`
+- `src/tests/ar2U06Rb1Security.test.ts`
+- `src/tests/ar2U06TripsPricing.test.ts`
+
+No production route, canonical identity repository, dependency manifest or published
+migration 001–008 is changed. Only synthetic test fixtures are committed; native
+engine files, dumps, test logs, evidence JSON and helper scripts remain outside the
+repository. Final staged/unstaged diff checks must pass before the corrective commit.
+
+The historical test edits only advance immutable migration inventory expectations
+from eight to nine. Existing cases and tamper assertions remain. The existing
+secret-free native CI job also includes the RB1 suite; feature-branch push does
+not itself execute the main/PR-triggered workflow, so no remote CI result is claimed.
+
+The original U06 baseline regression/typecheck debt, production activation and
+legacy reconciliation dependencies remain explicit. This correction does not
+activate SQL, alter Firestore production behavior, create a personal-data endpoint,
+provision production links/adapters, modify Workspace bindings or begin U07.
+One new focused commit on the existing U06 branch is published without rewriting
+history; its identity, verified remote SHA and worktree state are returned in the
+final correction report. Independent review and owner acceptance remain required.

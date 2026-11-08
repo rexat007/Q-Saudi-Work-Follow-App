@@ -158,6 +158,7 @@ jobs:
           src/tests/ar2U04PresentationSession.test.ts
           src/tests/ar2U05DurableImport.test.ts
           src/tests/ar2U06TripsPricing.test.ts
+          src/tests/ar2U06Rb1Security.test.ts
           src/tests/ar2U06TripPerformance.test.ts
       - name: Verify explicit 148 authority bundle
         run: >-
