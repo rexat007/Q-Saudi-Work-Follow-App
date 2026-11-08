@@ -267,8 +267,8 @@ describe('AR2-U04 real PostgreSQL bounded Foundation reads',()=>{
     }finally{await unavailable.end();}
   });
   check('migration 006 is repeat-safe and checksum protected',async()=>{
-    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007']);
-    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:7});
+    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009']);
+    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:9});
     await admin.query("UPDATE schema_migrations SET checksum='invalid' WHERE version='006'");
     try{await expect(applyMigrations(migrator)).rejects.toThrow('checksum mismatch');}finally{await admin.query("UPDATE schema_migrations SET checksum=$1 WHERE version='006'",[loadMigrationFiles()[5].checksum]);}
   });

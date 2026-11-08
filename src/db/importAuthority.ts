@@ -43,7 +43,7 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
     uow.query=((...args:any[])=>{if(++count>limit)importFail('IMPORT_QUERY_BUDGET');return (original as any)(...args);}) as typeof uow.query;
     return ()=>count;
   }
-  private run<T>(token:string,scope:Scope,r:SessionCommand,action:string,payload:unknown,
+  protected run<T>(token:string,scope:Scope,r:SessionCommand,action:string,payload:unknown,
     work:(uow:UnitOfWork,ids:CanonicalIdentityRepository,crypto:IdentityProtection)=>Promise<T>){
     if(!external(r.sessionId)||!uuid(r.requestId))importFail('INVALID_IMPORT_COMMAND');version(r.expectedVersion,action==='CREATE'?0:1);
     return this.command(token,{...scope,operationId:r.requestId},{type:'IMPORT_'+action,session:r.sessionId,payload},false,async(uow,ids,crypto)=>{
@@ -51,14 +51,14 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       try{return await work(uow,ids,crypto);}catch(error:any){if(error?.code===error?.message&&/^[A-Z_]+$/.test(error.code))importFail(error.code);throw error;}
     });
   }
-  private async header(uow:UnitOfWork,sessionId:string){
+  protected async header(uow:UnitOfWork,sessionId:string){
     const row=(await uow.query(`SELECT * FROM import_sessions WHERE company_id=$1 AND project_id=$2 AND external_id=$3 FOR UPDATE`,
       [uow.context.companyId,uow.context.projectId,sessionId])).rows[0];
     if(!row)importFail('IMPORT_SESSION_NOT_FOUND');
     if(row.schema_version!==2||!uuid(row.operation_id)||!row.checkpoint_artifact)importFail('IMPORT_LEGACY_RECONCILIATION_REQUIRED');
     version(Number(row.version));version(Number(row.fence),0);return row;
   }
-  private async checkpointValue(uow:UnitOfWork,row:any){
+  protected async checkpointValue(uow:UnitOfWork,row:any){
     const value=await new ImportArtifacts(uow).read(row.id,row.checkpoint_artifact,'CHECKPOINT');
     if(value.projectId!==row.project_external||value.importSessionId!==row.external_id||value.operationId!==row.operation_id||value.importBatchId!==row.batch_external_id) {
       // Project external ID is verified independently of caller-provided checkpoint data.
@@ -67,8 +67,8 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
     }
     return value;
   }
-  private checkVersion(row:any,expected:number){if(Number(row.version)!==expected)importFail('IMPORT_VERSION_CONFLICT');}
-  private async verifySource(uow:UnitOfWork,row:any,checkpoint:any){
+  protected checkVersion(row:any,expected:number){if(Number(row.version)!==expected)importFail('IMPORT_VERSION_CONFLICT');}
+  protected async verifySource(uow:UnitOfWork,row:any,checkpoint:any){
     if(!row.source_artifact||!checkpoint.source?.sourceRevisionId||checkpoint.source.fingerprint!==row.source_hash)importFail('SOURCE_REVISION_REQUIRED');
     const receipt=checkpoint.source.providerSnapshot;
     if(!receipt||receipt.artifactId!==row.source_artifact||receipt.contentSha256!==row.source_hash
@@ -80,11 +80,11 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       ||checkpoint.source.rowInventory.rowCount!==inventory.rows.length||checkpoint.source.rowInventory.columnsDigest!==inventory.columnsDigest)importFail('SOURCE_ROW_PROVENANCE_REQUIRED');
     return inventory;
   }
-  private async saveCheckpoint(uow:UnitOfWork,row:any,next:any,actor:string,source?:{id:string;hash:string}){
+  protected async saveCheckpoint(uow:UnitOfWork,row:any,next:any,actor:string,source?:{id:string;hash:string}){
     const artifact=await new ImportArtifacts(uow).write(row.id,'CHECKPOINT',next);
     await uow.query(`UPDATE import_sessions SET checkpoint_artifact=$1,state=$2,version=version+1,updated_by=$3,updated_at=clock_timestamp(),reviewed_signature=$4
       ,source_artifact=coalesce($8::uuid,source_artifact),source_hash=coalesce($9,source_hash)
-      WHERE company_id=$5 AND project_id=$6 AND id=$7`,[artifact,next.lifecycleState,actor,next.reviewedCanonicalIntent?executionDigest(next.reviewedCanonicalIntent.intent.signature):null,
+      WHERE company_id=$5 AND project_id=$6 AND id=$7`,[artifact,next.lifecycleState,actor,next.reviewedCanonicalIntent?executionDigest(next.reviewedCanonicalIntent.intent.signature):next.reviewedTripIntent?.signature||null,
       uow.context.companyId,uow.context.projectId,row.id,source?.id||null,source?.hash||null]);
   }
   async createSession(token:string,scope:Scope,r:SessionCommand & {operationId:string;importBatchId:string;sourceType:string;domain?:'ROSTER'|'TRIP'}){
@@ -128,7 +128,7 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       const inventory=this.sourceRows.read(bytes,next.source);
       (next.source as any).rowInventory={contract:inventory.contract,digest:inventory.digest,columnsDigest:inventory.columnsDigest,rowCount:inventory.rows.length};
       // A new source revision has no authority to reuse an earlier mapping or corrections.
-      for(const key of ['mapping','importBatch','reviewSnapshot','sourceCorrections','reviewedCanonicalIntent'])delete (next as any)[key];
+      for(const key of ['mapping','importBatch','reviewSnapshot','sourceCorrections','reviewedCanonicalIntent','tripBatch','tripCorrections','reviewedTripIntent'])delete (next as any)[key];
       validateDurableCheckpoint(previous,next,uow.context.actorId,at);
       await this.saveCheckpoint(uow,row,next,uow.context.actorId,{id,hash:r.contentSha256});
       await this.consequence(uow,crypto,'IMPORT_SESSION',r.sessionId,r.requestId,'IMPORT_SOURCE_ATTACHED',null,{sha:r.contentSha256},Number(row.version)+1);
@@ -147,7 +147,8 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       if(next.importBatch){next.importBatch=prepareDurableBatch(next.importBatch);
         const rows=next.importBatch.rows;if(!Array.isArray(rows)||rows.length>10000||new Set(rows.map((v:any)=>v.rowNumber)).size!==rows.length||rows.some((v:any)=>!Number.isSafeInteger(v.rowNumber)||v.rowNumber<1))importFail('INVALID_IMPORT_SESSION_BATCH');}
       validateDurableCheckpoint(previous,next,uow.context.actorId,at);
-      if(next.mapping&&next.source){
+      if(next.domain==='TRIP')delete next.reviewedTripIntent;
+      if(next.domain==='ROSTER'&&next.mapping&&next.source){
         const inventory=await this.verifySource(uow,row,next);sourceMapping(next,inventory);
         if(next.mapping.mappingRevisionId!==previous.mapping?.mappingRevisionId)delete next.sourceCorrections;
         if(next.importBatch)next.importBatch=bindSourceRows(next,inventory);
@@ -236,16 +237,16 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       return {sessionId:r.sessionId,version:next.version,reviewedSignature:r.reviewedSignature};
     });
   }
-  private binding(uow:UnitOfWork,crypto:IdentityProtection,row:any,signature:string){return crypto.digest('import-binding',[
+  protected binding(uow:UnitOfWork,crypto:IdentityProtection,row:any,signature:string){return crypto.digest('import-binding',[
     uow.context.companyId,uow.context.projectId,row.id,row.operation_id,row.checkpoint_artifact,row.source_hash,signature]).toString('hex');}
-  private aad(uow:UnitOfWork,session:string,operation:string,key:string,kind:string){return `${uow.context.companyId}/${uow.context.projectId}/import/${session}/${operation}/${key}/${kind}`;}
-  private async operation(uow:UnitOfWork,session:string,operation:string){
+  protected aad(uow:UnitOfWork,session:string,operation:string,key:string,kind:string){return `${uow.context.companyId}/${uow.context.projectId}/import/${session}/${operation}/${key}/${kind}`;}
+  protected async operation(uow:UnitOfWork,session:string,operation:string){
     if(!uuid(operation))importFail('INVALID_IMPORT_COMMAND');
     const row=(await uow.query(`SELECT * FROM import_executions WHERE company_id=$1 AND project_id=$2 AND session_id=$3 AND operation_id=$4 FOR UPDATE`,
       [uow.context.companyId,uow.context.projectId,session,operation])).rows[0];
     if(!row)importFail('IMPORT_EXECUTION_NOT_FOUND');return row;
   }
-  private operationDto(row:any){version(Number(row.version));version(Number(row.fence),0);return {operationId:row.operation_id,state:row.state,version:Number(row.version),fence:Number(row.fence),
+  protected operationDto(row:any){version(Number(row.version));version(Number(row.fence),0);return {operationId:row.operation_id,state:row.state,version:Number(row.version),fence:Number(row.fence),
     groupCount:row.group_count,completedGroups:row.completed_groups,remainingGroups:row.group_count-row.completed_groups,
     failure:row.failure_code?{code:row.failure_code,retryable:row.state==='PARTIAL',reviewRequired:row.state==='REVIEW_REQUIRED'}:null};}
   async start(token:string,scope:Scope,r:SessionCommand & {operationId:string;reviewedSignature?:string}){
@@ -303,7 +304,7 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
     });
   }
   /** Internal group command accepts only durable group identity, never a plan/write callback. */
-  async commitNext(token:string,scope:Scope,r:{sessionId:string;operationId:string;groupId:string;fence:number;bindingHash:string}){
+  async commitNext(token:string,scope:Scope,r:{sessionId:string;operationId:string;groupId:string;fence:number;bindingHash:string}):Promise<{receipt:any;queries:number}>{
     strict(r,['sessionId','operationId','groupId','fence','bindingHash']);
     if(!external(r.sessionId)||!uuid(r.operationId)||!/^[0-9a-f]{64}$/.test(r.groupId)||!/^[0-9a-f]{64}$/.test(r.bindingHash))importFail('INVALID_IMPORT_COMMAND');version(r.fence);
     const requestId=groupOperation(r.bindingHash,r.groupId);
