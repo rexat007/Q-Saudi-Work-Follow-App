@@ -8,9 +8,10 @@ import { resolveUserAuthContext, type DecodedFirebaseToken } from './authAdapter
 import { withUnitOfWork, type UnitOfWork } from './unitOfWork.js';
 import { IdentityProtection, stableValue } from './identityProtection.js';
 import { CanonicalIdentityRepository, canonicalProfile, identitySpec, type CreateIdentityInput } from './canonicalIdentityRepository.js';
+import { TemporalRelationshipRepository } from './temporalRelationshipRepository.js';
 
-interface Scope { companyId: string; projectId: string }
-interface CommandScope extends Scope { operationId: string }
+export interface Scope { companyId: string; projectId: string }
+export interface CommandScope extends Scope { operationId: string }
 export interface CreateCanonicalCommand extends CommandScope, CreateIdentityInput {}
 export interface MembershipMutation extends CommandScope {
   kind: GlobalKind; entityId: string; command: MembershipCommand; expectedRevision: number; reason?: string;
@@ -35,7 +36,7 @@ function keys(value: object, allowed: string[]) {
 const scopeKeys = ['companyId','projectId','operationId'];
 
 export class SqlCanonicalAuthority {
-  private readonly actorRoles = new WeakMap<UnitOfWork,string>();
+  protected readonly actorRoles = new WeakMap<UnitOfWork,string>();
   constructor(private readonly dependencies: SqlAuthorityDependencies = {}) {}
 
   private async authenticated(idToken: string, company: string) {
@@ -49,7 +50,7 @@ export class SqlCanonicalAuthority {
     return resolveUserAuthContext({ uid: token.uid }, company, this.dependencies.authPool);
   }
 
-  private async scoped<T>(idToken: string, scope: Scope, governance: boolean,
+  protected async scoped<T>(idToken: string, scope: Scope, governance: boolean,
     work: (uow: UnitOfWork, protection: IdentityProtection, repository: CanonicalIdentityRepository) => Promise<T>): Promise<T> {
     const protection = new IdentityProtection();
     if (!validGlobalId(scope.projectId)) fail('PROJECT_NOT_FOUND');
@@ -66,6 +67,7 @@ export class SqlCanonicalAuthority {
         await uow.query("SELECT set_config('app.project_id',$1,true)", [projectId]);
         const authorized = (await uow.query('SELECT * FROM qsa_authorize_canonical_command($1)', [governance])).rows[0];
         this.actorRoles.set(uow,authorized.commercial_role);
+        await uow.query("SELECT set_config('app.commercial_role',$1,true)",[authorized.commercial_role]);
         try { return await work(uow,protection,new CanonicalIdentityRepository(uow,protection)); }
         finally { this.actorRoles.delete(uow); }
       }, this.dependencies.runtimePool);
@@ -76,14 +78,14 @@ export class SqlCanonicalAuthority {
         throw new GlobalIdentityError(error.message,'',error.message==='PROJECT_NOT_FOUND' ? 409 : 403);
       }
       const codes: Record<string,string> = { '23505':'CANONICAL_IDENTITY_CONFLICT','23503':'CANONICAL_SCOPE_CONFLICT',
-        '23514':'CANONICAL_CONTRACT_VIOLATION','42501':'FORBIDDEN_GLOBAL_COMMAND','40001':'CANONICAL_CONCURRENCY_RETRY',
+        '23514':'CANONICAL_CONTRACT_VIOLATION','23P01':'TEMPORAL_RELATIONSHIP_CONFLICT','42501':'FORBIDDEN_GLOBAL_COMMAND','40001':'CANONICAL_CONCURRENCY_RETRY',
         '40P01':'CANONICAL_CONCURRENCY_RETRY' };
       // PostgreSQL error details can contain natural keys. Never expose or log them.
       throw new GlobalIdentityError(codes[error?.code] || 'SQL_AUTHORITY_UNAVAILABLE', '', error?.code==='42501' ? 403 : codes[error?.code] ? 409 : 503);
     }
   }
 
-  private async command<T>(token: string, input: CommandScope, payload: unknown, governance: boolean,
+  protected async command<T>(token: string, input: CommandScope, payload: unknown, governance: boolean,
     execute: (uow: UnitOfWork, repository: CanonicalIdentityRepository, protection: IdentityProtection) => Promise<T>) {
     if (!uuid(input.operationId)) fail('INVALID_OPERATION_ID');
     return this.scoped(token,input,governance,async (uow,protection,repository) => {
@@ -99,6 +101,7 @@ export class SqlCanonicalAuthority {
         return protection.open<T>(receipt.result_encrypted,scope);
       }
       await uow.checkOrAcquireIdempotency(input.operationId,hash);
+      await uow.query("SELECT set_config('app.operation_id',$1,true)",[input.operationId]);
       const result = JSON.parse(JSON.stringify(await execute(uow,repository,protection))) as T;
       await uow.query(`UPDATE idempotency_receipts SET state='COMMITTED',result_encrypted=$4
         WHERE company_id=$1 AND project_id=$2 AND operation_id=$3`,
@@ -107,14 +110,14 @@ export class SqlCanonicalAuthority {
     });
   }
 
-  private async lifecycle(uow: UnitOfWork, cleanup: boolean) {
+  protected async lifecycle(uow: UnitOfWork, cleanup: boolean) {
     const row = (await uow.query('SELECT status FROM projects WHERE company_id=$1 AND id=$2',
       [uow.context.companyId,uow.context.projectId])).rows[0];
     assertFoundationMutation(row?.status,cleanup ? 'CONSISTENCY_CLEANUP' : 'NEW_OPERATION');
   }
 
-  private async consequence(uow: UnitOfWork, protection: IdentityProtection, kind: GlobalKind, entity: string,
-    operation: string, action: string, before: unknown, after: unknown, version: number) {
+  protected async consequence(uow: UnitOfWork, protection: IdentityProtection, kind: string, entity: string,
+    operation: string, action: string, before: unknown, after: unknown, version: number, metadata?:Record<string,unknown>) {
     const actorRole = this.actorRoles.get(uow);
     if (!actorRole) fail('FORBIDDEN_GLOBAL_COMMAND');
     await uow.query(`INSERT INTO audit_events
@@ -124,7 +127,7 @@ export class SqlCanonicalAuthority {
       protection.digest('audit',stableValue(before)).toString('hex'),protection.digest('audit',stableValue(after)).toString('hex')]);
     await uow.stageOutbox({ projectId:uow.context.projectId!,aggregateType:kind,aggregateId:entity,
       eventType:action,aggregateVersion:version,payload:{ schemaVersion:1,entityKind:kind,entityId:entity,
-        operationId:operation,revision:version,actorId:uow.context.actorId,actorRole } });
+        operationId:operation,revision:version,actorId:uow.context.actorId,actorRole,...(metadata?{context:metadata}:{}) } });
   }
 
   async create(token: string, input: CreateCanonicalCommand) {
@@ -192,11 +195,16 @@ export class SqlCanonicalAuthority {
         [uow.context.companyId,uow.context.projectId,global.id]);
       const before = result.rows[0];
       const decision = planMembershipStatus(input.kind,input.command,before?.status ?? null,global);
+      const temporal=new TemporalRelationshipRepository(uow,repository,this.actorRoles.get(uow)!,input.operationId,
+        (kind,id,action,old,next,version,metadata)=>this.consequence(uow,protection,kind,id,input.operationId,action,old,next,version,metadata));
+      const plans=cleanup&&input.kind!=='CARRIER'?await temporal.membershipPlans(input.kind,global.id):[];
+      if (cleanup&&input.kind==='CARRIER') await this.guardDependencies(uow,input.kind,global.id);
       // Preserve same-state idempotency; a stale revision never changes a row.
-      if (!decision.changed) return { membership:await this.membershipRecord(uow,input.kind,before,global.external_id),idempotent:true };
+      if (!decision.changed&&!plans.length) return { membership:await this.membershipRecord(uow,input.kind,before,global.external_id),idempotent:true,closedRelationships:[] };
       if ((before ? Number(before.revision) : 0) !== input.expectedRevision) fail('REVISION_CONFLICT');
-      if (cleanup) await this.guardDependencies(uow,input.kind,global.id);
-      const now = (await uow.query('SELECT clock_timestamp() AS now')).rows[0].now;
+      const closedRelationships=await temporal.closeMembership(plans,{kind:input.kind,entityId:global.external_id,command:input.command},input.reason);
+      if(!decision.changed) return {membership:await this.membershipRecord(uow,input.kind,before,global.external_id),idempotent:false,closedRelationships};
+      const now = plans.length?await temporal.at():(await uow.query('SELECT clock_timestamp()::text AS now')).rows[0].now;
       if (before && (await uow.query('SELECT lower($1::tstzrange)>$2::timestamptz AS future',[before.valid_period,now])).rows[0].future) fail('MEMBERSHIP_NOT_EFFECTIVE');
       const id = before?.id || randomUUID(), next = input.expectedRevision+1;
       let after: any;
@@ -220,7 +228,7 @@ export class SqlCanonicalAuthority {
         before?.valid_period ?? null,now,uow.context.actorId,input.operationId,input.reason ?? before?.status_reason ?? null,this.actorRoles.get(uow)]);
       await this.consequence(uow,protection,input.kind,global.external_id,input.operationId,`MEMBERSHIP_${input.command}`,
         before ? { status:before.status,revision:before.revision } : null,{ status:after.status,revision:after.revision },next);
-      return { membership:await this.membershipRecord(uow,input.kind,after,global.external_id),idempotent:false };
+      return { membership:await this.membershipRecord(uow,input.kind,after,global.external_id),idempotent:false,closedRelationships };
     });
   }
 
