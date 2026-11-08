@@ -3,8 +3,9 @@ import { randomUUID } from 'node:crypto';
 import { adminDb } from '../firebase/admin';
 import { decodePersistence, decodeScopedProjection, PersistenceBoundaryError } from '../utils/persistenceBoundary';
 import { sanitizeUndefined } from '../utils/sanitize';
-import { GLOBAL_IDENTITIES, GlobalIdentityError, validGlobalId, assertCanEnroll, assertCanReactivateMembership, assertOperationallyEligible, type GlobalKind } from '../utils/globalIdentityPolicy';
+import { GLOBAL_IDENTITIES, GlobalIdentityError, validGlobalId, assertOperationallyEligible, type GlobalKind } from '../utils/globalIdentityPolicy';
 import { authorizeGlobalCommand, assertGlobalEntityExists } from './globalIdentityAuthority.server';
+import { planMembershipStatus } from '../utils/projectMembershipPolicy';
 
 export type MembershipCommand = 'ENROLL' | 'SUSPEND' | 'REMOVE' | 'REACTIVATE';
 export type AffiliationCommand = 'SET_AFFILIATION' | 'REACTIVATE_AFFILIATION' | 'REASSIGN' | 'INACTIVATE';
@@ -37,13 +38,8 @@ export function planMembership(input: { kind: GlobalKind; projectId: string; ent
   scope(kind, projectId, entityId);
   if (!['ENROLL', 'SUSPEND', 'REMOVE', 'REACTIVATE'].includes(command) || (reason !== undefined && (typeof reason !== 'string' || reason.length > 2000))) fail('INVALID_PARTICIPATION_COMMAND');
   const before = input.before == null ? null : decodeParticipation(input.before, kind, projectId, entityId);
-  if (command === 'ENROLL') assertCanEnroll(kind, global);
-  if (command === 'REACTIVATE') assertCanReactivateMembership(kind, global);
-  const status = command === 'SUSPEND' ? 'SUSPENDED' : command === 'REMOVE' ? 'REMOVED' : 'ACTIVE';
-  if (!before && command !== 'ENROLL') fail('MEMBERSHIP_NOT_FOUND');
-  if (before && command === 'ENROLL' && before.status !== 'ACTIVE') fail('MEMBERSHIP_STATE_CONFLICT');
-  if (before && before.status === status) return { ...input, category: 'MEMBERSHIP', before, after: before, changed: false };
-  if (before && command === 'SUSPEND' && before.status !== 'ACTIVE') fail('INVALID_STATE_TRANSITION');
+  const { status, changed } = planMembershipStatus(kind, command, before?.status ?? null, global);
+  if (!changed) return { ...input, category: 'MEMBERSHIP', before, after: before, changed: false };
   const now = new Date(), idKey = GLOBAL_IDENTITIES[kind].id;
   const after = sanitizeUndefined({
     ...(before ? canonicalFields(input.before, [...membershipFields, idKey]) : { projectId, [idKey]: entityId, createdAt: now, createdBy: actor.userId }),
