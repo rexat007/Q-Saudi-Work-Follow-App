@@ -1,3 +1,4 @@
+import {unavailablePostgres} from './helpers/unavailablePostgres.js';
 import {beforeAll,afterAll,describe,it,expect} from 'vitest';
 import {randomBytes,randomUUID} from 'node:crypto';
 import os from 'node:os';
@@ -260,11 +261,12 @@ describe('AR2-U04 real PostgreSQL bounded Foundation reads',()=>{
     }finally{await one.end();}
   });
   check('database outage produces sanitized 503 and never a fallback response',async()=>{
-    const unavailable=new pg.Pool({connectionString:process.env.DATABASE_URL?.replace(':55439/',':55440/'),connectionTimeoutMillis:300});
+    const unavailable=await unavailablePostgres(process.env.DATABASE_URL,300);
     try{
-      const service=new SqlProjectReadAuthority({runtimePool:unavailable,authPool:auth,verifyToken,cursorKey:key,backendEpoch:'u04-isolated-1'});
-      await expect(service.summary('admin',scope())).rejects.toMatchObject({code:'CANONICAL_READ_UNAVAILABLE',status:503});
-    }finally{await unavailable.end();}
+      const service=new SqlProjectReadAuthority({runtimePool:unavailable.pool,authPool:auth,verifyToken,cursorKey:key,backendEpoch:'u04-isolated-1'});
+      await expect(service.summary('admin',scope()).catch(error=>{expect(error.message).toBe('CANONICAL_READ_UNAVAILABLE');throw error;})).rejects.toMatchObject({code:'CANONICAL_READ_UNAVAILABLE',status:503});
+      expect(unavailable.rejectedConnections()).toBeGreaterThan(1);
+    }finally{await unavailable.close();}
   });
   check('migration 006 is repeat-safe and checksum protected',async()=>{
     expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009']);
