@@ -182,7 +182,8 @@ export class UnitOfWork {
 export async function withUnitOfWork<T>(
   context: RequestContext,
   operation: (uow: UnitOfWork) => Promise<T>,
-  poolOverride?: Pool
+  poolOverride?: Pool,
+  options?: { readOnlySnapshot: true }
 ): Promise<T> {
   if (!context.companyId) {
     throw new Error('Tenant isolation failure: context.companyId is required');
@@ -201,20 +202,25 @@ export async function withUnitOfWork<T>(
 
   try {
     await assertServiceIdentity(client, 'qsa_runtime');
-    await client.query('BEGIN');
+    await client.query(options?.readOnlySnapshot ? 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' : 'BEGIN');
 
     // Switch to runtime role to enforce RLS (no bypass)
     await client.query('SET LOCAL ROLE qsa_runtime');
 
     // CRITICAL: is_local is set to true (3rd argument).
     // This ensures settings automatically reset when transaction terminates.
-    await client.query("SELECT set_config('app.company_id', $1, true)", [context.companyId]);
-    await client.query("SELECT set_config('app.actor_id', $1, true)", [context.actorId]);
-
-    if (context.projectId) {
-      await client.query("SELECT set_config('app.project_id', $1, true)", [context.projectId]);
+    if (options?.readOnlySnapshot) {
+      await client.query("SELECT set_config('app.company_id',$1,true),set_config('app.actor_id',$2,true),set_config('app.project_id',$3,true)",
+        [context.companyId,context.actorId,context.projectId || '']);
     } else {
-      await client.query("SELECT set_config('app.project_id', '', true)");
+      await client.query("SELECT set_config('app.company_id', $1, true)", [context.companyId]);
+      await client.query("SELECT set_config('app.actor_id', $1, true)", [context.actorId]);
+
+      if (context.projectId) {
+        await client.query("SELECT set_config('app.project_id', $1, true)", [context.projectId]);
+      } else {
+        await client.query("SELECT set_config('app.project_id', '', true)");
+      }
     }
 
     const uow = new UnitOfWork(client, context);
