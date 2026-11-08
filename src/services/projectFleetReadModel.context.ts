@@ -1,4 +1,6 @@
 import { readCurrentAssignment, readCurrentAllocation } from '../utils/temporalRelationshipReads';
+// Future bounded UI composition is distinct from the complete Firestore snapshot.
+export type { BoundedProjectReadPort,FoundationSummary,BoundedProjectPage } from '../types/boundedProjectReads';
 import { projectCarrierMembershipRepository, projectDriverMembershipRepository, projectMaterialMembershipRepository } from '../repositories/projectMembership.repository';
 import { ProjectTruckMembershipEntity } from '../types/projectMembership';
 import {
