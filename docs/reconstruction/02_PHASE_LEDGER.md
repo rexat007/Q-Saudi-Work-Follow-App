@@ -1,4 +1,16 @@
 # PHASE LEDGER
+
+### POST-MERGE AUTHORITY OVERRIDE — AR2-U07 / 2026-11-09
+
+- **Verified main:** `d2f2ae4006eb3c36943733bec0f6855c905ab04d` — GitHub merge commit of [PR #97](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/97), based on merged U06-CI1 `7ce8f7827e6e9a037a8010791c4ee69170d868ff`; merge lineage confirmed (three commits ahead; none behind from that base).
+- **AR2-U07 and AR2-U07-RB1:** `MERGED / SOURCE_VERIFIED / SOURCE_CLOSED`. Implementation `311794c8b5c168ca34249855a5c7be8347350f7d`; RB1 `bb468587c90c9a76956579057cb68de1fc5bd0be`. Exactly 27 changed files in PR lineage. This entry supersedes U07's earlier `INDEPENDENT_REVIEW_REQUIRED`, `NOT_CLOSED`, and `NO_MERGE` statements, which remain as historical pre-merge records.
+- **Verification distinction:** 53/53 real Edge+IndexedDB cases, 425/425 native PostgreSQL and 148/148 security/authority cases are Codex-reported pre-merge results; PR head's secret-free foundation workflow succeeded. The connector's merge-commit workflow/status lookups returned no entries, so **a new main-commit GitHub Actions green result is NOT independently evidenced here**. Do not claim main SQL CI executed merely from historical/head results.
+- **Protection:** Firestore is still the *sole active production operational authority*; PostgreSQL U01–U07 remain inactive independent server/DB implementations. No SQL UI routing, production deployment, SQL data migration, dual-write, epoch advancement, or switch has been approved.
+- **Resolved in RB1:** durable causal predecessor/order fence; unknown legacy unordered SQL intents remain held for review; SQL cache upsert-only, with omission pruning disabled until an authenticated server complete-inventory witness exists.
+- **Next bounded unit:** `AR2-U08 = NEXT / NOT_STARTED` — server-owned Google Sheets/Workspace reporting projection and reconciliation on ARCH-R1 Rev 1.2, preserving existing project Google resources. U09 cutover/UI selection remains independently gated. The old project-wide `PHASE_10 = NOT_STARTED` historical gate must not be misrepresented as authorization for production trips or SQL activation.
+- **Unresolved debt/gates:** 446 historical diagnostics; 58 existing assertion failures, five suite-load failures, one historical unhandled rejection; real mobile/production role acceptance, mixed-client and legacy outbox classification, true complete-inventory proof, live load/scale, Google API/read-quota verification, independent main SQL CI evidence.
+- **Companion handoff:** [14_AR2_U07_POSTMERGE_MASTER_HANDOFF_2026-11-09.md](14_AR2_U07_POSTMERGE_MASTER_HANDOFF_2026-11-09.md). All earlier entries are retained as historical evidence rather than overwritten.
+
 ## Single Current Reconstruction State Authority
 
 ### AR2-U07 — Inactive offline / epoch / receipt seam — 2026-11-09

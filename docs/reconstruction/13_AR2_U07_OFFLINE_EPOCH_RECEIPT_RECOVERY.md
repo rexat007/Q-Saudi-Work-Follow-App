@@ -1,5 +1,8 @@
 # AR2-U07 — Offline continuity, epoch fencing and receipt recovery
 
+> **POST-MERGE ADDENDUM (2026-11-09):** GitHub main contains U07 and RB1 after owner merge PR #97 at `d2f2ae4006eb3c36943733bec0f6855c905ab04d` (initial `311794c8b5c168ca34249855a5c7be8347350f7d`, correction `bb468587c90c9a76956579057cb68de1fc5bd0be`). Final source status: `MERGED / SOURCE_VERIFIED / SOURCE_CLOSED`; pre-merge review/merge-not-done statements in this implementation history are superseded, **not deleted**. Production activation, deployment, full mobile acceptance and U09 are NOT authorized. Codex-reported Edge 53/53, PG 425/425, authority 148/148, and unchanged 446 diagnostics are distinct from independently demonstrated merge-commit CI; current merge-commit workflow query returned no runs. Next `AR2-U08 NOT_STARTED`. See [postmerge handoff](14_AR2_U07_POSTMERGE_MASTER_HANDOFF_2026-11-09.md).
+
+
 > Current correction: AR2-U07-RB1 below supersedes the original causal-order and
 > generic completeness assumptions. Existing server APIs provide no complete-
 > inventory witness; this cache path is now upsert-only. Production SQL stays inactive.
