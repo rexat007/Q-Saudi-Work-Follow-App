@@ -74,7 +74,7 @@ export class SqlCanonicalAuthority {
         await uow.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`canonical-project/${auth.companyId}/${projectId}`]);
         uow.context.projectId = projectId;
         await uow.query("SELECT set_config('app.project_id',$1,true)", [projectId]);
-        if(this.fence)await uow.query('SELECT qsa_assert_offline_epoch($1,$2)',[this.fence.backendEpoch,this.fence.epochRevision]);
+        if(this.fence)await uow.query('SELECT qsa_assert_runtime_writer($1,$2)',[this.fence.backendEpoch,this.fence.epochRevision]);
         const authorized = await this.authorize(uow,governance);
         this.actorRoles.set(uow,authorized.commercial_role);
         await uow.query("SELECT set_config('app.commercial_role',$1,true)",[authorized.commercial_role]);
@@ -82,6 +82,7 @@ export class SqlCanonicalAuthority {
         finally { this.actorRoles.delete(uow); }
       }, this.dependencies.runtimePool);
     } catch (error: any) {
+      if(error?.code==='P0001'&&error?.message==='RUNTIME_ENFORCEMENT_UNVERIFIED')throw new GlobalIdentityError('RUNTIME_ENFORCEMENT_UNVERIFIED','',503);
       if(error?.code==='P0001'&&error?.message==='BACKEND_EPOCH_MISMATCH')throw new GlobalIdentityError('BACKEND_EPOCH_MISMATCH','',409);
       if (error instanceof GlobalIdentityError || error?.name === 'AuthorizationError' || error?.name === 'AuthenticationError') throw error;
       if (['PROJECT_LIFECYCLE_MUTATION_DENIED'].includes(error?.code)) throw error;

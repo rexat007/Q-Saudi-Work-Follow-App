@@ -1,3 +1,4 @@
+import {registerProductionRuntimeBoundary} from './runtimeComposition';
 import {WorkspaceProvisioningOrchestrator} from '../src/services/workspaceProvisioning.server';
 import {registerUserActiveWorkspaceSync} from './workspaceSyncCoordinator.routes';
 import {resolveWorkspaceExecutionToken} from './workspaceExecutionToken';
@@ -56,6 +57,7 @@ registerWorkspaceOAuthCallback(app);
 
 // Global API Authentication Context Resolver
 app.use('/api', authenticateUser);
+registerProductionRuntimeBoundary(app,adminDb);
 registerUserActiveWorkspaceSync(app,workspaceSyncCoordinator);
 registerWorkspaceOAuthCommands(app,[enforceProjectIsolation,enforceAdminOnly,workspaceGenerationFence]);
 

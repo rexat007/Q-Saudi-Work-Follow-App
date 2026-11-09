@@ -10,6 +10,19 @@ service cloud.firestore {
     // =========================================================================
     // Global Security & Identity Helpers
     // =========================================================================
+    // Source readiness only: no control document is created/advanced by this branch.
+    // Rules cannot fence an older Admin SDK credential; cutover also requires IAM proof.
+    function operationalAuthorityOpen() {
+      let path = /databases/$(database)/documents/runtime_authority/current;
+      return !exists(path) || (get(path).data.get('schemaVersion', 0) == 1 &&
+        get(path).data.get('canonicalStore', '') == 'firestore' &&
+        get(path).data.get('phase', '') == 'ACTIVE' &&
+        get(path).data.get('backendEpoch', null) is string &&
+        get(path).data.backendEpoch.matches('^[A-Za-z0-9_.:-]{1,100}$') &&
+        get(path).data.get('epochRevision', -1) is int && get(path).data.get('epochRevision', -1) >= 0 &&
+        get(path).data.epochRevision <= 9007199254740991);
+    }
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -127,12 +140,12 @@ service cloud.firestore {
       // Carriers subcollection
       match /carriers/{carrierId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(carrierId) &&
+        allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(carrierId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().carrierId == carrierId &&
                          incoming().projectId == projectId;
-        allow update: if isSignedIn() && isValidId(carrierId) &&
+        allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(carrierId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().carrierId == existing().carrierId &&
@@ -157,12 +170,12 @@ service cloud.firestore {
       // Materials subcollection
       match /materials/{materialId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(materialId) &&
+        allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(materialId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().materialId == materialId &&
                          incoming().projectId == projectId;
-        allow update: if isSignedIn() && isValidId(materialId) &&
+        allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(materialId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'SUPER_ADMIN']) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().materialId == existing().materialId &&
@@ -271,13 +284,13 @@ service cloud.firestore {
         // Trip Exceptions
         match /exceptions/{exceptionId} {
           allow get, list: if isSignedIn() && isProjectMember(projectId);
-          allow create: if isSignedIn() && isValidId(exceptionId) &&
+          allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(exceptionId) &&
                            isProjectMember(projectId) &&
                            isAuditStampedCreate(incoming()) &&
                            incoming().exceptionId == exceptionId &&
                            incoming().tripId == tripId &&
                            incoming().projectId == projectId;
-          allow update: if isSignedIn() && isValidId(exceptionId) &&
+          allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(exceptionId) &&
                            hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                            isAuditStampedUpdate(incoming()) &&
                            incoming().exceptionId == existing().exceptionId &&
@@ -289,13 +302,13 @@ service cloud.firestore {
         // Settlement Adjustments subcollection (BLOCK 87)
         match /adjustments/{adjustmentId} {
           allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-          allow create: if isSignedIn() && isValidId(adjustmentId) &&
+          allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(adjustmentId) &&
                            hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                            isAuditStampedCreate(incoming()) &&
                            incoming().adjustmentId == adjustmentId &&
                            incoming().tripId == tripId &&
                            incoming().projectId == projectId;
-          allow update: if isSignedIn() && isValidId(adjustmentId) &&
+          allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(adjustmentId) &&
                            hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
                            isAuditStampedUpdate(incoming()) &&
                            incoming().adjustmentId == existing().adjustmentId &&
@@ -308,13 +321,13 @@ service cloud.firestore {
       // Sync Operations (Idempotency Journal)
       match /sync_operations/{operationId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(operationId) &&
+        allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(operationId) &&
                          !operationId.matches('^TRIP-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().operationId == operationId &&
                          incoming().projectId == projectId;
-        allow update: if isSignedIn() && isValidId(operationId) &&
+        allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(operationId) &&
                          !operationId.matches('^TRIP-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedUpdate(incoming()) &&
@@ -326,12 +339,12 @@ service cloud.firestore {
       // Import Batches
       match /import_batches/{batchId} {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
-        allow create: if isSignedIn() && isValidId(batchId) &&
+        allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(batchId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().batchId == batchId &&
                          incoming().projectId == projectId;
-        allow update: if isSignedIn() && isValidId(batchId) &&
+        allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(batchId) &&
                          hasProjectRole(projectId, ['PROJECT_ADMIN', 'DISPATCHER', 'SUPERVISOR', 'SUPER_ADMIN']) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().batchId == existing().batchId &&
@@ -352,7 +365,7 @@ service cloud.firestore {
       allow get: if isSignedIn() && isValidId(userId) &&
                       (request.auth.uid == userId || isAdminConsoleReader());
       allow list: if isAdminConsoleReader();
-      allow create: if isSignedIn() && isValidId(userId) &&
+      allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(userId) &&
                        isAuditStampedCreate(incoming()) && incoming().userId == userId && isSafeAccountRequest(userId);
       // All effective global account mutations use the audited Admin SDK command boundary.
       allow update: if false;
@@ -364,7 +377,7 @@ service cloud.firestore {
     // =========================================================================
     match /audit_logs/{auditLogId} {
       allow get, list: if isAdminConsoleReader();
-      allow create: if isUserActive() && isValidId(auditLogId) &&
+      allow create: if operationalAuthorityOpen() && isUserActive() && isValidId(auditLogId) &&
                        isAuditStampedCreate(incoming()) && incoming().auditLogId == auditLogId &&
                        incoming().entityType != 'USER_ROLE' &&
                        incoming().actor.userId == request.auth.uid &&

@@ -146,6 +146,15 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -c 'CREATE ROLE qsa_migrator LOGIN CREATEROLE;'
           psql -X -v ON_ERROR_STOP=1 -c 'CREATE DATABASE qsaudi_sql OWNER qsa_migrator;'
           npx tsx src/db/migrator.ts
+      - name: Install isolated browser test tooling
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends chromium
+          npm install --prefix "$RUNNER_TEMP/qsa-browser" --no-package-lock --no-save playwright-core@1.65.0
+      - name: Register isolated browser location
+        run: |
+          echo "QSA_BROWSER_TOOL_ROOT=$RUNNER_TEMP/qsa-browser" >> "$GITHUB_ENV"
+          echo 'QSA_BROWSER_EXECUTABLE=/usr/bin/chromium' >> "$GITHUB_ENV"
       - name: Verify native SQL authorities without skipped cases
         run: >-
           npx vitest run --no-file-parallelism
@@ -160,6 +169,14 @@ jobs:
           src/tests/ar2U06TripsPricing.test.ts
           src/tests/ar2U06Rb1Security.test.ts
           src/tests/ar2U06TripPerformance.test.ts
+          src/tests/ar2U09RuntimeComposition.test.ts
+          src/tests/ar2U09MigrationReadiness.test.ts
+          src/tests/ar2U09FirestoreFence.test.ts
+      - name: Verify scoped IndexedDB and journal UI in a real browser
+        run: >-
+          npx vitest run --no-file-parallelism
+          src/tests/ar2U07OfflineContinuity.test.ts
+          src/tests/ar2U09OfflineBrowser.test.ts
       - name: Verify explicit 148 authority bundle
         run: >-
           npx vitest run

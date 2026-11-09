@@ -1,3 +1,4 @@
+import {assertLegacyClient} from '../runtimeClient.service';
 import { operationalTripProjection } from '../../utils/operationalTripProjection';
 import { queuedTripCommand, sendTripCommand } from '../tripCommandClient.service';
 /**
@@ -53,6 +54,7 @@ export class OutboxService {
     operationType: OutboxOperation['operationType'];
     payload: Record<string, any>;
   }): Promise<OutboxOperation> {
+    assertLegacyClient();
     const operationId = params.operationId || `OP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const now = new Date().toISOString();
 
@@ -111,6 +113,7 @@ export class OutboxService {
     failedCount: number;
     conflictCount: number;
   }> {
+    assertLegacyClient();
     if (this.isSyncing) {
       return { processedCount: 0, syncedCount: 0, failedCount: 0, conflictCount: 0 };
     }

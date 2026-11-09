@@ -5,11 +5,11 @@ import type {SqlImportAuthority} from '../src/db/importAuthority';
 import type {SqlOfflineRecoveryAuthority} from '../src/db/offlineRecoveryAuthority';
 import {commandIdentity,stableJson,validateOfflineEnvelope,uuid} from '../src/types/sqlOffline';
 import {GlobalIdentityError} from '../src/utils/globalIdentityPolicy';
-import {mountIsolatedSqlTripRoutes} from './sqlTripRoutes';
-import {mountIsolatedSqlImportRoutes} from './sqlImportRoutes';
+import {registerSqlTripRoutes} from './sqlTripRoutes';
+import {registerSqlImportRoutes} from './sqlImportRoutes';
 /** Explicit test/future composition only; never imported by production app.ts. */
-export function mountIsolatedSqlOfflineRoutes(app:Express,options:{trips:SqlTripAuthority;imports?:SqlImportAuthority;recovery:SqlOfflineRecoveryAuthority;companyForToken:(token:string)=>Promise<string>;epoch:Readonly<{backendEpoch:string;epochRevision:number}>}){
- if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_OFFLINE_ROUTES_INACTIVE');const policy=Object.freeze({...options.epoch});
+export function registerSqlOfflineRoutes(app:Express,options:{trips:SqlTripAuthority;imports?:SqlImportAuthority;recovery:SqlOfflineRecoveryAuthority;companyForToken:(token:string)=>Promise<string>;epoch:Readonly<{backendEpoch:string;epochRevision:number}>}){
+ const policy=Object.freeze({...options.epoch});
  if(!Number.isSafeInteger(policy.epochRevision)||policy.epochRevision<1||[options.trips,...(options.imports?[options.imports]:[])].some(s=>JSON.stringify(s.backendFence())!==JSON.stringify(policy)))throw Error('TRANSACTIONAL_EPOCH_FENCE_REQUIRED');
  const fail=(code:string,status=409):never=>{throw new GlobalIdentityError(code,'',status);};
  const fence=(req:Request)=>{if(req.header('X-Backend-Epoch')!==policy.backendEpoch||req.header('X-Backend-Epoch-Revision')!==String(policy.epochRevision))fail('BACKEND_EPOCH_MISMATCH');};
@@ -29,11 +29,26 @@ export function mountIsolatedSqlOfflineRoutes(app:Express,options:{trips:SqlTrip
   const p=body.envelope.payload,result=await options.imports!.recoverAdvance(t,s,{sessionId:p.sessionId,operationId:p.operationId,expectedVersion:p.expectedVersion,requestId:body.operationId},{reviewedSignature:p.reviewedSignature,sourceRevisionId:p.sourceRevisionId,mappingRevisionId:p.mappingRevisionId});
   return {...body.identity,operationId:body.operationId,requestDigest:createHash('sha256').update(stableJson(commandIdentity(body))).digest('hex'),...result};
  }));
+ router.post('/:projectId/offline/historical-receipt',route(async(req,t,s)=>{
+  const body=req.body;if(!body||Object.keys(body).some(k=>!['identity','operationId','authority','envelope'].includes(k))||!body.identity||Object.keys(body.identity).some(k=>!['principal','companyId','projectId','deviceId','backendEpoch','epochRevision'].includes(k))||body.operationId!==body.envelope?.operationId||!uuid(body.identity.deviceId))fail('INVALID_OFFLINE_COMMAND',422);
+  if(!Number.isSafeInteger(body.identity.epochRevision)||body.identity.epochRevision<1||body.identity.epochRevision>=policy.epochRevision||body.identity.backendEpoch!==body.envelope?.backendEpoch)fail('HISTORICAL_EPOCH_REQUIRED');validateOfflineEnvelope(body.authority,body.envelope);
+  if(body.authority==='TRIP')return options.recovery.historicalTripReceipt(t,s,body);
+  if(body.authority!=='IMPORT_ADVANCE'||!options.imports)fail('UNSUPPORTED_OFFLINE_AUTHORITY',422);
+  const current=await options.recovery.context(t,s);if(current.principal!==body.identity.principal||current.companyId!==body.identity.companyId||current.projectId!==body.identity.projectId)fail('OFFLINE_SCOPE_CHANGED',403);
+  const p=body.envelope.payload,result=await options.imports!.recoverAdvance(t,s,{sessionId:p.sessionId,operationId:p.operationId,expectedVersion:p.expectedVersion,requestId:body.operationId},{reviewedSignature:p.reviewedSignature,sourceRevisionId:p.sourceRevisionId,mappingRevisionId:p.mappingRevisionId});
+  const receipt={...body.identity,operationId:body.operationId,requestDigest:createHash('sha256').update(stableJson(commandIdentity(body))).digest('hex'),...result};
+  return {receipt,classification:result.state==='COMMITTED'?'COMMITTED':'UNKNOWN',resendAuthorized:false};
+ }));
  router.post('/:projectId/offline/canonical-receipt',route((req,t,s)=>options.recovery.canonicalReceipt(t,s,req.body,policy)));
  router.use((error:any,_req:Request,res:Response,_next:any)=>{res.status(error?.type==='entity.too.large'?413:400).json({error:{code:'INVALID_OFFLINE_BODY'}});});
  app.use('/api/v2/projects',router);
  // Header compatibility is checked here; the database fence remains held through COMMIT.
  app.use('/api/v2/projects/:projectId/trips',(req,res,next)=>{if(req.method!=='POST')return next();try{fence(req);next();}catch(error:any){res.status(409).json({code:error.code});}});
  app.use('/api/v2/projects/:projectId/imports/:sessionId/executions',(req,res,next)=>{if(req.method!=='POST')return next();try{fence(req);next();}catch(error:any){res.status(409).json({error:{code:error.code}});}});
- mountIsolatedSqlTripRoutes(app,options.trips,options.companyForToken);if(options.imports)mountIsolatedSqlImportRoutes(app,options.imports);
+ registerSqlTripRoutes(app,options.trips,options.companyForToken);if(options.imports)registerSqlImportRoutes(app,options.imports);
+}
+
+export function mountIsolatedSqlOfflineRoutes(app:Express,options:{trips:SqlTripAuthority;imports?:SqlImportAuthority;recovery:SqlOfflineRecoveryAuthority;companyForToken:(token:string)=>Promise<string>;epoch:Readonly<{backendEpoch:string;epochRevision:number}>}){
+ if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_OFFLINE_ROUTES_INACTIVE');
+ registerSqlOfflineRoutes(app,options);
 }

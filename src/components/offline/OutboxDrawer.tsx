@@ -1,3 +1,5 @@
+import {useRuntimeComposition} from '../../runtime/RuntimeCompositionProvider';
+import {SqlJournalPanel} from './SqlJournalPanel';
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { batch4ConflictValueLabel } from '../../i18n/batch4Presentation';
 import React, { useState, useEffect } from 'react';
@@ -45,7 +47,7 @@ interface OutboxDrawerProps {
   onNotification?: (notif: { type: 'SUCCESS' | 'ERROR' | 'SECURITY'; message: string }) => void;
 }
 
-export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
+const LegacyOutboxDrawer: React.FC<OutboxDrawerProps> = ({
   isOpen,
   onClose,
   onNotification
@@ -1035,3 +1037,5 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     </div>
   );
 };
+
+export const OutboxDrawer:React.FC<OutboxDrawerProps>=(props)=>{const runtime=useRuntimeComposition();if(runtime)return props.isOpen?<SqlJournalPanel runtime={runtime} onClose={props.onClose}/>:null;return <LegacyOutboxDrawer {...props}/>;};

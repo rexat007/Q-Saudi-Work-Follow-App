@@ -12,12 +12,14 @@ export class SqlOfflineRecoveryAuthority extends SqlTripAuthority {
   if(actor.userId!==uow.context.actorId)fail('OFFLINE_SCOPE_CHANGED',403);const e=(await uow.query('SELECT * FROM qsa_read_offline_epoch()')).rows[0];if(e.canonical_store!=='postgres')fail('SQL_OFFLINE_INACTIVE');
   return {principal:actor.firebaseUid,companyId:scope.companyId,projectId:scope.projectId,canonicalStore:'postgres',backendEpoch:e.backend_epoch,epochRevision:Number(e.epoch_revision)};
  });}
- async recoverTrip(token:string,scope:Scope,body:any):Promise<OfflineReceipt>{
+ async recoverTrip(token:string,scope:Scope,body:any):Promise<OfflineReceipt>{return this.tripProof(token,scope,body,false);}
+ async historicalTripReceipt(token:string,scope:Scope,body:any){const receipt=await this.tripProof(token,scope,body,true);return {receipt,classification:receipt.state==='COMMITTED'?'COMMITTED':'UNKNOWN',resendAuthorized:false};}
+ private async tripProof(token:string,scope:Scope,body:any,historical:boolean):Promise<OfflineReceipt>{
   if(!body||Object.keys(body).some(k=>!['identity','operationId','authority','envelope'].includes(k))||!body.identity||Object.keys(body.identity).some(k=>!['principal','companyId','projectId','deviceId','backendEpoch','epochRevision'].includes(k))||body.authority!=='TRIP'||body.operationId!==body.envelope?.operationId||!uuid(body.identity.deviceId))fail('INVALID_OFFLINE_COMMAND');
   validateOfflineEnvelope('TRIP',body.envelope);const actor=await this.authenticated(token,scope.companyId);
   if(body.identity.principal!==actor.firebaseUid||body.identity.companyId!==scope.companyId||body.identity.projectId!==scope.projectId||body.identity.backendEpoch!==body.envelope.backendEpoch)fail('OFFLINE_SCOPE_CHANGED',403);
   return this.scoped(token,scope,false,async(uow,crypto)=>{
-   if(actor.userId!==uow.context.actorId)fail('OFFLINE_SCOPE_CHANGED',403);await uow.query('SELECT qsa_assert_offline_epoch($1,$2)',[body.identity.backendEpoch,body.identity.epochRevision]);this.allowed(uow,body.envelope.command);
+   if(actor.userId!==uow.context.actorId)fail('OFFLINE_SCOPE_CHANGED',403);if(historical){const current=this.backendFence();if(!current||!Number.isSafeInteger(body.identity.epochRevision)||body.identity.epochRevision>=current.epochRevision)fail('HISTORICAL_EPOCH_REQUIRED');}else await uow.query('SELECT qsa_assert_offline_epoch($1,$2)',[body.identity.backendEpoch,body.identity.epochRevision]);this.allowed(uow,body.envelope.command);
    if(body.envelope.payload.tripId)await this.ownership(uow,await this.header(uow,body.envelope.payload.tripId));
    const digest=crypto.digest('command',stableValue([uow.context.companyId,uow.context.projectId,uow.context.actorId,body.envelope])).toString('hex');
    const row=(await uow.query('SELECT * FROM idempotency_receipts WHERE company_id=$1 AND project_id=$2 AND operation_id=$3 FOR UPDATE',[uow.context.companyId,uow.context.projectId,body.operationId])).rows[0];

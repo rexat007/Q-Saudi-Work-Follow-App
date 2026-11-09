@@ -1,8 +1,11 @@
+import {currentRuntimeClient,submitRuntimeTrip} from './runtimeClient.service';
 import { auth } from '../firebase/config';
 import { TRIP_COMMANDS, STATUS_COMMANDS, type TripCommandName } from '../types/tripCommands';
-export async function sendTripCommand(projectId: string, command: TripCommandName, payload: Record<string, unknown>, operationId: string, tripId?: string, expectedPrincipal?: string) {
+export async function sendTripCommand(projectId: string, command: TripCommandName, payload: Record<string, unknown>, operationId: string, tripId?: string, expectedPrincipal?: string, expectedRevision?:number) {
   const actor=auth.currentUser;
   if (!actor || expectedPrincipal && actor.uid!==expectedPrincipal) throw new Error('UNAUTHENTICATED');
+  if(currentRuntimeClient()?.principal()&&currentRuntimeClient()!.principal()!==actor.uid)throw Error('AUTH_CONTEXT_CHANGED');
+  if(currentRuntimeClient())return submitRuntimeTrip(projectId,command,payload,operationId,expectedRevision,tripId);
   const token = await actor.getIdToken();
   if(auth.currentUser?.uid!==actor.uid)throw new Error('AUTH_CONTEXT_CHANGED');
   const response = await fetch(`/api/projects/${encodeURIComponent(projectId)}/trips/commands`, {

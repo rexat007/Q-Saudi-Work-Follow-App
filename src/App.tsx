@@ -1,3 +1,4 @@
+import {useRuntimeProject,useRuntimeComposition} from './runtime/RuntimeCompositionProvider';
 import {ProfileContinuity} from './components/auth/ProfileContinuity';
 import {readWorkspaceContinuation} from './runtime/workspaceProvisioningResume';
 import {AdaptiveOperationalReports} from './components/reports/AdaptiveOperationalReports';
@@ -76,7 +77,7 @@ import { AccountStatusGate } from './components/auth/AccountStatusGate';
 import { projectRepository } from './repositories/project.repository';
 import { ProjectEntity } from './types/entities';
 
-export default function App() {
+function LegacyAuthorityApp() {
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
   const { user, userProfile, isAuthReady, isProfileLoading, refreshUserProfile, profileAuthority } = useAuth();
@@ -94,6 +95,7 @@ export default function App() {
 
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  useRuntimeProject(user?.uid||null,selectedProjectId,profileAuthority==='AVAILABLE');
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
@@ -973,4 +975,12 @@ export default function App() {
       />
     </div></ProfileContinuity>
   );
+}
+
+/** SQL project governance/presentation was not delivered by U01-U08. Never
+ * hydrate the Firestore application under a SQL-selected root as a fallback. */
+export default function App(){
+ const runtime=useRuntimeComposition();
+ if(runtime)return <main role="alert" dir="rtl" className="p-6"><h1>التشغيل غير متاح</h1><p>لم يكتمل ربط إدارة المشاريع وواجهة الحساب بالمرجع المعتمد. لا يمكن تشغيل الواجهة قبل التحقق من هذه التبعيات.</p></main>;
+ return <LegacyAuthorityApp/>;
 }

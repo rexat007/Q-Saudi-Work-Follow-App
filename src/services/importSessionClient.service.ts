@@ -1,3 +1,4 @@
+import {assertLegacyClient} from './runtimeClient.service';
 import {importRequest} from './importRequest';
 import {assertProfileAuthorityAvailable} from '../firebase/authSession';
 import { encodeSessionChunks } from './import/sessionArtifactCodec';
@@ -88,7 +89,9 @@ export class ImportSessionClientService {
     url: string,
     init: RequestInit,
     overrideToken?: string
-  ): Promise<{ response: Response; json: any }> {
+  ): Promise<{
+    response: Response; json: any }> {
+    assertLegacyClient();
     let token = await this.getAuthToken(overrideToken, false);
     const buildHeaders = (authToken: string) => {
       const h: Record<string, string> = {};

@@ -1,3 +1,4 @@
+import {useRuntimeComposition} from '../runtime/RuntimeCompositionProvider';
 import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { 
   GoogleAuthProvider, 
@@ -31,6 +32,7 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const runtime=useRuntimeComposition();
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserEntity | null>(null);
   const [profileAuthority, setProfileAuthority] = useState<ProfileAuthority>('LOADING');
@@ -53,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading: setIsProfileLoading, ready: () => setIsAuthReady(true), error: setAuthError,
     }, {
       load: async current => {
+        if(runtime)return normalizeProfile(await runtime.profile(current.uid),current.uid);
         const snapshot=await getDocFromServer(doc(db,'users',current.uid));
         return normalizeProfile(snapshot.exists() ? decodeUser<UserEntity>(snapshot.data(),current.uid) : null,current.uid);
       },
@@ -66,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const reconnect=()=>{void controller.refresh();}, offline=()=>controller.unavailable();
     window.addEventListener('online',reconnect);window.addEventListener('offline',offline);
     return () => { window.removeEventListener('online',reconnect);window.removeEventListener('offline',offline); unsubscribe(); controller.dispose(); session.current = null; };
-  }, []);
+  }, [runtime]);
 
   const refreshUserProfile = async () => { await session.current?.refresh(); };
 

@@ -12,6 +12,7 @@ export class SqlOfflineHttpTransport implements OfflineTransport {
  }
  context(scope:{principal:string;companyId:string;projectId:string},signal:AbortSignal):Promise<OfflineContext>{return this.request(scope,'/offline/context',signal);}
  receipt(op:OfflineCommand,signal:AbortSignal):Promise<OfflineReceipt>{return this.request(op.identity,'/offline/receipt',signal,commandIdentity(op),op.identity);}
+ historicalReceipt(op:OfflineCommand,current:{backendEpoch:string;epochRevision:number},signal:AbortSignal){return this.request(op.identity,'/offline/historical-receipt',signal,commandIdentity(op),current);}
  async send(op:OfflineCommand,signal:AbortSignal):Promise<OfflineReceipt>{
   if(op.authority==='TRIP')await this.request(op.identity,'/trips/commands',signal,op.envelope,op.identity);
   else{const p=op.envelope.payload;await this.request(op.identity,`/imports/${encodeURIComponent(String(p.sessionId))}/executions/${encodeURIComponent(String(p.operationId))}/advance`,signal,{requestId:op.operationId,expectedVersion:p.expectedVersion},op.identity);}

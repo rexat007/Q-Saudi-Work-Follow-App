@@ -38,12 +38,13 @@ export class SqlProjectReadAuthority {
       const actor=(await auth.query('SELECT id FROM users WHERE firebase_uid=$1 AND status=\'ACTIVE\'',[uid])).rows[0];
       if(!actor)fail('UNAUTHENTICATED',401);
       return await withUnitOfWork({companyId:scope.companyId,actorId:actor.id},async uow=>{
+        if(this.config.backendFence)await uow.query('SELECT qsa_assert_runtime_read($1,$2)',[this.config.backendFence.backendEpoch,this.config.backendFence.epochRevision]);
         const authorization=(await uow.query<Authorization>('SELECT * FROM qsa_authorize_project_read($1)',[scope.projectExternalId])).rows[0];
         if(!authorization)fail('PROJECT_NOT_FOUND',404);
         uow.context.projectId=authorization.project_id;
         return work(uow,authorization);
       },this.config.runtimePool,{readOnlySnapshot:true});
-    }catch(error){if(error instanceof ProjectReadError)throw error;fail('CANONICAL_READ_UNAVAILABLE',503);}
+    }catch(error:any){if(error instanceof ProjectReadError)throw error;if(error?.code==='P0001'&&error?.message==='BACKEND_EPOCH_MISMATCH')fail('BACKEND_EPOCH_MISMATCH',409);fail('CANONICAL_READ_UNAVAILABLE',503);}
   }
   async summary(token:string,scope:ReadScope,ifNoneMatch?:string){
     return this.scoped(token,scope,async(uow,a)=>{

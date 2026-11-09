@@ -4,8 +4,7 @@ import { SQL_SETUP_STAGES } from '../src/types/boundedProjectReads';
 
 /** Deliberately NOT imported by server/app.ts. U09 must explicitly replace this
  * isolated-only composition after single-authority cutover approval. */
-export function mountIsolatedSqlProjectReadRoutes(app:Express,reads:SqlProjectReadAuthority){
-  if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_READ_ROUTES_INACTIVE');
+export function registerSqlProjectReadRoutes(app:Express,reads:SqlProjectReadAuthority){
   const handler=(action:(req:Request,res:Response,token:string,company:string,project:string)=>Promise<void>)=>async(req:Request,res:Response)=>{
     res.set({'Cache-Control':'private, no-store','Vary':'Authorization, X-Company-Id','X-Content-Type-Options':'nosniff'});
     try{
@@ -49,4 +48,10 @@ export function mountIsolatedSqlProjectReadRoutes(app:Express,reads:SqlProjectRe
   });
   app.get('/api/v2/projects/:projectExternalId/fleet',page);
   app.get('/api/v2/projects/:projectExternalId/setup/:stage',page);
+}
+
+/** Backward-compatible isolated verification entry point. */
+export function mountIsolatedSqlProjectReadRoutes(app:Express,reads:SqlProjectReadAuthority){
+ if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_READ_ROUTES_INACTIVE');
+ registerSqlProjectReadRoutes(app,reads);
 }

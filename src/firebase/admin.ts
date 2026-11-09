@@ -1,3 +1,4 @@
+import {fenceFirestoreDatabase} from '../runtime/firestoreAuthority.server';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { getApps, initializeApp, cert } from 'firebase-admin/app';
@@ -195,7 +196,7 @@ export const inMemoryAdminStore = inMemoryStore;
 export let adminAuth = getAuth();
 export let adminDb: any = process.env.NODE_ENV === 'test'
   ? createInMemoryAdminDb()
-  : getFirestore(firestoreDatabaseId);
+  : fenceFirestoreDatabase(getFirestore(firestoreDatabaseId));
 
 export const setTestAuthOverride = (override: any) => {
   adminAuth = override;

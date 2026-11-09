@@ -44,7 +44,7 @@ export class SqlTripAuthority extends SqlCanonicalAuthority {
   });
  }
  async execute(token:string,scope:Scope,r:SqlTripEnvelope){
-  tripEnvelope(r);const creation=['DISPATCH_TRIP','RECORD_LOADING','IMPORT_TRIP'].includes(r.command),policy=(TRIP_COMMANDS as any)[r.command]||extra[r.command];if(!policy)tripFail('INVALID_TRIP_COMMAND');
+  tripEnvelope(r,this.backendFence()?.backendEpoch);const creation=['DISPATCH_TRIP','RECORD_LOADING','IMPORT_TRIP'].includes(r.command),policy=(TRIP_COMMANDS as any)[r.command]||extra[r.command];if(!policy)tripFail('INVALID_TRIP_COMMAND');
   exactTrip(r.payload,[...policy.fields,...(!creation?['tripId']:[]),...(['RECORD_LOADING','RECORD_ORIGIN_WEIGHT','RECORD_DESTINATION_WEIGHT','RECORD_DESTINATION_NET'].includes(r.command)?['measurementEvidence']:[])]);
   if(creation?r.expectedRevision!==0:!tripId(r.payload.tripId))tripFail('TRIP_REVISION_CONFLICT');
   if(r.command==='IMPORT_TRIP')tripFail('REVIEWED_TRIP_SOURCE_REQUIRED');
@@ -215,7 +215,7 @@ export class SqlTripAuthority extends SqlCanonicalAuthority {
  async receipt(token:string,scope:Scope,operationId:string){
   if(!/^[0-9a-f-]{36}$/i.test(operationId))tripFail('INVALID_OPERATION_ID');return this.scoped(token,scope,false,async(uow,crypto)=>{const r=(await uow.query("SELECT actor_id,result_encrypted,state FROM idempotency_receipts WHERE company_id=$1 AND project_id=$2 AND operation_id=$3",[uow.context.companyId,uow.context.projectId,operationId])).rows[0];if(!r||r.actor_id!==uow.context.actorId||r.state!=='COMMITTED')tripFail('TRIP_RECEIPT_NOT_FOUND');const result=crypto.open<any>(r.result_encrypted,`${uow.context.companyId}/${uow.context.projectId}/receipt/${operationId}`);if(!result.trip?.tripId)tripFail('TRIP_RECEIPT_NOT_FOUND');const row=await this.header(uow,result.trip.tripId);await this.ownership(uow,row);return {operationId,trip:tripResponse(this.doc(uow,crypto,row),this.actorRoles.get(uow)!),committed:true};});
  }
- async savePricing(token:string,scope:Scope,r:SqlTripEnvelope){tripEnvelope(r);if(!r.payload?.rule||typeof r.payload.rule!=='object'||Array.isArray(r.payload.rule)||(r.payload.ruleId?r.payload.rule.expectedVersion!==r.expectedRevision:r.expectedRevision!==0))tripFail('PRICING_VERSION_CONFLICT');if(r.command!=='SAVE_PRICING_RULE')tripFail('INVALID_PRICING_COMMAND');exactTrip(r.payload,['ruleId','rule']);return this.scoped(token,scope,false,async(uow,crypto,ids)=>{
+ async savePricing(token:string,scope:Scope,r:SqlTripEnvelope){tripEnvelope(r,this.backendFence()?.backendEpoch);if(!r.payload?.rule||typeof r.payload.rule!=='object'||Array.isArray(r.payload.rule)||(r.payload.ruleId?r.payload.rule.expectedVersion!==r.expectedRevision:r.expectedRevision!==0))tripFail('PRICING_VERSION_CONFLICT');if(r.command!=='SAVE_PRICING_RULE')tripFail('INVALID_PRICING_COMMAND');exactTrip(r.payload,['ruleId','rule']);return this.scoped(token,scope,false,async(uow,crypto,ids)=>{
   if(!['SUPER_ADMIN','PROJECT_ADMIN','FINANCE_AUDITOR'].includes(this.actorRoles.get(uow)!))tripFail('FORBIDDEN_PRICING_ACTION',403);
   // Existing command infrastructure owns payload fencing and atomic audit/outbox.
   const hash=crypto.digest('command',stableValue(r)).toString('hex'),aad=`${uow.context.companyId}/${uow.context.projectId}/receipt/${r.operationId}`;

@@ -2,8 +2,7 @@ import {Router,json,type Express,type Request,type Response} from 'express';
 import type {SqlImportAuthority} from '../src/db/importAuthority.js';
 import {GlobalIdentityError} from '../src/utils/globalIdentityPolicy';
 /** Not imported by server/app.ts. No production activation switch exists. */
-export function mountIsolatedSqlImportRoutes(app:Express,imports:SqlImportAuthority){
-  if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_IMPORT_ROUTES_INACTIVE');
+export function registerSqlImportRoutes(app:Express,imports:SqlImportAuthority){
   const router=Router({mergeParams:true});router.use(json({limit:'3mb'}));
   const handle=(work:(req:Request,token:string,scope:{companyId:string;projectId:string})=>Promise<unknown>)=>async(req:Request,res:Response)=>{
     res.set({'Cache-Control':'private, no-store','Vary':'Authorization, X-Company-Id'});delete req.headers['if-none-match'];
@@ -39,4 +38,10 @@ export function mountIsolatedSqlImportRoutes(app:Express,imports:SqlImportAuthor
   }));
   router.use((error:any,_req:Request,res:Response,_next:unknown)=>{res.status(error?.status===413?413:400).json({error:{code:'INVALID_IMPORT_BODY'}});});
   app.use('/api/v2/projects/:projectId/imports/:sessionId',router);
+}
+
+/** Backward-compatible isolated verification entry point. */
+export function mountIsolatedSqlImportRoutes(app:Express,imports:SqlImportAuthority){
+ if(process.env.NODE_ENV!=='test'||process.env.QSA_TEST_DATABASE_ISOLATED!=='1')throw Error('SQL_IMPORT_ROUTES_INACTIVE');
+ registerSqlImportRoutes(app,imports);
 }
