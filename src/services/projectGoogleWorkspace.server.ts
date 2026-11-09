@@ -1,3 +1,4 @@
+import {WorkspaceProjectionDelivery,runProjectionDelivery,projectionHash,PROJECTION_LIMITS} from '../../server/workspaceProjectionDelivery';
 import {workspaceBindingAdoption} from './workspaceBindingHandoff';
 import {boundedWorkspaceHttpCode} from '../utils/workspaceHttp';
 import {workspaceGrantBinding,workspaceGrantFailure,boundedAuthorizationDiagnosis} from '../utils/workspaceAuthorization';
@@ -136,7 +137,8 @@ export class ProjectGoogleWorkspaceServer {
     const recovery=Boolean(state.binding&&!knownScript&&automationState!=='NOT_REQUIRED'&&(!state.automationCreationAllowed||state.lastAutomationError==='AUTOMATION_RECOVERY_REQUIRED'||['SCRIPT_REQUESTED','CREATE_REQUESTED','SCRIPT_CREATED','CREATED','CONTENT_INSTALLING','CONTENT_INSTALLED'].includes(state.automationStage||state.stage)));
     const maintenance=Boolean(state.binding&&knownScript&&['DEGRADED','NOT_INSTALLED'].includes(automationState));
     const automationScope=state.lastAutomationError==='AUTOMATION_SCOPE_REQUIRED'||/^SCOPE_DENIED(?::script\.projects)?$/.test(state.lastAutomationError||'');
-    return {...(state.ensureOperation?{provisioningOperationId:state.ensureOperation.operationId}:{}),authorizationDiagnostic:boundedAuthorizationDiagnosis(state.authorizationDiagnostic),state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding({...state.binding,...(knownScript?{scriptProjectId:knownScript}:{})}):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:recovery,automationMaintenanceRequired:maintenance,automationDiagnostic:recovery?{code:'AUTOMATION_RECOVERY_REQUIRED'}:maintenance?{code:automationScope?'AUTOMATION_SCOPE_REQUIRED':'AUTOMATION_MAINTENANCE_REQUIRED'}:null,recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
+    const freshness=await projectionState(projectId,this.db);
+    return {projection:{sourceRevision:freshness.mutationRevision,lastDeliveredSourceRevision:state.lastDeliveredSourceRevision??null,stale:Boolean(pending||freshness.dirtyTabs.some(isMasterTab)||state.activeProjectionDelivery||state.projectionRpc||state.lastDeliveredSourceRevision!==freshness.mutationRevision),deliveryState:state.projectionDeliveryState||'CURRENT',retryAt:state.projectionRetryAt||null,deliveryId:state.activeProjectionDelivery?.key||state.projectionReviewId||null,reportsStale:state.lastReportSourceRevision!==freshness.mutationRevision,lastReportSourceRevision:state.lastReportSourceRevision??null},lastReportRefreshAt:state.lastReportRefreshAt||null,...(state.ensureOperation?{provisioningOperationId:state.ensureOperation.operationId}:{}),authorizationDiagnostic:boundedAuthorizationDiagnosis(state.authorizationDiagnostic),state:state.state||'NOT_CONNECTED',binding:state.binding?publicBinding({...state.binding,...(knownScript?{scriptProjectId:knownScript}:{})}):null,lastSuccessfulSyncAt:state.lastSuccessfulSyncAt||null,lastSyncError:state.lastSyncError||null,pendingSyncCount:pending,workspaceState:state.binding?(state.state==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':'CONNECTED'):state.folderId||state.fileId?'CONNECTING':'NOT_CONNECTED',syncHealth:state.state==='AUTHORIZATION_REQUIRED'?'AUTHORIZATION_REQUIRED':state.state==='SYNC_DEGRADED'?'DEGRADED':pending?'PENDING':'HEALTHY',workbookHealth:state.workbookHealth||'REPAIR_REQUIRED',automationState:state.automationState||'NOT_INSTALLED',backgroundAuthorization:state.backgroundAuthorization||'NOT_CONNECTED',syncTrigger:'USER_ACTIVE',automationRecoveryRequired:recovery,automationMaintenanceRequired:maintenance,automationDiagnostic:recovery?{code:'AUTOMATION_RECOVERY_REQUIRED'}:maintenance?{code:automationScope?'AUTOMATION_SCOPE_REQUIRED':'AUTOMATION_MAINTENANCE_REQUIRED'}:null,recoveryAvailable:!state.binding&&Boolean(state.destinationRootFolderId&&(state.folderId||state.fileId))};
   }
   async approveDestination(projectId:string,rootId:string,who:AuthUserContext,google:GoogleBlueprintPort) {
     if(!validId(rootId))return gwsFail('DESTINATION_FOLDER_REQUIRED',400);
@@ -290,13 +292,15 @@ export class ProjectGoogleWorkspaceServer {
   /** Post-binding initialization never revokes a valid resource binding. One expiring
    * execution lease also serializes repair, automation and projection requests. */
   async initializeBound(projectId:string,who:AuthUserContext,google:GoogleBlueprintPort,options:{workbookOnly?:boolean}={}) {
+    const recovery=await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const s=(await tx.get(continuityRef(this.db,projectId))).data();return Boolean(s?.activeProjectionDelivery||s?.projectionRpc);});
+    if(recovery)await this.retrySync(projectId,who,google,true);
     const owner=randomUUID(),claimed=await this.claimSync(projectId,who,owner);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));
     const ref=continuityRef(this.db,projectId);let blueprint:WorkspaceBlueprint,workbookVerified=false;
     const save=async(patch:Record<string,unknown>,action?:string,dirty=false)=>this.db.runTransaction(async(tx:any)=>{
       await this.authorized(tx,projectId,who);const snap=await tx.get(ref),s=snap.data();
       if(s?.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now()||s.syncLeaseRevision!==(s.binding?.revision??0)||s.syncLeaseSpreadsheetId!==s.binding?.spreadsheetId)return gwsFail('WORKSPACE_EXECUTION_FENCED');
-      if(dirty)await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKBOOK_INITIALIZATION',undefined,this.db);
+      if(dirty){const existing=await projectionState(projectId,this.db,tx);if(!MASTER_TABS.every(tab=>existing.dirtyTabs.includes(tab.key)))await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(spec=>spec.key),'WORKBOOK_INITIALIZATION',undefined,this.db);}
       tx.set(ref,{...s,...patch});if(action)this.audit(tx,projectId,who.userId,action,{});
     });
     google.setInitializationObserver?.(async(stage,metrics)=>save({lastInitializationStage:stage,...(metrics?{lastInitializationMetrics:metrics}:{})}));
@@ -384,6 +388,8 @@ export class ProjectGoogleWorkspaceServer {
   private assertPendingOnlyState(project:ProjectEntity,s:any) {
     if(!s?.binding||s.binding.projectId!==project.projectId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
     if(s.backgroundAuthorization!=='CONNECTED'||s.state==='AUTHORIZATION_REQUIRED')return gwsFail('AUTHORIZATION_REQUIRED',401);
+    if(s.projectionDeliveryState==='REVIEW_REQUIRED')return gwsFail(s.lastSyncError||'WORKSPACE_DELIVERY_REVIEW_REQUIRED');
+    if(s.projectionRetryAt>Date.now())return gwsFail('WORKSPACE_DELIVERY_BACKOFF',429);
     if(s.syncOwner&&Number.isFinite(s.syncLeaseExpiresAt)&&s.syncLeaseExpiresAt>Date.now())return gwsFail('WORKSPACE_SYNC_IN_PROGRESS');
     if(s.state==='BOUND_FILE_UNAVAILABLE'||['BOUND_FILE_UNAVAILABLE','PROJECT_WORKSPACE_FILE_MISSING'].includes(s.lastSyncError))return gwsFail('BOUND_FILE_UNAVAILABLE');
     if(s.lastWorkbookError==='WORKBOOK_OPERATOR_REVIEW_REQUIRED')return gwsFail('WORKBOOK_OPERATOR_REVIEW_REQUIRED');
@@ -396,7 +402,8 @@ export class ProjectGoogleWorkspaceServer {
     const events=await tx.get(syncOutboxRef(this.db,projectId).where('status','==','PENDING').limit(1));
     const projection=await projectionState(projectId,this.db,tx),dirtyTabs=projection.dirtyTabs.filter(isMasterTab);
     const master=dirtyTabs.length?await tx.get(syncOutboxRef(this.db,projectId).doc('MASTER_DATA')):null;
-    return {pending:events.docs.length>0||dirtyTabs.length>0,projection,dirtyTabs,master};
+    const continuity=(await tx.get(continuityRef(this.db,projectId))).data();
+    return {pending:events.docs.length>0||dirtyTabs.length>0||Boolean(continuity?.activeProjectionDelivery||continuity?.projectionRpc),projection,dirtyTabs,master};
   }
   async hasPendingUserActiveWork(projectId:string,who:AuthUserContext):Promise<boolean> {
     return this.db.runTransaction(async(tx:any)=>{const {project}=await this.authorized(tx,projectId,who),s=(await tx.get(continuityRef(this.db,projectId))).data();this.assertPendingOnlyState(project,s);return (await this.pendingWork(tx,projectId)).pending;});
@@ -406,6 +413,8 @@ export class ProjectGoogleWorkspaceServer {
       const {project}=await this.authorized(tx,projectId,who);const ref=continuityRef(this.db,projectId),snap=await tx.get(ref),s=snap.data()||{},now=Date.now();
       if(!s.binding||s.binding.projectId!==projectId)return gwsFail('WORKSPACE_NOT_PROVISIONED');
       if(s.ensureOperation?.leaseOwner&&s.ensureOperation.leaseExpiresAt>Date.now()&&s.ensureOperation.leaseOwner!==this.ensureOwner)return gwsFail('WORKSPACE_SYNC_IN_PROGRESS');
+      if(s.projectionRetryAt>Date.now()&&(!this.ensureOwner||s.projectionLastFailureEnsureOwner===this.ensureOwner))return gwsFail('WORKSPACE_DELIVERY_BACKOFF',429);
+      if(s.projectionDeliveryState==='REVIEW_REQUIRED')return gwsFail(s.lastSyncError||'WORKSPACE_DELIVERY_REVIEW_REQUIRED');
       if(pendingOnly)this.assertPendingOnlyState(project,s);
       const work=await this.pendingWork(tx,projectId);
       if(pendingOnly&&!work.pending)return gwsFail('WORKSPACE_NO_PENDING_WORK');
@@ -530,11 +539,51 @@ export class ProjectGoogleWorkspaceServer {
     }
   }
   /** Drain only server-recorded events. Request never supplies a file ID or row payload. */
+  /** Bounded source read adapter; no partial snapshot may be presented as complete. */
+  private boundedProjectionDb(){let reads=0;return {collection:(name:string)=>this.db.collection(name),runTransaction:(work:any)=>this.db.runTransaction((tx:any)=>work({get:async(ref:any)=>{if(++reads>20000)return gwsFail('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');const value=await tx.get(typeof ref.limit==='function'?ref.limit(PROJECTION_LIMITS.sourceRows+1):ref);if(value.docs?.length>PROJECTION_LIMITS.sourceRows)return gwsFail('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');return value;}}))};}
+  private deliveryRef(projectId:string,key:string){return this.db.collection('projects').doc(projectId).collection('workspace_delivery_receipts').doc(key);}
+  private async deliverEvent(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>,owner:string,state:any,id:string,event:any,budget?:{deadline:number;calls:number}){
+    if(event.projectId!==projectId||!Number.isSafeInteger(event.revision)||event.revision<0)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+    const ref=continuityRef(this.db,projectId);let active=state.activeProjectionDelivery;
+    if(!active){
+      const freshness=await projectionState(projectId,this.db);let payload:any={event};const eventHash=projectionHash([event.projectId,event.kind||null,event.tripId||null,event.revision,event.snapshot||event.input||null,event.dirtyTabs||null]);
+      if(event.kind==='PROFILE_TRIP'){
+        if(event.snapshot)payload.trip=event.snapshot;
+        else{const snapshot=await this.db.collection('projects').doc(projectId).collection('trips').doc(event.tripId).get();if(!snapshot.exists)return gwsFail('PROFILE_TRIP_NOT_FOUND');const {decodeTrip}=await import('../utils/persistenceBoundary');payload.trip=decodeTrip(snapshot.data(),event.tripId,projectId);}
+      }else if(event.kind==='REPORT_REFRESH'){
+        const query=this.db.collection('projects').doc(projectId).collection('trips'),snapshot=await (typeof query.limit==='function'?query.limit(PROJECTION_LIMITS.sourceRows+1):query).get();if(snapshot.docs.length>PROJECTION_LIMITS.sourceRows)return gwsFail('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');const {decodeTrip}=await import('../utils/persistenceBoundary'),{buildOperationalReport}=await import('./operationalReporting');payload.report=buildOperationalReport(snapshot.docs.map((d:any)=>decodeTrip(d.data(),d.id,projectId)),{projectId},new Date(event.updatedAt),state.project.operationalConfiguration);
+      }else if(event.kind==='MASTER_DATA'){
+        const {ProjectWorkspaceInitialProjectionServer}=await import('./projectWorkspaceInitialProjection.server');payload.snapshot=await new ProjectWorkspaceInitialProjectionServer().buildCanonicalProjection(projectId,this.boundedProjectionDb());payload.tabs=(freshness.dirtyTabs.length?freshness.dirtyTabs:event.dirtyTabs||[]).filter(isMasterTab);if(!payload.tabs.length)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+      }
+      const encoded=JSON.stringify(payload);if(Buffer.byteLength(encoded)>PROJECTION_LIMITS.payloadBytes)return gwsFail('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');
+      const key=projectionHash([projectId,state.binding.spreadsheetId,state.binding.revision,id,event.revision]);
+      active={key,id,destinationId:state.binding.spreadsheetId,bindingRevision:state.binding.revision,eventHash,eventRevision:event.revision,payload:JSON.parse(encoded),payloadHash:projectionHash(JSON.parse(encoded)),sourceRevision:freshness.mutationRevision,asOf:event.updatedAt||new Date().toISOString()};
+      active=await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const s=(await tx.get(ref)).data(),receipt=(await tx.get(this.deliveryRef(projectId,key))).data(),head=(await tx.get(this.deliveryRef(projectId,'head-'+projectionHash(id)))).data();if(head?.revision>event.revision)return gwsFail('WORKSPACE_STALE_DELIVERY_REJECTED');if(s.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now())return gwsFail('WORKSPACE_EXECUTION_FENCED');if(s.activeProjectionDelivery)return s.activeProjectionDelivery;const latestSource=await projectionState(projectId,this.db,tx);if(['MASTER_DATA','REPORT_REFRESH'].includes(event.kind)&&latestSource.mutationRevision!==freshness.mutationRevision)return gwsFail('WORKSPACE_PROJECTION_REVISION_CONFLICT');if(receipt?.status==='COMMITTED'){if(receipt.eventHash!==eventHash||receipt.destinationId!==state.binding.spreadsheetId||receipt.bindingRevision!==state.binding.revision)return gwsFail('WORKSPACE_DELIVERY_RECEIPT_CONFLICT');return {...active,sourceRevision:receipt.sourceRevision,payloadHash:receipt.payloadHash,alreadyCommitted:true};}tx.set(ref,{...s,activeProjectionDelivery:active});return active;});
+    }
+    if(active.destinationId!==state.binding.spreadsheetId||active.bindingRevision!==state.binding.revision)return gwsFail('WORKSPACE_EXECUTION_FENCED');
+    if(!active.alreadyCommitted&&projectionHash(active.payload)!==active.payloadHash)return gwsFail('WORKSPACE_DELIVERY_RECEIPT_CONFLICT');
+    let revisionConflict=false;const body=active.payload,source=body.event;if(source.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
+    const delivery=new WorkspaceProjectionDelivery(this.db,projectId,state.binding,owner,tx=>this.authorized(tx,projectId,who),active.asOf,active.key,budget);
+    if(!active.alreadyCommitted)await runProjectionDelivery(delivery,async()=>{
+      if(source.kind==='PROFILE_TRIP'){if(body.trip?.projectId!==projectId||body.trip?.tripId!==source.tripId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');if(!google.projectProfileTrip||!body.trip?.operationalSnapshot)return gwsFail('PROFILE_PROJECTION_REQUIRED');await google.projectProfileTrip(state.binding.spreadsheetId,body.trip,this.resolvedBlueprint(state.project,state.binding));}
+      else if(source.kind==='REPORT_REFRESH'){if(!google.projectProfileReports)return gwsFail('PROFILE_PROJECTION_REQUIRED');await google.projectProfileReports(state.binding.spreadsheetId,body.report);}
+      else if(source.kind==='MASTER_DATA'){if(!google.projectMasterTabs)return gwsFail('MASTER_PROJECTION_PORT_REQUIRED');await google.projectMasterTabs(state.binding.spreadsheetId,body.snapshot,body.tabs);}
+      else{if(source.input?.projectId!==projectId)return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');await google.upsert(state.binding.spreadsheetId,source.input);}
+    });
+    if(!active.alreadyCommitted&&['MASTER_DATA','REPORT_REFRESH'].includes(source.kind)){try{await markProjectionSuccessful(projectId,source.kind==='REPORT_REFRESH'?['REPORTS']:body.tabs,undefined,active.sourceRevision,this.db,{owner,authorize:tx=>this.authorized(tx,projectId,who)});}catch(error){if((error as any)?.code!=='WORKSPACE_PROJECTION_REVISION_CONFLICT')throw error;revisionConflict=true;/* The older delivery receipt is committed; newer dirty state is never acknowledged. */}}
+    await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const s=(await tx.get(ref)).data(),eventRef=syncOutboxRef(this.db,projectId).doc(active.id),fresh=(await tx.get(eventRef)).data();if(s.syncOwner!==owner||s.syncLeaseExpiresAt<=Date.now()||s.binding?.revision!==state.binding.revision||s.binding?.spreadsheetId!==state.binding.spreadsheetId)return gwsFail('WORKSPACE_EXECUTION_FENCED');if(s.projectionRpc)return gwsFail('WORKSPACE_DELIVERY_RECOVERY_REQUIRED');
+      if(!active.alreadyCommitted)tx.set(this.deliveryRef(projectId,'head-'+projectionHash(active.id)),{projectId,revision:active.eventRevision,deliveryId:active.key});
+      if(!active.alreadyCommitted)tx.set(this.deliveryRef(projectId,active.key),{projectId,eventHash:active.eventHash,destinationId:state.binding.spreadsheetId,bindingRevision:state.binding.revision,eventId:active.id,deliveryRevision:active.eventRevision,payloadHash:active.payloadHash,sourceRevision:active.sourceRevision,status:'COMMITTED',committedAt:new Date().toISOString()});
+      if(fresh?.projectId===projectId&&fresh.revision===active.eventRevision)tx.set(eventRef,{...fresh,status:'DELIVERED',deliveredAt:new Date().toISOString(),deliveryId:active.key,attempts:0,nextAttemptAt:0});
+      tx.set(ref,{...s,...(source.kind==='REPORT_REFRESH'?{lastReportRefreshAt:new Date().toISOString(),lastReportSourceRevision:active.sourceRevision}:{}),activeProjectionDelivery:null,projectionCompletedPlans:{},projectionRetryAt:0,projectionAttempts:0,projectionDeliveryState:'CURRENT'});
+    });
+    if(revisionConflict)return gwsFail('WORKSPACE_PROJECTION_REVISION_CONFLICT');
+  }
   async retrySync(projectId:string,who:AuthUserContext,google:GoogleTemplatePort&Partial<GoogleBlueprintPort>,mode:boolean|{pendingOnly:true}=false) {
     const pendingOnly=typeof mode==='object'&&mode.pendingOnly,initialized=typeof mode==='boolean'?mode: true;
     // Namespace/Script V2 upgrade reuses the existing binding and known Script identity.
     // The internal flag prevents initialization's final drain from recursively upgrading a degraded Script.
-    if(!initialized&&google.repairWorkbook&&google.authorizeProvisioning){
+    if(!initialized&&!pendingOnly&&google.repairWorkbook&&google.authorizeProvisioning){
       const prior=await this.db.runTransaction(async(tx:any)=>{const {project}=await this.authorized(tx,projectId,who);const snap=await tx.get(continuityRef(this.db,projectId));return {project,state:snap.data()};});
       const binding=prior.state?.binding;
       if(binding&&prior.project.operationalConfiguration&&(prior.state.scriptProjectId||binding.scriptProjectId)&&binding.appsScriptBlueprintVersion!==this.resolvedBlueprint(prior.project,binding).script?.version){
@@ -554,70 +603,48 @@ export class ProjectGoogleWorkspaceServer {
     const state=await this.claimSync(projectId,who,owner,pendingOnly);
     google.setDeliveryFence?.(()=>this.renewSync(projectId,who,owner));
     const heartbeat=setInterval(()=>{void this.renewSync(projectId,who,owner).catch(()=>{});},30000);heartbeat.unref?.();
+    const projectionBudget={deadline:Date.now()+20000,calls:0};
     try {
+      if(state.projectionRpc&&!state.activeProjectionDelivery)return gwsFail('WORKSPACE_DELIVERY_RECOVERY_REQUIRED');
       if(await google.subject()!==state.binding.googleSubject) return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
       if(state.binding.workspaceBlueprintVersion){
         if(!google.verifyBinding)return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
         await google.verifyBinding(state.binding.destinationRootFolderId,state.binding.projectFolderId,state.binding.spreadsheetId,state.binding.workspaceBlueprintVersion);
       } else await google.verify(state.binding.spreadsheetId,workspaceOperation(projectId));
-      const events=await syncOutboxRef(this.db,projectId).where('status','==','PENDING').get();
-      let legacyMappingPending=false;
-      for(const doc of [...events.docs.filter((d:any)=>d.data().kind==='MASTER_DATA'),...events.docs.filter((d:any)=>d.data().kind!=='MASTER_DATA')]) {
-        const event=doc.data();
-        await this.renewSync(projectId,who,owner);
+      const events=await syncOutboxRef(this.db,projectId).where('status','==','PENDING').limit(PROJECTION_LIMITS.events).get();
+      let legacyMappingPending=false;const started=Date.now();
+      const tasks=[...(state.activeProjectionDelivery?[{id:state.activeProjectionDelivery.id,data:()=>state.activeProjectionDelivery.payload.event}]:[]),...events.docs.filter((d:any)=>d.id!==state.activeProjectionDelivery?.id)];
+      for(const doc of tasks.slice(0,PROJECTION_LIMITS.events)){
+        if(Date.now()-started>20000)break;await this.renewSync(projectId,who,owner);const event=doc.data();
         if(event.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
-        if(event.kind==='PROFILE_TRIP'){
-          if(!google.projectProfileTrip||!validId(event.tripId))return gwsFail('PROFILE_PROJECTION_REQUIRED');
-          const {decodeTrip}=await import('../utils/persistenceBoundary');
-          const snapshot=await this.db.collection('projects').doc(projectId).collection('trips').doc(event.tripId).get();
-          if(!snapshot.exists)return gwsFail('PROFILE_TRIP_NOT_FOUND');
-          const trip=decodeTrip<import('../types/entities').TripEntity>(snapshot.data(),event.tripId,projectId);
-          if(!trip.operationalSnapshot)return gwsFail('PROFILE_SNAPSHOT_REQUIRED');
-          await google.projectProfileTrip(state.binding.spreadsheetId,trip,this.resolvedBlueprint(state.project,state.binding));
-        } else if(event.kind==='MASTER_DATA') {
-          if(!google.projectMasterTabs)return gwsFail('MASTER_PROJECTION_PORT_REQUIRED');
-          const freshness=await projectionState(projectId,this.db);
-          const tabs=(freshness.dirtyTabs.length?freshness.dirtyTabs:event.dirtyTabs||[]).filter(isMasterTab);
-          if(!tabs.length)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
-          const {ProjectWorkspaceInitialProjectionServer}=await import('./projectWorkspaceInitialProjection.server');
-          const snapshot=await new ProjectWorkspaceInitialProjectionServer().buildCanonicalProjection(projectId,this.db);
-          await google.projectMasterTabs(state.binding.spreadsheetId,snapshot,tabs);
-          await markProjectionSuccessful(projectId,tabs,undefined,freshness.mutationRevision,this.db,{owner,authorize:tx=>this.authorized(tx,projectId,who)});
-        } else {
-          // Explicit legacy mapping debt cannot suppress new canonical profile delivery.
-          // Keep its event pending, without inventing a source row or acknowledging it.
-          if(state.project.operationalConfiguration&&event.mappingRequired===true&&!event.input){legacyMappingPending=true;continue;}
-          if(event.input?.projectId!==projectId)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID');
-          if(!event.input)return gwsFail('SHEET_SOURCE_MAPPING_REQUIRED');
-          await google.upsert(state.binding.spreadsheetId,event.input);
-        }
-        await this.db.runTransaction(async(tx:any)=>{
-          await this.authorized(tx,projectId,who);
-          const s=await tx.get(ref),fresh=await tx.get(syncOutboxRef(this.db,projectId).doc(doc.id));
-          const current=s.data();
-          if(current?.syncOwner!==owner||current?.syncLeaseExpiresAt<=Date.now()||current?.syncLeaseRevision!==(current?.binding?.revision??0)||current?.syncLeaseSpreadsheetId!==current?.binding?.spreadsheetId) return gwsFail('WORKSPACE_EXECUTION_FENCED');
-          if(fresh.data()?.revision===event.revision) tx.set(syncOutboxRef(this.db,projectId).doc(doc.id),{...fresh.data(),status:'DELIVERED',deliveredAt:new Date().toISOString()});
-        });
+        if(state.project.operationalConfiguration&&event.mappingRequired===true&&!event.input){legacyMappingPending=true;continue;}
+        await this.deliverEvent(projectId,who,google,owner,state,doc.id,event,projectionBudget);state.activeProjectionDelivery=null;
       }
       await this.finishSync(projectId,who,owner,legacyMappingPending?'SHEET_SOURCE_MAPPING_REQUIRED':null);
     } catch(error) {
-      const code=error instanceof GoogleWorkspaceCommandError?error.code:'SHEET_SYNC_FAILED';
+      const code=error instanceof GoogleWorkspaceCommandError?error.code:typeof (error as any)?.code==='string'?(error as any).code:'SHEET_SYNC_FAILED';
       await this.finishSync(projectId,who,owner,code);
       throw new GoogleWorkspaceCommandError(code,error instanceof GoogleWorkspaceCommandError?error.status:502);
     } finally {clearInterval(heartbeat);await this.releaseSync(projectId,owner);}
     return this.status(projectId,who);
   }
   async prepareEnsureProjection(projectId:string,who:AuthUserContext) {
-    return this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(s=>s.key),'WORKSPACE_ENSURE',undefined,this.db);});
+    return this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const existing=await projectionState(projectId,this.db,tx);if(!existing.dirtyTabs.some(isMasterTab))await markDirtyInTransaction(tx,projectId,MASTER_TABS.map(s=>s.key),'WORKSPACE_ENSURE',undefined,this.db);});
   }
   private async finishSync(projectId:string,who:AuthUserContext,owner:string,error:string|null) {
     await this.db.runTransaction(async(tx:any)=>{
       const ref=continuityRef(this.db,projectId),snap=await tx.get(ref);
       const current=snap.data();
       if(current?.syncOwner!==owner||current?.syncLeaseExpiresAt<=Date.now()||current?.syncLeaseRevision!==(current?.binding?.revision??0)||current?.syncLeaseSpreadsheetId!==current?.binding?.spreadsheetId) return gwsFail('WORKSPACE_EXECUTION_FENCED');
-      tx.set(ref,{...snap.data(),syncOwner:null,syncLeaseExpiresAt:0,state:error?(error==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(error)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED'):'READY',lastSyncError:error,...(!error?{lastSuccessfulSyncAt:new Date().toISOString()}:{})});
+      let completedRevision:number|undefined;if(!error){const pending=await tx.get(syncOutboxRef(this.db,projectId).where('status','==','PENDING').limit(1)),freshness=await projectionState(projectId,this.db,tx);if(!pending.docs.length&&!freshness.dirtyTabs.some(isMasterTab)&&!current.activeProjectionDelivery&&!current.projectionRpc)completedRevision=freshness.mutationRevision;}
+      const contention=error==='WORKSPACE_PROJECTION_REVISION_CONFLICT',attempts=error&&!contention?Number(current.projectionAttempts||0)+1:0,permanent=Boolean(error&&!contention&&(/REVIEW_REQUIRED|CONFLICT|SCOPE_DENIED|PERMISSION_DENIED|API_ACCESS_DISABLED|INVALID_REQUEST|NONATOMIC|PLAN_INVALID/.test(error)||attempts>=PROJECTION_LIMITS.attempts));
+      tx.set(ref,{...snap.data(),...(completedRevision!==undefined?{lastDeliveredSourceRevision:completedRevision}:{}),projectionFailureRevision:error?Number(current.projectionFailureRevision||0)+1:current.projectionFailureRevision||0,projectionReviewId:error?(current.activeProjectionDelivery?.key||projectionHash([projectId,current.binding.spreadsheetId,current.binding.revision,Number(current.projectionFailureRevision||0)+1,error])):null,projectionLastFailureEnsureOwner:error?this.ensureOwner||null:null,projectionAttempts:attempts,projectionDeliveryState:permanent?'REVIEW_REQUIRED':error?'RETRY_PENDING':current.projectionDeliveryState||'CURRENT',projectionRetryAt:error&&!contention?Date.now()+Math.min(60000,1000*2**Math.min(6,attempts)):0,syncOwner:null,syncLeaseExpiresAt:0,state:error?(error==='BOUND_FILE_UNAVAILABLE'?'BOUND_FILE_UNAVAILABLE':/TOKEN_EXPIRED|AUTHORIZATION_REQUIRED|SCOPE_DENIED/.test(error)?'AUTHORIZATION_REQUIRED':'SYNC_DEGRADED'):'READY',lastSyncError:error,...(!error?{lastSuccessfulSyncAt:new Date().toISOString()}:{})});
       this.audit(tx,projectId,who.userId,error?'WORKSPACE_SYNC_FAILED':'WORKSPACE_SYNC_RECOVERED',{code:error});
     });
+  }
+  async reviewProjectionRetry(projectId:string,who:AuthUserContext,deliveryId:string){
+    if(!/^[a-f0-9]{64}$/.test(deliveryId))return gwsFail('INVALID_WORKSPACE_COMMAND',400);
+    await this.db.runTransaction(async(tx:any)=>{await this.authorized(tx,projectId,who);const ref=continuityRef(this.db,projectId),s=(await tx.get(ref)).data();if((s?.activeProjectionDelivery?.key||s?.projectionReviewId)!==deliveryId||s.syncOwner&&s.syncLeaseExpiresAt>Date.now())return gwsFail('WORKSPACE_EXECUTION_FENCED');tx.set(ref,{...s,projectionAttempts:0,projectionRetryAt:0,projectionDeliveryState:'RETRY_PENDING'});this.audit(tx,projectId,who.userId,'WORKSPACE_DELIVERY_RETRY_REVIEWED',{deliveryId});});
   }
   async refreshOperationalReports(projectId: string, who: AuthUserContext, google: GoogleBlueprintPort) {
     const REPORT_REFRESH_COOLDOWN_MS = 60000;
@@ -651,27 +678,19 @@ export class ProjectGoogleWorkspaceServer {
 
     const owner = randomUUID();
     const state = await this.claimSync(projectId, who, owner, false);
-    if (!google.projectProfileReports) return gwsFail('PROFILE_PROJECTION_REQUIRED');
     try {
+      if (!google.projectProfileReports) return gwsFail('PROFILE_PROJECTION_REQUIRED');
       if (await google.subject() !== state.binding.googleSubject) return gwsFail('WORKSPACE_ACCOUNT_CHANGE_REQUIRES_EXPLICIT_MIGRATION');
       if (state.binding.workspaceBlueprintVersion) {
         if (!google.verifyBinding) return gwsFail('NATIVE_BINDING_VERIFIER_REQUIRED');
         await google.verifyBinding(state.binding.destinationRootFolderId, state.binding.projectFolderId, state.binding.spreadsheetId, state.binding.workspaceBlueprintVersion);
       }
-      const { decodeTrip } = await import('../utils/persistenceBoundary');
-      const { buildOperationalReport } = await import('./operationalReporting');
-      const tripSnaps = await this.db.collection('projects').doc(projectId).collection('trips').get();
-      const trips = tripSnaps.docs.map((d: any) => decodeTrip<import('../types/entities').TripEntity>(d.data(), d.id, projectId));
-      const report = buildOperationalReport(trips, { projectId }, new Date(), state.project.operationalConfiguration);
-      await google.projectProfileReports(state.binding.spreadsheetId, report);
-      await this.db.runTransaction(async (tx: any) => {
-        const ref = continuityRef(this.db, projectId);
-        const snap = await tx.get(ref);
-        tx.set(ref, { ...snap.data(), lastReportRefreshAt: new Date().toISOString() });
-      });
+      if(state.activeProjectionDelivery&&state.activeProjectionDelivery.payload.event.kind!=='REPORT_REFRESH')return gwsFail('WORKSPACE_DELIVERY_RECOVERY_REQUIRED');
+      const source=await projectionState(projectId,this.db);
+      await this.deliverEvent(projectId,who,google,owner,state,'REPORTS-'+projectionHash(now.toISOString()),{projectId,kind:'REPORT_REFRESH',revision:source.mutationRevision,updatedAt:now.toISOString()});
       await this.finishSync(projectId, who, owner, null);
     } catch (error) {
-      const code = error instanceof GoogleWorkspaceCommandError ? error.code : 'REPORT_REFRESH_FAILED';
+      const code = error instanceof GoogleWorkspaceCommandError ? error.code : typeof (error as any)?.code==='string'?(error as any).code:'REPORT_REFRESH_FAILED';
       await this.finishSync(projectId, who, owner, code);
       throw new GoogleWorkspaceCommandError(code, error instanceof GoogleWorkspaceCommandError ? error.status : 502);
     } finally {

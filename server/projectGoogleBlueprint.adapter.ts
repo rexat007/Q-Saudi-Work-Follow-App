@@ -1,3 +1,4 @@
+import {WorkspaceProjectionError,projectionAsOf,inProjectionDelivery} from './workspaceProjectionDelivery';
 import {workspaceTabManifest} from '../src/services/workspaceTabManifest';
 import {createHash} from 'node:crypto';
 import {inspectWorkspaceWorkbook,type InspectionRange} from './workspaceWorkbookInspection';
@@ -31,6 +32,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
   const guarded=async<T>(code:string,run:()=>Promise<T>):Promise<T>=>{
     try{return await run();}catch(error){
       if(error instanceof GoogleWorkspaceCommandError)throw error;
+      if(error instanceof WorkspaceProjectionError)return gwsFail(error.code,error.status);
       if(error instanceof OperationalTabError)return gwsFail(error.code,409);
       const failure=classifyGoogleProviderFailure(error);return gwsFail(failure.code,failure.status);
     }
@@ -82,7 +84,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
         if (error instanceof OperationalTabError) throw error;
         const failure = classifyGoogleProviderFailure(error);
         const isRateLimit = failure.code === 'GOOGLE_RATE_LIMITED' || (error instanceof GoogleWorkspaceCommandError && error.code === 'GOOGLE_RATE_LIMITED');
-        if (isRateLimit && attempt < 3) {
+        if (isRateLimit && attempt < 3 && !inProjectionDelivery()) {
           attempt++;
           await deliveryFence();
           const delayMs = process.env.NODE_ENV === 'test' ? 1 : Math.min(1000 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 200), 3000);
@@ -113,7 +115,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(report.rows.some(row=>row.projectId!==projectId)||!report.configuration)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       await withRetry(()=>guarded('PROFILE_REPORT_SYNC_FAILED',()=>owned(fileId)));
       const template=resolveWorkspaceTemplate(report.configuration),templateId=template.templateId;
-      for(const table of operationalReportTables(report)){
+      for(const table of operationalReportTables(report,projectionAsOf()||new Date())){
         await withRetry(()=>guarded(OperationalReportTabRegistry[table.tabId].failureCode,()=>serverWorkspaceService.reconcileTabSnapshot(fileId,table.title,table.key,table.rows,table.columns,token,'RAW',()=>deliveryFence(),{tabId:table.tabId,templateId})));
       }
     },
@@ -121,7 +123,7 @@ export function projectGoogleBlueprintPort(token:string,projectId:string):Google
       if(trip.projectId!==projectId||!trip.operationalSnapshot)return gwsFail('WORKSPACE_EVENT_SCOPE_INVALID',403);
       const template=resolveWorkspaceTemplate(trip.operationalSnapshot.configuration);
       if(blueprint.templateId&&blueprint.templateId!==template.templateId)return gwsFail('WORKSPACE_TEMPLATE_MIGRATION_REQUIRED');
-      await owned(fileId);const row=profileTripRow(trip);
+      await owned(fileId);const row=profileTripRow(trip,projectionAsOf()||new Date());
       await serverWorkspaceService.upsertTabRecords(fileId,OperationalReportTabRegistry.TRIPS.title,'tripId',[row],[...template.headers,...PROFILE_REVIEW_HEADERS],token,'RAW',()=>deliveryFence(),true,{tabId:'TRIPS',templateId:template.templateId});
     });},
     async verifyScriptParent(fileId,scriptId,version){await withWorkspaceGenerationDiagnostic('VERIFY_SCRIPT_CONTENT',async()=>{if(await scriptParent(scriptId,version)!==fileId)return gwsFail('WORKSPACE_EXTERNAL_BINDING_INVALID',403);});},

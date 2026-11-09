@@ -1,4 +1,6 @@
 // @vitest-environment happy-dom
+import {workspaceEnsureFixture} from './helpers/workspaceEnsureFixture';
+import {operationActor} from './helpers/operationalProfileFixture';
 import React, { act } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { it, expect, vi, afterEach } from 'vitest';
@@ -42,8 +44,6 @@ it('a Project switch fences callback continuation and cannot start ensure for th
 it('failed consent stops the journey without silently retrying permission or executing phases', async () => { const c = client(); c.ensureWorkspace.mockResolvedValue(state('ACTION_REQUIRED', 'GOOGLE_AUTHORIZATION')); c.connectBackgroundAuthorization.mockRejectedValueOnce(Error('AUTHORIZATION_DENIED')); await expect(runWorkspaceEnsureJourney('P1', c, () => true, vi.fn(), async () => { })).rejects.toThrow('AUTHORIZATION_DENIED'); expect(c.ensureWorkspace).toHaveBeenCalledOnce(); expect(c.connectBackgroundAuthorization).toHaveBeenCalledOnce(); });
 
 it('actual React primary action drives the real durable engine, refresh grant, resource receipts and manifest to READY', async () => {
-    const { workspaceEnsureFixture } = await import('./helpers/workspaceEnsureFixture');
-    const { operationActor } = await import('./helpers/operationalProfileFixture');
     const x = workspaceEnsureFixture();
     const service: WorkspaceEnsureClient = {
         ensureWorkspace: async () => x.run(),

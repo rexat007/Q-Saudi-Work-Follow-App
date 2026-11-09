@@ -1,5 +1,11 @@
 # PHASE LEDGER
 
+### AR2-U08 — Source implemented / independent review required — 2026-11-09
+
+Starting/final fetched main: `1db763ca6a5423f3855c1be251f4270a7e12048e` (PR #98 merged). Dedicated branch: `reconstruction/ar2-u08-workspace-reporting-authority`. U08 is SOURCE_IMPLEMENTED / VERIFIED_LOCALLY / READY_FOR_INDEPENDENT_REVIEW; the earlier NEXT/NOT_STARTED entries below are historical. It is not MERGED/CLOSED or live accepted. The [U08 record](15_AR2_U08_WORKSPACE_REPORTING_AUTHORITY.md) owns exact source inventory, active-runtime authority, delivery/failure model, measured comparison and remaining gates. Final comparison: same 133 files 2,373 passed / 92 baseline failures; 29/29 new cases; standalone 148/148; no new assertion failures. Twelve existing suite-load errors and two existing unhandled rejections remain. Typecheck is NOT PASS (446→446; added/removed 0); build/diff checks PASS. Dedicated-branch publication is authorized; exact commit/remote SHA is recorded in the executor report.
+
+Firestore remains the sole active operational authority; Google is downstream projection/continuity. Existing bindings/Script IDs, U07 receipt/epoch semantics and historical Trip/pricing evidence are preserved. No SQL routing, dual write, migration, epoch change, deployment or Google resource creation. SQL cutover/provider composition and live Google/device acceptance are not certified by this source unit. U09 is not started.
+
 ### POST-MERGE AUTHORITY OVERRIDE — AR2-U07 / 2026-11-09
 
 - **Verified main:** `d2f2ae4006eb3c36943733bec0f6855c905ab04d` — GitHub merge commit of [PR #97](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/97), based on merged U06-CI1 `7ce8f7827e6e9a037a8010791c4ee69170d868ff`; merge lineage confirmed (three commits ahead; none behind from that base).

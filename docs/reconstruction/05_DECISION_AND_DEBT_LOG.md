@@ -1,3 +1,13 @@
+## 2026-11-09 — AR2-U08 source implemented / independent review required
+
+- Firestore remains active operational authority. Preserve canonical command/outbox composition; freeze minimized source facts and bounded master/report snapshots in the existing server path.
+- An expiring Firestore lease alone cannot fence a request already in flight at Google. Use an exact durable RPC journal and an immutable unique metadata ID committed atomically with cell data. Read back unknown outcomes before planning newer work; never treat a source hash or transport ACK alone as proof of destination equivalence.
+- Retain existing Google binding IDs and Apps Script/manual continuity. Ordinary scheduled delivery cannot provision/repair resources; explicit maintenance must first recover unresolved delivery. No resource replacement, Script deployment, production SQL, dual consumption or epoch change.
+- Completion watermark is a queue-clear/source-revision proof, not the maximum version of one delivered event. Reports retain explicit bounded refresh and separate staleness. Browser requests abort/fence principal change; retired automatic synchronization stays retired.
+- OPEN: finite provider metadata capacity (20,000-marker ceiling; no unproved deletion/reuse), live installed Script/manual-edit reconciliation and Google/Firebase/device/scale acceptance. SQL Workspace composition/native verification remains a prerequisite to future cutover; not activated/certified here. Historical diagnostics and test debt remain measured, not silently waived.
+- MEASURED: original/final same 133 files 2,373 PASS / 92 existing failed assertions, 12 existing suite-load errors and two existing unhandled rejections; new 29/29 and separate authority 148/148 PASS. Remeasured baseline exposed one additional nonpersistent source-digest assertion (93); final failure identity set has zero additions versus both baselines. Typecheck 446→446 (NOT PASS); build/diff checks PASS. Live acceptance remains open.
+- Test-only fixture refinements preserve every case/assertion: add missing document/receipt reference behavior, current execution-grant chain, and move the one-click fixture import out of the unchanged timed journey. Apply identical refinements to the starting-SHA comparison checkout. Exact results and scope are in the [U08 implementation record](15_AR2_U08_WORKSPACE_REPORTING_AUTHORITY.md).
+
 ## AR2-U07 — Shared epoch capability and inactive durable offline seam — 2026-11-09
 
 ## 2026-11-09 — AR2-U07 merged decisions, verification boundaries and forward gates
