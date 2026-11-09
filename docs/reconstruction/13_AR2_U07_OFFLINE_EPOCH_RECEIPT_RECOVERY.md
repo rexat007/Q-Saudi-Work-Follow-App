@@ -1,5 +1,9 @@
 # AR2-U07 — Offline continuity, epoch fencing and receipt recovery
 
+> Current correction: AR2-U07-RB1 below supersedes the original causal-order and
+> generic completeness assumptions. Existing server APIs provide no complete-
+> inventory witness; this cache path is now upsert-only. Production SQL stays inactive.
+
 ## Verified source preflight and boundary matrix (before implementation)
 
 Starting main: `7ce8f7827e6e9a037a8010791c4ee69170d868ff`; origin/main exact,
@@ -85,8 +89,9 @@ and payloads remain unchanged. SQL command/cache keys include principal, company
 project, device and epoch/revision; entity kind and entity ID complete cache keys.
 Indexes cover scope/principal, command owner and compound scope/status. Idle wake
 reads only bounded runnable-state indexes, so acknowledged history does not hide
-new pending work. Each wake processes at most 100 entries, reads at most 101 per
-runnable state, and journal listing is bounded to 101 rows. A paginated full journal
+new pending work. RB1 persists a deterministic sequence and uses bounded 100-record metadata
+chunks for compatibility discovery and fair sequence scheduling; journal listing
+remains bounded to 101 rows. It no longer concatenates runnable-status buckets. A paginated full journal
 viewer remains future presentation work, not automatic background scanning.
 
 SQL persistence calls real getDB directly and refuses the legacy memory fallback.
@@ -184,11 +189,12 @@ checks its project/epoch, preserves membership/global status and relationship ID
 and always treats it as partial, including its last page. A real native SQL page
 is exercised through browser IndexedDB. Partial/filtered/interrupted pages only
 upsert, never delete absent entities.
-Only a final complete inventory with matching completeThrough and accumulated IDs
-may reconcile omissions. Older inventory watermarks and higher entity revisions
+RB1 disables omission deletion entirely: no existing server API provides the
+required trusted, scope-bound complete-inventory witness. Caller fullSnapshot and
+completeThrough values, even matching ones, authorize no deletion. Older inventory watermarks and higher entity revisions
 cannot be overwritten by a later stale response. ACK-derived Trip cache entries
-have an entity revision but no proven inventory source watermark: a full inventory
-cannot erase them until an authoritative page has covered that record. Entity
+have an entity revision, not a general inventory watermark. RB1 never deletes them
+or other omitted records from this path. Entity
 revisions and inventory source revisions are compared only within their own domains. Context changes invalidate all
 tickets. Safe cache fields are separately allowlisted; profiles, phone/email,
 national identity and unknown nested records are dropped. This cache is never fed
@@ -251,7 +257,7 @@ coordinator actions, not the legacy generic retry handler. This presentation wir
 is deliberately deferred under the approved inactive integration strategy.
 
 
-## Final verification evidence — 2026-11-09
+## Original U07 verification evidence — 2026-11-09 (before RB1)
 
 Evidence classes are native PostgreSQL integration, real browser storage/HTTP,
 historical automated regression, typecheck and production build. They are not
@@ -491,3 +497,213 @@ deployment, production migration/epoch activation, U08 or U09 execution is autho
 by this record. Final supported classification: AR2_U07_READY_FOR_INDEPENDENT_REVIEW.
 The containing commit SHA and independently verified remote SHA are returned in the
 execution report rather than creating a self-referential documentation commit.
+
+
+## AR2-U07-RB1 — Causal ordering and authoritative completeness
+
+Starting feature SHA: `311794c8b5c168ca34249855a5c7be8347350f7d`.
+Authoritative base: `7ce8f7827e6e9a037a8010791c4ee69170d868ff`.
+The named feature branch and clean worktree were verified before changes. Source
+review included the SQL store/coordinator/transport/types, IndexedDB v3 upgrade,
+U04 read authority and bounded DTO, real-browser harness and this record.
+No overlooked protection closed either finding. No production SQL, auth, Trip,
+Import, Firestore, Workspace, migration or epoch-setting implementation changes
+are required by this corrective unit.
+
+### Pre-correction executable reproduction
+
+Three new real Edge/IndexedDB + native PostgreSQL negative tests were executed
+against the unchanged implementation before editing implementation code. All three
+failed as predicted (the other 36 tests were excluded only by the explicit RB1
+reproduction name filter; final acceptance runs the complete file without skips).
+
+- A real Trip command A committed, then its response socket was interrupted after
+  response headers. A remained AWAITING_RECEIPT. B targeted the same Trip's next
+  transition and was queued later. After page reload/new coordinator and a receipt
+  endpoint outage, B was submitted and became AWAITING_RECEIPT rather than staying
+  PENDING with zero attempts.
+- A real transport 503 prevented A's commit. After the same restart/outage sequence,
+  B was sent prematurely and became CONFLICT rather than waiting for A's authorized
+  same-ID retry. An unrelated Trip command was present in each test.
+- A/B/C were cached, followed by one synthetic caller page claiming fullSnapshot,
+  final pagination and matching completeThrough. B/C were deleted; actual result
+  was [A] rather than [A,B,C].
+
+Root cause 1: pending() concatenated PENDING, SENDING and AWAITING_RECEIPT buckets
+whose index order was UUID-based. Per-record leases prevented duplicate claims
+but supplied no cross-command dependency or durable submission order. B could be
+claimed before A's receipt result, including while A was in backoff.
+Root cause 2: a locally generated inventory ticket bound context/cursors, but no
+server witness proved that the query was complete and unfiltered. Generic caller
+booleans were accepted as deletion authority. U04's signed cursor binds scoped
+partial pagination; it is not a complete-inventory authorization.
+
+### Durable dependency contract
+
+Append allocates a monotonically increasing safe integer in the same IndexedDB
+transaction as the immutable command, resource tail/predecessor and sequence
+scheduling entry. Equal ISO creation times are supported; timestamps/UUID order
+are never used to infer causality. These metadata fields cannot be changed by
+ordinary status/lease updates. Operation IDs, request digests, original envelopes,
+reviewed signatures and source/mapping references remain untouched.
+
+The causal resource is a scoped authoritative Trip ID, or an import session
+(serializing its parent-operation/group advances). All resources retain actor,
+company, project, device and epoch identity through the existing scope key.
+Commands without an allocated Trip ID may only be actual creation commands at
+expected revision zero. Follow-up commands without that ID fail with
+AUTHORITATIVE_TRIP_ID_REQUIRED; an authorized caller must recover the creation
+receipt and explicitly author a later command. No payload or revision is silently
+rewritten and no local Trip status grants authority.
+
+A child is eligible only when its predecessor record is present, has the same
+resource/scope and an earlier sequence, and is SYNCED through the existing matching
+receipt proof. NOT_COMMITTED permits only A's original authorized same-ID retry;
+B remains untouched until A is acknowledged. IN_PROGRESS, backoff, active leases,
+conflict, cancellation, exhausted recovery, scope/epoch quarantine and revoked
+permissions do not release B. Waiting consumes no send or recovery attempt.
+Existing cancellation cannot imply a successful state transition.
+
+Eligibility is read locally before context/network calls and checked again inside
+the atomic write transaction that claims or resends a command. Two tabs cannot
+bypass it. Existing lease-owner/fence checks still prevent stale ACK overwrites.
+Independent ready resources proceed with the existing bounded serial transport
+(concurrency 1 per coordinator); a blocked resource does not block unrelated
+ready resources. A newly acknowledged predecessor releases its child for the
+next explicit wake, without a new automatic loop or timer.
+
+Sequence entries live in the existing sqlControl store and use ordered keys;
+no IndexedDB version bump/store reset/index change is introduced. A persisted
+round-robin position bounds a wake to 100 scheduling records while allowing work
+beyond the first hundred to progress instead of being hidden by blocked UUID
+buckets. Completed/permanently blocked records leave the scheduling index, while
+journal evidence/predecessor records remain. Queue history is not rescanned on
+idle renders.
+
+### Existing v3 evidence
+
+Before scheduling a scope for the first time, bounded 100-record chunks discover
+its existing v3 journal. This is compatibility discovery, not inferred chronology.
+Pre-RB1 unresolved records without causal metadata are preserved, require explicit
+review, and install a persistent resource barrier (or a scope-wide barrier if the
+resource cannot be classified). New dependent commands cannot bypass that barrier
+by being appended before discovery. Successful historical ACKs remain successful;
+old cancellation/rejection evidence is not reactivated. The bootstrap must finish
+before any new claim. An explicit later review/migration protocol is deferred;
+no automatic reconstruction from timestamps, receipt impersonation or silent
+barrier removal is provided. Large existing histories can require multiple
+explicit bounded wakes before scheduling begins.
+
+Mixed-version old JavaScript writers must be retired/fenced at owner-authorized
+U09 activation; client metadata cannot retrofit checks into already loaded older
+code. Production SQL remains inactive. The existing server epoch and idempotency
+boundaries remain mandatory and unchanged.
+
+### Completeness contract: fail-closed deferral
+
+No existing API supplies a trusted complete-inventory witness binding actor,
+company, project, entity kind, unfiltered inventory definition, source revision,
+backend epoch and generation. Therefore omission deletion is removed from the
+SQL cache store path. Matching fullSnapshot/completeThrough flags authorize only
+safe upserts, never deletion. Wrong context, source revision, cursor chain or
+completeThrough still rejects where previously required. Filtered and interrupted
+pages cannot erase omitted records. A final page is not interpreted as proof of
+an unfiltered complete query. U04 pages remain permanently partial, including
+the last page; their current DTO/authority are unchanged.
+
+Source watermarks and entity revisions retain their existing stale-write checks;
+ACK-derived Trips remain protected. No fictitious token or broad new API was added.
+Genuine complete-snapshot reconciliation is explicitly deferred until an approved
+server contract supplies and verifies all required scope/revision/definition
+bindings. The old positive deletion test is tightened to require preservation;
+its stale revision assertion remains, and no case is removed or skipped.
+
+### Corrective verification and remaining boundaries
+
+The final measurements and exact corrective file list follow below. The full
+existing SQL selection, separate 148 bundle, original browser cases, Offline/auth
+historical selection, lint and build are remeasured at starting U07 and final
+source. A development parallel run hit the existing browser-process-restart
+30-second timeout under competing verification load. Final verification is serial;
+the timeout and assertions are not relaxed. One new revocation test expectation
+was corrected to the existing 403 contract (REVIEW_REQUIRED), retaining the
+requirement that its child remains pending without consuming attempts.
+
+U09 activation dependencies remain: owner-authorized activation, all active
+writers fenced, old clients retired, existing Offline UI lifecycle/state wiring,
+legacy command review, complete journal pagination and live device/role acceptance.
+Full-inventory deletion additionally needs a real server completeness contract.
+No PR, merge, deployment, production SQL/epoch activation, U08 or U09 execution.
+
+
+### RB1 final measured results — 2026-11-09
+
+| Gate | Starting U07 SHA 311794c | Corrected source | Classification |
+| --- | --- | --- | --- |
+| Real Edge/IndexedDB + native PostgreSQL browser file | 36/36 passed | 53/53 passed, zero failed/skipped | PASS |
+| Exact PostgreSQL CI selection (all 11 files) | 425/425 passed | 425/425 passed, zero failed/skipped | PASS |
+| Separate explicit four-file authority bundle | 148/148 passed | 148/148 passed, zero failed/skipped | PASS |
+| Identical 58-file historical selection | 1,223 passed / 58 existing failures | Identical 1,223 / 58 | No new failure |
+| Historical suite-load failures | 5 | Same 5 | Existing debt |
+| Historical unhandled rejection | One A failure | Same one | Existing debt |
+| npm run lint | Exit 2, 446 diagnostics | Exit 2, same 446 diagnostic multiset after location normalization | Existing debt; not PASS |
+| npm run build | Exit 0 | Exit 0 | PASS |
+
+All 1,281 original historical assertion outcomes are identical. The full SQL
+selection includes U01 infrastructure/security/cleanup, U02/U03 authorities,
+U04 bounded reads/presentation, U05 durable Import/recovery, U06 Trip/pricing,
+RB1 security and workload benchmark. The explicit 148 command retains its exact
+four files; it is not replaced by another selection. SQL migrations 001–010,
+production composition, server authority code and CI blocking gates are untouched.
+
+The browser count rises by 17 focused RB1 cases. Both causal COMMITTED and
+NOT_COMMITTED cases now close the actual Edge process, reopen a temporary
+persistent profile, reload the durable journal, block B during receipt outage,
+permit the unrelated Trip and finish A/B with unchanged IDs/payloads. They passed
+in 19.1s and 25.4s respectively with the original 30-second timeout. The complete
+final browser file was rerun after this strengthening: 53/53, zero skips, 111.9s.
+This supplements the earlier successful 53-case reload-based run rather than
+claiming a single-operation UUID test proves multi-command restart ordering.
+
+Other new cases cover IN_PROGRESS with expired leases and two real tabs, conflict,
+cancellation, revocation followed by child-only resume, real two-group U05 import
+ordering, equal creation timestamps, 110 independent entries with bounded progress,
+pre-RB1 v3 evidence/barriers, missing authoritative creation identity, forged
+completeness/filter/cursor/account/project/epoch/generation assertions, preserved
+higher revisions and ACK-derived Trips. Existing native U04 partial-page and U07
+lost-ACK/no-duplicate-effect cases remain. No domain assertion or timeout is weakened.
+
+Quiescence evidence: a child waiting for a predecessor retains zero attempts and
+zero recoveries; blocked-only wakes issue no context/command/receipt requests.
+Recovery stops at the existing durable cap; repeat wakes after the stop remain
+quiet. The bounded 110-entry test uses an explicitly injected unavailable transport
+for browser metadata scheduling (not fabricated PostgreSQL commits): its successive
+wake send counts are 0 during bounded bootstrap, then 100, 110, 110. Existing idle
+API/Google-zero and acknowledged-queue tests still pass with actual HTTP counters.
+
+Evidence is native PG17.6, real Windows Edge/IndexedDB/isolated HTTP, automated
+historical regression, typecheck and build. It does not establish live production
+React UI, Linux/mobile browser or U09 cutover acceptance. Publication is one
+corrective commit after 311794c on the same branch, with remote SHA equality and
+clean worktree checked afterward; no amendment/force push/PR/merge/deployment.
+The final execution report supplies the containing commit and remote SHA, avoiding
+a self-referential follow-up documentation commit.
+
+### Exact RB1 corrective changed files
+
+```
+docs/reconstruction/13_AR2_U07_OFFLINE_EPOCH_RECEIPT_RECOVERY.md
+src/services/offline/sqlOfflineCoordinator.ts
+src/services/offline/sqlOfflineStore.ts
+src/tests/ar2U07OfflineContinuity.test.ts
+src/types/sqlOffline.ts
+```
+
+Remaining debt: the measured 446 TypeScript diagnostics, 58 historical assertion
+failures, five suite-load failures and one historical unhandled rejection. Complete
+inventory omission reconciliation remains disabled pending a genuine approved
+server completeness contract. Pre-RB1 unordered unresolved SQL intent requires
+explicit authorized review; no automatic barrier migration is supplied. Original
+U09 activation/UI/journal pagination/live-role gates and mixed-version retirement
+remain deferred. No U08 work is started. Supported correction classification:
+`AR2_U07_RB1_READY_FOR_INDEPENDENT_REVIEW`, pending independent review and owner merge.

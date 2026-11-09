@@ -1,6 +1,6 @@
 import type {BoundedProjectPage} from '../../types/boundedProjectReads';
 import {SqlOfflineStore,type SqlSession} from './sqlOfflineStore';
-import {commandDigest,commandIdentity,epochKey,sqlScope,uuid,validateOfflineEnvelope,offlineFail,type OfflineCommand,type OfflineContext,type OfflineEnvelope,type OfflineReceipt,type OfflineTransport,type SqlQueueStatus} from '../../types/sqlOffline';
+import {causalResource,commandDigest,commandIdentity,epochKey,sqlScope,uuid,validateOfflineEnvelope,offlineFail,type OfflineCommand,type OfflineContext,type OfflineEnvelope,type OfflineReceipt,type OfflineTransport,type SqlQueueStatus} from '../../types/sqlOffline';
 const runnable=new Set<SqlQueueStatus>(['PENDING','SENDING','AWAITING_RECEIPT','RETRYABLE_FAILURE']);
 const MAX_SENDS=3,MAX_RECOVERY=3,LEASE_MS=15000;
 const fields=(v:any,keys:string[])=>Object.fromEntries(keys.filter(k=>v?.[k]===null||['string','number','boolean'].includes(typeof v?.[k])).map(k=>[k,v[k]]));
@@ -25,7 +25,7 @@ export class SqlOfflineCoordinator {
  async list(){return this.session?.current()?this.store.list(this.session):[];}
  async cache(){return this.session?.current()?this.store.cache(this.session):[];}
  async enqueue(authority:OfflineCommand['authority'],command:string,payload:Record<string,unknown>,expectedRevision=0,operationId=crypto.randomUUID()){
-  const session=this.active();const envelope:OfflineEnvelope={operationId,command,payload:structuredClone(payload),expectedRevision,backendEpoch:session.scope.backendEpoch,payloadSchemaVersion:1};validateOfflineEnvelope(authority,envelope);
+  const session=this.active();const envelope:OfflineEnvelope={operationId,command,payload:structuredClone(payload),expectedRevision,backendEpoch:session.scope.backendEpoch,payloadSchemaVersion:1};validateOfflineEnvelope(authority,envelope);causalResource({authority,envelope,operationId});
   const key=JSON.stringify([sqlScope(session.scope),operationId]),core={identity:session.scope,authority,envelope,operationId},requestDigest=await commandDigest(core);
   if(!session.current())offlineFail('OFFLINE_SCOPE_CHANGED');let existing:OfflineCommand|undefined;
   await this.store.change(session,key,old=>{if(old){existing=old;if(old.requestDigest!==requestDigest)offlineFail('IDEMPOTENCY_PAYLOAD_MISMATCH');return undefined;}const record:OfflineCommand={...core,key,scope:sqlScope(session.scope),owner:JSON.stringify([session.scope.principal,session.scope.companyId,session.scope.projectId,session.scope.deviceId]),principal:session.scope.principal,createdAt:new Date(this.now()).toISOString(),requestDigest,status:'PENDING',version:1,attempts:0,recoveries:0,nextAttemptAt:0};existing=record;return record;});
@@ -35,7 +35,7 @@ export class SqlOfflineCoordinator {
  async cancel(operationId:string){const s=this.active(),op=(await this.store.list(s)).find(o=>o.operationId===operationId);if(!op)return false;return this.store.change(s,op.key,old=>old&&old.attempts===0&&['PENDING','QUARANTINED_SCOPE'].includes(old.status)?{...old,status:'CANCELLED',version:old.version+1}:undefined);}
  async resume(operationId:string){const s=this.active(),op=(await this.store.list(s)).find(o=>o.operationId===operationId);if(!op)return false;return this.store.change(s,op.key,old=>old?.status==='QUARANTINED_SCOPE'?{...old,status:old.attempts?'AWAITING_RECEIPT':'PENDING',version:old.version+1,nextAttemptAt:0,lease:undefined}:undefined);}
  wake(){if(this.running)return this.running;const run=this.drain();this.running=run;void run.finally(()=>{if(this.running===run)this.running=null;}).catch(()=>{});return run;}
- private async drain(){const session=this.session;if(!session?.current())return 0;const all=await this.store.pending(session),pending=all.filter(v=>runnable.has(v.status)&&v.nextAttemptAt<=this.now()&&(!v.lease||v.lease.until<=this.now()));if(!pending.length)return 0;
+ private async drain(){const session=this.session;if(!session?.current())return 0;const all=await this.store.pending(session),pending=all.sort((a,b)=>Number(a.submissionOrder)-Number(b.submissionOrder)).filter(v=>runnable.has(v.status)&&v.nextAttemptAt<=this.now()&&(!v.lease||v.lease.until<=this.now()));if(!pending.length)return 0;
   let context:OfflineContext;try{context=await this.transport.context(session.scope,this.abort.signal);this.validateContext(context,session.scope);}catch(error:any){if(session.current())for(const op of pending)await this.fail(session,op,undefined,error);if([401,403].includes(error?.status))await this.exit();return 0;}
   if(!session.current())return 0;
   if(context.backendEpoch!==session.scope.backendEpoch||context.epochRevision!==session.scope.epochRevision){if(context.epochRevision>session.scope.epochRevision&&await this.store.epoch(epochKey(context),context)){const next={...session,scope:{...session.scope,backendEpoch:context.backendEpoch,epochRevision:context.epochRevision}};await this.store.fenceEpoch(next);}else for(const op of pending)await this.fail(session,op,undefined,{status:409,code:'BACKEND_EPOCH_MISMATCH'});return 0;}
@@ -45,7 +45,7 @@ export class SqlOfflineCoordinator {
    let claimed:OfflineCommand|undefined;
    await this.store.change(session,entry.key,old=>{if(!old||!runnable.has(old.status)||old.nextAttemptAt>this.now()||old.lease&&old.lease.until>this.now())return undefined;
     if(old.recoveries>=MAX_RECOVERY||old.attempts>=MAX_SENDS&&old.status==='PENDING')return {...old,status:'REVIEW_REQUIRED',errorCode:'RETRY_BUDGET_EXHAUSTED',version:old.version+1};
-    claimed={...old,status:old.attempts?'AWAITING_RECEIPT':'SENDING',version:old.version+1,attempts:old.attempts||1,recoveries:old.attempts?old.recoveries+1:old.recoveries,lease:{owner:this.tab,fence:(old.lease?.fence||0)+1,until:this.now()+LEASE_MS}};return claimed;});
+    claimed={...old,status:old.attempts?'AWAITING_RECEIPT':'SENDING',version:old.version+1,attempts:old.attempts||1,recoveries:old.attempts?old.recoveries+1:old.recoveries,lease:{owner:this.tab,fence:(old.lease?.fence||0)+1,until:this.now()+LEASE_MS}};return claimed;},undefined,true);
    if(!claimed||!session.current())continue;count++;
    try{
     let receipt:OfflineReceipt;
@@ -54,7 +54,7 @@ export class SqlOfflineCoordinator {
      if(receipt.state==='COMMITTED'){await this.ack(session,claimed,receipt);continue;}
      if(receipt.state==='IN_PROGRESS'){await this.fail(session,claimed,claimed.lease!.fence,{status:503,code:'RECEIPT_IN_PROGRESS'});continue;}
      if(claimed.attempts>=MAX_SENDS){await this.fail(session,claimed,claimed.lease!.fence,{status:422,code:'RETRY_BUDGET_EXHAUSTED'});continue;}
-     let resend:OfflineCommand|undefined;await this.store.change(session,claimed.key,old=>{if(!this.owns(old,claimed!))return undefined;resend={...old!,attempts:old!.attempts+1,status:'SENDING',version:old!.version+1};return resend;});if(!resend||!session.current())continue;claimed=resend;
+     let resend:OfflineCommand|undefined;await this.store.change(session,claimed.key,old=>{if(!this.owns(old,claimed!))return undefined;resend={...old!,attempts:old!.attempts+1,status:'SENDING',version:old!.version+1};return resend;},undefined,true);if(!resend||!session.current())continue;claimed=resend;
     }
     receipt=await this.transport.send(claimed,this.abort.signal);if(!session.current())continue;this.validateReceipt(claimed,receipt);
     if(receipt.state==='COMMITTED')await this.ack(session,claimed,receipt);else await this.fail(session,claimed,claimed.lease!.fence,{status:503,code:'RECEIPT_PENDING'});
@@ -81,7 +81,7 @@ export class SqlOfflineCoordinator {
   const inventory=this.inventories.get(ticket);if(!inventory||!inventory.session.current())return false;const {session,kind,revision}=inventory;
   this.validateContext(page.identity,session.scope);if(page.identity.backendEpoch!==session.scope.backendEpoch||page.identity.epochRevision!==session.scope.epochRevision||page.kind!==kind||page.sourceRevision!==revision||page.cursor!==inventory.next||page.items.length>50||page.hasMore!==Boolean(page.nextCursor)||page.fullSnapshot&&(page.hasMore||page.completeThrough!==revision))offlineFail('INCOMPLETE_CACHE_INVENTORY');
   const items=page.items.map(v=>{if(typeof v.id!=='string'||inventory.ids.includes(v.id))offlineFail('INVALID_CACHE_PAGE');return {id:v.id,data:fields(v,['id','kind','membershipStatus','globalStatus','integrity','assignmentId','allocationId','status','revision','nameAr','nameEn','plate','truckId','driverId','carrierId','materialId','tripId','tripNumber'])};});if(new Set(items.map(v=>v.id)).size!==items.length)offlineFail('INVALID_CACHE_PAGE');
-  const ids=[...inventory.ids,...items.map(v=>v.id)];const accepted=await this.store.putPage(session,kind,revision,items,page.fullSnapshot?ids:undefined);if(accepted){inventory.ids=ids;inventory.next=page.nextCursor;if(!page.hasMore)this.inventories.delete(ticket);}return accepted;
+  const ids=[...inventory.ids,...items.map(v=>v.id)];const accepted=await this.store.putPage(session,kind,revision,items);if(accepted){inventory.ids=ids;inventory.next=page.nextCursor;if(!page.hasMore)this.inventories.delete(ticket);}return accepted;
  }
  bindOnline(target:Pick<Window,'addEventListener'|'removeEventListener'>){const wake=()=>{void this.wake().catch(()=>{});};target.addEventListener('online',wake);return ()=>target.removeEventListener('online',wake);}
 }

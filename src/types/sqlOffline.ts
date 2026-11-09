@@ -4,6 +4,8 @@ export interface OfflineScope {principal:string;companyId:string;projectId:strin
 export interface OfflineEnvelope {operationId:string;expectedRevision:number;backendEpoch:string;payloadSchemaVersion:1;command:string;payload:Record<string,unknown>}
 export interface OfflineCommand {
  key:string;scope:string;owner:string;principal:string;identity:OfflineScope;operationId:string;authority:'TRIP'|'IMPORT_ADVANCE';envelope:OfflineEnvelope;
+ /** Missing on pre-RB1 v3 records: those require explicit reconciliation. */
+ submissionOrder?:number;causalKey?:string;predecessorKey?:string|null;
  requestDigest:string;createdAt:string;status:SqlQueueStatus;version:number;attempts:number;recoveries:number;nextAttemptAt:number;
  lease?:{owner:string;until:number;fence:number};errorCode?:string;receipt?:OfflineReceipt;
 }
@@ -36,3 +38,13 @@ export function validateOfflineEnvelope(authority:OfflineCommand['authority'],e:
  if(authority==='IMPORT_ADVANCE'&&(!uuid(e.payload.operationId)||!['sessionId','reviewedSignature','sourceRevisionId','mappingRevisionId'].every(k=>typeof e.payload[k]==='string'&&e.payload[k])||e.payload.expectedVersion!==e.expectedRevision))offlineFail('REVIEWED_IMPORT_REFERENCE_REQUIRED');
  if(new TextEncoder().encode(stableJson(e)).length>65536)offlineFail('OFFLINE_COMMAND_LIMIT');
 }
+
+/** Correlation only: server revisions, identity allocation and authorization remain authoritative. */
+export function causalResource(command:Pick<OfflineCommand,'authority'|'operationId'|'envelope'>):string{
+ const {authority,envelope,operationId}=command,p=envelope.payload;
+ if(authority==='IMPORT_ADVANCE')return stableJson(['IMPORT_SESSION',p.sessionId]);
+ if(typeof p.tripId==='string'&&p.tripId)return stableJson(['TRIP',p.tripId]);
+ if(['DISPATCH_TRIP','RECORD_LOADING'].includes(envelope.command)&&envelope.expectedRevision===0)return stableJson(['CREATE',operationId]);
+ return offlineFail('AUTHORITATIVE_TRIP_ID_REQUIRED');
+}
+export function hasCausalOrder(op:OfflineCommand){return Number.isSafeInteger(op.submissionOrder)&&Number(op.submissionOrder)>0&&op.causalKey===causalResource(op)&&(op.predecessorKey===null||typeof op.predecessorKey==='string');}
