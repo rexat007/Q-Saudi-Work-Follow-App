@@ -1,5 +1,21 @@
 ## AR2-U07 — Shared epoch capability and inactive durable offline seam — 2026-11-09
 
+## 2026-11-09 — AR2-U07 merged decisions, verification boundaries and forward gates
+
+**Source-of-truth merge:** PR #97 merged into `main` at `d2f2ae4006eb3c36943733bec0f6855c905ab04d` (U07 initial `311794c8b5c168ca34249855a5c7be8347350f7d`, RB1 `bb468587c90c9a76956579057cb68de1fc5bd0be`). This post-merge determination supersedes earlier pending-review statements below without deleting historical reports.
+
+1. **Causal ordering is durable and resource-scoped:** sequence/predecessor identity is committed atomically with queued command; a dependent command cannot replay before authenticated `SYNCED` receipt proof for its predecessor. A blocked or unknown pre-RB1 legacy record is held for authorized review, never guessed from timestamps. Independent resources may progress.
+2. **Never delete on untrusted completeness claims:** SQL page cache uses scoped upsert-only behavior; no omission pruning based on caller flags or partial pages. A future trusted server-issued complete inventory witness is required before any deletion policy.
+3. **Epoch and authority fence:** additive migration 010 initial Firestore/revision zero metadata supports transaction-held SQL fence; no runtime advancement, rollback, production SQL registration or cutover. Preserve migrations 001–009 unchanged.
+4. **Durable receipt recovery:** immutable ID/digest/actor/scope, IndexedDB SQL stores and transactional leases permit uncertain ACK recovery and multi-tab principal isolation; new coordinator remains inactive in production.
+5. **Google Workspace direction:** browser must not directly synchronize operational records to Sheets. Operational database/server owns canonical mutations; a bounded server worker/outbox updates existing per-project Google Sheet and derived reports. Retain project folder/Sheet/Apps Script identity, resumable idempotent provisioning and continuity requirements. In current runtime Firestore remains source; PostgreSQL cutover is a future separately authorized U09 matter.
+6. **Evidence:** GitHub merge graph verified; historical U07 verification 53/53 native Edge browser, PostgreSQL 425/425, separate authority 148/148 are executor-reported. No merge-commit workflow/status records were provided by the connector; do not mark fresh main CI PASS without direct check.
+7. **Debt still open:** historical 446 diagnostics; 58 assertion failures, five suite loading errors and one unhandled rejection; production/mobile acceptance, load/cost/read-quota checks, legacy/mixed-client fencing, complete-inventory witness, UI journal pagination and U09 activation gate.
+8. **Process:** verify main HEAD before next unit; create bounded explicit file scope; no opportunistic refactor, no invented test PASS, no production deployment/Google resources, no automatic PR/merge. Codex executes; independent source/CI review follows push; owner alone merges. Keep a single latest-state handoff and reconcile ledger/debt/architecture without erasing history.
+
+**NEXT = AR2-U08 design + executable Codex prompt; implementation NOT_STARTED.** Reference [14_AR2_U07_POSTMERGE_MASTER_HANDOFF_2026-11-09.md](14_AR2_U07_POSTMERGE_MASTER_HANDOFF_2026-11-09.md).
+
+
 - SOURCE GAP: U04/U06 epoch strings did not provide a shared, cross-process authority fence. An HTTP-only comparison can race an epoch change after admission.
 - DECISION: additive migration 010 provides an inactive singleton metadata registry and narrowly granted read/assert functions. A transaction-held shared row lock serializes epoch advancement with in-flight commands. Runtime cannot advance it; lower/equal revisions and PostgreSQL-to-Firestore rollback are rejected.
 - JUSTIFICATION/EVIDENCE: [U07 implementation record](13_AR2_U07_OFFLINE_EPOCH_RECEIPT_RECOVERY.md), native PG lock/writer test and staged/tested checksum. Published 001–009 remain unchanged.
