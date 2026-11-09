@@ -1,3 +1,5 @@
+import {auth} from '../firebase/config';
+import {sendTripCommand} from '../services/tripCommandClient.service';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { OutboxService } from '../services/offline/outbox.service';
 import { indexedDBService } from '../services/offline/indexedDB.service';
@@ -16,7 +18,7 @@ function bridge(role = 'DRIVER') {
   });
   vi.stubGlobal('fetch', fetch); return { ...database, fetch, outbox: new OutboxService() };
 }
-beforeEach(async () => { await indexedDBService.clear('outbox'); await indexedDBService.clear('trips'); await indexedDBService.clear('conflicts'); });
+beforeEach(async () => { (auth as any).currentUser={uid:'actor',getIdToken:async()=>'token'}; await indexedDBService.clear('outbox'); await indexedDBService.clear('trips'); await indexedDBService.clear('conflicts'); });
 afterEach(() => vi.unstubAllGlobals());
 describe('Queued intent -> HTTP client -> real command service with staged transaction model', () => {
   it('valid own-trip arrival is acknowledged and cached only after the server FSM succeeds', async () => {
@@ -44,4 +46,14 @@ describe('Queued intent -> HTTP client -> real command service with staged trans
     const result = await x.outbox.syncAll(false); expect(result.syncedCount).toBe(3); expect(result.failedCount).toBe(0); expect(result.conflictCount).toBe(0);
     expect(x.store['projects/P1/trips/T1'].status).toBe('COMPLETED'); expect(x.store['projects/P1/trips/T1'].weights.destinationNetKg).toBe(19000); expect(x.store['projects/P1/trips/T1'].financials.isFinalized).toBe(true);
   });
+  it('another actor cannot see, retry or replay retained legacy intent',async()=>{
+    const x=bridge();await x.outbox.queueOperation({projectId:'P1',userId:'actor',operationId:'private-op',operationType:'UPDATE_TRIP_STATUS',payload:{tripId:'T1',status:'AT_DESTINATION'}});(auth as any).currentUser={uid:'other',getIdToken:async()=>'other-token'};expect(await x.outbox.getOperations()).toEqual([]);await x.outbox.retryOperation('private-op');expect((await x.outbox.syncAll()).processedCount).toBe(0);expect(x.fetch).not.toHaveBeenCalled();expect((await indexedDBService.getById<any>('outbox','private-op')).status).toBe('PENDING');
+  });
+  it('a principal change while obtaining a token cannot send old intent with a new actor',async()=>{
+    const x=bridge();(auth as any).currentUser={uid:'actor',getIdToken:async()=>{(auth as any).currentUser={uid:'other'};return 'old-token';}};await expect(sendTripCommand('P1','RECORD_ARRIVAL',{},'stable','T1','actor')).rejects.toThrow('AUTH_CONTEXT_CHANGED');expect(x.fetch).not.toHaveBeenCalled();
+  });
+  it('a late legacy ACK after logout cannot write a new account cache or clear retained evidence',async()=>{
+    const x=bridge();await x.outbox.queueOperation({projectId:'P1',userId:'actor',operationId:'late',operationType:'UPDATE_TRIP_STATUS',payload:{tripId:'T1',status:'AT_DESTINATION'}});vi.stubGlobal('fetch',async()=>{(auth as any).currentUser=null;return {ok:true,json:async()=>({success:true,trip:{tripId:'T1',status:'AT_DESTINATION'}})};});expect((await x.outbox.syncAll()).syncedCount).toBe(0);expect(await indexedDBService.getById('trips','T1')).toBeUndefined();expect((await indexedDBService.getById<any>('outbox','late')).status).toBe('SENDING');
+  });
+
 });

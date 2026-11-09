@@ -20,6 +20,8 @@ export interface GlobalStatusMutation extends CommandScope {
   kind: GlobalKind; entityId: string; status: string; expectedRevision: number;
 }
 export interface SqlAuthorityDependencies {
+  /** Server composition only. No client-controlled backend selection. */
+  backendFence?:Readonly<{backendEpoch:string;epochRevision:number}>;
   runtimePool?: Pool; authPool?: Pool;
   /** Server composition/test seam, never populated from a browser request. */
   verifyToken?: (idToken: string) => Promise<DecodedFirebaseToken>;
@@ -37,9 +39,11 @@ const scopeKeys = ['companyId','projectId','operationId'];
 
 export class SqlCanonicalAuthority {
   protected readonly actorRoles = new WeakMap<UnitOfWork,string>();
-  constructor(private readonly dependencies: SqlAuthorityDependencies = {}) {}
+  private readonly fence:SqlAuthorityDependencies['backendFence'];
+  constructor(private readonly dependencies: SqlAuthorityDependencies = {}) {this.fence=dependencies.backendFence?Object.freeze({...dependencies.backendFence}):undefined;}
+  backendFence(){return this.fence?{...this.fence}:undefined;}
 
-  private async authenticated(idToken: string, company: string) {
+  protected async authenticated(idToken: string, company: string) {
     if (!idToken || typeof idToken !== 'string' || !uuid(company)) fail('FORBIDDEN_GLOBAL_COMMAND');
     let token: DecodedFirebaseToken;
     try {
@@ -70,6 +74,7 @@ export class SqlCanonicalAuthority {
         await uow.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))', [`canonical-project/${auth.companyId}/${projectId}`]);
         uow.context.projectId = projectId;
         await uow.query("SELECT set_config('app.project_id',$1,true)", [projectId]);
+        if(this.fence)await uow.query('SELECT qsa_assert_offline_epoch($1,$2)',[this.fence.backendEpoch,this.fence.epochRevision]);
         const authorized = await this.authorize(uow,governance);
         this.actorRoles.set(uow,authorized.commercial_role);
         await uow.query("SELECT set_config('app.commercial_role',$1,true)",[authorized.commercial_role]);
@@ -77,6 +82,7 @@ export class SqlCanonicalAuthority {
         finally { this.actorRoles.delete(uow); }
       }, this.dependencies.runtimePool);
     } catch (error: any) {
+      if(error?.code==='P0001'&&error?.message==='BACKEND_EPOCH_MISMATCH')throw new GlobalIdentityError('BACKEND_EPOCH_MISMATCH','',409);
       if (error instanceof GlobalIdentityError || error?.name === 'AuthorizationError' || error?.name === 'AuthenticationError') throw error;
       if (['PROJECT_LIFECYCLE_MUTATION_DENIED'].includes(error?.code)) throw error;
       if (error?.code==='42501' && ['ACCOUNT_NOT_ACTIVE','FORBIDDEN_GLOBAL_COMMAND','PROJECT_NOT_FOUND'].includes(error.message)) {

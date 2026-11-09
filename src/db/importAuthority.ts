@@ -4,7 +4,7 @@ import type {SqlAuthorityDependencies} from './canonicalAuthority.js';
 import type {UnitOfWork} from './unitOfWork.js';
 import type {CanonicalIdentityRepository} from './canonicalIdentityRepository.js';
 import {identitySpec} from './canonicalIdentityRepository.js';
-import {IdentityProtection} from './identityProtection.js';
+import {IdentityProtection,stableValue} from './identityProtection.js';
 import {TemporalRelationshipRepository} from './temporalRelationshipRepository.js';
 import {ImportArtifacts,UnavailableImportSourceStore,importFail,sha,type ImportSourceStore} from './importArtifacts.js';
 import {sqlImportContext,assertPreparedProfile,preparedIdentityInput} from './importCanonicalContext.js';
@@ -361,6 +361,23 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
         [complete?'COMMITTED':'COMMITTING',r.fence,uow.context.actorId,at,uow.context.companyId,uow.context.projectId,session.id]);
       await this.consequence(uow,crypto,'IMPORT_SESSION',r.sessionId,requestId,'IMPORT_GROUP_COMMITTED',null,{group:r.groupId,resultHash:executionDigest(receipt)},Number(op.version)+1);
       return {receipt,queries:queries()+1}; // Includes the enclosing idempotency-result UPDATE.
+    });
+  }
+  /** U07 receipt-first proof for an existing advance request; no group execution here. */
+  async recoverAdvance(token:string,scope:Scope,r:SessionCommand & {operationId:string},review:{reviewedSignature:string;sourceRevisionId:string;mappingRevisionId:string}){
+    strict(r,['sessionId','requestId','expectedVersion','operationId']);if(!uuid(r.requestId)||!uuid(r.operationId))importFail('INVALID_IMPORT_COMMAND');
+    return this.scoped(token,scope,false,async(uow,crypto)=>{
+      const session=await this.header(uow,r.sessionId),op=await this.operation(uow,session.id,r.operationId),cp=await this.checkpointValue(uow,session);
+      if(op.reviewed_signature!==review.reviewedSignature||cp.source?.sourceRevisionId!==review.sourceRevisionId||cp.mapping?.mappingRevisionId!==review.mappingRevisionId)importFail('INVALID_REVIEWED_INTENT_BINDING');
+      const hash=crypto.digest('command',stableValue([uow.context.companyId,uow.context.projectId,uow.context.actorId,{type:'IMPORT_FENCE',session:r.sessionId,payload:r}])).toString('hex');
+      const saved=(await uow.query('SELECT * FROM idempotency_receipts WHERE company_id=$1 AND project_id=$2 AND operation_id=$3 FOR UPDATE',[uow.context.companyId,uow.context.projectId,r.requestId])).rows[0];
+      if(!saved){if(Number(op.version)!==r.expectedVersion||!['READY','PARTIAL','EXECUTING'].includes(op.state))importFail('EXECUTION_NOT_RETRYABLE');return {state:'NOT_COMMITTED' as const};}
+      if(saved.actor_id!==uow.context.actorId||saved.request_hash!==hash)importFail('IDEMPOTENCY_PAYLOAD_MISMATCH');if(saved.state!=='COMMITTED'||!saved.result_encrypted)return {state:'IN_PROGRESS' as const};
+      const fence=crypto.open<any>(saved.result_encrypted,`${uow.context.companyId}/${uow.context.projectId}/receipt/${r.requestId}`);
+      const receipt=(await uow.query('SELECT * FROM import_execution_receipts WHERE company_id=$1 AND project_id=$2 AND session_id=$3 AND operation_id=$4 AND group_key=$5',[uow.context.companyId,uow.context.projectId,session.id,r.operationId,fence.groupId])).rows[0];
+      if(receipt){const value=crypto.open<any>(receipt.receipt_encrypted,this.aad(uow,session.id,r.operationId,fence.groupId,'receipt'));if(executionDigest(value)!==receipt.result_hash||value.bindingHash!==fence.bindingHash||value.reviewedSignature!==review.reviewedSignature||value.sourceRevisionId!==review.sourceRevisionId||value.mappingRevisionId!==review.mappingRevisionId)importFail('IMPORT_RECEIPT_INCONSISTENT');return {state:'COMMITTED' as const,reference:fence.groupId};}
+      const group=(await uow.query('SELECT state FROM import_execution_groups WHERE company_id=$1 AND project_id=$2 AND session_id=$3 AND operation_id=$4 AND group_key=$5',[uow.context.companyId,uow.context.projectId,session.id,r.operationId,fence.groupId])).rows[0];
+      return {state:op.state==='EXECUTING'&&Number(op.fence)===fence.fence&&group?.state==='READY'?'NOT_COMMITTED' as const:'IN_PROGRESS' as const};
     });
   }
   async advance(token:string,scope:Scope,r:SessionCommand & {operationId:string}){

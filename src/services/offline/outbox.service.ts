@@ -77,7 +77,8 @@ export class OutboxService {
    * Retrieves all outbox operations.
    */
   public async getOperations(): Promise<OutboxOperation[]> {
-    return indexedDBService.getOutboxOperations();
+    const uid=auth.currentUser?.uid;if(!uid)return [];
+    return (await indexedDBService.getOutboxOperations()).filter(op=>op.userId===uid);
   }
 
   /**
@@ -118,6 +119,8 @@ export class OutboxService {
       return { processedCount: 0, syncedCount: 0, failedCount: 0, conflictCount: 0 };
     }
 
+    const replayPrincipal=auth.currentUser?.uid;
+    if(!replayPrincipal)return {processedCount:0,syncedCount:0,failedCount:0,conflictCount:0};
     this.isSyncing = true;
     let processedCount = 0;
     let syncedCount = 0;
@@ -129,6 +132,8 @@ export class OutboxService {
       const pendingOps = ops.filter(o => o.status === 'PENDING' || (o.status === 'FAILED' && o.retryCount < 5));
 
       for (const op of pendingOps) {
+        if(auth.currentUser?.uid!==replayPrincipal)break;
+        if(op.userId!==replayPrincipal)continue;
         processedCount++;
 
         // Step 1: Set to SENDING
@@ -173,8 +178,9 @@ export class OutboxService {
           let commitResult: { tripId: string; tripSerial: string; version: number } = { tripId: '', tripSerial: '', version: 1 };
 
           const intent = queuedTripCommand(op);
-          const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId);
+          const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId, replayPrincipal);
 
+          if(auth.currentUser?.uid!==replayPrincipal)break;
           if (op.operationType === 'CREATE_TRIP_LOADING') {
             const serverTrip = resData.trip;
             if (op.payload.tripId) {
@@ -267,6 +273,7 @@ export class OutboxService {
             syncedCount++;
           }
         } catch (err: any) {
+          if(auth.currentUser?.uid!==replayPrincipal)break;
           await indexedDBService.updateOutboxStatus(op.operationId, 'FAILED', {
             retryCount: op.retryCount + 1,
             errorReason: err.message || 'خطأ غير متوقع أثناء معالجة المزامنة',
@@ -358,6 +365,7 @@ export class OutboxService {
    * Retries a specific failed or conflicted operation.
    */
   public async retryOperation(operationId: string): Promise<void> {
+    if(!(await this.getOperations()).some(op=>op.operationId===operationId))return;
     await indexedDBService.updateOutboxStatus(operationId, 'PENDING', {
       errorReason: undefined,
     });

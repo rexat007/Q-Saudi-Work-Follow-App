@@ -9,7 +9,7 @@
  * - Preservation of Block 86B (auth/RBAC), Block 86C (source of truth), Block 87 (project-centric)
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TripNumberGenerator } from '../services/tripNumberGenerator';
 import { outboxService } from '../services/offline/outbox.service';
 import { tripEngineService } from '../services/tripEngine.service';
@@ -17,6 +17,8 @@ import { tripStateMachine } from '../services/tripStateMachine.service';
 import { TripRecord } from '../types/tripEngine';
 import { pricingService } from '../services/pricing.service';
 import { MASTER_PRICING_RULES } from '../data/masterPricingRules';
+
+vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'SCALE-OP-OFFLINE' } }, db: {} }));
 
 describe('Block 89B Secure Trip Numbering & Offline Creation Test Suite', () => {
   beforeEach(() => {

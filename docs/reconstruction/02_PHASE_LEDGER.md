@@ -1,6 +1,16 @@
 # PHASE LEDGER
 ## Single Current Reconstruction State Authority
 
+### AR2-U07 — Inactive offline / epoch / receipt seam — 2026-11-09
+
+STARTING_MAIN: `7ce8f7827e6e9a037a8010791c4ee69170d868ff` (PR #96 merged).
+AR2_U07: SOURCE_IMPLEMENTED / INDEPENDENT_REVIEW_REQUIRED; not CLOSED.
+UNIT_RECORD: [13_AR2_U07_OFFLINE_EPOCH_RECEIPT_RECOVERY.md](13_AR2_U07_OFFLINE_EPOCH_RECEIPT_RECOVERY.md).
+CANONICAL_OPERATIONAL_AUTHORITY: production Firestore remains active; isolated SQL seam is inactive.
+EPOCH_PREPARATION: additive migration 010 initializes Firestore / revision 0; no production registry change.
+BOUNDARY: no production SQL mount, dual write, cutover, deployment, PR, merge, U08 or U09 execution.
+PUBLICATION: the active U07 owner instruction explicitly authorizes one feature-branch commit/push after verification; independent review and owner merge remain external gates.
+
 ### Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
 
 CURRENT_CODE_BASELINE: `7d50d3a31e72eb2e573ed169a029d5822f0a0742` — verified main baseline; working source implemented locally.

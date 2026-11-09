@@ -1,3 +1,13 @@
+## AR2-U07 — Shared epoch capability and inactive durable offline seam — 2026-11-09
+
+- SOURCE GAP: U04/U06 epoch strings did not provide a shared, cross-process authority fence. An HTTP-only comparison can race an epoch change after admission.
+- DECISION: additive migration 010 provides an inactive singleton metadata registry and narrowly granted read/assert functions. A transaction-held shared row lock serializes epoch advancement with in-flight commands. Runtime cannot advance it; lower/equal revisions and PostgreSQL-to-Firestore rollback are rejected.
+- JUSTIFICATION/EVIDENCE: [U07 implementation record](13_AR2_U07_OFFLINE_EPOCH_RECEIPT_RECOVERY.md), native PG lock/writer test and staged/tested checksum. Published 001–009 remain unchanged.
+- SOURCE: existing IndexedDB gains additive scoped SQL stores; immutable UUID intent, receipt-first recovery, durable leases and safe partial-page handling remain inactive until U09 composition.
+- SHARED SECURITY BOUNDARY: legacy outbox replay/view/retry and token acquisition now respect the captured current UID. Existing Firestore command semantics and production route selection remain active.
+- RECORDED DEBT: historical comparison preserves 58 existing assertion failures, five suite-load failures and one historical unhandled rejection; TypeScript has 446 measured diagnostics. These are not clean lint/full-test PASS claims.
+- DEFERRED: owner-authorized U09 activation, legacy pending-command review, exhaustive SQL-state presentation wiring in existing Offline UI, complete journal pagination and live browser/device/role acceptance. No U08 work or CLOSED declaration.
+
 ## Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence — 2026-11-03
 
 Current state: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`.
