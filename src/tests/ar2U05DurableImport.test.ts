@@ -544,7 +544,7 @@ describe('AR2-U05 native PostgreSQL durable reviewed import',()=>{
     await expect(status(s)).rejects.toMatchObject({code:'IMPORT_JOURNAL_INCONSISTENT'});
   });
   check('migration 007 repeat and checksum protection retain all published versions',async()=>{
-    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009']);expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:9});
+    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009','010']);expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:10});
     await admin.query("UPDATE schema_migrations SET checksum='tampered' WHERE version='007'");try{await expect(applyMigrations(migrator)).rejects.toThrow('checksum mismatch');}
     finally{await admin.query("UPDATE schema_migrations SET checksum=$1 WHERE version='007'",[loadMigrationFiles()[6].checksum]);}
   });

@@ -417,8 +417,8 @@ describe('AR2-U02 real PostgreSQL 17 canonical authorities', () => {
   });
 
   it('repeats migration 004 safely and rejects checksum tampering',async()=>{
-    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009']);
-    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:9,pendingCount:0});
+    expect((await applyMigrations(migrator)).verified).toEqual(['001','002','003','004','005','006','007','008','009','010']);
+    expect(await verifyMigrations(migrator)).toMatchObject({allValid:true,appliedCount:10,pendingCount:0});
     await admin.query("UPDATE schema_migrations SET checksum='invalid' WHERE version='004'");
     try { await expect(applyMigrations(migrator)).rejects.toThrow('checksum mismatch'); }
     finally { await admin.query("UPDATE schema_migrations SET checksum=$1 WHERE version='004'",[loadMigrationFiles()[3].checksum]); }

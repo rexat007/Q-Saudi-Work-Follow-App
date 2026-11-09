@@ -7,7 +7,8 @@ import { OutboxOperation, CacheStoreName, CacheStoreMetadata } from '../../types
 import { ConflictRecord } from '../../types/conflict';
 
 const DB_NAME = 'q_saudi_logistics_offline_db';
-const DB_VERSION = 2;
+export const OFFLINE_DB_VERSION = 3;
+const DB_VERSION = OFFLINE_DB_VERSION;
 
 export class IndexedDBService {
   private dbPromise: Promise<IDBDatabase> | null = null;
@@ -59,6 +60,15 @@ export class IndexedDBService {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
 
+        // Additive U07 stores. Never reinterpret or delete legacy records.
+        for (const name of ['sqlCommands','sqlCache','sqlControl']) {
+          if (!db.objectStoreNames.contains(name)) {
+            const store=db.createObjectStore(name,{keyPath:'key'});
+            if(name!=='sqlControl')store.createIndex('scope','scope',{unique:false});
+            if(name!=='sqlControl')store.createIndex('principal','principal',{unique:false});
+            if(name==='sqlCommands'){store.createIndex('owner','owner',{unique:false});store.createIndex('scopeStatus',['scope','status'],{unique:false});}
+          }
+        }
         // 1. Projects store
         if (!db.objectStoreNames.contains('projects')) {
           db.createObjectStore('projects', { keyPath: 'projectId' });
@@ -129,8 +139,11 @@ export class IndexedDBService {
       };
 
       request.onsuccess = () => {
-        resolve(request.result);
+        const db=request.result;
+        db.onversionchange=()=>{db.close();this.dbPromise=null;};
+        resolve(db);
       };
+      request.onblocked=()=>{this.dbPromise=null;reject(new Error('INDEXEDDB_UPGRADE_BLOCKED'));};
 
       request.onerror = () => {
         this.dbPromise = null;
