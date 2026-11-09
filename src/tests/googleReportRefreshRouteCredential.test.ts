@@ -53,6 +53,7 @@ vi.mock('../services/projectGoogleWorkspace.server', async original => {
   return {
     ...actual,
     projectGoogleWorkspaceServer: {
+      forExecutionAuthorization() {return this;},
       status: f.status,
       refreshOperationalReports: f.refreshOperationalReports,
     },

@@ -66,6 +66,18 @@ export function mapTripToWorkspaceProjection(trip: TripEntity): WorkspaceTripPro
 const getApiBase = () => (typeof window !== 'undefined' ? '' : 'http://localhost:3000');
 
 export class ClientWorkspaceService {
+  private activeRequests=new Set<AbortController>();
+  private headerIdentities=new WeakMap<object,string|null>();
+  private responseIdentities=new WeakMap<object,string|null>();
+  private async fetch(input:RequestInfo|URL,init:RequestInit={}):Promise<Response>{
+    const expected=init.headers&&this.headerIdentities.has(init.headers as object)?this.headerIdentities.get(init.headers as object):this.identity();
+    if(expected!==this.identity())throw Error('WORKSPACE_IDENTITY_CHANGED');
+    const controller=new AbortController();this.activeRequests.add(controller);
+    const signal=init.signal?AbortSignal.any([init.signal,controller.signal]):controller.signal;
+    try{const response=await workspaceFetch(input,{...init,signal});if(expected!==this.identity())throw Error('WORKSPACE_IDENTITY_CHANGED');this.responseIdentities.set(response,expected!);return response;}
+    catch(error){if(expected!==this.identity())throw Error('WORKSPACE_IDENTITY_CHANGED');throw error;}
+    finally{this.activeRequests.delete(controller);}
+  }
   private ensureOperationIds=new Map<string,string>();
   private ensureConsentPopup?:Window;
   private cancelWorkspaceOAuth?:()=>void;
@@ -78,12 +90,15 @@ export class ClientWorkspaceService {
   }
   public setAccessToken(token:string|null):void {this.currentAccessToken=token;this.tokenIdentity=token?this.identity():null;}
   constructor(){
+    let principal=this.identity();
+    auth.onAuthStateChanged?.(()=>{const next=this.identity();if(next!==principal){principal=next;for(const controller of this.activeRequests)controller.abort();this.activeRequests.clear();this.setAccessToken(null);this.cancelWorkspaceOAuth?.();this.ensureOperationIds.clear();}});
     // Purge the retired legacy key without reading/restoring its credential. Storage may be disabled.
     try{if(typeof window!=='undefined')window.sessionStorage.removeItem('q_saudi_google_token');}catch{/* Memory-only operation does not depend on browser storage. */}
   }
   private async decodeResponse(response:Response):Promise<any>{
     try {
       const result=await decodeWorkspaceResponse(response);
+      if(this.responseIdentities.has(response)&&this.responseIdentities.get(response)!==this.identity())throw Error('WORKSPACE_IDENTITY_CHANGED');
       if(['TOKEN_EXPIRED','AUTHORIZATION_REQUIRED','GOOGLE_ACCESS_TOKEN_REQUIRED'].includes(result.code))this.setAccessToken(null);
       return result;
     } catch(error) {
@@ -136,6 +151,7 @@ export class ClientWorkspaceService {
       headers['X-Google-Access-Token'] = googleToken;
     }
 
+    this.headerIdentities.set(headers,this.identity());
     return headers;
   }
 
@@ -171,7 +187,7 @@ export class ClientWorkspaceService {
     if (!token) throw new Error('AUTHORIZATION_DENIED');
     const destinationRootFolderId = await selectWorkspaceDestinationFolder(token);
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
-    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/destination`, {
+    const response = await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/destination`, {
       method:'POST',headers,body:JSON.stringify({destinationRootFolderId}),
     });
     const result=await this.decodeResponse(response);
@@ -181,7 +197,7 @@ export class ClientWorkspaceService {
 
   public async getGoogleWorkspaceStatus(projectId: string,signal?:AbortSignal): Promise<ProjectGoogleStatus> {
     const headers = await this.getWorkspaceHeaders({}, true,false);
-    const response = await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers,signal });
+    const response = await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace`, { headers,signal });
     const result = await this.decodeResponse(response);
     if (!response.ok) throw new Error(result.code || 'PROVISIONING_FAILED');
     return result.data;
@@ -193,14 +209,14 @@ export class ClientWorkspaceService {
     return ()=>{if(this.ensureConsentPopup===popup){this.ensureConsentPopup=undefined;try{popup?.close();}catch{/* Optional window cleanup never grants authorization. */}}};
   }
   public async observeWorkspaceProvisioning(projectId:string,signal?:AbortSignal):Promise<WorkspaceEnsureStatus>{
-    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{headers:await this.getWorkspaceHeaders({},true,false),signal});
+    const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{headers:await this.getWorkspaceHeaders({},true,false),signal});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');if(result.data.operationId)this.ensureOperationIds.set(projectId,result.data.operationId);return result.data;
   }
   public async ensureWorkspace(projectId:string,isCurrent:()=>boolean=()=>true):Promise<WorkspaceEnsureStatus>{
     if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');
     rememberWorkspaceContinuation(auth.currentUser?.uid||'',projectId,this.ensureOperationIds.get(projectId)||null);
     try{
-      await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+      await ensureRuntimeGeneration();if(!isCurrent())throw Error('WORKSPACE_IDENTITY_CHANGED');const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/ensure`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
       const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_ENSURE_FAILED');if(result.data.operationId)this.ensureOperationIds.set(projectId,result.data.operationId);return result.data;
     }catch(error){
       if(!isCurrent()){clearWorkspaceContinuation(auth.currentUser?.uid||'',projectId);throw Error('WORKSPACE_IDENTITY_CHANGED');}
@@ -213,21 +229,21 @@ export class ClientWorkspaceService {
     }
   }
   public async recoverWorkspaceAutomation(projectId:string,scriptProjectId:string):Promise<ProjectGoogleStatus> {
-    await ensureRuntimeGeneration();const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({scriptProjectId})});
+    await ensureRuntimeGeneration();const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/automation/recover`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({scriptProjectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'AUTOMATION_RECOVERY_FAILED');return result.data;
   }
   /** Firebase-only application request. No Project list, Google token or consent popup. */
   public async requestUserActiveWorkspaceSync():Promise<void> {
-    const response=await workspaceFetch('/api/workspace/user-active-sync',{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+    const response=await this.fetch('/api/workspace/user-active-sync',{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_COORDINATOR_UNAVAILABLE');
   }
   public async drainPendingWorkspace(projectId:string):Promise<void> {
-    if(!auth.currentUser)return;const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
+    if(!auth.currentUser)return;const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/retry-sync`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:'{}'});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_SYNC_DEFERRED');
   }
   public async initializeWorkspace(projectId:string,scriptProjectId?:string):Promise<ProjectGoogleStatus> {
     await ensureRuntimeGeneration();
-    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify(scriptProjectId?{scriptProjectId}:{})});
+    const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/initialize`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify(scriptProjectId?{scriptProjectId}:{})});
     const result=await this.decodeResponse(response);if(!response.ok)throw Error(result.code||'WORKSPACE_INITIALIZATION_FAILED');return result.data;
   }
   /** Only a bounded status crosses the popup boundary. Refresh credentials stay server-side. */
@@ -249,7 +265,7 @@ export class ClientWorkspaceService {
     try {
       await Promise.race([interrupted,(async()=>{
         await ensureRuntimeGeneration();check();
-        const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true,...(operationId?{operationId}:{})}),signal:controller.signal});
+        const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/authorization`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true,false),body:JSON.stringify({automation:true,...(operationId?{operationId}:{})}),signal:controller.signal});
         const result=await this.decodeResponse(response);check();if(!response.ok)throw Error(result.code||'GOOGLE_OFFLINE_AUTHORIZATION_FAILED');
         const url=new URL(result.url);if(url.origin!=='https://accounts.google.com'||!isWorkspaceOAuthCorrelation(result.correlationId))throw Error('GOOGLE_OFFLINE_AUTHORIZATION_FAILED');correlationId=result.correlationId;
         await new Promise<void>((resolve,reject)=>{
@@ -273,7 +289,7 @@ export class ClientWorkspaceService {
 
   public async resumeProjectWorkspace(projectId:string):Promise<{spreadsheetId:string;projectFolderId:string}> {
     await ensureRuntimeGeneration();
-    const response=await workspaceFetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
+    const response=await this.fetch(`/api/projects/${encodeURIComponent(projectId)}/workspace/resume`,{method:'POST',headers:await this.getWorkspaceHeaders({'Content-Type':'application/json'},true),body:JSON.stringify({projectId})});
     const result=await this.decodeResponse(response);if(!response.ok)throw new Error(workspaceFailureCode(result.code||'WORKSPACE_RECOVERY_REQUIRED'));
     const binding=result.data;this.setAccessToken(null);return {spreadsheetId:binding.spreadsheetId,projectFolderId:binding.projectFolderId};
   }
@@ -283,7 +299,7 @@ export class ClientWorkspaceService {
    */
   public async fetchMigrationPlan(): Promise<SchemaMigrationPlan> {
     try {
-      const res = await workspaceFetch('/api/workspace/migration-plan');
+      const res = await this.fetch('/api/workspace/migration-plan');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await this.decodeResponse(res);
       return json.data;
@@ -322,7 +338,7 @@ export class ClientWorkspaceService {
     await ensureRuntimeGeneration();
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch('/api/workspace/provision', {
+    const res = await this.fetch('/api/workspace/provision', {
       method: 'POST',
       headers,
       body: JSON.stringify({projectId:project.projectId,destinationRootFolderId}),
@@ -357,7 +373,7 @@ export class ClientWorkspaceService {
 
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true,false);
 
-    const res = await workspaceFetch('/api/workspace/sync/initial', {
+    const res = await this.fetch('/api/workspace/sync/initial', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -497,7 +513,7 @@ export class ClientWorkspaceService {
       },
     ];
 
-    const res = await workspaceFetch('/api/workspace/sync/sheets', {
+    const res = await this.fetch('/api/workspace/sync/sheets', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -532,7 +548,7 @@ export class ClientWorkspaceService {
   ): Promise<{ fileId: string; webViewLink: string; uploadedAt: string }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch('/api/workspace/upload', {
+    const res = await this.fetch('/api/workspace/upload', {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -565,7 +581,7 @@ export class ClientWorkspaceService {
     const params = new URLSearchParams({ projectId });
     if (folderId) params.append('folderId', folderId);
 
-    const res = await workspaceFetch(`/api/workspace/drive/files?${params.toString()}`, {
+    const res = await this.fetch(`/api/workspace/drive/files?${params.toString()}`, {
       headers,
     });
 
@@ -591,7 +607,7 @@ export class ClientWorkspaceService {
   ): Promise<{ buffer: ArrayBuffer; fileName: string; mimeType: string; size: number }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await workspaceFetch(`/api/workspace/drive/files/${encodeURIComponent(fileId)}/content`, {
+    const res = await this.fetch(`/api/workspace/drive/files/${encodeURIComponent(fileId)}/content`, {
       headers,
     });
 
@@ -635,7 +651,7 @@ export class ClientWorkspaceService {
   }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/sheets/spreadsheets?projectId=${encodeURIComponent(projectId)}`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/sheets/spreadsheets?projectId=${encodeURIComponent(projectId)}`, {
       headers,
     });
 
@@ -663,7 +679,7 @@ export class ClientWorkspaceService {
   }> {
     const headers = await this.getWorkspaceHeaders({}, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/metadata`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/metadata`, {
       headers,
     });
 
@@ -693,7 +709,7 @@ export class ClientWorkspaceService {
     const headers = await this.getWorkspaceHeaders({}, true);
 
     const url = `${getApiBase()}/api/workspace/sheets/${encodeURIComponent(spreadsheetId)}/values?sheetName=${encodeURIComponent(sheetName)}`;
-    const res = await workspaceFetch(url, { headers });
+    const res = await this.fetch(url, { headers });
 
     if (!res.ok) {
       const err = await this.decodeResponse(res);
@@ -719,7 +735,7 @@ export class ClientWorkspaceService {
   ): Promise<DestinationValidationResult> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/validate-destination`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/validate-destination`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -766,7 +782,7 @@ export class ClientWorkspaceService {
   }): Promise<{ success: boolean; job: MigrationJob }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/migrate/start`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/migrate/start`, {
       method: 'POST',
       headers,
       body: JSON.stringify(params),
@@ -796,7 +812,7 @@ export class ClientWorkspaceService {
   }): Promise<void> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/archive/download`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/archive/download`, {
       method: 'POST',
       headers,
       body: JSON.stringify(params),
@@ -832,7 +848,7 @@ export class ClientWorkspaceService {
   ): Promise<{ resolvedFileId: string; isHistorical: boolean; sourceHistoryId?: string }> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true);
 
-    const res = await workspaceFetch(`${getApiBase()}/api/workspace/resolve-file`, {
+    const res = await this.fetch(`${getApiBase()}/api/workspace/resolve-file`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ projectId, fileId, historyRecords }),
@@ -851,7 +867,7 @@ export class ClientWorkspaceService {
    */
   public async refreshOperationalReports(projectId: string): Promise<ProjectGoogleStatus> {
     const headers = await this.getWorkspaceHeaders({ 'Content-Type': 'application/json' }, true, false);
-    const res = await workspaceFetch(`${getApiBase()}/api/projects/${projectId}/workspace/refresh-reports`, {
+    const res = await this.fetch(`${getApiBase()}/api/projects/${projectId}/workspace/refresh-reports`, {
       method: 'POST',
       headers,
       body: JSON.stringify({}),

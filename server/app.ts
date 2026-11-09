@@ -72,7 +72,7 @@ app.post('/api/projects/:projectId/workspace/refresh-reports', enforceProjectIso
       },
     );
     const googlePort = projectGoogleBlueprintPort(credential.accessToken, projectId);
-    const result = await projectGoogleWorkspaceServer.refreshOperationalReports(projectId, req.user, googlePort);
+    const result = await projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId).refreshOperationalReports(projectId, req.user, googlePort);
     res.json({ success: true, data: result });
   } catch (error: any) {
     const code = error instanceof GoogleWorkspaceCommandError ? error.code : 'REPORT_REFRESH_FAILED';
@@ -747,11 +747,12 @@ app.get('/api/projects/:projectId/workspace', enforceProjectIsolation, enforceAd
 });
 app.post('/api/projects/:projectId/workspace/retry-sync', enforceProjectIsolation, enforceAdminOnly, async (req, res) => {
   try {
-    if (Object.keys(req.body || {}).length) return res.status(400).json({ success: false, code: 'INVALID_WORKSPACE_COMMAND' });
+    if (Object.keys(req.body || {}).some(key=>key!=='retryDeliveryId')) return res.status(400).json({ success: false, code: 'INVALID_WORKSPACE_COMMAND' });
     const current=await projectGoogleWorkspaceServer.status(req.params.projectId,(req as any).user);
     const credential=await resolveWorkspaceExecutionToken(req.params.projectId,(req as any).user,req,{status:(id,user)=>projectGoogleWorkspaceServer.status(id,user),access:(id,user)=>workspaceOfflineAuthorization.access(id,user)});
     const execution=projectGoogleWorkspaceServer.forExecutionAuthorization(credential.authorizationId);
     const port=current.binding?.workspaceBlueprintVersion?projectGoogleBlueprintPort(credential.accessToken,req.params.projectId):projectGoogleTemplatePort(credential.accessToken);
+    if(req.body?.retryDeliveryId)await execution.reviewProjectionRetry(req.params.projectId,(req as any).user,req.body.retryDeliveryId);
     res.json({ success: true, data: await execution.retrySync(req.params.projectId, (req as any).user, port) });
   } catch (error: any) { res.status(error.status || 502).json({ success: false, code: error.code || 'SHEET_SYNC_FAILED' }); }
 });

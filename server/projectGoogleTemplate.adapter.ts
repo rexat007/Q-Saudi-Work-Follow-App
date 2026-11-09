@@ -1,3 +1,4 @@
+import {WorkspaceProjectionError,atomicValueWrites,inProjectionDelivery} from './workspaceProjectionDelivery';
 import {classifyGoogleProviderFailure} from './workspaceGoogleErrors';
 import { google } from 'googleapis';
 import {configureWorkspaceGoogleTransport} from './workspaceGoogleTransport';
@@ -12,7 +13,7 @@ export function projectGoogleTemplatePort(token:string,beforeRequest:()=>Promise
   let accountLabel = '';
   const drive=google.drive({version:'v3',auth}),sheets=google.sheets({version:'v4',auth});
   const guarded=async<T>(context:string,run:()=>Promise<T>):Promise<T>=>{
-    try{return await run();}catch(e){if(e instanceof GoogleWorkspaceCommandError) throw e;const failure=classifyGoogleProviderFailure(e);return gwsFail(failure.code,failure.status);}
+    try{return await run();}catch(e){if(e instanceof GoogleWorkspaceCommandError) throw e;if(e instanceof WorkspaceProjectionError)return gwsFail(e.code,e.status);const failure=classifyGoogleProviderFailure(e);return gwsFail(failure.code,failure.status);}
   };
   const verify=async(fileId:string,operationId?:string)=>{
     await guarded('FILE',async()=>{
@@ -32,8 +33,8 @@ export function projectGoogleTemplatePort(token:string,beforeRequest:()=>Promise
     });
   };
   const readGrid=async(fileId:string,tab:string)=> {
-    const data=await sheets.spreadsheets.values.get({spreadsheetId:fileId,range:`'${tab}'!A1:AC`,valueRenderOption:'FORMULA'});
-    return data.data.values||[];
+    const data=await sheets.spreadsheets.values.get({spreadsheetId:fileId,range:inProjectionDelivery()?`'${tab}'!A1:AC2001`:`'${tab}'!A1:AC`,valueRenderOption:'FORMULA'});
+    if(inProjectionDelivery()&&(data.data.values?.length||0)>=2001)return gwsFail('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');return data.data.values||[];
   };
   const columnIndex=(column:string)=>[...column].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0)-1;
   const rowFor=(rows:unknown[][],key:string,tab:string)=>{
@@ -106,7 +107,7 @@ export function projectGoogleTemplatePort(token:string,beforeRequest:()=>Promise
           requests.push({range:`'${tab}'!${column}${row}`,values:[[value as string|number]]});
         }
       }
-      await sheets.spreadsheets.values.batchUpdate({spreadsheetId:fileId,requestBody:{valueInputOption:'RAW',data:requests}});
+      if(inProjectionDelivery())await atomicValueWrites(sheets,fileId,requests);else await sheets.spreadsheets.values.batchUpdate({spreadsheetId:fileId,requestBody:{valueInputOption:'RAW',data:requests}});
     });},
   };
 }

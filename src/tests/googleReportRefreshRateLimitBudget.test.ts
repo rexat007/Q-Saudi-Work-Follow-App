@@ -180,11 +180,11 @@ describe('Google Report Refresh — Rate Limit & Request Budget Closure', () => 
         _type: type,
         get: async () => ({
           exists: true,
-          data: () => (type === 'user' ? mockUser : type === 'project' ? mockProject : type === 'continuity' ? mockContinuity : {})
+          data: () => (type === 'user' ? mockUser : type === 'project' ? mockProject : type === 'continuity' ? mockContinuity : type==='projectionState'?{projectId:'P1',dirtyTabs:[],mutationRevision:1,updatedAt:new Date().toISOString()}:undefined)
         }),
         collection: (subName: string) => {
           if (subName === 'workspace_continuity') return { doc: () => docObj('continuity') };
-          if (subName === 'workspace_sync_outbox') return mockOutboxQuery;
+          if (subName === 'workspace_sync_outbox') return {...mockOutboxQuery,doc:()=>docObj('outbox')};
           if (subName === 'workspace_projection_state') return { doc: () => docObj('projectionState') };
           if (subName === 'trips') return { get: async () => ({ docs: [] }) };
           return { doc: () => docObj('generic'), where: () => mockOutboxQuery, get: async () => ({ docs: [] }) };
@@ -202,15 +202,15 @@ describe('Google Report Refresh — Rate Limit & Request Budget Closure', () => 
             if (ref?._type === 'user' || ref?._col === 'users' || ref?._docId === 'u1') return { exists: true, data: () => mockUser };
             if (ref?._type === 'project' || ref?._col === 'projects' || ref?._docId === 'P1') return { exists: true, data: () => mockProject };
             if (ref?._type === 'projectionState') return { exists: true, data: () => ({ projectId: 'P1', dirtyTabs: [], mutationRevision: 1, updatedAt: new Date().toISOString() }) };
-            return { exists: true, data: () => mockContinuity };
+            return ref?._type==='continuity'?{exists:true,data:()=>mockContinuity}:{exists:false,data:()=>undefined};
           },
           set: (ref: any, data: any) => {
-            if (ref?._type === 'continuity' || (ref?._col !== 'users' && ref?._col !== 'projects' && ref?._docId !== 'u1' && ref?._docId !== 'P1')) {
+            if (ref?._type === 'continuity') {
               mockContinuity = { ...mockContinuity, ...data };
             }
           },
           update: (ref: any, data: any) => {
-            if (ref?._type === 'continuity' || (ref?._col !== 'users' && ref?._col !== 'projects' && ref?._docId !== 'u1' && ref?._docId !== 'P1')) {
+            if (ref?._type === 'continuity') {
               mockContinuity = { ...mockContinuity, ...data };
             }
           }

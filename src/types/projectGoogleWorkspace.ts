@@ -27,6 +27,7 @@ export interface ProjectGoogleBinding {
   revision: number;
 }
 export interface ProjectGoogleStatus {
+  projection?:{sourceRevision:number;lastDeliveredSourceRevision:number|null;stale:boolean;deliveryState:string;retryAt:number|null;deliveryId:string|null;reportsStale:boolean;lastReportSourceRevision:number|null};
   state: ContinuityState;
   binding: ProjectGoogleBinding | null;
   lastSuccessfulSyncAt: string | null;

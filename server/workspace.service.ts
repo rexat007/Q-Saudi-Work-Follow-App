@@ -1,3 +1,4 @@
+import {atomicValueWrites,inProjectionDelivery,projectionFailure} from './workspaceProjectionDelivery';
 import {projectOwnedOperationalTable} from './operationalReportSheets';
 import {operationalTabByTitle,OPERATIONAL_TAB_METADATA_KEY,OperationalReportTabRegistry,OperationalTabError,type OperationalTabOwnership} from '../src/services/operationalReportTabRegistry';
 import { WorkspaceStorageBoundary, workspaceError, normalizeStorageId, projectStorage } from './workspace.isolation';
@@ -444,7 +445,7 @@ export class ServerWorkspaceService {
 
     if (currentHeaders.length === 0) {
       // Clean sheet, write full headers
-      await sheets.spreadsheets.values.update({
+      if(inProjectionDelivery())await atomicValueWrites(sheets,spreadsheetId,[{range:`${tabTitle}!A1`,values:[expectedHeaders]}],existingSheet?meta:undefined);else await sheets.spreadsheets.values.update({
         spreadsheetId,
         range: `${tabTitle}!A1`,
         valueInputOption: 'USER_ENTERED',
@@ -459,7 +460,7 @@ export class ServerWorkspaceService {
         // Append missing headers to the right
         const startColIndex = currentHeaders.length;
         const startColLetter = this.columnIndexToLetter(startColIndex);
-        await sheets.spreadsheets.values.update({
+        if(inProjectionDelivery())await atomicValueWrites(sheets,spreadsheetId,[{range:`${tabTitle}!${startColLetter}1`,values:[missingHeaders]}],meta);else await sheets.spreadsheets.values.update({
           spreadsheetId,
           range: `${tabTitle}!${startColLetter}1`,
           valueInputOption: 'USER_ENTERED',
@@ -543,10 +544,10 @@ export class ServerWorkspaceService {
     // 3. Read existing data rows to locate keys
     const allDataRes = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${tabTitle}!A2:ZZ`,
+      range: inProjectionDelivery()?`${tabTitle}!A2:ZZ2002`:`${tabTitle}!A2:ZZ`,
     });
 
-    const existingRows: any[][] = allDataRes.data.values || [];
+    const existingRows: any[][] = allDataRes.data.values || [];if(inProjectionDelivery()&&existingRows.length>2000)projectionFailure('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');
     const rowIndexByKey = new Map<string, number>(); // key -> 1-based sheet row number (Row 2 is index 2)
 
     existingRows.forEach((row, idx) => {
@@ -604,7 +605,7 @@ export class ServerWorkspaceService {
 
     // Execute updates in batch
     if (updateRequests.length > 0) {
-      await sheets.spreadsheets.values.batchUpdate({
+      if(inProjectionDelivery())await atomicValueWrites(sheets,spreadsheetId,updateRequests);else await sheets.spreadsheets.values.batchUpdate({
         spreadsheetId,
         requestBody: {
           valueInputOption,
@@ -615,7 +616,7 @@ export class ServerWorkspaceService {
 
     // Execute appends
     if (rowsToAppend.length > 0) {
-      await sheets.spreadsheets.values.append({
+      if(inProjectionDelivery())await atomicValueWrites(sheets,spreadsheetId,[{range:`${tabTitle}!A${existingRows.length+2}`,values:rowsToAppend}]);else await sheets.spreadsheets.values.append({
         spreadsheetId,
         range: `${tabTitle}!A1`,
         valueInputOption,
@@ -729,9 +730,9 @@ export class ServerWorkspaceService {
     // 6. Read current data rows
     const allDataRes = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: `${tabTitle}!A2:ZZ`,
+      range: inProjectionDelivery()?`${tabTitle}!A2:ZZ2002`:`${tabTitle}!A2:ZZ`,
     });
-    const existingRows: any[][] = allDataRes.data.values || [];
+    const existingRows: any[][] = allDataRes.data.values || [];if(inProjectionDelivery()&&existingRows.length>2000)projectionFailure('WORKSPACE_SOURCE_BUDGET_REVIEW_REQUIRED');
 
     // 7. Build authoritative key set
     const authoritativeKeys = new Set<string>();

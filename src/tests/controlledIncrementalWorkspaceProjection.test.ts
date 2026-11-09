@@ -83,7 +83,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
       const mockProjectionState = createCleanProjectionState('PRJ-1000');
       let liveContinuity = { ...mockContinuity };
 
-      const docObj = (type: string) => ({ _type: type });
+      const docObj = (type: string) => ({ _type: type, get:async()=>({exists:type==='projectionState',data:()=>type==='projectionState'?mockProjectionState:undefined}) });
 
       const mockOutboxDocs = [
         {
@@ -383,7 +383,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
         },
       };
 
-      const docObj = (type: string) => ({ _type: type });
+      const docObj = (type: string) => ({ _type: type, get:async()=>({exists:type==='projectionState',data:()=>type==='projectionState'?mockProjectionState:undefined}) });
       const mockProjectionState = createCleanProjectionState('PRJ-1000');
       const mockOutboxQuery = {
         _isQuery: true,
