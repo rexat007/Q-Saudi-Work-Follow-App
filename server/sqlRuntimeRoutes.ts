@@ -1,3 +1,4 @@
+import {SqlImmutableImportSourceStore} from '../src/db/sqlImportSourceStore';
 import {SqlGovernanceAuthority} from '../src/db/governanceAuthority';
 import {registerSqlGovernanceRoutes} from './sqlGovernanceRoutes';
 import {readFirestoreAuthority} from '../src/runtime/firestoreAuthority.server';
@@ -19,7 +20,7 @@ import {SQL_WORKSPACE_GATE} from './sqlWorkspaceComposition';
 /** Registration is deliberately separate from activation. app.ts never calls this.
  * Caller must provide explicit least-privilege pools and an operator-established DB epoch.
  * No request/header/environment variable selects the canonical backend. */
-export async function registerSqlRuntime(app:Express,options:{authorityDatabase:unknown;runtimePool:Pool;authPool:Pool;verifyToken:NonNullable<SqlAuthorityDependencies['verifyToken']>;sourceStore:ImportSourceStore;cursorKey:Buffer;readinessSource?:ReadinessSource;epoch:Readonly<{backendEpoch:string;epochRevision:number}>;companyForToken:(token:string)=>Promise<string>}){
+export async function registerSqlRuntime(app:Express,options:{authorityDatabase:unknown;runtimePool:Pool;authPool:Pool;verifyToken:NonNullable<SqlAuthorityDependencies['verifyToken']>;sourceStore?:ImportSourceStore;cursorKey:Buffer;readinessSource?:ReadinessSource;epoch:Readonly<{backendEpoch:string;epochRevision:number}>;companyForToken:(token:string)=>Promise<string>}){
  const epoch=Object.freeze({...options.epoch});
  // Startup witness from the SAME operator-owned Firestore control used by legacy
  // HTTP/Rules/Admin transactions. DB arming alone cannot register a dual writer.
@@ -34,7 +35,8 @@ export async function registerSqlRuntime(app:Express,options:{authorityDatabase:
  await check();
  const deps={runtimePool:options.runtimePool,authPool:options.authPool,verifyToken:options.verifyToken,backendFence:epoch};
  const governance=new SqlGovernanceAuthority({...deps,cursorKey:options.cursorKey});
- const canonical=new SqlTemporalAuthority(deps),trips=new SqlTripAuthority(deps),imports=new SqlImportAuthority({...deps,sourceStore:options.sourceStore}),tripImports=new SqlTripImportAuthority({...deps,sourceStore:options.sourceStore}),recovery=new SqlOfflineRecoveryAuthority(deps);
+ const sourceStore=options.sourceStore??new SqlImmutableImportSourceStore();
+ const canonical=new SqlTemporalAuthority(deps),trips=new SqlTripAuthority(deps),imports=new SqlImportAuthority({...deps,sourceStore}),tripImports=new SqlTripImportAuthority({...deps,sourceStore}),recovery=new SqlOfflineRecoveryAuthority(deps);
  const readiness=options.readinessSource?new SqlRuntimeReadinessAuthority(deps,options.readinessSource):null;
  const reads=new SqlProjectReadAuthority({...deps,backendEpoch:epoch.backendEpoch,cursorKey:options.cursorKey});
  app.use('/api/v2',async(req,res,next)=>{res.set('Cache-Control','private, no-store');

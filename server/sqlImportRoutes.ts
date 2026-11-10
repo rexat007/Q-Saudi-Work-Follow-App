@@ -23,6 +23,7 @@ export function registerSqlImportRoutes(app:Express,imports:SqlImportAuthority){
     const {base64,...rest}=req.body||{};if(typeof base64!=='string'||base64.length>2_700_000||Buffer.from(base64,'base64').toString('base64')!==base64)throw Object.assign(Error(),{code:'INVALID_SOURCE_BYTES',status:400});
     return imports.attachSource(t,s,{...rest,sessionId:String(req.params.sessionId)},Buffer.from(base64,'base64'));
   }));
+  router.get('/source/receipt',handle((req,t,s)=>imports.sourceReceipt(t,s,String(req.params.sessionId))));
   router.post('/checkpoint',handle((req,t,s)=>imports.checkpoint(t,s,command(req))));
   router.post('/corrections',handle((req,t,s)=>imports.correctRows(t,s,command(req))));
   router.get('/checkpoint',handle((req,t,s)=>imports.readCheckpoint(t,s,String(req.params.sessionId))));

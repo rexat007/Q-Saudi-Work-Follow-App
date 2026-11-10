@@ -10,7 +10,7 @@ export const IMPORT_ARTIFACT_BYTES=8_000_000;
 export interface ImportSourceProvenance {sourceType:string;sourceRevisionId:string;metadata:Record<string,unknown>}
 export interface ImportSourceReceipt {artifactId:string;contentSha256:string;sourceType:string;sourceRevisionId:string;provider:string;
   rowFormat?:'CSV_UTF8'|'XLSX';sheetName?:string;headerRowIndex?:number}
-/** Production source object storage has no configured provider in U05. */
+/** Bounded immutable-source port. Trusted SQL composition supplies the production backend. */
 export interface ImportSourceStore {
   /** A real provider verifies remote ownership, format, header/sheet selection and immutable bytes before issuing this receipt. */
   put(uow:UnitOfWork,session:string,bytes:Buffer,provenance:ImportSourceProvenance):Promise<ImportSourceReceipt>;
@@ -44,14 +44,14 @@ export class ImportArtifacts {
   private readonly crypto=new IdentityProtection();
   constructor(private readonly uow:UnitOfWork){}
   private aad(session:string,id:string,index:number){return `${this.uow.context.companyId}/${this.uow.context.projectId}/import/${session}/${id}/${index}`;}
-  async write(session:string,kind:'SOURCE'|'CHECKPOINT',value:unknown){
+  async write(session:string,kind:'SOURCE'|'CHECKPOINT',value:unknown,sourceProof?:Record<string,unknown>){
     assertSessionPayload(value);if(Buffer.byteLength(JSON.stringify(value))>IMPORT_ARTIFACT_BYTES)importFail('IMPORT_ARTIFACT_LIMIT');
     const chunks=encodeSessionChunks(value),length=chunks.reduce((n,c)=>n+Buffer.byteLength(c),0);
     if(chunks.length>256||length>IMPORT_ARTIFACT_BYTES)importFail('IMPORT_ARTIFACT_LIMIT');
     const id=randomUUID(),digest=sha(chunks.join(''));
     await this.uow.query(`INSERT INTO import_source_artifacts(id,company_id,project_id,session_id,artifact_kind,content_sha256,object_uri,manifest,byte_length)
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`,[id,this.uow.context.companyId,this.uow.context.projectId,session,kind,digest,
-      kind==='SOURCE'?`isolated-sql://${id}`:`sql-checkpoint://${id}`,{count:chunks.length,digest},length]);
+      kind==='SOURCE'?(sourceProof?`sql-source-v1://${id}`:`isolated-sql://${id}`):`sql-checkpoint://${id}`,{count:chunks.length,digest,...(sourceProof?{sourceProof}:{})},length]);
     for(let index=0;index<chunks.length;index++)await this.uow.query(`INSERT INTO import_artifact_chunks
       (company_id,project_id,session_id,artifact_id,chunk_index,content_sha256,content_encrypted) VALUES($1,$2,$3,$4,$5,$6,$7)`,
       [this.uow.context.companyId,this.uow.context.projectId,session,id,index,sha(chunks[index]),this.crypto.seal(chunks[index],this.aad(session,id,index))]);

@@ -135,6 +135,13 @@ export class SqlImportAuthority extends SqlCanonicalAuthority {
       return {sessionId:r.sessionId,version:Number(row.version)+1,lifecycleState:'DISCOVERED'};
     });
   }
+  /** Current source proof only; raw bytes and private object locators never leave the server. */
+  async sourceReceipt(token:string,scope:Scope,sessionId:string){return this.scoped(token,scope,false,async u=>{
+    const row=await this.header(u,sessionId),cp=await this.checkpointValue(u,row);
+    if(!row.source_artifact)throw new GlobalIdentityError('SOURCE_ARTIFACT_NOT_FOUND','',404);
+    await this.verifySource(u,row,cp);
+    return {sessionId,version:Number(row.version),lifecycleState:row.state,state:'COMMITTED' as const,sourceRevisionId:cp.source.sourceRevisionId,contentSha256:row.source_hash,artifactId:row.source_artifact,provider:cp.source.providerSnapshot.provider,resendAuthorized:false as const};
+  });}
   async checkpoint(token:string,scope:Scope,r:SessionCommand & {patch:Record<string,any>}){
     strict(r,['sessionId','requestId','expectedVersion','patch']);
     strict(r.patch,['lifecycleState','rosterStage','currentStage','mapping','importBatch','reviewSnapshot','warningConfirmation','invalidateReview']);

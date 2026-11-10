@@ -17,9 +17,10 @@ export class SqlRuntimeReadinessAuthority extends SqlCanonicalAuthority {
  });}
  async advance(token:string,scope:Scope,runId:string,requestId:string,expectedVersion:number){
   if(![runId,requestId].every(v=>/^[0-9a-f-]{36}$/.test(v))||!Number.isSafeInteger(expectedVersion)||expectedVersion<1)fail('INVALID_READINESS_REQUEST');
-  const m=await this.evidence(scope);return this.scoped(token,scope,true,async uow=>{
+  let m:Awaited<ReturnType<typeof this.evidence>>|undefined;let sourceError=false;try{m=await this.evidence(scope);}catch{sourceError=true;}return this.scoped(token,scope,true,async uow=>{
    const row=(await uow.query('SELECT * FROM runtime_readiness_runs WHERE id=$1 AND company_id=$2 AND project_id=$3 FOR UPDATE',[runId,uow.context.companyId,uow.context.projectId])).rows[0];
    if(!row||row.actor_id!==uow.context.actorId)fail('READINESS_RUN_NOT_FOUND');
+   if(sourceError||!m){await uow.query("UPDATE runtime_readiness_runs SET state='BLOCKED',last_error_code='SOURCE_EVIDENCE_UNVERIFIED' WHERE id=$1",[runId]);return {state:'BLOCKED',code:'SOURCE_EVIDENCE_UNVERIFIED',productionCutoverAuthorized:false};}
    const revisions={scopes:(await uow.query('SELECT qsa_readiness_revisions() AS value')).rows[0].value,epoch:(await uow.query('SELECT * FROM qsa_read_runtime_state()')).rows[0],governance:(await uow.query('SELECT qsa_governance_frame() AS value')).rows[0].value};
    const changed=row.manifest_digest!==readinessDigest(m)||readinessDigest(row.target_revisions)!==readinessDigest(revisions);
    if(changed){await uow.query("UPDATE runtime_readiness_runs SET state='BLOCKED',last_error_code='RECONCILIATION_BOUNDARY_CHANGED' WHERE id=$1",[runId]);return {state:'BLOCKED',code:'RECONCILIATION_BOUNDARY_CHANGED',productionCutoverAuthorized:false};}

@@ -1,5 +1,13 @@
 ## 2026-11-09 — AR2-U08 source implemented / independent review required
 
+### AR2-U09-RB3 — Immutable source authority ready for source review; overall U09 BLOCKED — 2026-11-10
+
+The [RB3 evidence](19_AR2_U09_RB3_IMMUTABLE_SOURCE.md) supersedes the missing production-capable source-provider/approved-export-adapter implementation statements. Trusted SQL composition now uses the production immutable provider on the existing bounded encrypted U05 artifact backend; the isolated adapter remains test-only. Current SQL scope, keyed ownership proof, original receipts, CSV/XLSX validation, reviewed intent and immutable history are preserved. A separate read-only frozen export adapter verifies independent owner/mapping signatures, current authorization and all 52 inventory categories. It does not certify production equivalence from synthetic tests.
+
+AR2_U09_RB3_SOURCE_IMPLEMENTED_READY_FOR_REVIEW: new native PostgreSQL/authenticated API/export 48/48; actual React journeys 36/36 (9 RB3 + unchanged 27 RB2), full unchanged SQL 480/480, U07/U08/U09 browser 88/88, RB2 session 6/6 and independent authority 148/148. Fresh RB2 baseline and candidate history both 2,402/2,494, identical 92 failures, 12 suite-load failures and 2 unhandled errors; exact new failure identities zero. Compiler 446→446, zero added/removed semantic diagnostics, lint remains NOT PASS; build/diff PASS. Migrations 001–012 and historical assertions unchanged.
+
+Overall U09 remains BLOCKED. No actual production source/export equivalence, production persistence/key/approved export deployment, interactive source mapping/resolution, unsupported remote formats or RB4 delivery is claimed complete. The required operator-approved frozen source/mapping package, independent live/CI/Firebase/Rules/IAM/drain/device/load checks and owner cutover approval remain open. Production stays Firestore; no PR, merge, deployment, production data operation or SQL activation occurred.
+
 ### AR2-U09-RB2 — SQL UI source ready for review; overall U09 BLOCKED — 2026-11-10
 
 The [RB2 integration evidence](18_AR2_U09_RB2_SQL_UI_INTEGRATION.md) supersedes the earlier missing-consumer statement for the bounded trusted SQL composition: existing React account/admin gates, navigation, project setup/lifecycle, operational controls, journal and supported persisted Roster import stages now consume real SQL ports. Production main still selects Firestore; no deployment or authority activation occurred. No migrations 001–012 or historical test assertions changed.
