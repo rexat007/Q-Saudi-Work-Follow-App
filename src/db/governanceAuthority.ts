@@ -82,5 +82,12 @@ export class SqlGovernanceAuthority {
  projects(token:string,company:string,cursor?:string,limit=50){return this.page(token,company,'projects',cursor,limit,r=>this.projectDto(r,Boolean(r._canManageProject)));}
  accounts(token:string,company:string,cursor?:string,limit=50){return this.page(token,company,'accounts',cursor,limit,r=>this.accountDto(r));}
  companies(token:string,cursor?:string,limit=50){return this.page(token,undefined,'companies',cursor,limit,r=>({companyId:r.companyId,name:r.name??null,status:r.status}));}
+ /** Read-only RB2 adapter. Receipt ciphertext is a locator, never current authorization. */
+ async projectOperationResult(token:string,company:string,operationId:string){if(!operation(operationId))fail('INVALID_GOVERNANCE_COMMAND',422);return this.scope(token,company,undefined,async(u,c)=>{
+  await this.context(u);const row=(await u.query('SELECT project_id,result_encrypted FROM governance_receipts WHERE company_id=$1 AND actor_id=$2 AND operation_id=$3',[company,u.context.actorId,operationId])).rows[0];if(!row)fail('GOVERNANCE_RECEIPT_NOT_FOUND',404);if(!row.project_id)fail('PROJECT_OPERATION_REQUIRED',409);
+  const locator=c.open<{projectId?:string}>(row.result_encrypted,`${company}/governance/${u.context.actorId}/${operationId}`);if(!external(locator.projectId))fail('GOVERNANCE_RECEIPT_UNVERIFIED',503);
+  const current=await this.context(u,locator.projectId);if(current.project.id!==row.project_id)fail('GOVERNANCE_RECEIPT_UNVERIFIED',503);
+  return {operationId,state:'COMMITTED' as const,resendAuthorized:false as const,project:this.projectDto(current.project,current.canManageProject)};
+ });}
  async receiptReference(token:string,company:string,operationId:string){if(!operation(operationId))fail('INVALID_GOVERNANCE_COMMAND',422);return this.scope(token,company,undefined,async u=>{await this.context(u);const row=(await u.query('SELECT 1 FROM governance_receipts WHERE company_id=$1 AND actor_id=$2 AND operation_id=$3',[company,u.context.actorId,operationId])).rows[0];return {operationId,state:row?'COMMITTED':'UNKNOWN',resendAuthorized:false};});}
 }

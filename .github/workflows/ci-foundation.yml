@@ -173,11 +173,13 @@ jobs:
           src/tests/ar2U09MigrationReadiness.test.ts
           src/tests/ar2U09FirestoreFence.test.ts
           src/tests/ar2U09Rb1Governance.test.ts
+          src/tests/ar2U09Rb2Session.test.ts
       - name: Verify scoped IndexedDB and journal UI in a real browser
         run: >-
           npx vitest run --no-file-parallelism
           src/tests/ar2U07OfflineContinuity.test.ts
           src/tests/ar2U09OfflineBrowser.test.ts
+          src/tests/ar2U09Rb2Ui.test.ts
       - name: Verify explicit 148 authority bundle
         run: >-
           npx vitest run

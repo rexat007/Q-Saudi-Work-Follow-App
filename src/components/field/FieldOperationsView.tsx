@@ -1,3 +1,5 @@
+import {SqlTripWorkstation} from './SqlTripWorkstation';
+import type {SqlUiSession} from '../../runtime/sqlUiSession';
 import {AdaptiveOperationsView} from './AdaptiveOperationsView';
 import React, { useState } from 'react';
 import { 
@@ -32,7 +34,10 @@ export interface FieldOperationsViewProps {
   authContext?: AuthUserContext;
 }
 
-export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
+export function FieldOperationsView(props:{sql:SqlUiSession}):React.ReactElement;
+export function FieldOperationsView(props:FieldOperationsViewProps):React.ReactElement;
+export function FieldOperationsView(props:FieldOperationsViewProps|{sql:SqlUiSession}){return 'sql' in props?<SqlTripWorkstation session={props.sql}/>:<LegacyFieldOperationsView {...props}/>;}
+const LegacyFieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   initialTab = 'LOADING_STATION',
   initialRole = 'SCALE_OPERATOR',
   projects = [],

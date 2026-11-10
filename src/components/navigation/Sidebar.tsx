@@ -28,9 +28,10 @@ import { useAuth } from '../../firebase/authContext';
 interface SidebarProps {
   activeTab: NavTabId;
   onSelectTab: (tabId: NavTabId) => void;
-  currentRole: UserRole;
-  onChangeRole: (role: UserRole) => void;
-  projects: ProjectEntity[];
+  currentRole?: UserRole;
+  onChangeRole?: (role: UserRole) => void;
+  projects: {projectId:string;nameAr?:string;status:string;projectCode?:string}[];
+  sqlPresentation?:{roles:import('../../types/sqlGovernance').SqlCommercialRole[];tabs:import('../../services/navigation.service').NavItemDef[];canCreate:boolean;displayName:string};
   selectedProjectId: string;
   setSelectedProjectId: (id: string) => void;
   onOpenSystemTools: () => void;
@@ -41,8 +42,9 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onSelectTab,
-  currentRole,
-  onChangeRole,
+  currentRole='VIEWER',
+  onChangeRole=()=>{},
+  sqlPresentation,
   projects,
   selectedProjectId,
   setSelectedProjectId,
@@ -53,13 +55,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { direction, t } = useI18n();
   const isRtl = direction === 'rtl';
   const { user, userProfile } = useAuth();
-  const displayName = userProfile?.fullName || user?.displayName || t('auth.fallback.system_admin');
+  const roleText=sqlPresentation?sqlPresentation.roles.join(', '):currentRole;
+  const displayName = sqlPresentation?.displayName || userProfile?.fullName || user?.displayName || t('auth.fallback.system_admin');
 
   const [isProjectsExpanded, setIsProjectsExpanded] = useState(true);
 
-  const roleProfile = navigationService.getRoleProfile(currentRole);
-  const authorizedPrimaryTabs = navigationService.getAuthorizedPrimaryTabs(currentRole);
-  const authorizedTools = navigationService.getAuthorizedSystemTools(currentRole);
+  const roleProfile = sqlPresentation?{badgeColor:'bg-emerald-950 text-emerald-300'}:navigationService.getRoleProfile(currentRole);
+  const authorizedPrimaryTabs = sqlPresentation?.tabs || navigationService.getAuthorizedPrimaryTabs(currentRole);
+  const authorizedTools = sqlPresentation?[]:navigationService.getAuthorizedSystemTools(currentRole);
 
   const getTabIcon = (iconName: string, className = "w-4 h-4") => {
     switch (iconName) {
@@ -123,9 +126,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <div 
             className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-xs ${roleProfile.badgeColor}`}
-            title={`${currentRole}: ${displayName}`}
+            title={`${roleText}: ${displayName}`}
           >
-            {currentRole.substring(0, 2)}
+            {roleText.substring(0, 2)}
           </div>
         ) : (
           <div className="space-y-2">
@@ -135,10 +138,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <span>{t('sidebar.role_profile')}</span>
               </span>
               <span className={`text-[8px] font-mono font-bold px-1.5 py-0.2 rounded ${roleProfile.badgeColor}`}>
-                {currentRole}
+                {roleText}
               </span>
             </div>
-            <select
+            {sqlPresentation?<p className="text-xs font-mono" data-testid="sql-roles">{roleText}</p>:<select
               id="sidebar-role-selector"
               value={currentRole}
               onChange={(e) => {
@@ -157,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <option value="FINANCE_AUDITOR">FINANCE_AUDITOR ({t('navigation.roles.finance_auditor_label')})</option>
               <option value="DRIVER">DRIVER ({t('navigation.roles.driver_label')})</option>
               <option value="VIEWER">VIEWER ({t('navigation.roles.viewer_label')})</option>
-            </select>
+            </select>}
             <div className="text-[10px] font-mono text-white/50 leading-snug truncate" title={displayName}>
               {displayName}
             </div>
@@ -211,7 +214,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         {/* Project Centric Workspace Submenu Section */}
-        {(currentRole === 'SUPER_ADMIN' || currentRole === 'PROJECT_ADMIN') && (
+        {(sqlPresentation || currentRole === 'SUPER_ADMIN' || currentRole === 'PROJECT_ADMIN') && (
           <div className="pt-2 border-t border-white/5 space-y-1">
             {!isCollapsed && (
               <div className="flex items-center justify-between px-2 mb-2">
@@ -236,6 +239,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   type="button"
                   id="sidebar-btn-create-project-wizard"
+                  hidden={Boolean(sqlPresentation&&!sqlPresentation.canCreate)}
                   onClick={() => {
                     handleSelectTab('WIZARD');
                     setSelectedProjectId(''); // Reset project selection to trigger dashboard creation mode

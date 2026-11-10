@@ -1,3 +1,5 @@
+import {SqlProjectSetup} from './SqlProjectSetup';
+import type {SqlUiSession} from '../../runtime/sqlUiSession';
 import {GlobalRegistryEnrollment} from '../import/GlobalRegistryEnrollment';
 import {RosterBulkApproval} from '../import/RosterBulkApproval';
 import {ImportMaterialSelection} from '../import/ImportMaterialSelection';
@@ -289,7 +291,10 @@ export async function executeProjectWorkspaceSyncOrchestration(
 
 }
 
-export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
+export function ProjectSetupWizard(props:{sql:SqlUiSession}):React.ReactElement;
+export function ProjectSetupWizard(props:ProjectSetupWizardProps):React.ReactElement;
+export function ProjectSetupWizard(props:ProjectSetupWizardProps|{sql:SqlUiSession}){return 'sql' in props?<SqlProjectSetup session={props.sql}/>:<LegacyProjectSetupWizard {...props}/>;}
+const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   projects: globalProjects,
   authContext,
   selectedProjectId,

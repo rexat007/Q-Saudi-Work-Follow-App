@@ -1,5 +1,13 @@
 ## 2026-11-09 — AR2-U08 source implemented / independent review required
 
+### AR2-U09-RB2 — SQL UI source ready for review; overall U09 BLOCKED — 2026-11-10
+
+The [RB2 integration evidence](18_AR2_U09_RB2_SQL_UI_INTEGRATION.md) supersedes the earlier missing-consumer statement for the bounded trusted SQL composition: existing React account/admin gates, navigation, project setup/lifecycle, operational controls, journal and supported persisted Roster import stages now consume real SQL ports. Production main still selects Firestore; no deployment or authority activation occurred. No migrations 001–012 or historical test assertions changed.
+
+AR2_U09_RB2_SOURCE_IMPLEMENTED_READY_FOR_REVIEW: real PostgreSQL/React browser 27/27, principal/session 6/6, independent authority 148/148; native SQL 479/480 followed by unchanged infrastructure 13/13 closing its only backup timing failure; U07/U08/U09 integration 88/88. Fresh byte-matched RB1 baseline and final historical run both 2,402/2,494 with the same 92 failures, 12 suite-load failures and 2 unhandled errors; exact new failure identities zero. TypeScript 446→446 with zero added/removed semantic diagnostics: lint remains NOT PASS. Build and diff checks PASS.
+
+RB3 immutable source/export/mapping provider and real reconciliation, RB4 six-resource SQL Workspace identity/revision/grant/delivery adapter, unsupported inventory/resolution/report consumers, and independent deployment/Rules/IAM/device/load/cutover approval gates remain OPEN. Trip point reads/actions are integrated; missing whole-project Trip/tariff inventories are not fabricated. Blocked-source/Workspace browser journeys prove the stop, not a completed provider delivery. Overall U09 remains BLOCKED.
+
 ### AR2-U09-RB1 — Governance source ready for review; overall U09 BLOCKED — 2026-11-10
 
 The [RB1 authority and recovery record](17_AR2_U09_RB1_SQL_GOVERNANCE_AUTHORITY.md) supersedes the earlier missing-governance statement only for bounded SQL account/project authority and typed presentation ports. Migration 012 remains additive; published 001–011 bytes are unchanged. Exact original/candidate migration discrepancy was proven and recovered using fresh disposable localhost databases, retaining the old database and candidate source.

@@ -26,6 +26,8 @@ interface AccountStatusGateProps {
   userEmail?: string;
   userName?: string;
   onRefresh?: () => void;
+  registration?: (payload:{fullName:string;requestedRole:string;requestReason:string})=>Promise<void>;
+  rejectionReason?:string;
 }
 
 export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
@@ -33,6 +35,8 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
   userEmail,
   userName,
   onRefresh,
+  registration,
+  rejectionReason,
 }) => {
   const { signOutUser, signInWithGoogle, user, authError, clearAuthError } = useAuth();
   const { direction, t } = useI18n();
@@ -104,6 +108,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
     setFormError(null);
 
     try {
+      if(registration){await registration({fullName:fullName.trim(),requestedRole,requestReason:requestReason.trim()});return;}
       const pendingProfile: UserEntity = {
         userId: user.uid,
         email: user.email || '',
@@ -259,7 +264,7 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
             </div>
 
             {/* Owner Bootstrap Panel */}
-            {userEmail?.toLowerCase() === 'saudiali044@gmail.com' && (
+            {!registration && userEmail?.toLowerCase() === 'saudiali044@gmail.com' && (
               <div className="bg-[#10b981]/5 border border-[#10b981]/20 rounded-xl p-5 space-y-4">
                 <div className="flex items-center gap-2.5">
                   <div className="p-2 bg-[#10b981]/10 rounded-lg border border-[#10b981]/30">
@@ -510,11 +515,11 @@ export const AccountStatusGate: React.FC<AccountStatusGateProps> = ({
           </div>
 
           {/* Render rejection reason if applicable */}
-          {details.showRejectionReason && userProfile?.rejectionReason && (
+          {details.showRejectionReason && (rejectionReason||userProfile?.rejectionReason) && (
             <div className="bg-rose-500/5 border border-rose-500/25 rounded-xl p-4 text-xs text-rose-300 leading-relaxed space-y-1">
               <span className="font-bold block text-rose-400">🛑 {t('auth.labels.rejection_reason_label')}</span>
               <p className="font-mono bg-stone-950/50 p-2.5 rounded border border-rose-500/10 mt-1">
-                {userProfile.rejectionReason}
+                {rejectionReason||userProfile?.rejectionReason}
               </p>
             </div>
           )}

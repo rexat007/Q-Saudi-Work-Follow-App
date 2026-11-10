@@ -1,0 +1,21 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import App from '../../App';
+import {AuthProvider} from '../../firebase/authContext';
+import {I18nProvider} from '../../i18n';
+import {RuntimeCompositionProvider} from '../../runtime/RuntimeCompositionProvider';
+import {SqlUiClient} from '../../services/sqlUiClient.service';
+import {SqlOfflineHttpTransport} from '../../services/offline/sqlOfflineHttpTransport';
+import {SqlOfflineCoordinator} from '../../services/offline/sqlOfflineCoordinator';
+import {SqlOfflineStore} from '../../services/offline/sqlOfflineStore';
+const w=window as any,config=w.rb2Fixture;let token='owner',user:any=null,listeners=new Set<()=>void>(),release:(()=>void)|undefined,hold='',fail='';
+const identity={current:()=>user,subscribe:(fn:()=>void)=>{listeners.add(fn);return()=>{listeners.delete(fn);};},signIn:async()=>actor('owner'),signOut:async()=>actor(null)};
+function actor(next:string|null){token=next||'';user=next?{uid:config.actors[next],displayName:'Synthetic '+next,email:next+'@example.invalid',getIdToken:async()=>next}:null;for(const fn of listeners)fn();}
+actor('owner');
+const fetcher:typeof fetch=async(u,i)=>{const response=await fetch(u,i);if(fail&&String(u).includes(fail)){fail='';throw Object.assign(Error('LOST_ACK'),{code:'LOST_ACK'});}if(hold&&String(u).includes(hold)){hold='';w.rb2.held=true;await new Promise<void>(r=>{release=r;});}return response;};
+const client=new SqlUiClient(identity,config.epoch,fetcher),coordinator=new SqlOfflineCoordinator(new SqlOfflineStore(),new SqlOfflineHttpTransport(()=>identity.current(),fetcher),()=>identity.current()?.uid||null,()=>w.rb2?.clock||Date.now());
+const runtime={companyId:config.company,ui:{identity,client,epoch:config.epoch},coordinator,principal:()=>identity.current()?.uid||null,profile:async()=>{throw Error('LEGACY_PROFILE_PORT_MUST_NOT_RUN');}};
+const root=createRoot(document.getElementById('root')!);
+const render=(production=false)=>root.render(<RuntimeCompositionProvider composition={production?null:runtime}><AuthProvider><I18nProvider initialLocale="en"><App/></I18nProvider></AuthProvider></RuntimeCompositionProvider>);
+w.rb2={actor,coordinator,client,identity,runtime,held:false,failNext:(path:string)=>{fail=path;},hold:(path:string)=>{hold=path;w.rb2.held=false;},release:()=>{release?.();release=undefined;},production:()=>render(true)};
+render();

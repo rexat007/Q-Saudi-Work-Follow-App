@@ -31,7 +31,17 @@ export interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({children}:{children:ReactNode}){
+ const runtime=useRuntimeComposition();
+ return runtime?.ui?<SqlIdentityAuthProvider runtime={runtime}>{children}</SqlIdentityAuthProvider>:<LegacyAuthProvider>{children}</LegacyAuthProvider>;
+}
+function SqlIdentityAuthProvider({runtime,children}:{runtime:import('../services/runtimeClient.service').RuntimeClientComposition;children:ReactNode}){
+ const identity=runtime.ui!.identity,[user,setUser]=useState<User|null>(()=>identity.current()),[error,setError]=useState<string|null>(null);
+ useEffect(()=>identity.subscribe(()=>setUser(identity.current())),[identity]);
+ const signOutUser=async()=>{runtime.ui!.client.invalidate();setUser(null);await Promise.all([runtime.coordinator.exit(),identity.signOut()]);};
+ return <AuthContext.Provider value={{user,userProfile:null,profileAuthority:'LOADING',idToken:null,isAuthReady:true,isProfileLoading:false,signInWithGoogle:()=>identity.signIn(),signOutUser,refreshUserProfile:async()=>{},authError:error,clearAuthError:()=>setError(null)}}>{children}</AuthContext.Provider>;
+}
+function LegacyAuthProvider({ children }: { children: ReactNode }) {
   const runtime=useRuntimeComposition();
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserEntity | null>(null);

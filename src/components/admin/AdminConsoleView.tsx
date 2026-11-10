@@ -1,3 +1,5 @@
+import {SqlAccountAdministration} from './SqlAccountAdministration';
+import type {SqlUiSession} from '../../runtime/sqlUiSession';
 import { DriverAccountBindingControl } from './DriverAccountBindingControl';
 import { executeAdminAccountCommand, adminErrorKey } from '../../services/adminAccountClient.service';
 import React, { useState, useEffect, useMemo } from 'react';
@@ -33,7 +35,8 @@ type AdminSection =
   | 'SECURITY_ACCESS'
   | 'AUDIT_LOGS';
 
-export function AdminConsoleView() {
+export function AdminConsoleView({sql}:{sql?:SqlUiSession}={}){return sql?<SqlAccountAdministration session={sql}/>:<LegacyAdminConsoleView/>;}
+function LegacyAdminConsoleView() {
   const { t, direction, locale } = useI18n();
   const { user: currentUser, userProfile } = useAuth();
   

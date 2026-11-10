@@ -17,6 +17,7 @@ export function registerSqlGovernanceRoutes(app:Express,authority:SqlGovernanceA
  router.get('/governance/projects/:projectId/readiness',handle((q,t,c)=>authority.readiness(t,company(c),String(q.params.projectId))));
  router.post('/governance/projects/:projectId/assessment',handle((q,t,c)=>authority.assess(t,company(c),String(q.params.projectId),q.body)));
  router.post('/governance/projects/:projectId/commands',handle((q,t,c)=>authority.projectCommand(t,company(c),String(q.params.projectId),q.body)));
+ router.get('/governance/operations/:operationId/result',handle((q,t,c)=>authority.projectOperationResult(t,company(c),String(q.params.operationId))));
  router.get('/governance/operations/:operationId',handle((q,t,c)=>authority.receiptReference(t,company(c),String(q.params.operationId))));
  router.use((error:any,_req:Request,res:Response,_next:any)=>res.status(error?.type==='entity.too.large'?413:400).json({error:{code:'INVALID_GOVERNANCE_BODY'}}));
  app.use('/api/v2',router);

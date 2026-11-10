@@ -49,15 +49,17 @@ const formatLocaleDate = (dateStr: string | null | undefined, locale: string = '
 };
 
 
-interface Step1Props {
-  data: ProjectInfoStep;
-  onChange: (updated: ProjectInfoStep) => void;
+type FoundationDraft=Omit<ProjectInfoStep,'status'>&{status:string};
+interface Step1Props<T extends FoundationDraft> {
+  data: T;
+  onChange: (updated: T) => void;
+  foundationOnly?:boolean;
   errors?: string[];
 }
 
-export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors = [] }) => {
+export const Step1ProjectInfo = <T extends FoundationDraft,>({ data, onChange, errors = [],foundationOnly=false }:Step1Props<T>) => {
   const { t, locale } = useI18n();
-  const updateField = <K extends keyof ProjectInfoStep>(field: K, value: ProjectInfoStep[K]) => {
+  const updateField = <K extends keyof T>(field: K, value: T[K]) => {
     onChange({
       ...data,
       [field]: value,
@@ -154,7 +156,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
         </div>
 
         {/* Status */}
-        <div>
+        {foundationOnly?<p data-testid="project-status">{data.status}</p>:<div>
           <label className="block text-xs font-bold text-stone-700 mb-1">
             {t("projects.labels.project_7")}<span className="text-rose-500">*</span>
           </label>
@@ -171,7 +173,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
                 key={st.key}
                 type="button"
                 id={`status-btn-${st.key}`}
-                onClick={() => updateField('status', st.key)}
+                onClick={() => onChange({...data,status:st.key})}
                 className={`py-2 px-2 text-xs font-semibold rounded-lg border text-center transition-all ${
                   data.status === st.key
                     ? `${st.color} shadow-xs font-bold ring-1 ring-offset-1`
@@ -182,7 +184,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         {/* Dates */}
         <div>
@@ -284,6 +286,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             />
           </div>
 
+          {!foundationOnly&&<>
           <div>
             <label className="block font-semibold text-stone-700 mb-1">
               {t("projects.labels.trucks")}</label>
@@ -319,6 +322,7 @@ export const Step1ProjectInfo: React.FC<Step1Props> = ({ data, onChange, errors 
             <label htmlFor="cb-self-dispatch" className="font-semibold text-stone-700 cursor-pointer">
               {t("projects.labels.txt_126e48")}</label>
           </div>
+          </>}
         </div>
 
         <div className="mt-3 pt-3 border-t border-stone-200 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">

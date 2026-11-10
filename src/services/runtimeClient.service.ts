@@ -1,6 +1,6 @@
 import {SqlOfflineCoordinator} from './offline/sqlOfflineCoordinator';
 /** Installed only by a trusted application root. No URL, localStorage or UI selector. */
-export interface RuntimeClientComposition {companyId:string;coordinator:SqlOfflineCoordinator;principal:()=>string|null;profile:(uid:string)=>Promise<import('../types/entities').UserEntity|null>}
+export interface RuntimeClientComposition {ui?:import('../types/sqlUi').SqlUiComposition;companyId:string;coordinator:SqlOfflineCoordinator;principal:()=>string|null;profile:(uid:string)=>Promise<import('../types/entities').UserEntity|null>}
 let composed:RuntimeClientComposition|null=null;
 export const currentRuntimeClient=()=>composed;
 export function installRuntimeClient(value:RuntimeClientComposition){if(composed&&composed!==value)throw Error('RUNTIME_ALREADY_COMPOSED');composed=value;return()=>{if(composed===value){value.coordinator.dispose();composed=null;}};}

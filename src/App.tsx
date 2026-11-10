@@ -1,3 +1,4 @@
+import {SqlApplicationSession} from './runtime/SqlApplicationSession';
 import {useRuntimeProject,useRuntimeComposition} from './runtime/RuntimeCompositionProvider';
 import {ProfileContinuity} from './components/auth/ProfileContinuity';
 import {readWorkspaceContinuation} from './runtime/workspaceProvisioningResume';
@@ -981,6 +982,7 @@ function LegacyAuthorityApp() {
  * hydrate the Firestore application under a SQL-selected root as a fallback. */
 export default function App(){
  const runtime=useRuntimeComposition();
+ if(runtime?.ui)return <SqlApplicationSession runtime={runtime}/>;
  if(runtime)return <main role="alert" dir="rtl" className="p-6"><h1>التشغيل غير متاح</h1><p>لم يكتمل ربط إدارة المشاريع وواجهة الحساب بالمرجع المعتمد. لا يمكن تشغيل الواجهة قبل التحقق من هذه التبعيات.</p></main>;
  return <LegacyAuthorityApp/>;
 }

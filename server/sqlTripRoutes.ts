@@ -4,7 +4,7 @@ import type {SqlTripAuthority} from '../src/db/tripAuthority.js';
 export function registerSqlTripRoutes(app:Express,service:SqlTripAuthority,companyForToken:(token:string)=>Promise<string>){
  const router=express.Router();router.use(express.json({limit:'64kb'}));
  const handle=(work:(req:Request,token:string,scope:{companyId:string;projectId:string})=>Promise<any>)=>async(req:Request,res:Response)=>{
-  try{const auth=req.headers.authorization;if(!auth?.startsWith('Bearer '))return res.status(401).json({code:'AUTH_REQUIRED'});const token=auth.slice(7),scope={companyId:await companyForToken(token),projectId:String(req.params.projectExternalId)};res.json(await work(req,token,scope));}
+  try{const auth=req.headers.authorization;if(!auth?.startsWith('Bearer '))return res.status(401).json({code:'AUTH_REQUIRED'});const token=auth.slice(7),scope={companyId:await companyForToken(token),projectId:String(req.params.projectExternalId)};if(req.header('X-Company-Id')&&req.header('X-Company-Id')!==scope.companyId)return res.status(403).json({code:'SCOPE_MISMATCH'});res.json(await work(req,token,scope));}
   catch(e:any){res.status(Number.isInteger(e.status)?e.status:e.name==='AuthenticationError'?401:e.name==='AuthorizationError'?403:503).json({code:typeof e.code==='string'&&/^[A-Z_]+$/.test(e.code)?e.code:'TRIP_AUTHORITY_UNAVAILABLE'});}
  };
  router.post('/:projectExternalId/trips/commands',handle((req,token,scope)=>service.execute(token,scope,req.body)));

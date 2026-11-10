@@ -5,7 +5,9 @@ import {validateOperationalConfiguration} from '../../services/operationalProfil
 import {projectService} from '../../services/project.service';
 import {useI18n} from '../../i18n';
 const empty:OperationalConfiguration={schemaVersion:1,loadingMeasurementMode:'WEIGHBRIDGE',unloadingMeasurementMode:'WEIGHBRIDGE',driverIntakeMode:'MIXED',routeConfiguration:{loadingLocation:'',unloadingLocation:''},capacityEstimationPolicy:{mode:'NONE'},shiftConfiguration:{mode:'NONE'},requiredCheckpoints:[]};
-export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:ProjectEntity;canEdit:boolean;onSaved?:(project:ProjectEntity)=>void}){
+export function OperationalConfigurationForm({project,canEdit,onSaved,onAssess,onConfigure}:{project:Pick<ProjectEntity,'projectId'|'version'|'operationalConfiguration'>&Partial<Pick<ProjectEntity,'settings'>>;canEdit:boolean;onSaved?:(project:ProjectEntity)=>void;onAssess?:(configuration:OperationalConfiguration,revision:number)=>Promise<OperationalImpactAssessment>;onConfigure?:(configuration:OperationalConfiguration,revision:number,ack:boolean,signature?:string)=>Promise<void>}){
+ const assess=(configuration:OperationalConfiguration,revision:number)=>onAssess?onAssess(configuration,revision):projectService.assessOperationalImpact(project.projectId,configuration,revision);
+ const configure=async(configuration:OperationalConfiguration,revision:number,acknowledge:boolean,signature?:string)=>onConfigure?await onConfigure(configuration,revision,acknowledge,signature):signature===undefined?projectService.configureOperations(project.projectId,configuration,revision,acknowledge):projectService.configureOperations(project.projectId,configuration,revision,acknowledge,signature);
  const {t}=useI18n(),[config,setConfig]=useState<OperationalConfiguration>(()=>structuredClone(project.operationalConfiguration||empty)),[busy,setBusy]=useState(false),[notice,setNotice]=useState(''),[errorNotice,setErrorNotice]=useState(''),[ack,setAck]=useState(false),[assessment,setAssessment]=useState<OperationalImpactAssessment|null>(null);
  useEffect(()=>{setConfig(structuredClone(project.operationalConfiguration||empty));setNotice('');setErrorNotice('');setAck(false);setAssessment(null);},[project.projectId,project.version]);
  const select=(label:string,value:string,values:string[],change:(value:string)=>void)=><label className="block space-y-1">{t(`op.${label}`)}<select disabled={!canEdit||busy} className="block bg-stone-900 border rounded p-2 w-full" value={value} onChange={e=>change(e.target.value)}>{values.map(v=><option key={v} value={v}>{t(`op.${v}`)}</option>)}</select></label>;
@@ -17,8 +19,8 @@ export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:
      if(project.operationalConfiguration&&JSON.stringify(project.operationalConfiguration)===JSON.stringify(valid)){
        setNotice('op.no_change');return;
      }
-     if(typeof projectService.assessOperationalImpact==='function'){
-       const res=await projectService.assessOperationalImpact(project.projectId,valid,project.version||0);
+     if(onAssess||typeof projectService.assessOperationalImpact==='function'){
+       const res=await assess(valid,project.version||0);
        if(res.decision==='NO_CHANGE'){setNotice('op.no_change');return;}
        if(res.decision==='BLOCKED'){
          const code=res.reasons[0]||'save_failed';
@@ -27,10 +29,10 @@ export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:
        if(res.decision==='REVIEW_REQUIRED'){
          setAssessment(res);return;
        }
-       const saved=await projectService.configureOperations(project.projectId,valid,project.version||0,ack,res.assessmentSignature);
+       const saved=await configure(valid,project.version||0,ack,res.assessmentSignature);
        if(saved)onSaved?.(saved);setNotice('op.saved');return;
      }
-     const saved=await projectService.configureOperations(project.projectId,valid,project.version||0,ack);
+     const saved=await configure(valid,project.version||0,ack);
      if(saved)onSaved?.(saved);setNotice('op.saved');
    }catch(err:any){
      const code=err?.code||err?.message;
@@ -46,7 +48,7 @@ export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:
    setBusy(true);setNotice('');setErrorNotice('');
    try{
      const valid=validateOperationalConfiguration(config);
-     const saved=await projectService.configureOperations(project.projectId,valid,project.version||0,ack,assessment.assessmentSignature);
+     const saved=await configure(valid,project.version||0,ack,assessment.assessmentSignature);
      if(saved)onSaved?.(saved);
      setNotice(assessment.workspaceState==='CONNECTED'?'op.saved_maintenance_required':'op.saved');
      setAssessment(null);
@@ -59,7 +61,7 @@ export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:
      }
    }finally{setBusy(false);}
  }
- return <section className="bg-stone-950 border border-stone-800 rounded-2xl p-5 space-y-4"><h3 className="font-bold">{t('op.configuration')}</h3><p>{t('op.configuration_help')}</p>
+ return <section data-testid="operational-configuration-form" className="bg-stone-950 border border-stone-800 rounded-2xl p-5 space-y-4"><h3 className="font-bold">{t('op.configuration')}</h3><p>{t('op.configuration_help')}</p>
  <div className="grid sm:grid-cols-2 gap-4">{select('loading_question',config.loadingMeasurementMode,['WEIGHBRIDGE','NONE'],v=>setConfig({...config,loadingMeasurementMode:v as any}))}{select('unloading_question',config.unloadingMeasurementMode,['WEIGHBRIDGE','NONE'],v=>setConfig({...config,unloadingMeasurementMode:v as any}))}
  {select('intake_question',config.driverIntakeMode,['PRELOADED_ROSTER','ON_FIRST_OPERATION','MIXED'],v=>setConfig({...config,driverIntakeMode:v as any}))}
  {(['loadingLocation','unloadingLocation','distanceKm','expectedTravelMinutes','toleranceMinutes'] as const).map(k=><label key={k}>{t(`op.${k}`)}<input disabled={!canEdit||busy} className="block bg-stone-900 border rounded p-2 w-full" type={k.endsWith('Location')?'text':'number'} min="0" value={route[k]??''} onChange={e=>{const next={...route};if(k.endsWith('Location'))(next as any)[k]=e.target.value;else if(e.target.value==='')delete next[k];else (next as any)[k]=Number(e.target.value);setConfig({...config,routeConfiguration:next});}}/></label>)}
@@ -92,13 +94,13 @@ export function OperationalConfigurationForm({project,canEdit,onSaved}:{project:
      {assessment.hasTrips&&<div className="text-sm bg-blue-950/40 border border-blue-800/60 p-3 rounded text-blue-200">{t('op.historical_snapshot_safe')}</div>}
      {assessment.workspaceState==='CONNECTED'&&<div className="text-sm bg-emerald-950/40 border border-emerald-800/60 p-3 rounded text-emerald-200">{assessment.workspaceImpact==='IN_PLACE_MAINTENANCE_REQUIRED'?t('op.workspace_preserved_maintenance_needed'):t('op.workspace_refresh_needed')}</div>}
      <div className="flex items-center gap-3 pt-2">
-       <button type="button" disabled={!canEdit||busy} className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded p-2 px-4 disabled:opacity-40" onClick={applyReviewed}>{t('op.apply_reviewed')}</button>
+       <button type="button" disabled={!canEdit||busy} className="bg-amber-600 hover:bg-amber-500 text-white font-bold rounded p-2 px-4 disabled:opacity-40" data-testid="operational-configuration-apply" onClick={applyReviewed}>{t('op.apply_reviewed')}</button>
        <button type="button" disabled={busy} className="bg-stone-800 text-stone-300 rounded p-2 px-4" onClick={()=>setAssessment(null)}>{t('op.cancel_review')}</button>
      </div>
    </div>
  )}
 
- {!assessment&&<button type="button" disabled={!canEdit||busy} className="bg-amber-700 rounded p-2 disabled:opacity-40" onClick={save}>{t('op.save')}</button>}
+ {!assessment&&<button data-testid="operational-configuration-save" type="button" disabled={!canEdit||busy} className="bg-amber-700 rounded p-2 disabled:opacity-40" onClick={save}>{t('op.save')}</button>}
  {errorNotice&&<p role="alert" className="text-red-400 font-medium">{t(errorNotice)}</p>}
  {notice&&<p role="status" className="text-emerald-400 font-medium">{t(notice)}</p>}
  </section>;
