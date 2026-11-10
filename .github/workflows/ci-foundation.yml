@@ -172,6 +172,7 @@ jobs:
           src/tests/ar2U09RuntimeComposition.test.ts
           src/tests/ar2U09MigrationReadiness.test.ts
           src/tests/ar2U09FirestoreFence.test.ts
+          src/tests/ar2U09Rb1Governance.test.ts
       - name: Verify scoped IndexedDB and journal UI in a real browser
         run: >-
           npx vitest run --no-file-parallelism

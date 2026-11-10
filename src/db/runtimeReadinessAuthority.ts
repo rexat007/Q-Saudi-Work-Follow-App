@@ -12,7 +12,7 @@ export class SqlRuntimeReadinessAuthority extends SqlCanonicalAuthority {
   const schema=(await uow.query('SELECT * FROM qsa_readiness_schema()')).rows;
   if(readinessDigest(schema)!==readinessDigest(m.schema))fail('SCHEMA_COVERAGE_MISMATCH');
   if(Number((await uow.query('SELECT qsa_readiness_pending_receipts() AS count')).rows[0].count)!==0)fail('PENDING_RECEIPTS');
-  const revisions={scopes:(await uow.query('SELECT qsa_readiness_revisions() AS value')).rows[0].value,epoch:(await uow.query('SELECT * FROM qsa_read_runtime_state()')).rows[0]},id=randomUUID();
+  const revisions={scopes:(await uow.query('SELECT qsa_readiness_revisions() AS value')).rows[0].value,epoch:(await uow.query('SELECT * FROM qsa_read_runtime_state()')).rows[0],governance:(await uow.query('SELECT qsa_governance_frame() AS value')).rows[0].value},id=randomUUID();
   await uow.query(`INSERT INTO runtime_readiness_runs(id,company_id,project_id,actor_id,manifest_digest,source_watermark,target_revisions,state) VALUES($1,$2,$3,$4,$5,$6,$7,'RUNNING')`,[id,uow.context.companyId,uow.context.projectId,uow.context.actorId,readinessDigest(m),m.sourceWatermark,revisions]);return {runId:id,state:'RUNNING',productionCutoverAuthorized:false};
  });}
  async advance(token:string,scope:Scope,runId:string,requestId:string,expectedVersion:number){
@@ -20,7 +20,7 @@ export class SqlRuntimeReadinessAuthority extends SqlCanonicalAuthority {
   const m=await this.evidence(scope);return this.scoped(token,scope,true,async uow=>{
    const row=(await uow.query('SELECT * FROM runtime_readiness_runs WHERE id=$1 AND company_id=$2 AND project_id=$3 FOR UPDATE',[runId,uow.context.companyId,uow.context.projectId])).rows[0];
    if(!row||row.actor_id!==uow.context.actorId)fail('READINESS_RUN_NOT_FOUND');
-   const revisions={scopes:(await uow.query('SELECT qsa_readiness_revisions() AS value')).rows[0].value,epoch:(await uow.query('SELECT * FROM qsa_read_runtime_state()')).rows[0]};
+   const revisions={scopes:(await uow.query('SELECT qsa_readiness_revisions() AS value')).rows[0].value,epoch:(await uow.query('SELECT * FROM qsa_read_runtime_state()')).rows[0],governance:(await uow.query('SELECT qsa_governance_frame() AS value')).rows[0].value};
    const changed=row.manifest_digest!==readinessDigest(m)||readinessDigest(row.target_revisions)!==readinessDigest(revisions);
    if(changed){await uow.query("UPDATE runtime_readiness_runs SET state='BLOCKED',last_error_code='RECONCILIATION_BOUNDARY_CHANGED' WHERE id=$1",[runId]);return {state:'BLOCKED',code:'RECONCILIATION_BOUNDARY_CHANGED',productionCutoverAuthorized:false};}
    const requestDigest=readinessDigest([runId,expectedVersion]),previous=(await uow.query('SELECT request_digest,result FROM runtime_readiness_pages WHERE run_id=$1 AND request_id=$2',[runId,requestId])).rows[0];

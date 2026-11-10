@@ -1,5 +1,14 @@
 ## 2026-11-09 — AR2-U08 source implemented / independent review required
 
+### AR2-U09-RB1 — Governance source ready for review; overall U09 BLOCKED — 2026-11-10
+
+The [RB1 authority and recovery record](17_AR2_U09_RB1_SQL_GOVERNANCE_AUTHORITY.md) supersedes the earlier missing-governance statement only for bounded SQL account/project authority and typed presentation ports. Migration 012 remains additive; published 001–011 bytes are unchanged. Exact original/candidate migration discrepancy was proven and recovered using fresh disposable localhost databases, retaining the old database and candidate source.
+
+AR2_U09_RB1_SOURCE_IMPLEMENTED_READY_FOR_REVIEW: native governance/HTTP 29/29; SQL full run 450/451 followed by 13/13 infrastructure PASS including its only backup timeout; independent authority 148/148; U07 53/53, U08 29/29, U09 browser 6/6. Matched history remains failing (baseline 2,399/2,494, candidate 2,401/2,494), exact new failure identities zero; 12 identical suite-load failures and 2 unhandled errors retained. TypeScript 446→446, added/removed zero, lint NOT PASS; build and diff PASS. Timing and rejected epoch-retry measurements remain documented rather than erased.
+
+Overall U09 remains BLOCKED: RB2 UI/navigation/Smart Import consumers, RB3 real immutable-source/provider/export equivalence and RB4 SQL Workspace adapter are still required. Production remains Firestore and SQL-selected React root stays stopped. No PR/merge/deployment/production migration or activation was performed.
+
+
 ## 2026-11-10 — AR2-U09 source composition and explicit safety boundary
 
 - RESOLVED IN SOURCE: production still defaults to Firestore with no SQL activation flag; generic SQL registrations compose existing authorities rather than mounting isolated test factories. Composed commands assert the server's current DB epoch through commit. An initially unarmed, forward-only DB enforcement gate closes old unfenced runtime writes after a future operator-established SQL epoch.
