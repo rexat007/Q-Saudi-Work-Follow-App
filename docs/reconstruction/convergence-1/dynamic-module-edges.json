@@ -1,0 +1,1895 @@
+{
+  "dynamicImports": [
+    {
+      "path": "server/app.ts",
+      "line": 127,
+      "callee": "import",
+      "argument": "'../src/firebase/admin'",
+      "literal": "../src/firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 200,
+      "callee": "import",
+      "argument": "'../src/services/projectPricing.server'",
+      "literal": "../src/services/projectPricing.server",
+      "to": "src/services/projectPricing.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 212,
+      "callee": "import",
+      "argument": "'../src/services/projectPricing.server'",
+      "literal": "../src/services/projectPricing.server",
+      "to": "src/services/projectPricing.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 247,
+      "callee": "import",
+      "argument": "'../src/services/importSession.server'",
+      "literal": "../src/services/importSession.server",
+      "to": "src/services/importSession.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 275,
+      "callee": "import",
+      "argument": "'../src/services/importSession.server'",
+      "literal": "../src/services/importSession.server",
+      "to": "src/services/importSession.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 303,
+      "callee": "import",
+      "argument": "'../src/services/importSession.server'",
+      "literal": "../src/services/importSession.server",
+      "to": "src/services/importSession.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 328,
+      "callee": "import",
+      "argument": "'../src/services/import/rosterExecution.server'",
+      "literal": "../src/services/import/rosterExecution.server",
+      "to": "src/services/import/rosterExecution.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 340,
+      "callee": "import",
+      "argument": "'../src/services/import/rosterExecution.server'",
+      "literal": "../src/services/import/rosterExecution.server",
+      "to": "src/services/import/rosterExecution.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 347,
+      "callee": "import",
+      "argument": "'../src/services/import/rosterExecution.server'",
+      "literal": "../src/services/import/rosterExecution.server",
+      "to": "src/services/import/rosterExecution.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 363,
+      "callee": "import",
+      "argument": "'../src/services/importSession.server'",
+      "literal": "../src/services/importSession.server",
+      "to": "src/services/importSession.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 408,
+      "callee": "import",
+      "argument": "'../src/services/canonicalSnapshot.server'",
+      "literal": "../src/services/canonicalSnapshot.server",
+      "to": "src/services/canonicalSnapshot.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 459,
+      "callee": "import",
+      "argument": "'../src/services/projectCommands.server'",
+      "literal": "../src/services/projectCommands.server",
+      "to": "src/services/projectCommands.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 621,
+      "callee": "import",
+      "argument": "'../src/services/projectCommands.server'",
+      "literal": "../src/services/projectCommands.server",
+      "to": "src/services/projectCommands.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 672,
+      "callee": "import",
+      "argument": "'../src/services/driverTruckIntake.server'",
+      "literal": "../src/services/driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 708,
+      "callee": "import",
+      "argument": "'../src/services/projectCommands.server'",
+      "literal": "../src/services/projectCommands.server",
+      "to": "src/services/projectCommands.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 712,
+      "callee": "import",
+      "argument": "'../src/services/projectCommands.server'",
+      "literal": "../src/services/projectCommands.server",
+      "to": "src/services/projectCommands.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1003,
+      "callee": "import",
+      "argument": "'../src/services/projectFleetReadModel.service'",
+      "literal": "../src/services/projectFleetReadModel.service",
+      "to": "src/services/projectFleetReadModel.service.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1004,
+      "callee": "import",
+      "argument": "'../src/services/projectFleetReadModel.server'",
+      "literal": "../src/services/projectFleetReadModel.server",
+      "to": "src/services/projectFleetReadModel.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1530,
+      "callee": "import",
+      "argument": "'../src/services/projectPricing.server'",
+      "literal": "../src/services/projectPricing.server",
+      "to": "src/services/projectPricing.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1537,
+      "callee": "import",
+      "argument": "'../src/services/projectPricing.server'",
+      "literal": "../src/services/projectPricing.server",
+      "to": "src/services/projectPricing.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1665,
+      "callee": "import",
+      "argument": "'../src/services/fleetProfileMaintenance.server'",
+      "literal": "../src/services/fleetProfileMaintenance.server",
+      "to": "src/services/fleetProfileMaintenance.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1670,
+      "callee": "import",
+      "argument": "'../src/services/projectFleetQuery.server'",
+      "literal": "../src/services/projectFleetQuery.server",
+      "to": "src/services/projectFleetQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1673,
+      "callee": "import",
+      "argument": "'./security.middleware'",
+      "literal": "./security.middleware",
+      "to": "server/security.middleware.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1687,
+      "callee": "import",
+      "argument": "'../src/services/projectFleetQuery.server'",
+      "literal": "../src/services/projectFleetQuery.server",
+      "to": "src/services/projectFleetQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1694,
+      "callee": "import",
+      "argument": "'../src/services/setupFleetQuery.server'",
+      "literal": "../src/services/setupFleetQuery.server",
+      "to": "src/services/setupFleetQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1700,
+      "callee": "import",
+      "argument": "'../src/services/setupFleetQuery.server'",
+      "literal": "../src/services/setupFleetQuery.server",
+      "to": "src/services/setupFleetQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1705,
+      "callee": "import",
+      "argument": "'../src/services/import/rosterBulkDiscovery.server'",
+      "literal": "../src/services/import/rosterBulkDiscovery.server",
+      "to": "src/services/import/rosterBulkDiscovery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1711,
+      "callee": "import",
+      "argument": "'../src/services/projectFleetQuery.server'",
+      "literal": "../src/services/projectFleetQuery.server",
+      "to": "src/services/projectFleetQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1723,
+      "callee": "import",
+      "argument": "'../src/services/temporalRelationshipAuthority.server'",
+      "literal": "../src/services/temporalRelationshipAuthority.server",
+      "to": "src/services/temporalRelationshipAuthority.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1730,
+      "callee": "import",
+      "argument": "'../src/services/temporalRelationshipAuthority.server'",
+      "literal": "../src/services/temporalRelationshipAuthority.server",
+      "to": "src/services/temporalRelationshipAuthority.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1739,
+      "callee": "import",
+      "argument": "'../src/services/projectParticipationAuthority.server'",
+      "literal": "../src/services/projectParticipationAuthority.server",
+      "to": "src/services/projectParticipationAuthority.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1748,
+      "callee": "import",
+      "argument": "'../src/services/projectParticipationAuthority.server'",
+      "literal": "../src/services/projectParticipationAuthority.server",
+      "to": "src/services/projectParticipationAuthority.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1761,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1775,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1789,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1803,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1823,
+      "callee": "import",
+      "argument": "'../src/services/driverTruckIntake.server'",
+      "literal": "../src/services/driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1858,
+      "callee": "import",
+      "argument": "'../src/services/driverTruckIntake.server'",
+      "literal": "../src/services/driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1886,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1898,
+      "callee": "import",
+      "argument": "'../src/services/projectProvisioning.server'",
+      "literal": "../src/services/projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1911,
+      "callee": "import",
+      "argument": "'../src/services/projectActivation.service'",
+      "literal": "../src/services/projectActivation.service",
+      "to": "src/services/projectActivation.service.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1918,
+      "callee": "import",
+      "argument": "'../src/services/projectActivation.service'",
+      "literal": "../src/services/projectActivation.service",
+      "to": "src/services/projectActivation.service.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1932,
+      "callee": "import",
+      "argument": "'../src/services/projectReadinessQuery.server'",
+      "literal": "../src/services/projectReadinessQuery.server",
+      "to": "src/services/projectReadinessQuery.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1974,
+      "callee": "import",
+      "argument": "'../src/services/projectLifecycle.server'",
+      "literal": "../src/services/projectLifecycle.server",
+      "to": "src/services/projectLifecycle.server.ts",
+      "external": false
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 160,
+      "callee": "import",
+      "argument": "'../src/firebase/admin'",
+      "literal": "../src/firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 804,
+      "callee": "import",
+      "argument": "'stream'",
+      "literal": "stream",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 951,
+      "callee": "import",
+      "argument": "'xlsx'",
+      "literal": "xlsx",
+      "to": "../../Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App/node_modules/xlsx/types/index.d.ts",
+      "external": true
+    },
+    {
+      "path": "src/db/canonicalAuthority.ts",
+      "line": 51,
+      "callee": "import",
+      "argument": "'../firebase/admin.js'",
+      "literal": "../firebase/admin.js",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/db/projectReadAuthority.ts",
+      "line": 33,
+      "callee": "import",
+      "argument": "'../firebase/admin.js'",
+      "literal": "../firebase/admin.js",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/adminConsole.service.ts",
+      "line": 160,
+      "callee": "import",
+      "argument": "'../data/defaultMasterData'",
+      "literal": "../data/defaultMasterData",
+      "to": "src/data/defaultMasterData.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/adminConsole.service.ts",
+      "line": 173,
+      "callee": "import",
+      "argument": "'../data/masterPricingRules'",
+      "literal": "../data/masterPricingRules",
+      "to": "src/data/masterPricingRules.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 89,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 90,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 320,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 321,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 447,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/driverTruckIntake.server.ts",
+      "line": 448,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/import/reviewedRosterCommit.server.ts",
+      "line": 84,
+      "callee": "import",
+      "argument": "'./rosterExecutionPlan.server'",
+      "literal": "./rosterExecutionPlan.server",
+      "to": "src/services/import/rosterExecutionPlan.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/import/reviewedRosterCommit.server.ts",
+      "line": 113,
+      "callee": "import",
+      "argument": "'./rosterExecutionPlan.server'",
+      "literal": "./rosterExecutionPlan.server",
+      "to": "src/services/import/rosterExecutionPlan.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/offline/conflictResolution.service.ts",
+      "line": 594,
+      "callee": "import",
+      "argument": "'./outbox.service'",
+      "literal": "./outbox.service",
+      "to": "src/services/offline/outbox.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "line": 348,
+      "callee": "import",
+      "argument": "'../repositories/pricingRule.repository'",
+      "literal": "../repositories/pricingRule.repository",
+      "to": "src/repositories/pricingRule.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectFleetQuery.server.ts",
+      "line": 42,
+      "callee": "import",
+      "argument": "'./projectProvisioning.server'",
+      "literal": "./projectProvisioning.server",
+      "to": "src/services/projectProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectFleetQuery.server.ts",
+      "line": 43,
+      "callee": "import",
+      "argument": "'./projectReadiness.server'",
+      "literal": "./projectReadiness.server",
+      "to": "src/services/projectReadiness.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectFleetQuery.server.ts",
+      "line": 44,
+      "callee": "import",
+      "argument": "'./projectReadiness.service'",
+      "literal": "./projectReadiness.service",
+      "to": "src/services/projectReadiness.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectFleetQuery.server.ts",
+      "line": 45,
+      "callee": "import",
+      "argument": "'./projectPricing.server'",
+      "literal": "./projectPricing.server",
+      "to": "src/services/projectPricing.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectGoogleWorkspace.server.ts",
+      "line": 552,
+      "callee": "import",
+      "argument": "'../utils/persistenceBoundary'",
+      "literal": "../utils/persistenceBoundary",
+      "to": "src/utils/persistenceBoundary.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectGoogleWorkspace.server.ts",
+      "line": 554,
+      "callee": "import",
+      "argument": "'../utils/persistenceBoundary'",
+      "literal": "../utils/persistenceBoundary",
+      "to": "src/utils/persistenceBoundary.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectGoogleWorkspace.server.ts",
+      "line": 554,
+      "callee": "import",
+      "argument": "'./operationalReporting'",
+      "literal": "./operationalReporting",
+      "to": "src/services/operationalReporting.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectGoogleWorkspace.server.ts",
+      "line": 556,
+      "callee": "import",
+      "argument": "'./projectWorkspaceInitialProjection.server'",
+      "literal": "./projectWorkspaceInitialProjection.server",
+      "to": "src/services/projectWorkspaceInitialProjection.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/services/projectParticipationAuthority.server.ts",
+      "line": 133,
+      "callee": "import",
+      "argument": "'./membershipConsequences.server'",
+      "literal": "./membershipConsequences.server",
+      "to": "src/services/membershipConsequences.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/adminAccountPresentation.test.ts",
+      "line": 83,
+      "callee": "import",
+      "argument": "'../locales/ar'",
+      "literal": "../locales/ar",
+      "to": "src/locales/ar/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/adminAccountPresentation.test.ts",
+      "line": 83,
+      "callee": "import",
+      "argument": "'../locales/en'",
+      "literal": "../locales/en",
+      "to": "src/locales/en/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/adminAccountPresentation.test.ts",
+      "line": 83,
+      "callee": "import",
+      "argument": "'../locales/ur'",
+      "literal": "../locales/ur",
+      "to": "src/locales/ur/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/ar2U04BoundedReads.test.ts",
+      "line": 245,
+      "callee": "import",
+      "argument": "'node:fs/promises'",
+      "literal": "node:fs/promises",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/ar2U05DurableImport.test.ts",
+      "line": 306,
+      "callee": "import",
+      "argument": "'node:child_process'",
+      "literal": "node:child_process",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/ar2U05DurableImport.test.ts",
+      "line": 453,
+      "callee": "import",
+      "argument": "'node:fs/promises'",
+      "literal": "node:fs/promises",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/ar2U05DurableImport.test.ts",
+      "line": 471,
+      "callee": "import",
+      "argument": "'../db/identityProtection.js'",
+      "literal": "../db/identityProtection.js",
+      "to": "src/db/identityProtection.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/ar2U06TripsPricing.test.ts",
+      "line": 135,
+      "callee": "import",
+      "argument": "'node:child_process'",
+      "literal": "node:child_process",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/ar2U07OfflineContinuity.test.ts",
+      "line": 133,
+      "callee": "import",
+      "argument": "'../services/offline/sqlOfflineStore'",
+      "literal": "../services/offline/sqlOfflineStore",
+      "to": "src/services/offline/sqlOfflineStore.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/ar2U08WorkspaceTransport.test.ts",
+      "line": 35,
+      "callee": "import",
+      "argument": "'../services/workspace.service'",
+      "literal": "../services/workspace.service",
+      "to": "src/services/workspace.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/ar2U08WorkspaceTransport.test.ts",
+      "line": 36,
+      "callee": "import",
+      "argument": "'../services/workspace.service'",
+      "literal": "../services/workspace.service",
+      "to": "src/services/workspace.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/bootstrapAndNavigationConvergence.test.ts",
+      "line": 77,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 167,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 168,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 293,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 294,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 342,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 343,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 376,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 377,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 432,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 433,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 461,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 462,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 476,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/driverTruckIntakeP602A.test.ts",
+      "line": 477,
+      "callee": "import",
+      "argument": "'../utils/normalization'",
+      "literal": "../utils/normalization",
+      "to": "src/utils/normalization.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 246,
+      "callee": "import",
+      "argument": "'typescript'",
+      "literal": "typescript",
+      "to": "../../Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App/node_modules/typescript/lib/typescript.d.ts",
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 246,
+      "callee": "import",
+      "argument": "'node:fs'",
+      "literal": "node:fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 246,
+      "callee": "import",
+      "argument": "'node:path'",
+      "literal": "node:path",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 252,
+      "callee": "import",
+      "argument": "'../services/import/durableSessionContract'",
+      "literal": "../services/import/durableSessionContract",
+      "to": "src/services/import/durableSessionContract.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 265,
+      "callee": "import",
+      "argument": "'typescript'",
+      "literal": "typescript",
+      "to": "../../Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App/node_modules/typescript/lib/typescript.d.ts",
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 265,
+      "callee": "import",
+      "argument": "'node:fs'",
+      "literal": "node:fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 265,
+      "callee": "import",
+      "argument": "'node:path'",
+      "literal": "node:path",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/tests/durableImportSessionP8B1.test.ts",
+      "line": 270,
+      "callee": "import",
+      "argument": "'../services/import/durableSessionContract'",
+      "literal": "../services/import/durableSessionContract",
+      "to": "src/services/import/durableSessionContract.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/fleetReadTransport.test.ts",
+      "line": 37,
+      "callee": "import",
+      "argument": "'../services/projectCanonicalRefresh.service'",
+      "literal": "../services/projectCanonicalRefresh.service",
+      "to": "src/services/projectCanonicalRefresh.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 145,
+      "callee": "import",
+      "argument": "'../repositories/projectMembership.repository'",
+      "literal": "../repositories/projectMembership.repository",
+      "to": "src/repositories/projectMembership.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 146,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 147,
+      "callee": "import",
+      "argument": "'../repositories/projectCarrierAffiliation.repository'",
+      "literal": "../repositories/projectCarrierAffiliation.repository",
+      "to": "src/repositories/projectCarrierAffiliation.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 148,
+      "callee": "import",
+      "argument": "'../services/projectFleetReadModel.service'",
+      "literal": "../services/projectFleetReadModel.service",
+      "to": "src/services/projectFleetReadModel.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 149,
+      "callee": "import",
+      "argument": "'../services/canonicalRelationshipContext.service'",
+      "literal": "../services/canonicalRelationshipContext.service",
+      "to": "src/services/canonicalRelationshipContext.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalAuthorityEligibility.test.ts",
+      "line": 174,
+      "callee": "import",
+      "argument": "'../services/trip.service'",
+      "literal": "../services/trip.service",
+      "to": "src/services/trip.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalIdentityFoundation.test.ts",
+      "line": 251,
+      "callee": "import",
+      "argument": "'../repositories/driver.repository'",
+      "literal": "../repositories/driver.repository",
+      "to": "src/repositories/driver.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/globalIdentityFoundation.test.ts",
+      "line": 252,
+      "callee": "import",
+      "argument": "'../repositories/truck.repository'",
+      "literal": "../repositories/truck.repository",
+      "to": "src/repositories/truck.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+      "line": 224,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+      "line": 250,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+      "line": 281,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+      "line": 299,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/projectAccessAuthority.test.tsx",
+      "line": 74,
+      "callee": "import",
+      "argument": "'../locales/ar'",
+      "literal": "../locales/ar",
+      "to": "src/locales/ar/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/projectAccessAuthority.test.tsx",
+      "line": 75,
+      "callee": "import",
+      "argument": "'../locales/en'",
+      "literal": "../locales/en",
+      "to": "src/locales/en/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/projectAccessAuthority.test.tsx",
+      "line": 76,
+      "callee": "import",
+      "argument": "'../locales/ur'",
+      "literal": "../locales/ur",
+      "to": "src/locales/ur/index.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/projectParticipationAuthority.test.ts",
+      "line": 204,
+      "callee": "import",
+      "argument": "'firebase-admin/firestore'",
+      "literal": "firebase-admin/firestore",
+      "to": "../../Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App/node_modules/firebase-admin/lib/firestore/index.d.ts",
+      "external": true
+    },
+    {
+      "path": "src/tests/projectParticipationBrowserBoundary.test.ts",
+      "line": 30,
+      "callee": "import",
+      "argument": "'../repositories/projectMembership.repository'",
+      "literal": "../repositories/projectMembership.repository",
+      "to": "src/repositories/projectMembership.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+      "line": 243,
+      "callee": "import",
+      "argument": "'../services/projectWorkspaceProjectionState.server'",
+      "literal": "../services/projectWorkspaceProjectionState.server",
+      "to": "src/services/projectWorkspaceProjectionState.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/reviewedRosterCommitP8B2.test.ts",
+      "line": 61,
+      "callee": "import",
+      "argument": "'../services/temporalRelationshipAuthority.server'",
+      "literal": "../services/temporalRelationshipAuthority.server",
+      "to": "src/services/temporalRelationshipAuthority.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/rosterExecutionRecoveryP8B3.test.ts",
+      "line": 107,
+      "callee": "import",
+      "argument": "'../services/driverTruckIntake.server'",
+      "literal": "../services/driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/rosterExecutionRecoveryP8B3.test.ts",
+      "line": 108,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/serverAuthenticationTrustBoundary.test.ts",
+      "line": 424,
+      "callee": "import",
+      "argument": "'../../server/security.middleware'",
+      "literal": "../../server/security.middleware",
+      "to": "server/security.middleware.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/serverAuthenticationTrustBoundary.test.ts",
+      "line": 437,
+      "callee": "import",
+      "argument": "'../../server/security.middleware'",
+      "literal": "../../server/security.middleware",
+      "to": "server/security.middleware.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/serverAuthenticationTrustBoundary.test.ts",
+      "line": 450,
+      "callee": "import",
+      "argument": "'../../server/security.middleware'",
+      "literal": "../../server/security.middleware",
+      "to": "server/security.middleware.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/serverAuthenticationTrustBoundary.test.ts",
+      "line": 468,
+      "callee": "import",
+      "argument": "'../firebase/admin'",
+      "literal": "../firebase/admin",
+      "to": "src/firebase/admin.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/smartImportSharedContrast.test.tsx",
+      "line": 130,
+      "callee": "import",
+      "argument": "'../services/canonicalRelationshipContext.service'",
+      "literal": "../services/canonicalRelationshipContext.service",
+      "to": "src/services/canonicalRelationshipContext.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/smartImportUnit3RosterConvergence.test.ts",
+      "line": 366,
+      "callee": "import",
+      "argument": "'../services/import/driverTruckPipeline.service'",
+      "literal": "../services/import/driverTruckPipeline.service",
+      "to": "src/services/import/driverTruckPipeline.service.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/smartImportUnit4AServerSessionPersistence.test.ts",
+      "line": 354,
+      "callee": "import",
+      "argument": "'../services/driverTruckIntake.server'",
+      "literal": "../services/driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "line": 534,
+      "callee": "import",
+      "argument": "'../repositories/globalIdentity.repository'",
+      "literal": "../repositories/globalIdentity.repository",
+      "to": "src/repositories/globalIdentity.repository.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceBoundAuthorizationHttp.test.ts",
+      "line": 38,
+      "callee": "import",
+      "argument": "'../services/workspaceProvisioning.server'",
+      "literal": "../services/workspaceProvisioning.server",
+      "to": "src/services/workspaceProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceBoundAuthorizationHttp.test.ts",
+      "line": 43,
+      "callee": "import",
+      "argument": "'../services/workspaceProvisioning.server'",
+      "literal": "../services/workspaceProvisioning.server",
+      "to": "src/services/workspaceProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceBoundAuthorizationHttp.test.ts",
+      "line": 45,
+      "callee": "import",
+      "argument": "'../services/workspaceProvisioning.server'",
+      "literal": "../services/workspaceProvisioning.server",
+      "to": "src/services/workspaceProvisioning.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceBoundAuthorizationHttp.test.ts",
+      "line": 45,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceEnsureReload.test.tsx",
+      "line": 37,
+      "callee": "import",
+      "argument": "'../runtime/runtimeGeneration'",
+      "literal": "../runtime/runtimeGeneration",
+      "to": "src/runtime/runtimeGeneration.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceOAuthPopupCallback.test.ts",
+      "line": 60,
+      "callee": "import",
+      "argument": "'workbox-routing/NavigationRoute.js'",
+      "literal": "workbox-routing/NavigationRoute.js",
+      "to": "../../Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App/node_modules/workbox-routing/NavigationRoute.d.ts",
+      "external": true
+    },
+    {
+      "path": "src/tests/workspaceOfflineOAuthRoutes.test.ts",
+      "line": 53,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceOfflineOAuthRoutes.test.ts",
+      "line": 79,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceOfflineOAuthRoutes.test.ts",
+      "line": 87,
+      "callee": "import",
+      "argument": "'../services/projectGoogleWorkspace.server'",
+      "literal": "../services/projectGoogleWorkspace.server",
+      "to": "src/services/projectGoogleWorkspace.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/tests/workspaceProviderResilience.test.ts",
+      "line": 27,
+      "callee": "import",
+      "argument": "'../services/operationalReporting'",
+      "literal": "../services/operationalReporting",
+      "to": "src/services/operationalReporting.ts",
+      "external": false
+    }
+  ],
+  "commonJsImports": [
+    {
+      "path": "count-i18n.js",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "count-i18n.js",
+      "line": 2,
+      "callee": "require",
+      "argument": "'path'",
+      "literal": "path",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "count-i18n.js",
+      "line": 3,
+      "callee": "require",
+      "argument": "'./src/locales/en'",
+      "literal": "./src/locales/en",
+      "to": "src/locales/en/index.ts",
+      "external": false
+    },
+    {
+      "path": "fix_offline.cjs",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "fix_offline_full.cjs",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "fix_trip.cjs",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "generate-audit.cjs",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "generate-audit.cjs",
+      "line": 2,
+      "callee": "require",
+      "argument": "'path'",
+      "literal": "path",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "generate_full_inventory.js",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/i18n/codemod/codemod.safety.ts",
+      "line": 406,
+      "callee": "require",
+      "argument": "'./codemod.scope'",
+      "literal": "./codemod.scope",
+      "to": "src/i18n/codemod/codemod.scope.ts",
+      "external": false
+    },
+    {
+      "path": "src/repositories/globalIdentity.repository.ts",
+      "line": 53,
+      "callee": "require",
+      "argument": "'crypto'",
+      "literal": "crypto",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/repositories/projectDriverTruckAssignment.repository.ts",
+      "line": 69,
+      "callee": "require",
+      "argument": "'crypto'",
+      "literal": "crypto",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "src/services/driverTruckIntake.service.ts",
+      "line": 70,
+      "callee": "require",
+      "argument": "'./driverTruckIntake.server'",
+      "literal": "./driverTruckIntake.server",
+      "to": "src/services/driverTruckIntake.server.ts",
+      "external": false
+    },
+    {
+      "path": "src/types/projectTruckMaterialAllocation.ts",
+      "line": 82,
+      "callee": "require",
+      "argument": "'crypto'",
+      "literal": "crypto",
+      "to": null,
+      "external": true
+    },
+    {
+      "path": "update_admin_console.cjs",
+      "line": 1,
+      "callee": "require",
+      "argument": "'fs'",
+      "literal": "fs",
+      "to": null,
+      "external": true
+    }
+  ],
+  "nonliteralRouteCandidates": [
+    {
+      "path": "server.ts",
+      "line": 15,
+      "callee": "app.use",
+      "argument": "vite.middlewares"
+    },
+    {
+      "path": "server.ts",
+      "line": 18,
+      "callee": "app.use",
+      "argument": "express.static(distPath,{setHeaders:shellCacheHeaders})"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 51,
+      "callee": "app.use",
+      "argument": "express.json({ limit: '10mb' })"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 52,
+      "callee": "app.use",
+      "argument": "express.urlencoded({ extended: true, limit: '10mb' })"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 147,
+      "callee": "transaction.get",
+      "argument": "lockRef"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 154,
+      "callee": "transaction.get",
+      "argument": "userDocRef"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 161,
+      "callee": "transaction.get",
+      "argument": "usersQuery"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 344,
+      "callee": "app.post",
+      "argument": "`/api/projects/:projectId/import-sessions/:importSessionId/execution/${action}`"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 941,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/app.ts",
+      "line": 1502,
+      "callee": "app.patch",
+      "argument": "['/api/projects/:projectId/trips/:tripId', '/api/trips/:tripId']"
+    },
+    {
+      "path": "server/operationalReportSheets.ts",
+      "line": 19,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId,includeGridData:false,fields:'sheets(properties,developerMetadata,merges)'}"
+    },
+    {
+      "path": "server/operationalReportSheets.ts",
+      "line": 32,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId,includeGridData:true,ranges:[boundedA1(title,row,col,rows,cols)],fields:'sheets(properties(sheetId,title),developerMetadata,merges,data(startRow,startColumn,rowData(values(userEnteredValue,effectiveValue,note))))'}"
+    },
+    {
+      "path": "server/operationalReportSheets.ts",
+      "line": 52,
+      "callee": "existing.get",
+      "argument": "key"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 41,
+      "callee": "drive.files.get",
+      "argument": "{fileId,fields:'id,trashed,mimeType,appProperties,parents',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 49,
+      "callee": "script.projects.get",
+      "argument": "{scriptId}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 71,
+      "callee": "drive.files.get",
+      "argument": "{fileId:selectedId,fields:'id,mimeType,trashed,driveId,capabilities(canAddChildren)',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 110,
+      "callee": "drive.files.get",
+      "argument": "{fileId:id,fields:'id,trashed,mimeType,parents,appProperties,capabilities(canAddChildren)'}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 137,
+      "callee": "affected.get",
+      "argument": "id"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 162,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId:fileId,includeGridData:false,fields:'sheets(properties(sheetId,title),developerMetadata)'}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 180,
+      "callee": "drive.files.get",
+      "argument": "{fileId:rootId,fields:'mimeType,trashed',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 181,
+      "callee": "drive.files.get",
+      "argument": "{fileId:folderId,fields:'mimeType,trashed,parents,appProperties',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 182,
+      "callee": "drive.files.get",
+      "argument": "{fileId,fields:'name,mimeType,trashed,parents,appProperties',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 200,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId:fileId,includeGridData:false,fields:'sheets.properties'}"
+    },
+    {
+      "path": "server/projectGoogleBlueprint.adapter.ts",
+      "line": 211,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{spreadsheetId:fileId,range:boundedA1(title,start,0,rows,29),valueRenderOption:'FORMULA'}"
+    },
+    {
+      "path": "server/projectGoogleTemplate.adapter.ts",
+      "line": 20,
+      "callee": "drive.files.get",
+      "argument": "{fileId,fields:'id,mimeType,trashed,appProperties',supportsAllDrives:true}"
+    },
+    {
+      "path": "server/projectGoogleTemplate.adapter.ts",
+      "line": 24,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId:fileId,fields:'sheets.properties.title,properties.timeZone'}"
+    },
+    {
+      "path": "server/projectGoogleTemplate.adapter.ts",
+      "line": 36,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{spreadsheetId:fileId,range:inProjectionDelivery()?`'${tab}'!A1:AC2001`:`'${tab}'!A1:AC`,valueRenderOption:'FORMULA'}"
+    },
+    {
+      "path": "server/security.middleware.ts",
+      "line": 324,
+      "callee": "mockTrips.get",
+      "argument": "tripId"
+    },
+    {
+      "path": "server/security.middleware.ts",
+      "line": 439,
+      "callee": "mockTrucks.get",
+      "argument": "truck.truckId"
+    },
+    {
+      "path": "server/security.middleware.ts",
+      "line": 462,
+      "callee": "mockPricingRules.get",
+      "argument": "ruleId"
+    },
+    {
+      "path": "server/security.middleware.ts",
+      "line": 503,
+      "callee": "idempotencyStore.get",
+      "argument": "operationId"
+    },
+    {
+      "path": "server/sqlGovernanceRoutes.ts",
+      "line": 5,
+      "callee": "router.use",
+      "argument": "express.json({limit:'64kb'})"
+    },
+    {
+      "path": "server/sqlGovernanceRoutes.ts",
+      "line": 22,
+      "callee": "router.use",
+      "argument": "(error:any,_req:Request,res:Response,_next:any)=>res.status(error?.type==='entity.too.large'?413:400).json({error:{code:'INVALID_GOVERNANCE_BODY'}})"
+    },
+    {
+      "path": "server/sqlImportRoutes.ts",
+      "line": 6,
+      "callee": "router.use",
+      "argument": "json({limit:'3mb'})"
+    },
+    {
+      "path": "server/sqlImportRoutes.ts",
+      "line": 40,
+      "callee": "router.use",
+      "argument": "(error:any,_req:Request,res:Response,_next:unknown)=>{res.status(error?.status===413?413:400).json({error:{code:'INVALID_IMPORT_BODY'}});}"
+    },
+    {
+      "path": "server/sqlOfflineRoutes.ts",
+      "line": 21,
+      "callee": "router.use",
+      "argument": "express.json({limit:'80kb'})"
+    },
+    {
+      "path": "server/sqlOfflineRoutes.ts",
+      "line": 43,
+      "callee": "router.use",
+      "argument": "(error:any,_req:Request,res:Response,_next:any)=>{res.status(error?.type==='entity.too.large'?413:400).json({error:{code:'INVALID_OFFLINE_BODY'}});}"
+    },
+    {
+      "path": "server/sqlRuntimeRoutes.ts",
+      "line": 50,
+      "callee": "router.use",
+      "argument": "express.json({limit:'64kb'})"
+    },
+    {
+      "path": "server/sqlRuntimeRoutes.ts",
+      "line": 56,
+      "callee": "router.post",
+      "argument": "'/:projectId/'+path+'/commands'"
+    },
+    {
+      "path": "server/sqlRuntimeRoutes.ts",
+      "line": 61,
+      "callee": "router.use",
+      "argument": "(error:any,_req:any,res:any,_next:any)=>res.status(error?.type==='entity.too.large'?413:400).json({code:'INVALID_SQL_COMMAND_BODY'})"
+    },
+    {
+      "path": "server/sqlTripRoutes.ts",
+      "line": 5,
+      "callee": "router.use",
+      "argument": "express.json({limit:'64kb'})"
+    },
+    {
+      "path": "server/sqlTripRoutes.ts",
+      "line": 15,
+      "callee": "router.use",
+      "argument": "(error:any,_req:Request,res:Response,_next:any)=>{res.status(error?.type==='entity.too.large'?413:400).json({code:error?.type==='entity.too.large'?'PAYLOAD_TOO_LARGE':'INVALID_JSON'});}"
+    },
+    {
+      "path": "server/workspace.isolation.ts",
+      "line": 110,
+      "callee": "transaction.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspace.isolation.ts",
+      "line": 111,
+      "callee": "transaction.get",
+      "argument": "this.db.collection('projects')"
+    },
+    {
+      "path": "server/workspace.isolation.ts",
+      "line": 131,
+      "callee": "transaction.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 153,
+      "callee": "drive.files.get",
+      "argument": "{ fileId: current, fields: 'parents', supportsAllDrives: true }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 414,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{ spreadsheetId }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 439,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{\n      spreadsheetId,\n      range: headerRange,\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 536,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{ spreadsheetId, range: headerRange }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 545,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{\n      spreadsheetId,\n      range: inProjectionDelivery()?`${tabTitle}!A2:ZZ2002`:`${tabTitle}!A2:ZZ`,\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 583,
+      "callee": "rowIndexByKey.get",
+      "argument": "pkValue"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 710,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{ spreadsheetId }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 719,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{ spreadsheetId, range: headerRange }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 731,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{\n      spreadsheetId,\n      range: inProjectionDelivery()?`${tabTitle}!A2:ZZ2002`:`${tabTitle}!A2:ZZ`,\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1014,
+      "callee": "drive.files.get",
+      "argument": "{\n      fileId,\n      fields: 'id, name, mimeType, size',\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1024,
+      "callee": "drive.files.get",
+      "argument": "{ fileId, alt: 'media' }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1121,
+      "callee": "sheetsService.spreadsheets.get",
+      "argument": "{\n              spreadsheetId: f.id!,\n              fields: 'sheets(properties(sheetId,title,index,gridProperties))',\n            }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1204,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{\n      spreadsheetId,\n      fields: 'spreadsheetId,properties.title,sheets(properties(sheetId,title,index,gridProperties))',\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1282,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{\n        spreadsheetId,\n        fields: 'properties.title',\n      }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1293,
+      "callee": "sheets.spreadsheets.values.get",
+      "argument": "{\n      spreadsheetId,\n      range,\n      valueRenderOption: 'UNFORMATTED_VALUE',\n      dateTimeRenderOption: 'FORMATTED_STRING',\n    }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1365,
+      "callee": "drive.files.get",
+      "argument": "{\n        fileId: targetFolderId,\n        fields: 'id, name, mimeType, capabilities, driveId',\n        supportsAllDrives: true,\n      }"
+    },
+    {
+      "path": "server/workspace.service.ts",
+      "line": 1634,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{ spreadsheetId: newSpreadsheetId }"
+    },
+    {
+      "path": "server/workspaceProjectionDelivery.ts",
+      "line": 23,
+      "callee": "tx.get",
+      "argument": "this.ref()"
+    },
+    {
+      "path": "server/workspaceProjectionDelivery.ts",
+      "line": 41,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceProjectionDelivery.ts",
+      "line": 95,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceProjectionDelivery.ts",
+      "line": 124,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{ spreadsheetId: fileId, includeGridData: false, fields: 'sheets.properties' }"
+    },
+    {
+      "path": "server/workspaceProjectionDelivery.ts",
+      "line": 135,
+      "callee": "growth.get",
+      "argument": "sheet.properties.sheetId"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 29,
+      "callee": "tx.get",
+      "argument": "this.database.collection('users').doc(user.userId)"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 30,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 56,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 73,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 79,
+      "callee": "tx.get",
+      "argument": "ref"
+    },
+    {
+      "path": "server/workspaceSyncCoordinator.ts",
+      "line": 79,
+      "callee": "tx.get",
+      "argument": "this.database.collection(AUTHORIZATIONS).doc(id)"
+    },
+    {
+      "path": "server/workspaceWorkbookInspection.ts",
+      "line": 14,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId,includeGridData:false,fields:WORKBOOK_METADATA_FIELDS}"
+    },
+    {
+      "path": "server/workspaceWorkbookInspection.ts",
+      "line": 24,
+      "callee": "sheets.spreadsheets.get",
+      "argument": "{spreadsheetId,includeGridData:true,ranges:[boundedA1(target.properties!.title!,row,col,rows,columns)],fields:CELL_FIELDS}"
+    },
+    {
+      "path": "server/workspaceWorkbookInspection.ts",
+      "line": 52,
+      "callee": "affected.get",
+      "argument": "target.properties!.sheetId!"
+    }
+  ]
+}

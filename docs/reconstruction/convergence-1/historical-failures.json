@@ -1,0 +1,818 @@
+{
+  "assertionFailures": [
+    {
+      "identity": "tests/authProviderContinuity.test.tsx :: actual Provider ignores cached absence, preserves mounted workflow on read/watch failure and refreshes on reconnect",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "TypeError: fx.watch is not a function",
+      "baselineFailureMessageSha256": "12f5ec2ac722ff26f109580c1774de29e2678a36cf55a5f97c9d2199ea8509aa"
+    },
+    {
+      "identity": "tests/authSessionPrincipalRefresh.test.ts :: Auth session refresh coherence wires token events, live profile changes and immediate sign-out clearing in AuthProvider",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {useRuntimeComposition} from \\\u2026' to contain 'onSnapshot(doc(db, \\'users\\', current\u2026'",
+      "baselineFailureMessageSha256": "e99f91563597d08091da33ff588cdfc0d66d3b69df75a23c0b386ddbaec0febc"
+    },
+    {
+      "identity": "tests/dashboardReportsI18n.test.ts :: Dashboard and Reports localization boundaries stores localized error identifiers and resolves the same state in all three locales without adding subscription dependencies",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 1 to be 3 // Object.is equality",
+      "baselineFailureMessageSha256": "e24681d3894dcc113d12895a8a181cf7ad533412af53e98d62bfc9e728ade095"
+    },
+    {
+      "identity": "tests/operationalProfileUi.test.tsx :: owner-approved user-active synchronization requests one global pass with throttle and cleans up when administrator readiness is lost",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called with arguments: []",
+      "baselineFailureMessageSha256": "31cea9879878830e694991ef2bac76230bb4058941ca8300815e16a7b3e6970f"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: deployed Q-PRJ-007-shaped partial V1 recovery, without hardcoded Project IDs preserves legacy and partial tabs, rehydrates delivered canonical Trips, upgrades the known Script once, and retains the binding",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected '[{\"rowData\":[{\"values\":[{\"userEntered\u2026' to contain 'T1'",
+      "baselineFailureMessageSha256": "33c6fe69bdfc6dc90eb6c5d60c8e9ea0b40617908a621db9f7b6e9cbca78c02c"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: lost atomic tab-creation response is recoverable by ownership discovery without creating duplicate tabs or markers",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ Array(7) ] to have a length of 9 but got 7",
+      "baselineFailureMessageSha256": "e571842effdd8b8f8f8074a50f0440033917cf5c68805ce49d371a6d90e582ee"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: owned operational namespace, real adapter/reconciliation transport NONE/NONE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ Array(7) ] to have a length of 9 but got 7",
+      "baselineFailureMessageSha256": "251692513475da1828c86d33e3bde5a9585fc0e8a23ee4db05aad66179a993bb"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: owned operational namespace, real adapter/reconciliation transport NONE/WEIGHBRIDGE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ Array(7) ] to have a length of 9 but got 7",
+      "baselineFailureMessageSha256": "251692513475da1828c86d33e3bde5a9585fc0e8a23ee4db05aad66179a993bb"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: owned operational namespace, real adapter/reconciliation transport WEIGHBRIDGE/NONE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ Array(7) ] to have a length of 9 but got 7",
+      "baselineFailureMessageSha256": "251692513475da1828c86d33e3bde5a9585fc0e8a23ee4db05aad66179a993bb"
+    },
+    {
+      "identity": "tests/operationalReportTabIsolation.test.ts :: owned operational namespace, real adapter/reconciliation transport WEIGHBRIDGE/WEIGHBRIDGE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ Array(7) ] to have a length of 9 but got 7",
+      "baselineFailureMessageSha256": "251692513475da1828c86d33e3bde5a9585fc0e8a23ee4db05aad66179a993bb"
+    },
+    {
+      "identity": "tests/operationalWorkspaceTemplates.test.ts :: pending unmapped legacy events remain visible without blocking current canonical profile Trips/reports",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called once, but got 0 times",
+      "baselineFailureMessageSha256": "ef01b97765a412e703f2c7872384f26d33b886503b5d9c02461e2c1cd39f95e7"
+    },
+    {
+      "identity": "tests/operationalWorkspaceTemplates.test.ts :: versioned templates and durable Script creation/recovery NONE/NONE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called at least once",
+      "baselineFailureMessageSha256": "8972be655979423508b7195f8a888f62be06afb63827b9a244acd04e352c9fcc"
+    },
+    {
+      "identity": "tests/operationalWorkspaceTemplates.test.ts :: versioned templates and durable Script creation/recovery NONE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called at least once",
+      "baselineFailureMessageSha256": "8972be655979423508b7195f8a888f62be06afb63827b9a244acd04e352c9fcc"
+    },
+    {
+      "identity": "tests/operationalWorkspaceTemplates.test.ts :: versioned templates and durable Script creation/recovery WEIGHBRIDGE/NONE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called at least once",
+      "baselineFailureMessageSha256": "8972be655979423508b7195f8a888f62be06afb63827b9a244acd04e352c9fcc"
+    },
+    {
+      "identity": "tests/operationalWorkspaceTemplates.test.ts :: versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called at least once",
+      "baselineFailureMessageSha256": "8972be655979423508b7195f8a888f62be06afb63827b9a244acd04e352c9fcc"
+    },
+    {
+      "identity": "tests/projectActivationReadiness.test.ts :: ProjectLifecycleService Governance & Audit Tests Scenario M: Direct status mutation via projectService.updateProject is blocked and fails",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: expected [Function] to throw error including '\u0644\u0627 \u064a\u0645\u0643\u0646 \u062a\u0639\u062f\u064a\u0644 \u062d\u0627\u0644\u0629 \u062f\u0648\u0631\u0629 \u062d\u064a\u0627\u0629 \u0627\u0644\u0645\u0634\u0631\u0648\u0639 \u2026' but got 'Failed to parse URL from /api/project\u2026'",
+      "baselineFailureMessageSha256": "ad8a9a8f97cab7a1ed4cdbec5e3160274c9150dcea8472494dcd2c4ba2aba01a"
+    },
+    {
+      "identity": "tests/projectCanonicalRefreshBarrierA11.test.ts :: FOUNDATION A1.1 \u2014 Immediate Canonical Refresh Barrier 35. No page reload is used",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {SqlProjectSetup} from \\'./Sql\u2026' not to contain 'window.location.reload()'",
+      "baselineFailureMessageSha256": "ef130e2dca221d7407b005ad323aca600b5b0e7f6648430dd4d338d14ec5bc53"
+    },
+    {
+      "identity": "tests/projectDriverTruckAssignmentFoundation.test.ts :: PHASE 6 \u2014 UNIT 2B-2: Project Driver \u2194 Truck Temporal Assignment Foundation Test Suite GROUP K: Boundaries & Legacy Invariance 51. Production assignment callers zero: only services, repositories, and test files reference assignDriverToTruck",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ \u2026(4) ] to deeply equal []",
+      "baselineFailureMessageSha256": "cd538ed5300bf0bcb89d445c639248efc2cb60a5a9df569dfbc27263670b313d"
+    },
+    {
+      "identity": "tests/projectGoogleWorkspaceTemplateSync.test.ts :: PFAG-GWS1 durable retry Google failure leaves canonical data and pending event intact, retry converges",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: expected [Function] to throw error including 'SHEET_SYNC_FAILED' but got 'syncOutboxRef(...).where(...).limit i\u2026'",
+      "baselineFailureMessageSha256": "b031f88459c254cb8916d9c77a11934e90a77806985d8fe3e98d6b16de525799"
+    },
+    {
+      "identity": "tests/projectGoogleWorkspaceTemplateSync.test.ts :: PFAG-GWS1 durable retry cross-project event is never written",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: expected [Function] to throw error including 'WORKSPACE_EVENT_SCOPE_INVALID' but got 'syncOutboxRef(...).where(...).limit i\u2026'",
+      "baselineFailureMessageSha256": "9318f3966052df2fd239ac53e915eee0e17e49543c7e04085f1d9c7934aa7e93"
+    },
+    {
+      "identity": "tests/projectGoogleWorkspaceTemplateSync.test.ts :: PFAG-GWS1 durable retry delivered event is not redelivered on retry",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "TypeError: syncOutboxRef(...).where(...).limit is not a function",
+      "baselineFailureMessageSha256": "477084c5c8d7ef2dd8729386989a98754109b9d3fb0fc9216f4b81d73fd7a6eb"
+    },
+    {
+      "identity": "tests/projectGoogleWorkspaceTemplateSync.test.ts :: PFAG-GWS1 durable retry revision changed in-flight remains pending for latest-state convergence",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "TypeError: syncOutboxRef(...).where(...).limit is not a function",
+      "baselineFailureMessageSha256": "477084c5c8d7ef2dd8729386989a98754109b9d3fb0fc9216f4b81d73fd7a6eb"
+    },
+    {
+      "identity": "tests/projectGoogleWorkspaceTemplateSync.test.ts :: PFAG-GWS1 provisioning public status never returns token-bearing internal fields",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "TypeError: syncOutboxRef(...).where(...).count is not a function",
+      "baselineFailureMessageSha256": "e4467b9454849ef252e2176846c5d8502868579eeeda8ff86e308bdcf281800f"
+    },
+    {
+      "identity": "tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts :: Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests 34. revision capture still occurs before snapshot build",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected -1 to be greater than -1",
+      "baselineFailureMessageSha256": "ec203048deb6a0158b485652e81a6804c120ae63bab2d8ae35a5d187afa9283d"
+    },
+    {
+      "identity": "tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts :: Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests 17. /sync/initial captures freshness revision before buildInitialProjectionSnapshot",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected -1 to be greater than -1",
+      "baselineFailureMessageSha256": "6bee11b593237d1300a7a77356608c531cf41615c2a3a5e1ff90f863098955aa"
+    },
+    {
+      "identity": "tests/rosterIdentityGroupingProvenanceSiCg1.test.ts :: SI-CG1 partial mapping and source provenance absent Material yields no group, default, allocation or close",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ { \u2026(2) } ] to deeply equal []",
+      "baselineFailureMessageSha256": "d506ac911046c35270980c0aa2e8bce5e6f68d74881c35e55c49846a0af8ef5c"
+    },
+    {
+      "identity": "tests/runtimeGenerationConvergence.test.ts :: runtime deployment generation gate stale lease blocks side effects and starts a fresh check",
+      "family": "RUNTIME_GENERATION_FENCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [Function] to throw an error",
+      "baselineFailureMessageSha256": "95a07057f7c627f8a4793ae73d9a2719540fd4e58885e2be9f165075a254bb51"
+    },
+    {
+      "identity": "tests/secureTripNumberingOffline89B.test.ts :: Block 89B Secure Trip Numbering & Offline Creation Test Suite [89B-REQ-08]: Verify state machine transition from PENDING_NUMBER_ALLOCATION to IN_TRANSIT is allowed",
+      "family": "TRIP_TRANSACTION_AND_OFFLINE_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected false to be true // Object.is equality",
+      "baselineFailureMessageSha256": "165c89cefa982581b24d3d1d4e1698f2b50c06c24bc9cf350603d335173288d3"
+    },
+    {
+      "identity": "tests/setupReadinessBoundary.test.ts :: P6-B2 separation and controlled functional journey activation rechecks Setup integrity outside the selected operational candidate at commit time",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: expected AssertionError: expected false to be true\u2026 { \u2026(4) } to match object { code: 'PROJECT_SETUP_NOT_READY' }",
+      "baselineFailureMessageSha256": "ac75cb0e4e3d7ed2bf3e5a78c015fbbf71ac0cfc17c7c714fe95f92712c844e9"
+    },
+    {
+      "identity": "tests/setupReadinessBoundary.test.ts :: P6-B2 separation and controlled functional journey operational prerequisites cannot override invalid Foundation Setup",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected false to be true // Object.is equality",
+      "baselineFailureMessageSha256": "20fe68b960601def4644f5bc237f9f93c4d86dc6eb4fb519ec258cfe5d0206d6"
+    },
+    {
+      "identity": "tests/setupWizardContinuity.test.tsx :: P6-B1 Foundation and Global governance presentation Foundation refresh failure keeps a receipt; retry never repeats the Project command",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'projects.batch4.back_to_projectsExamp\u2026' to contain 'projects.messages.changes_saved'",
+      "baselineFailureMessageSha256": "d91f9ad38c37e151b242b7312bcabb5ac2e82cd30d3efc9a1ab4b72d6e8dcd29"
+    },
+    {
+      "identity": "tests/setupWizardContinuity.test.tsx :: P6-B1 Foundation and Global governance presentation PROJECT_ADMIN sees only its authorized Global profile controls",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected [ \u2026(1) ] to have a length of +0 but got 1",
+      "baselineFailureMessageSha256": "89cff3887a6956006b5fc1668350245af779b8192076816e514f4d87b77daba8"
+    },
+    {
+      "identity": "tests/setupWizardContinuity.test.tsx :: P6-B1 Foundation and Global governance presentation keeps the successful canonical Foundation reread visible while the project subscription is delayed",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected undefined to be true // Object.is equality",
+      "baselineFailureMessageSha256": "eea2d2049e18ac72a239443ab5199d4212920f4e30987d7afdcf6af5c50c9dee"
+    },
+    {
+      "identity": "tests/setupWizardContinuity.test.tsx :: P6-B1 manual intake continuity uses the canonical Material name and full refresh before resetting the form",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called 2 times, but got 7 times",
+      "baselineFailureMessageSha256": "2ed44468558ed089c11a4f5508cc20926fc98e3045fd1ccabef6b19f8f073465"
+    },
+    {
+      "identity": "tests/smartImportCommitIntegrityConvergence.test.ts :: Smart Import Commit Integrity Convergence Test Suite 39. report states server canonical snapshot authority holds true",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'serverTripService.dispatchImportedTrip'",
+      "baselineFailureMessageSha256": "a672448cc98811e443ca2c6d17aeea9ef9c3076ed67ee7028348983e0508ec5f"
+    },
+    {
+      "identity": "tests/smartImportEntityReviewWorkspaceR2.test.ts :: Smart Import R2 \u2014 Entity Review Workspace Wiring Test Suite 21. Post-decision batch is revalidated",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 1 to be 3 // Object.is equality",
+      "baselineFailureMessageSha256": "2205456e68f90cd9d09e58b87d6f48c89aea938db092cd6fdebd15d4fb9b3f77"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 38. committer calls snapshot client after canonical IDs resolve",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"getTripCanonicalSnapshot\" to be called with arguments: [ 'PRJ-1', \u2026(1) ]",
+      "baselineFailureMessageSha256": "1d7a1c81b724916b9a263913df3903ed6715e69e12c0268bdf10c65c1ba84a60"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 39. committer uses returned carrierSnapshot exactly",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called with arguments: [ ObjectContaining{\u2026} ]",
+      "baselineFailureMessageSha256": "651f61adcc3d6b0232d5bb42680b3459fa135f570576b7d6848beafd3eb82dba"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 40. committer uses returned truckSnapshot exactly",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called with arguments: [ ObjectContaining{\u2026} ]",
+      "baselineFailureMessageSha256": "224cb08d131f839f6f665b4f2967ccf3e5bb596bcad19f11d79eec7f80b39702"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 41. committer uses returned driverSnapshot exactly",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called with arguments: [ ObjectContaining{\u2026} ]",
+      "baselineFailureMessageSha256": "034d37240fde1b9633a16c94145fd60a9ffae9dfd4cc688c4e02df128e205c83"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 42. committer uses returned materialSnapshot exactly",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called with arguments: [ ObjectContaining{\u2026} ]",
+      "baselineFailureMessageSha256": "9d6b504c119ab79269418f72ff923bac47ba00d9bd6855390e797f4d3346eba8"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 45. successful snapshot allows Trip write",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called at least once",
+      "baselineFailureMessageSha256": "70b228a61da074845a9e3d82fe519048dad462070d6c26695ac1556cd4345ed0"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 46. written Trip uses final reviewed canonical IDs",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"create\" to be called with arguments: [ ObjectContaining{\u2026} ]",
+      "baselineFailureMessageSha256": "a82baace339f8fa5bc733b368c21a5899b3c87eaaccda32ba8ab1c4eedb385ed"
+    },
+    {
+      "identity": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts :: Global Canonical Snapshot Read Boundary (Unit 5) 48. no fabricated snapshot defaults reintroduced",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "TypeError: Cannot read properties of undefined (reading '0')",
+      "baselineFailureMessageSha256": "7c1b917dc6cbc2b2aeccb4dd83c04c73589b5a1adec6ccc3ca15af0313e0d926"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 17a. Server app route rejects client tripId with HTTP 400 and prevents dispatch/persistence",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.tripId !== undefined'",
+      "baselineFailureMessageSha256": "c02b19c344ec797502a6ea33f7024217de95f52b0463d7ca3bd2babaf403fce1"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 17b. Server app route rejects client tripNumber",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.tripNumber !== undefined'",
+      "baselineFailureMessageSha256": "eeeb9713b44ddf82dd7cc67fbdcf0897c582f4ce8f3c14e012e62b4bcfdae577"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 18. Server app route rejects client pricingSnapshot",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.pricingSnapshot !== undefined'",
+      "baselineFailureMessageSha256": "90410da21aebdcde8753c952bf4975c6077479522c41441786d8b7ed742ca2cb"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 19. Server app route rejects client financials",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.financials !== undefined'",
+      "baselineFailureMessageSha256": "7cba5671f49de5ee07d21c0690d58e7051dad03fa0a835c15df50104119c3ecb"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 20. Server app route rejects client settlementAmount",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.settlementAmount !== undefin\u2026'",
+      "baselineFailureMessageSha256": "3d00494a474d3375c85802d9436154494ea0fec1dddccda09bc76759d454bc2e"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 21. Server app route rejects client canonical entity snapshots",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'req.body.carrierSnapshot !== undefined'",
+      "baselineFailureMessageSha256": "f36be3c609948fee4a8d1910bf887672c1d545728d12bb46c2ae06b58c7de46a"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 22. Server generates tripId on dispatchImportedTrip",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "9229191163cc3a8a70975f972e05f187d79d99f460df94c2b3f055beac51c9e8"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 23. Server generates tripNumber on dispatchImportedTrip",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "8ce84cb9310d4c926f86e0debbec8bdf9d8e1a8526ec8a456efd5368872fc2a5"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 24. Server builds canonical snapshots authoritatively",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "73ad82592c03e37316c181fccb0472b6007c303e7a42db9258eaa02d654f97b6"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 25. Imported ticket preserved in weights.originTicketNo",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "f4dde8771053cf07ed33c649b141d8c59332dff5149eeaca23e42c54d41275ef"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 26. Imported date preserved in sourceMetadata / weights",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "a4918b082a9fb65eda02ac777a71c3d2bd26015df736428dd36a8116b78e2665"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 27. Imported origin tare preserved",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "249c86883d0d237f1853bd3553e7789e6110ffda817ae62a19f25ee4d5be1135"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 28. Imported origin gross preserved",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "429a26a2f2fcd7d292304d13f4adfc95474f6d2b959313c3628d4d88e397324a"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 29. Imported origin net preserved or deterministically recomputed",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "4eaad5e286acdfd6aac7071277fb000bc525fdfb721b4c22a38d1c2064671c74"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 30. Imported destination net preserved when valid",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "2b10be3013d8b878c5f4c5afbdb99d01c94a8401b3dd61ba11c9de3031053abc"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 31. Import source metadata preserved",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "9fbb61a74a8007024a93457379bc62a249683f6863f8a6270ca797f571ea0b27"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 32. importBatchId provenance preserved",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "c3b815f803ab7448aee59db39cfdd63f9b321bc60f22c9496da998558689b2a6"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 33. sourceRowId provenance preserved",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "29d02c170542141649deb98ff63613bbf2e650dfce0498d0adac23961d8a9abc"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 34. Deterministic clientUUID accepted",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "aa67510bde06fb7e8b9707ede5ae5339fa1564f58e90bf893395c0e8584a47a0"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 35. Idempotent replay route exists in server/app.ts",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'idempotentReplay: true'",
+      "baselineFailureMessageSha256": "a98a48f94b41915203c5f0c3d0a38c1a3401b4df8ef15e2379ec7f9523c27c3d"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 36. Resolved pricing generated server-side when rule exists",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "dd5bb7a6bd876d13803741726527be516992fa544e67eecfe986dc5450f6f719"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 38. Arbitrary imported status cannot bypass canonical status rules",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "d6bab97666796d0879f8fe3bc5d7ffacad7ed601bb36a0bcc0eedd05cd20083e"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 39. Server route calls serverTripService.dispatchImportedTrip",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'serverTripService.dispatchImportedTrip'",
+      "baselineFailureMessageSha256": "96afafa13dcce6f563b0701bb87d03a0aef00d366313a99f66516b0b6448fbae"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 41. No client tripRepository persistence in server route app.ts",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {registerProductionRuntimeBoun\u2026' to contain 'import { serverTripService'",
+      "baselineFailureMessageSha256": "f490b881e4e957310b28e886c3975f50b5d1e74bda7f6c42aa7d2fb17d8cb2b1"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 45. Trip number generator used on server path",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: INVALID_COMMERCIAL_TERMS",
+      "baselineFailureMessageSha256": "d1d07fe2e413e8db205ca0f3093f5c0caf39e1865b79b81ea6d3bf3228ff4f38"
+    },
+    {
+      "identity": "tests/smartImportServerCanonicalCommitContractC1.test.ts :: SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 8. Server validates project existence and non-archived status",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: expected [Function] to throw error including 'ARCHIVED' but got 'INVALID_COMMERCIAL_TERMS'",
+      "baselineFailureMessageSha256": "148aa7653eafbace17573b02bdfea705854b598d6882fd85b4eb83f1b9edadbc"
+    },
+    {
+      "identity": "tests/smartTripImportOperationalConvergence.test.ts :: Step 4A-RECOVERY \u2014 Smart Trip Import Operational Convergence 2. Unauthorized field roles remain blocked by the existing role guard",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import { filterProjectScope } from \\'\u2026' to contain '\u063a\u064a\u0631 \u0645\u0635\u0631\u062d \u0628\u0627\u0644\u062f\u062e\u0648\u0644 (Unauthorized)'",
+      "baselineFailureMessageSha256": "e08642d5c88dd728eb483b369917e024c4f218b68548f43fffff6ee481fb3450"
+    },
+    {
+      "identity": "tests/smartTripImportOperationalConvergence.test.ts :: Step 4A-RECOVERY \u2014 Smart Trip Import Operational Convergence 23. Unresolved scope renders neither import child nor allows empty ID commits",
+      "family": "IMPORT_AUTHORITY_REVIEW_AND_PROVENANCE",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import { filterProjectScope } from \\'\u2026' to contain '\u062a\u062d\u062f\u064a\u062f \u0646\u0637\u0627\u0642 \u0627\u0644\u0645\u0634\u0631\u0648\u0639 \u0645\u0637\u0644\u0648\u0628'",
+      "baselineFailureMessageSha256": "acd988ac1ba939005448118ae4b27e6257fe969084c3136c159cb9bd50e41770"
+    },
+    {
+      "identity": "tests/tripIntakeConvergence.test.ts :: Step 3C \u2014 Trip Ingestion Entry Convergence 10. Explicit entity creation utilizes entityResolutionCommandService",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import { acceptedSourceRevision, prep\u2026' to contain 'entityResolutionCommandService.create\u2026'",
+      "baselineFailureMessageSha256": "ebff36746ec9944564ea4432c5d773b0c8195d5ede8f24b40e4e3868bba3cadb"
+    },
+    {
+      "identity": "tests/tripIntakeConvergence.test.ts :: Step 3C \u2014 Trip Ingestion Entry Convergence 2. Project access governance remains available through the canonical ACCESS layer",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import {SqlProjectSetup} from \\'./Sql\u2026' to contain 'PROJECT_SETUP_LAYERS.map((layer) => {'",
+      "baselineFailureMessageSha256": "5ecfc2c7098136e70543a1816f63ca266857ab481fae56cd20c7a7b0f7af441e"
+    },
+    {
+      "identity": "tests/tripIntakeConvergence.test.ts :: Step 3C \u2014 Trip Ingestion Entry Convergence 4. ExcelCsvImportSection correctly references and uses ExcelCsvPipelineService",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import { acceptedSourceRevision, prep\u2026' to contain 'ExcelCsvPipelineService.applyEntityRe\u2026'",
+      "baselineFailureMessageSha256": "e061a64ef0aced0cee4900b87d95aadd1cf2e639380ec1255835e48559babf7b"
+    },
+    {
+      "identity": "tests/tripIntakeConvergence.test.ts :: Step 3C \u2014 Trip Ingestion Entry Convergence 9. Entity resolution decisions route through standard ExcelCsvPipelineService path",
+      "family": "SETUP_ACTIVATION_AND_RELATIONSHIP_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'import { acceptedSourceRevision, prep\u2026' to contain 'ExcelCsvPipelineService.applyEntityRe\u2026'",
+      "baselineFailureMessageSha256": "865c28b17ee911ead9c813d672ea06360e06d6a54b6fa8797d4a3d44ea7992a2"
+    },
+    {
+      "identity": "tests/tripOperationalCommands.test.ts :: Dispatch/loading reuse canonical relationships and FSM atomically DISPATCHER dispatch uses canonical identities, pricing and snapshots",
+      "family": "TRIP_TRANSACTION_AND_OFFLINE_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: ALLOCATION_POINTER_CORRUPTION",
+      "baselineFailureMessageSha256": "b9c15d7c0efc9b23550aed6056a3fb378749042ee69e9d3e5eee738adf73c697"
+    },
+    {
+      "identity": "tests/tripOperationalCommands.test.ts :: Dispatch/loading reuse canonical relationships and FSM atomically SCALE_OPERATOR loading executes all FSM edges and derives weights, never cached financials",
+      "family": "TRIP_TRANSACTION_AND_OFFLINE_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: ALLOCATION_POINTER_CORRUPTION",
+      "baselineFailureMessageSha256": "b9c15d7c0efc9b23550aed6056a3fb378749042ee69e9d3e5eee738adf73c697"
+    },
+    {
+      "identity": "tests/tripOperationalCommands.test.ts :: Import command preserves the existing domain seam reuses canonical imported-trip creation without trusting supplied actor metadata",
+      "family": "TRIP_TRANSACTION_AND_OFFLINE_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: ALLOCATION_POINTER_CORRUPTION",
+      "baselineFailureMessageSha256": "835bf4804fa94f5f765b8010a2efbefca40cad1be7d0b683b81789818a631f42"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain does not acknowledge after lease expiry and the next worker safely reclaims unfinished work",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'PENDING' to be 'DELIVERED' // Object.is equality",
+      "baselineFailureMessageSha256": "6e21d09e0f0ca759443aecf86a234106b2b4b8e2c50bae670a4312f942afa995"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain keeps an unavailable file distinct and never replaces its recorded binding",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected { projectId: 'P1', \u2026(9) } to match object { \u2026(2) }",
+      "baselineFailureMessageSha256": "69bcf0a5be981dcd38cc99549780b6c88795dc43295bd073da449f82130ba0a3"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain preserves binding and pending data on 401 while classifying authorization precisely",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected +0 to be 1 // Object.is equality",
+      "baselineFailureMessageSha256": "8420de7dd71c8ad61d064dc438312d262fc78807c6ec2ba6e64ab9f9c116f845"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain preserves binding and pending data on 403 scope while classifying authorization precisely",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected +0 to be 1 // Object.is equality",
+      "baselineFailureMessageSha256": "8420de7dd71c8ad61d064dc438312d262fc78807c6ec2ba6e64ab9f9c116f845"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain preserves binding and pending data on 429 while classifying authorization precisely",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected +0 to be 1 // Object.is equality",
+      "baselineFailureMessageSha256": "8420de7dd71c8ad61d064dc438312d262fc78807c6ec2ba6e64ab9f9c116f845"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain preserves binding and pending data on 503 while classifying authorization precisely",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected +0 to be 1 // Object.is equality",
+      "baselineFailureMessageSha256": "8420de7dd71c8ad61d064dc438312d262fc78807c6ec2ba6e64ab9f9c116f845"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain preserves binding and pending data on network while classifying authorization precisely",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected +0 to be 1 // Object.is equality",
+      "baselineFailureMessageSha256": "8420de7dd71c8ad61d064dc438312d262fc78807c6ec2ba6e64ab9f9c116f845"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain refreshes a secure grant, rereads Firestore and delivers/acknowledges with no browser token",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected { examined: 1, delivered: +0, \u2026(1) } to deeply equal { examined: 1, delivered: 1, \u2026(1) }",
+      "baselineFailureMessageSha256": "5948cf9d941dd23c67ba58e9bec414f13ff9af6f55868f832771cbacc973133b"
+    },
+    {
+      "identity": "tests/workspaceOfflineAuthorizationAndWorker.test.ts :: browser-absent canonical worker using the existing drain retains pending work and marks degraded after a generic Sheets 403",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected { projectId: 'P1', \u2026(9) } to match object { state: 'SYNC_DEGRADED', \u2026(1) }",
+      "baselineFailureMessageSha256": "8b27ede36cdb7d37091b91a817f7a1db045a96d306588d3370a9f0a7a0230738"
+    },
+    {
+      "identity": "tests/workspaceOneClickProvisioning.test.ts :: GWS-ONE clean Project acceptance matrix DUAL_WEIGHBRIDGE / PRELOADED_ROSTER creates exactly one owned resource set and converges on repeat",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "PASSED_ON_RETRY_NO_FIX_CREDIT",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "Error: Test timed out in 5000ms.",
+      "baselineFailureMessageSha256": "f8b98fe22d6fd5980e82a01413a29dfd762b3514f27e539ef9c7c6033aa6ce27"
+    },
+    {
+      "identity": "tests/workspaceOneClickProvisioning.test.ts :: phase failure resume and strict READY proof same command resumes a temporary failure at reports without duplicate resources",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected 'READY' to be 'ATTENTION_REQUIRED' // Object.is equality",
+      "baselineFailureMessageSha256": "e05e7e06f1ccffc933f1f0984b38cc2e59f12401d9b7698aea64f27b1c4cb5fb"
+    },
+    {
+      "identity": "tests/workspaceProviderResilience.test.ts :: Q-PRJ-007-shaped user-active execution with durable authority server refresh feeds actual isolated Ops reports; stale browser token never reaches a provider",
+      "family": "ACCOUNT_AND_AUTH_CONTINUITY",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected false to be true // Object.is equality",
+      "baselineFailureMessageSha256": "4bcf299c831078c2ab80c5626153537aa5c612d8b44fe385d8e9e8b15112b4bd"
+    },
+    {
+      "identity": "tests/workspaceQuiescenceUi.test.tsx :: READY remains quiescent across timer intervals, focus/online/visibility, rerender and real remount",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called 2 times, but got 0 times",
+      "baselineFailureMessageSha256": "1afc0ecb1910451a05c6b4f3cd3e1d6326c3c52b6d4da26f35c7a7fb823b0c49"
+    },
+    {
+      "identity": "tests/workspaceQuiescenceUi.test.tsx :: real hook remounts share the minute throttle rather than restarting an activity pass",
+      "family": "WORKSPACE_REPORTING_AND_PRESENTATION_CONTRACT",
+      "candidateStatus": "FAILED",
+      "businessImpact": "Unresolved release verification gate; reproduction alone does not establish fixture obsolescence or source correctness.",
+      "firstFailureMessage": "AssertionError: expected \"vi.fn()\" to be called once, but got 0 times",
+      "baselineFailureMessageSha256": "b0ca13799be7977c219b909ac0fb9dbe8d6252dbdc471912e677d1853b5364fa"
+    }
+  ],
+  "baselineLoadFailures": {
+    "tests/conflictEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/conflictEngine.test.ts",
+    "tests/conflictResolution.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/conflictResolution.test.ts",
+    "tests/googleDriveImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/googleDriveImport.test.ts",
+    "tests/googleSheetsImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/googleSheetsImport.test.ts",
+    "tests/pricingEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/pricingEngine.test.ts",
+    "tests/reportsEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngine.test.ts",
+    "tests/reportsEngineControlCleanup.test.ts": "process.exit unexpectedly called with \"1\" (test file: C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngineControlCleanup.test.ts)",
+    "tests/reportsEngineConvergence.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngineConvergence.test.ts",
+    "tests/tripIdentityAdjustmentBlock89.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/tripIdentityAdjustmentBlock89.test.ts",
+    "tests/weighbridgeImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/weighbridgeImport.test.ts",
+    "tests/workspaceConvergence.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceConvergence.test.ts",
+    "tests/workspaceIntegration.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceIntegration.test.ts"
+  },
+  "candidateLoadFailures": {
+    "tests/conflictEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/conflictEngine.test.ts",
+    "tests/conflictResolution.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/conflictResolution.test.ts",
+    "tests/googleDriveImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/googleDriveImport.test.ts",
+    "tests/googleSheetsImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/googleSheetsImport.test.ts",
+    "tests/pricingEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/pricingEngine.test.ts",
+    "tests/reportsEngine.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngine.test.ts",
+    "tests/reportsEngineControlCleanup.test.ts": "process.exit unexpectedly called with \"1\" (test file: C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngineControlCleanup.test.ts)",
+    "tests/reportsEngineConvergence.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/reportsEngineConvergence.test.ts",
+    "tests/tripIdentityAdjustmentBlock89.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/tripIdentityAdjustmentBlock89.test.ts",
+    "tests/weighbridgeImport.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/weighbridgeImport.test.ts",
+    "tests/workspaceConvergence.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceConvergence.test.ts",
+    "tests/workspaceIntegration.test.ts": "No test suite found in file C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceIntegration.test.ts"
+  },
+  "added": [],
+  "notReproduced": [
+    "tests/workspaceOneClickProvisioning.test.ts :: GWS-ONE clean Project acceptance matrix DUAL_WEIGHBRIDGE / PRELOADED_ROSTER creates exactly one owned resource set and converges on repeat"
+  ],
+  "separatePortalFailures": [
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests D06 & D21: RosterDriverTruckResolutionLayer renders driver creation modal in document.body portal on click",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "AssertionError: expected '\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u062d\u0633\u0645 \u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646 \u0648\u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a (Drive\u2026' to contain '\u0625\u0646\u0634\u0627\u0621 \u0633\u0627\u0626\u0642 \u062c\u062f\u064a\u062f \u0644\u0644\u0646\u0627\u0642\u0644'"
+    },
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS C4 REAL COMPONENT A: Driver creation modal opens prefilled with driverName, residencyId/iqama, and phone from source rows",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "AssertionError: expected null not to be null"
+    },
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS C4 REAL COMPONENT B: Truck creation modal opens prefilled with plateNumber, truckType, tareWeight, and maxGrossWeight",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "TypeError: Cannot read properties of null (reading 'value')"
+    },
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS C4 REAL COMPONENT C: Driver conflicting Iqama displays conflict details, blocks submit until resolved, then submits chosen value",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "AssertionError: expected '\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u062d\u0633\u0645 \u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646 \u0648\u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a (Drive\u2026' to contain '\u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a \u0645\u062a\u0639\u0627\u0631\u0636\u0629 \u0641\u064a \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0635\u062f\u0631 \u064a\u2026'"
+    },
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS C4 REAL COMPONENT D: Truck conflicting optional tareWeightKg displays conflict details, blocks submit until resolved, then submits chosen value",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "AssertionError: expected '\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u062d\u0633\u0645 \u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646 \u0648\u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a (Drive\u2026' to contain '\u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a \u0645\u062a\u0639\u0627\u0631\u0636\u0629 \u0641\u064a \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0635\u062f\u0631 \u064a\u2026'"
+    },
+    {
+      "identity": "tests/rosterSmartImportPortalRenderQuality.test.tsx :: D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests C4 & FINAL REVIEW BEHAVIORAL DISPATCH & CORRECTION TESTS C4 REAL COMPONENT E: Conflict state resets completely when modal is cancelled or a clean group is opened",
+      "family": "IMPORT_PORTAL_UI",
+      "baselineAndCandidateFailed": true,
+      "firstFailureMessage": "AssertionError: expected '\u0645\u0631\u0627\u062c\u0639\u0629 \u0648\u062d\u0633\u0645 \u0627\u0644\u0633\u0627\u0626\u0642\u064a\u0646 \u0648\u0627\u0644\u0634\u0627\u062d\u0646\u0627\u062a (Drive\u2026' to contain '\u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a \u0645\u062a\u0639\u0627\u0631\u0636\u0629 \u0641\u064a \u0627\u0644\u0645\u0644\u0641 \u0627\u0644\u0645\u0635\u062f\u0631 \u064a\u2026'"
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # AR2-U09 — Runtime composition and controlled cutover readiness
 
+## Engineering convergence 1 reconciliation — 2026-11-10
+
+[Convergence evidence](21_ENGINEERING_CONVERGENCE_1.md) adds the exact pinned-tree inventory, static/dynamic dependency evidence, eleven workflow spines and an isolated four-file Carrier/Material readiness correction. Nine original RB4 dirty files, including migration 013, remain fingerprint-identical in the U09 worktree. Migrations 001–012 remain unchanged. New acceptance 37/37 and actual Edge journeys 2/2 pass; unchanged native/authority/browser evidence and exact historical/diagnostic deltas are linked in that record. The 92 historical failures, 12 load failures, six portal failures and 442 diagnostics remain unresolved gates. This is a local convergence branch only; it does not certify RB4, all dynamic workflow behavior, production equivalence or operational acceptance. Overall U09 remains BLOCKED; production remains Firestore, with no push, PR, merge, deploy, production migration, SQL activation or live Google operation.
+
 ## Verified preflight (before production edits)
 
 Pinned/fetched main: `030e9027685033c674cf2021499db7bfb675cbfd`. PR #99 independently read through GitHub: merged at that exact SHA; its sole implementation parent is U08 `daefdfa1827bff420f2b35a3eadc4a623094fdd5`. Initial worktree clean; branch `reconstruction/ar2-u09-sql-runtime-cutover-readiness` created from origin/main. No applicable AGENTS.md found. Read actual ARCH-R1 Rev1.2 and phase/debt/U07/U08 records and postmerge handoff. MASTER_PROJECT_HANDOFF is older archival context; current ledger and merged source control.

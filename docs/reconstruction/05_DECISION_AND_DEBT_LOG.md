@@ -1,3 +1,12 @@
+## 2026-11-10 — Engineering convergence 1, isolated local correction
+
+- RESOLVED: Carrier/Material readiness no longer equates a candidate ID with accepted row evidence. A shared pure predicate consumes the existing review policy, preserves historical omitted-kind compatibility, and is used by both layer checks and canonical rendering/resume consumers. No persisted fact or business authority changes.
+- VERIFIED: every one of 1,502 base blobs content-checked; 1,497 text files processed, 953 JS/TS ASTs with zero syntax diagnostics. Source graph and eleven workflow spines retain explicit static/dynamic and unsupported-edge limits. See [complete evidence](21_ENGINEERING_CONVERGENCE_1.md).
+- STILL_OPEN: 92 historical assertions, 12 suite-load failures, six portal assertions and 442 TypeScript diagnostics. Exact identities and business-impact families are recorded; inherited production-relevant failures are not waived. Prior unhandled-error debt is not claimed resolved by the JSON-only reporter.
+- SOURCE_FINDINGS_FOR_EXECUTION_2: reachable field supervision reads process-local exceptions while reports use persisted exceptions; report view bound is 1,000 trips per project; dynamic/runtime, Rules/IAM and cutover evidence remain incomplete. Reconcile authority/readback and completeness before changes, without introducing another writer or financial authority.
+- PRESERVED: nine original uncommitted RB4 files including migration 013; all twelve committed migrations unchanged. RB4 completion remains separate work. Firestore stays production authority, SQL inactive.
+- PUBLICATION_BOUNDARY: local isolated-branch commit only. No push, PR, merge, deployment, live Google action, production migration or SQL activation. Overall U09 remains BLOCKED.
+
 ## 2026-11-09 — AR2-U08 source implemented / independent review required
 
 ### AR2-U09-RB3 — Immutable source authority ready for source review; overall U09 BLOCKED — 2026-11-10

@@ -1,0 +1,3323 @@
+{
+  "baseline-history": {
+    "total": 2494,
+    "passed": 2401,
+    "failed": 93,
+    "skipped": 0,
+    "files": 135,
+    "perFile": [
+      {
+        "file": "tests/ar2U08WorkspaceAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/ar2U08WorkspaceTransport.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/authProfileContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/authProviderContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/authSessionPrincipalRefresh.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 11,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/cachedProjectAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/conflictEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/conflictResolution.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/controlledIncrementalWorkspaceProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/dashboardReportsI18n.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 8,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/durableImportSessionP8B1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/fieldLoadingUnloadingBlock77.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/fieldReportsCentralDashboardBlock80.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/fleetProjectionConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 45
+        }
+      },
+      {
+        "file": "tests/foundationMaintenancePfagRb2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 58
+        }
+      },
+      {
+        "file": "tests/foundationMaintenanceUiPfagRb2.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/foundationSafetyPfagRb1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 54
+        }
+      },
+      {
+        "file": "tests/googleDerivedReportRefreshUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/googleDriveImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleReportRefreshRateLimitBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/googleReportRefreshRouteCredential.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/googleSheetsImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleWorkspaceAuthorization.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceOAuthContinuation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 55
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceScopeDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/importSessionClientAuthRecovery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/loadingOperatorConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/manualWorkspaceIncrementalSyncUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/operationalGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 9
+        }
+      },
+      {
+        "file": "tests/operationalProfileAssessment.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/operationalProfileProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/operationalProfiles.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 24
+        }
+      },
+      {
+        "file": "tests/operationalProfileUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 7,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/operationalReportTabIsolation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 6
+        }
+      },
+      {
+        "file": "tests/operationalWorkspaceTemplates.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 5,
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/pricingAuthorityP9U1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/pricingCommercialVersioningP9U2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 27
+        }
+      },
+      {
+        "file": "tests/pricingEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/profileContinuityUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectActivationReadiness.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectCanonicalRefreshBarrierA11.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectContextLifetime.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/projectDriverTruckAssignmentFoundation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelFoundation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/projectGoogleOAuth.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/projectGoogleTemplateAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceTemplateSync.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 5
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceWizard.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/projectReadinessAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceDualTokenUnit3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMaterialCarrierConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMutationInvalidationUnit5B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceWizardWiringUnit4B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/reportsEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineControlCleanup.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reviewedRosterCommitP8B2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 50
+        }
+      },
+      {
+        "file": "tests/rosterBulkGlobalReuse.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/rosterCanonicalIntentP7B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 37
+        }
+      },
+      {
+        "file": "tests/rosterExecutionRecoveryP8B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 30
+        }
+      },
+      {
+        "file": "tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 52,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/rosterMaterialBindingContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/rosterResumeJourneyP8B4.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/rosterResumeStageReconciliation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/runtimeGenerationConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/secureTripNumberingOffline89B.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 18,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/serverAuthenticationTrustBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/setupFleetQuery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupFleetWorkspace.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/setupReadinessBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/setupReadinessPresentation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupWizardContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 4,
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/sidebarProjectWorkspaceBlock88.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartImportCommitIntegrityConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportEntityReviewWorkspaceR2.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 29,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 8
+        }
+      },
+      {
+        "file": "tests/smartImportServerCanonicalCommitContractC1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 20,
+          "failed": 26
+        }
+      },
+      {
+        "file": "tests/smartImportTripWriteFailureIntegrity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartTripImportOperationalConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/temporalRelationshipAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 61
+        }
+      },
+      {
+        "file": "tests/tripIdentityAdjustmentBlock89.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/tripIntakeConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 10,
+          "failed": 4
+        }
+      },
+      {
+        "file": "tests/tripMutationBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/tripOperationalCommands.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 3
+        }
+      },
+      {
+        "file": "tests/tripOperationalOutbox.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/tripSmartImportOptionalTimeMapping.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/txReadCacheCorrectness.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/userActiveWorkspaceSync.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/weighbridgeImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceAuthorizationEntrypoint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceAutomationMaintenance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintContract.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintProvisioning.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/workspaceBoundAuthorizationHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBoundedWorkbookInspection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalMasterProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalRawWrites.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 2
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalReadConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 4
+        }
+      },
+      {
+        "file": "tests/workspaceCompleteLifecycle.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceDestinationPicker.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceDurableAuthorizationAcceptance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/workspaceEnsureReload.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceGenerationStageDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceHttpResilience.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 15
+        }
+      },
+      {
+        "file": "tests/workspaceInitialDestination.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceIntegration.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceLiveClosure.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceLocalBlueprint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceManagedRootAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceNonDestructiveRepair.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthCorrelation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthPopupCallback.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 25,
+          "failed": 9
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineGoogleProvider.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineOAuthRoutes.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickJourney.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickProvisioning.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 2,
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/workspaceProviderResilience.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 2,
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceRuntimeFence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceSimpleDispatcher.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceStorageIsolation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 56
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinator.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinatorHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      }
+    ]
+  },
+  "candidate-history": {
+    "total": 2494,
+    "passed": 2402,
+    "failed": 92,
+    "skipped": 0,
+    "files": 135,
+    "perFile": [
+      {
+        "file": "tests/ar2U08WorkspaceAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/ar2U08WorkspaceTransport.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/authProfileContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/authProviderContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/authSessionPrincipalRefresh.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 11,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/cachedProjectAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/conflictEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/conflictResolution.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/controlledIncrementalWorkspaceProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/dashboardReportsI18n.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 8,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/durableImportSessionP8B1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/fieldLoadingUnloadingBlock77.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/fieldReportsCentralDashboardBlock80.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/fleetProjectionConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 45
+        }
+      },
+      {
+        "file": "tests/foundationMaintenancePfagRb2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 58
+        }
+      },
+      {
+        "file": "tests/foundationMaintenanceUiPfagRb2.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/foundationSafetyPfagRb1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 54
+        }
+      },
+      {
+        "file": "tests/googleDerivedReportRefreshUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/googleDriveImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleReportRefreshRateLimitBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/googleReportRefreshRouteCredential.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/googleSheetsImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleWorkspaceAuthorization.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceOAuthContinuation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 55
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceScopeDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/importSessionClientAuthRecovery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/loadingOperatorConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/manualWorkspaceIncrementalSyncUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/operationalGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 9
+        }
+      },
+      {
+        "file": "tests/operationalProfileAssessment.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/operationalProfileProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/operationalProfiles.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 24
+        }
+      },
+      {
+        "file": "tests/operationalProfileUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 7,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/operationalReportTabIsolation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 6
+        }
+      },
+      {
+        "file": "tests/operationalWorkspaceTemplates.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 5,
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/pricingAuthorityP9U1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/pricingCommercialVersioningP9U2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 27
+        }
+      },
+      {
+        "file": "tests/pricingEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/profileContinuityUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectActivationReadiness.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectCanonicalRefreshBarrierA11.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectContextLifetime.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/projectDriverTruckAssignmentFoundation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelFoundation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/projectGoogleOAuth.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/projectGoogleTemplateAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceTemplateSync.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 5
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceWizard.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/projectReadinessAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceDualTokenUnit3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMaterialCarrierConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMutationInvalidationUnit5B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceWizardWiringUnit4B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/reportsEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineControlCleanup.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reviewedRosterCommitP8B2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 50
+        }
+      },
+      {
+        "file": "tests/rosterBulkGlobalReuse.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/rosterCanonicalIntentP7B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 37
+        }
+      },
+      {
+        "file": "tests/rosterExecutionRecoveryP8B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 30
+        }
+      },
+      {
+        "file": "tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 52,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/rosterMaterialBindingContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/rosterResumeJourneyP8B4.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/rosterResumeStageReconciliation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/runtimeGenerationConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/secureTripNumberingOffline89B.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 18,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/serverAuthenticationTrustBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/setupFleetQuery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupFleetWorkspace.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/setupReadinessBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/setupReadinessPresentation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupWizardContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 4,
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/sidebarProjectWorkspaceBlock88.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartImportCommitIntegrityConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportEntityReviewWorkspaceR2.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 29,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 8
+        }
+      },
+      {
+        "file": "tests/smartImportServerCanonicalCommitContractC1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 20,
+          "failed": 26
+        }
+      },
+      {
+        "file": "tests/smartImportTripWriteFailureIntegrity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartTripImportOperationalConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/temporalRelationshipAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 61
+        }
+      },
+      {
+        "file": "tests/tripIdentityAdjustmentBlock89.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/tripIntakeConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 10,
+          "failed": 4
+        }
+      },
+      {
+        "file": "tests/tripMutationBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/tripOperationalCommands.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 3
+        }
+      },
+      {
+        "file": "tests/tripOperationalOutbox.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/tripSmartImportOptionalTimeMapping.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/txReadCacheCorrectness.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/userActiveWorkspaceSync.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/weighbridgeImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceAuthorizationEntrypoint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceAutomationMaintenance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintContract.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintProvisioning.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/workspaceBoundAuthorizationHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBoundedWorkbookInspection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalMasterProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalRawWrites.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 2
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalReadConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 4
+        }
+      },
+      {
+        "file": "tests/workspaceCompleteLifecycle.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceDestinationPicker.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceDurableAuthorizationAcceptance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/workspaceEnsureReload.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceGenerationStageDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceHttpResilience.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 15
+        }
+      },
+      {
+        "file": "tests/workspaceInitialDestination.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceIntegration.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceLiveClosure.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceLocalBlueprint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceManagedRootAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceNonDestructiveRepair.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthCorrelation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthPopupCallback.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 25,
+          "failed": 9
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineGoogleProvider.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineOAuthRoutes.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickJourney.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickProvisioning.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 42,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/workspaceProviderResilience.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 2,
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceRuntimeFence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceSimpleDispatcher.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceStorageIsolation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 56
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinator.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinatorHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      }
+    ]
+  },
+  "final-history": {
+    "total": 2494,
+    "passed": 2402,
+    "failed": 92,
+    "skipped": 0,
+    "files": 135,
+    "perFile": [
+      {
+        "file": "tests/ar2U08WorkspaceAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/ar2U08WorkspaceTransport.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/authProfileContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/authProviderContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/authSessionPrincipalRefresh.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 11,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/cachedProjectAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/conflictEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/conflictResolution.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/controlledIncrementalWorkspaceProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/dashboardReportsI18n.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 8,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/durableImportSessionP8B1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/fieldLoadingUnloadingBlock77.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/fieldReportsCentralDashboardBlock80.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/fleetProjectionConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 45
+        }
+      },
+      {
+        "file": "tests/foundationMaintenancePfagRb2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 58
+        }
+      },
+      {
+        "file": "tests/foundationMaintenanceUiPfagRb2.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/foundationSafetyPfagRb1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 54
+        }
+      },
+      {
+        "file": "tests/googleDerivedReportRefreshUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/googleDriveImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleReportRefreshRateLimitBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/googleReportRefreshRouteCredential.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/googleSheetsImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/googleWorkspaceAuthorization.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceOAuthContinuation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 55
+        }
+      },
+      {
+        "file": "tests/googleWorkspaceScopeDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/importSessionClientAuthRecovery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/loadingOperatorConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/manualWorkspaceIncrementalSyncUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/operationalGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 9
+        }
+      },
+      {
+        "file": "tests/operationalProfileAssessment.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/operationalProfileProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/operationalProfiles.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 24
+        }
+      },
+      {
+        "file": "tests/operationalProfileUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 7,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/operationalReportTabIsolation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 6
+        }
+      },
+      {
+        "file": "tests/operationalWorkspaceTemplates.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 5,
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/pricingAuthorityP9U1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/pricingCommercialVersioningP9U2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 27
+        }
+      },
+      {
+        "file": "tests/pricingEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/profileContinuityUi.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectActivationReadiness.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectCanonicalRefreshBarrierA11.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectContextLifetime.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/projectDriverTruckAssignmentFoundation.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/projectFleetReadModelFoundation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 41
+        }
+      },
+      {
+        "file": "tests/projectGoogleOAuth.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/projectGoogleTemplateAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceTemplateSync.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 5
+        }
+      },
+      {
+        "file": "tests/projectGoogleWorkspaceWizard.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/projectReadinessAdminReadContext.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceDualTokenUnit3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit1.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceFleetRosterUnit2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMaterialCarrierConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceMutationInvalidationUnit5B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 40
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 39,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/projectWorkspaceWizardWiringUnit4B.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/reportsEngine.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineControlCleanup.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reportsEngineConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/reviewedRosterCommitP8B2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 50
+        }
+      },
+      {
+        "file": "tests/rosterBulkGlobalReuse.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/rosterCanonicalIntentP7B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 37
+        }
+      },
+      {
+        "file": "tests/rosterExecutionRecoveryP8B3.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 30
+        }
+      },
+      {
+        "file": "tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 52,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/rosterMaterialBindingContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/rosterResumeJourneyP8B4.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/rosterResumeStageReconciliation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/runtimeGenerationConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 17,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/secureTripNumberingOffline89B.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 18,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/serverAuthenticationTrustBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/setupFleetQuery.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupFleetWorkspace.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/setupReadinessBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/setupReadinessPresentation.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 17
+        }
+      },
+      {
+        "file": "tests/setupWizardContinuity.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 4,
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/sidebarProjectWorkspaceBlock88.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartImportCommitIntegrityConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 34,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportEntityReviewWorkspaceR2.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 29,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 8
+        }
+      },
+      {
+        "file": "tests/smartImportServerCanonicalCommitContractC1.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 20,
+          "failed": 26
+        }
+      },
+      {
+        "file": "tests/smartImportTripWriteFailureIntegrity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 20
+        }
+      },
+      {
+        "file": "tests/smartTripImportOperationalConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 23,
+          "failed": 2
+        }
+      },
+      {
+        "file": "tests/temporalRelationshipAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 61
+        }
+      },
+      {
+        "file": "tests/tripIdentityAdjustmentBlock89.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/tripIntakeConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 10,
+          "failed": 4
+        }
+      },
+      {
+        "file": "tests/tripMutationBoundary.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/tripOperationalCommands.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 40,
+          "failed": 3
+        }
+      },
+      {
+        "file": "tests/tripOperationalOutbox.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/tripSmartImportOptionalTimeMapping.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/txReadCacheCorrectness.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 7
+        }
+      },
+      {
+        "file": "tests/userActiveWorkspaceSync.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/weighbridgeImport.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceAuthorizationEntrypoint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceAutomationMaintenance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintContract.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintGoogleAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceBlueprintProvisioning.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 26
+        }
+      },
+      {
+        "file": "tests/workspaceBoundAuthorizationHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceBoundedWorkbookInspection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalMasterProjection.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalRawWrites.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 2
+        }
+      },
+      {
+        "file": "tests/workspaceCanonicalReadConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 4
+        }
+      },
+      {
+        "file": "tests/workspaceCompleteLifecycle.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceConvergence.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceDestinationPicker.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceDurableAuthorizationAcceptance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 31
+        }
+      },
+      {
+        "file": "tests/workspaceEnsureReload.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 5
+        }
+      },
+      {
+        "file": "tests/workspaceGenerationStageDiagnosis.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceHttpResilience.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 15
+        }
+      },
+      {
+        "file": "tests/workspaceInitialDestination.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/workspaceIntegration.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/workspaceLiveClosure.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceLocalBlueprint.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceManagedRootAdapter.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceNonDestructiveRepair.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 16
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthCorrelation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOAuthPopupCallback.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 25,
+          "failed": 9
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineGoogleProvider.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/workspaceOfflineOAuthRoutes.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 14
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickJourney.test.tsx",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceOneClickProvisioning.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 42,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/workspaceProviderResilience.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 31,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceBudget.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/workspaceQuiescenceUi.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "failed": 2,
+          "passed": 3
+        }
+      },
+      {
+        "file": "tests/workspaceRuntimeFence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      },
+      {
+        "file": "tests/workspaceSimpleDispatcher.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 18
+        }
+      },
+      {
+        "file": "tests/workspaceStorageIsolation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 56
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinator.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/workspaceSyncCoordinatorHttp.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      }
+    ]
+  },
+  "baseline-portal": {
+    "total": 20,
+    "passed": 14,
+    "failed": 6,
+    "skipped": 0,
+    "files": 1,
+    "perFile": [
+      {
+        "file": "tests/rosterSmartImportPortalRenderQuality.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 14,
+          "failed": 6
+        }
+      }
+    ]
+  },
+  "red": {
+    "total": 33,
+    "passed": 13,
+    "failed": 20,
+    "skipped": 0,
+    "files": 1,
+    "perFile": [
+      {
+        "file": "tests/rosterResolutionReadinessConvergence.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 20,
+          "passed": 13
+        }
+      }
+    ]
+  },
+  "focused": {
+    "total": 109,
+    "passed": 101,
+    "failed": 8,
+    "skipped": 0,
+    "files": 5,
+    "perFile": [
+      {
+        "file": "tests/rosterMaterialBindingContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/rosterResolutionReadinessConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 33
+        }
+      },
+      {
+        "file": "tests/rosterResumeStageReconciliation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/rosterSmartImportCarrierLayerC2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/rosterSmartImportPortalRenderQuality.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 12,
+          "failed": 8
+        }
+      }
+    ]
+  },
+  "final-focused": {
+    "total": 113,
+    "passed": 107,
+    "failed": 6,
+    "skipped": 0,
+    "files": 5,
+    "perFile": [
+      {
+        "file": "tests/rosterMaterialBindingContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/rosterResolutionReadinessConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 37
+        }
+      },
+      {
+        "file": "tests/rosterResumeStageReconciliation.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/rosterSmartImportCarrierLayerC2.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 21
+        }
+      },
+      {
+        "file": "tests/rosterSmartImportPortalRenderQuality.test.tsx",
+        "status": "failed",
+        "assertions": {
+          "passed": 14,
+          "failed": 6
+        }
+      }
+    ]
+  },
+  "gate-browser": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "files": 1,
+    "perFile": [
+      {
+        "file": "tests/rosterReadinessBrowserConvergence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 2
+        }
+      }
+    ]
+  },
+  "native-browser": {
+    "total": 504,
+    "passed": 197,
+    "failed": 1,
+    "skipped": 306,
+    "files": 24,
+    "perFile": [
+      {
+        "file": "tests/ar2U01ConnectionCleanup.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/ar2U01PostgresInfrastructure.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 13
+        }
+      },
+      {
+        "file": "tests/ar2U01SecurityGate.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/ar2U02CanonicalIdentityMemberships.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/ar2U03TemporalAuthority.test.ts",
+        "status": "failed",
+        "assertions": {}
+      },
+      {
+        "file": "tests/ar2U04BoundedReads.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 34
+        }
+      },
+      {
+        "file": "tests/ar2U04PresentationSession.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/ar2U05DurableImport.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 71
+        }
+      },
+      {
+        "file": "tests/ar2U06Rb1Security.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 28
+        }
+      },
+      {
+        "file": "tests/ar2U06TripPerformance.test.ts",
+        "status": "failed",
+        "assertions": {
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/ar2U06TripsPricing.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 107
+        }
+      },
+      {
+        "file": "tests/ar2U07OfflineContinuity.test.ts",
+        "status": "failed",
+        "assertions": {
+          "skipped": 53
+        }
+      },
+      {
+        "file": "tests/ar2U08WorkspaceAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 19
+        }
+      },
+      {
+        "file": "tests/ar2U08WorkspaceTransport.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 10
+        }
+      },
+      {
+        "file": "tests/ar2U09FirestoreFence.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/ar2U09MigrationReadiness.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 12
+        }
+      },
+      {
+        "file": "tests/ar2U09OfflineBrowser.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb1Governance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 29
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb2Session.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb2Ui.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 27
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb3Browser.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 9
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb3Export.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 23
+        }
+      },
+      {
+        "file": "tests/ar2U09Rb3Source.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 25
+        }
+      },
+      {
+        "file": "tests/ar2U09RuntimeComposition.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 8
+        }
+      }
+    ]
+  },
+  "native-correct-env": {
+    "total": 478,
+    "passed": 477,
+    "failed": 1,
+    "skipped": 0,
+    "files": 12,
+    "perFile": [
+      {
+        "file": "tests/ar2U01ConnectionCleanup.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 6
+        }
+      },
+      {
+        "file": "tests/ar2U01PostgresInfrastructure.test.ts",
+        "status": "failed",
+        "assertions": {
+          "passed": 12,
+          "failed": 1
+        }
+      },
+      {
+        "file": "tests/ar2U01SecurityGate.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 36
+        }
+      },
+      {
+        "file": "tests/ar2U02CanonicalIdentityMemberships.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 55
+        }
+      },
+      {
+        "file": "tests/ar2U03TemporalAuthority.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 63
+        }
+      },
+      {
+        "file": "tests/ar2U04BoundedReads.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 34
+        }
+      },
+      {
+        "file": "tests/ar2U04PresentationSession.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 11
+        }
+      },
+      {
+        "file": "tests/ar2U05DurableImport.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 71
+        }
+      },
+      {
+        "file": "tests/ar2U06Rb1Security.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 28
+        }
+      },
+      {
+        "file": "tests/ar2U06TripPerformance.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 1
+        }
+      },
+      {
+        "file": "tests/ar2U06TripsPricing.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 107
+        }
+      },
+      {
+        "file": "tests/ar2U07OfflineContinuity.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 53
+        }
+      }
+    ]
+  },
+  "native-backup-ascii": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "skipped": 0,
+    "files": 1,
+    "perFile": [
+      {
+        "file": "tests/ar2U01PostgresInfrastructure.test.ts",
+        "status": "passed",
+        "assertions": {
+          "passed": 13
+        }
+      }
+    ]
+  },
+  "base": "11326e277939fe3a1d839d723085797d3d6a691f",
+  "historicalAddedFailureIdentities": [],
+  "historicalNotReproduced": [
+    "tests/workspaceOneClickProvisioning.test.ts :: GWS-ONE clean Project acceptance matrix DUAL_WEIGHBRIDGE / PRELOADED_ROSTER creates exactly one owned resource set and converges on repeat"
+  ],
+  "historicalLoadFailureIdentitiesUnchanged": true,
+  "currentRunUnhandledErrorCount": null,
+  "unhandledErrorEvidenceLimit": "The JSON reporter does not expose this collection; previous records list two unhandled errors. They are not claimed resolved.",
+  "typescript": {
+    "baseline": 446,
+    "candidate": 442,
+    "added": [],
+    "removed": [
+      "src/components/import/RosterCarrierResolutionLayer.tsx | TS2339 | Property 'status' does not exist on type 'ImportEntityResolutionInfo'.",
+      "src/components/import/RosterCarrierResolutionLayer.tsx | TS2339 | Property 'status' does not exist on type 'ImportEntityResolutionInfo'.",
+      "src/components/import/RosterMaterialResolutionLayer.tsx | TS2339 | Property 'status' does not exist on type 'ImportEntityResolutionInfo'.",
+      "src/components/import/RosterMaterialResolutionLayer.tsx | TS2339 | Property 'status' does not exist on type 'ImportEntityResolutionInfo'."
+    ],
+    "lint": "NOT_PASS (tsc --noEmit exit 2)"
+  },
+  "build": {
+    "client": "PASS",
+    "server": "PASS",
+    "baselineClient": "PASS with exact APP_BUILD_ID because archive has no .git",
+    "baselineServer": "PASS",
+    "existingWarnings": "large client chunks / bundling warnings retained"
+  },
+  "nativeReconciliation": "U01-U07: 477/478 initially; the unchanged 13/13 infrastructure rerun through the ASCII tool alias closes the sole backup timeout. 478 distinct assertion identities passed across these runs. Initial all-domain attempt lacked DATABASE_URL/AUTH_DATABASE_URL/MIGRATION_DATABASE_URL and is retained as a failed setup attempt. U08/U09: 180/180 from native-browser per-file records, excluding repeated ConnectionCleanup and PresentationSession files.",
+  "newSourceGate": "37/37 new unit cases; 2/2 real Edge journeys; all non-local network blocked in the new component browser fixture. Existing authority and SQL browser tests remain separate."
+}
