@@ -25,7 +25,7 @@ import {
   Search,
   Sliders
 } from 'lucide-react';
-import { runPricingEngineTests, TestCaseResult } from '../../tests/pricingEngine.test';
+import { runPricingEngineTests, TestCaseResult } from '../../tests/pricingEngine.cases';
 import { pricingService } from '../../services/pricing.service';
 import { PricingRule, TripPricingSnapshot } from '../../types/pricing';
 import { PricingRuleValidator } from '../../validators/pricingRule.validator';

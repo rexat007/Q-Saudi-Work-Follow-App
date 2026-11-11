@@ -231,6 +231,7 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
       relContext: {
         projectId: 'PRJ-100',
         authorizedCarrierIds: ['CARRIER-SAHRA'],
+        authorizedMaterialIds: [],
         knownCarriers: [{ carrierId: 'CARRIER-SAHRA', name: 'مؤسسة الصحراء للنقليات', status: 'ACTIVE' as const }],
         knownTrucks: [],
         knownDrivers: [],
@@ -265,6 +266,7 @@ describe('UNIT C2 — SMART IMPORT CARRIER RESOLUTION LAYER', () => {
       relContext: {
         projectId: 'PRJ-100',
         authorizedCarrierIds: ['CAR-REMAL-ALT'],
+        authorizedMaterialIds: [],
         knownCarriers: [{ carrierId: 'CAR-REMAL-ALT', name: 'شركة الرمال المعتمدة', status: 'ACTIVE' as const }],
         knownTrucks: [],
         knownDrivers: [],

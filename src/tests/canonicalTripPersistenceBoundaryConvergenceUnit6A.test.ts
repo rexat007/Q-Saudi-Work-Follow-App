@@ -61,14 +61,14 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
   // =========================================================================
   describe('Contracts 6–8: Create Failure & Persistence Integrity', () => {
     it('6. Dispatch fails closed if required canonical parameters are missing', async () => {
-      const context: any = { userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
+      const context: any = {displayName: '', userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
       await expect(
         serverTripService.dispatchTrip({} as any, context)
       ).rejects.toThrow();
     });
 
     it('7. Dispatch fails closed if project does not exist in Admin SDK', async () => {
-      const context: any = { userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
+      const context: any = {displayName: '', userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
       await expect(
         serverTripService.dispatchTrip({
           projectId: 'NON_EXISTENT_PRJ',
@@ -94,7 +94,7 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
   // =========================================================================
   describe('Contracts 9–11: Transition / Receipt Authority', () => {
     it('9. Transition reads trip via injected server repository', async () => {
-      const context: any = { userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
+      const context: any = {displayName: '', userId: 'usr-1', role: 'DISPATCHER', email: 'd@test.com' };
       await expect(
         serverTripService.transitionTripStatus('PRJ-TEST', 'NON-EXISTENT', 'IN_TRANSIT', {}, context)
       ).rejects.toThrow(/الرحلة غير موجودة/);
@@ -143,7 +143,7 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
       };
       await adapter.tripRepository.create({ ...mockTrip, createdBy: 'admin', updatedBy: 'admin' });
 
-      const context: any = { userId: 'usr-admin', role: 'PROJECT_ADMIN', email: 'admin@test.com' };
+      const context: any = {displayName: '', userId: 'usr-admin', role: 'PROJECT_ADMIN', email: 'admin@test.com' };
       const res = await customService.transitionTripStatus('PRJ-TEST', 'TRIP-FIN-001', 'COMPLETED', {}, context);
 
       expect(res.status).toBe('COMPLETED');
@@ -271,7 +271,7 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
       await tripAdapter.tripRepository.create({ ...mockTrip, createdBy: 'admin', updatedBy: 'admin' });
 
       const excService = new ExceptionService(excAdapter);
-      const context: any = { userId: 'usr-admin', displayName: 'Admin', role: 'PROJECT_ADMIN' };
+      const context: any = {email: '', userId: 'usr-admin', displayName: 'Admin', role: 'PROJECT_ADMIN' };
       await excService.raiseException({
         exceptionId: 'EXC-23-001',
         projectId: 'PRJ-TEST',
@@ -294,7 +294,7 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
         entityId: 'EXC-24-001',
         action: 'CREATE',
         after: {},
-      }, { userId: 'usr-1', email: 'admin@test.com', role: 'PROJECT_ADMIN' });
+      }, {displayName: '', userId: 'usr-1', email: 'admin@test.com', role: 'PROJECT_ADMIN' });
 
       expect(typeof logId).toBe('string');
       expect(logId).toMatch(/^AUD-/);
@@ -381,7 +381,7 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
         projectId: 'PRJ-TEST',
         tripId: 'TRP-34',
         eventType: 'EVENT_DISPATCHED',
-      }, { userId: 'usr-1', displayName: 'Disp', role: 'DISPATCHER' });
+      }, {email: '', userId: 'usr-1', displayName: 'Disp', role: 'DISPATCHER' });
       expect(eventRes.eventId).toBeDefined();
     });
 

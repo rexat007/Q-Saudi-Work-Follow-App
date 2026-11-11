@@ -33,6 +33,10 @@ export function queuedTripCommand(operation: { operationType: string; payload: R
   const data = operation.payload;
   let command: TripCommandName;
   let payload: Record<string, any> = {};
+  if(operation.operationType==='TRIP_COMMAND'){
+    if(typeof data.command!=='string'||!Object.hasOwn(TRIP_COMMANDS,data.command))throw Error('INVALID_TRIP_COMMAND');
+    return {command:data.command as TripCommandName,payload:data.payload||{},...(data.tripId?{tripId:data.tripId}:{})};
+  }
   if (operation.operationType === 'CREATE_TRIP_LOADING') {
     command = 'RECORD_LOADING';
     payload = { carrierId: data.carrierId, truckId: data.truckId, driverId: data.driverId, materialId: data.materialId, pricingRuleId: data.pricingRuleId,

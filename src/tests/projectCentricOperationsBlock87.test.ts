@@ -1,3 +1,4 @@
+import type {AuthUserContext} from '../types/common';
 /**
  * BLOCK 87 — PROJECT-CENTRIC OPERATIONS ARCHITECTURE TEST SUITE
  * 

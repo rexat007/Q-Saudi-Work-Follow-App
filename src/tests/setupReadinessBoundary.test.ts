@@ -136,7 +136,7 @@ describe('P6-B2 authoritative review gate and races', () => {
 describe('P6-B2 separation and controlled functional journey', () => {
   it('activation rechecks Setup integrity outside the selected operational candidate at commit time', async () => {
     path(); x.store['projects/P1'].status = 'APPROVED';
-    x.store['projects/P1/pricing_rules/PRICE'] = { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'SETUP_C', materialId: 'SETUP_M', status: 'ACTIVE', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
+    x.store['projects/P1/pricing_rules/PRICE'] = { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'SETUP_C', materialId: 'SETUP_M', status: 'ACTIVE', pricingType:'PER_TRIP',pricingModel:'PER_TRIP',baseRateSAR:10,currency:'SAR', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
     const original = ProjectReadinessService.prototype.evaluateProjectReadiness;
     vi.spyOn(ProjectReadinessService.prototype, 'evaluateProjectReadiness').mockImplementation(async function(...args) {
       const result = await original.apply(this, args); expect(result.ready).toBe(true);
@@ -151,7 +151,7 @@ describe('P6-B2 separation and controlled functional journey', () => {
   });
   it('operational prerequisites cannot override invalid Foundation Setup', async () => {
     path(); x.store['projects/P1'].status = 'APPROVED'; x.store['projects/P1'].nameAr = 'x';
-    x.store['projects/P1/pricing_rules/PRICE'] = { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'SETUP_C', materialId: 'SETUP_M', status: 'ACTIVE', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
+    x.store['projects/P1/pricing_rules/PRICE'] = { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'SETUP_C', materialId: 'SETUP_M', status: 'ACTIVE', pricingType:'PER_TRIP',pricingModel:'PER_TRIP',baseRateSAR:10,currency:'SAR', effectiveFrom: '2000-01-01', effectiveTo: '3000-01-01' };
     const result = await new ProjectReadinessQueryService(x.db).read('P1', actor); expect(result.setup.ready).toBe(false); expect(result.operational.ready).toBe(true); expect(result.ready).toBe(false);
   });
   it('adds canonical Carrier and Material, submits review, and still cannot activate without operational readiness', async () => {

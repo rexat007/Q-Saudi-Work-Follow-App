@@ -1,3 +1,4 @@
+import {test} from 'vitest';
 /**
  * BLOCK 86F — PROJECT FORM & DATE UX INTEGRATION TEST SUITE
  * 

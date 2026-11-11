@@ -1043,11 +1043,14 @@ export class TripService {
         destinationNetKg: opData.destinationNetWeightKg,
         ...((opData.destinationNetWeightKg??originNet)===undefined?{}:{billableWeightKg:opData.destinationNetWeightKg??originNet}),
       },
+      syncStatus: 'SYNCED',
+      hasExceptions: false,
+      activeExceptionCount: 0,
       financials,
       createdBy: context.userId,
       updatedBy: context.userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     if(newTrip.operationalSnapshot){

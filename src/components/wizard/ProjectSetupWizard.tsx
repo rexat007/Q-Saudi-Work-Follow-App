@@ -183,6 +183,7 @@ export interface ProjectSetupWizardProps {
   authContext: AuthUserContext;
   selectedProjectId?: string;
   onSelectProject?: (projectId: string | null) => void;
+  onProjectChanged?: (project: ProjectEntity) => void;
 }
 
 export interface ProjectWorkspaceSyncParams {
@@ -298,12 +299,15 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   projects: globalProjects,
   authContext,
   selectedProjectId,
-  onSelectProject
+  onSelectProject,
+  onProjectChanged
 }) => {
   const { t, isRTL, locale } = useI18n();
   // Keep presentation current without changing canonical-read callback identities or effects.
   const presentationTranslator = useRef(t);
   presentationTranslator.current = t;
+  const projectChanged = useRef(onProjectChanged);
+  projectChanged.current = onProjectChanged;
   const [editingProjectId, updateEditingProjectId] = useState<string | null>(null);
   const projectContext = useRef(new ProjectContextLifetime()).current;
   const renderedContext = projectContext.capture();
@@ -666,6 +670,7 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     bridgeContextRef.current = token;
     bridgeOriginRef.current = origin;
     setLocalProjectOverride(value);
+    projectChanged.current?.(value);
   };
 
   // Convergence rule: Clear temporary local override once canonical project arrives in globalProjects

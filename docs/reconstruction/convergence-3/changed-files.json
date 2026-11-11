@@ -1,0 +1,368 @@
+{
+  "startingHead": "9d798dfb9dd90d8ffa19bcba5f03ac41db2cd746",
+  "branch": "engineering/convergence-1-20261110",
+  "count": 72,
+  "manifestSelfHashOmitted": true,
+  "files": [
+    {
+      "path": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "sha256": "9802da98f7d046537e010585d366a784d4b099077feea8f7ca5dd3e8c0b1aaaa",
+      "bytes": 221432
+    },
+    {
+      "path": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "sha256": "c750cfb917b51763eaaf1b44b27727b0b4bd598f9ad77b1fee6193c2ad8eb987",
+      "bytes": 206598
+    },
+    {
+      "path": "docs/reconstruction/16_AR2_U09_RUNTIME_CUTOVER_READINESS.md",
+      "sha256": "a10e7b8fb7fba8c62d1189ef1758921034bc15eef8fe35c55ebf60155b1e89ca",
+      "bytes": 61111
+    },
+    {
+      "path": "docs/reconstruction/23_ENGINEERING_CONVERGENCE_3_FINAL_ACCEPTANCE.md",
+      "sha256": "e05744c759df964f44df98b78b883f710fd0283a50a1736e5424f997e619edf0",
+      "bytes": 18480
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/acceptance-matrix.json",
+      "sha256": "a545637b0512ddf269c435d8c2a73300e304b9061422e6c5fe6706b65018a99c",
+      "bytes": 33730
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/changed-files.json",
+      "sha256": null,
+      "bytes": null
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/compiler-delta.json",
+      "sha256": "2f9b0d27946bd59ccaa7be785cae21f87d9f1d9ae7e41261bfb1dc2dd5f90a19",
+      "bytes": 134328
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/connected-csv.json",
+      "sha256": "2668c75cf11732968be297f542431ecd79bc2309cce2f0b6b7ac1ce954c34745",
+      "bytes": 12838
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/connected-excel.json",
+      "sha256": "d556831ce5da37206902f905f2064e1e4a29490025a0c77564c242d67e05f012",
+      "bytes": 12600
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/csv-connected-report.pdf",
+      "sha256": "ba30a04684f09ac9125fcf89a23f85c39b22270ee91a36fb850c7312afc920f9",
+      "bytes": 258228
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/csv-mobile-1002-report.png",
+      "sha256": "e6778845ab3eee50bacd941f6b17bb47969dbaa71e74c2aa7d02e6f3ea9450fd",
+      "bytes": 82055
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/excel-connected-report.pdf",
+      "sha256": "f77d8f524c80e703acbf6a668d78edb7527c749498e405223d7835d462d179d2",
+      "bytes": 258192
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/historical-failures.json",
+      "sha256": "c4fe5e9dfaa59c13f6cc47fe7c1978385f00fe2abb0644c94070c29152d51090",
+      "bytes": 202080
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/preservation.json",
+      "sha256": "93bd0c705b2c3c8c2aeafa48ec138f0a995505ed735a4f9a199f00a2171382b0",
+      "bytes": 5272
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/verification-raw.json.gz",
+      "sha256": "eeb18b1e60856cde1b299cffbe6f3ef6c755642114753144c0af0b4536c230a4",
+      "bytes": 477089
+    },
+    {
+      "path": "docs/reconstruction/convergence-3/verification.json",
+      "sha256": "e512af4e15ba6c8358642f511738984d7c81b5273580de67ec0b4aa4b06a110c",
+      "bytes": 3313
+    },
+    {
+      "path": "reports/trip-identity-adjustment-block89.json",
+      "sha256": "d990f473bfdd8e78f5d42908bb25ea0262be63c64e193647206d9c94fa6f1e45",
+      "bytes": 6914
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "579133beb3c38b6ab9e5b49c1e03f7bfc46d36f4ede8f11444afc9cfefb3c414",
+      "bytes": 53193
+    },
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "sha256": "cb59819d078cf4f6a367086eee563b517281feaeaeacc8db730c23a24fca5592",
+      "bytes": 12622
+    },
+    {
+      "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+      "sha256": "f0b4db97b293d981380502e00b5e75a3a07222677e9a9355026172fe0d952c73",
+      "bytes": 95824
+    },
+    {
+      "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+      "sha256": "4cce307009a28ddc414887776c6d22482eb879c52b69992d443f0b3b81f4eaf9",
+      "bytes": 86133
+    },
+    {
+      "path": "src/components/pricing/PricingEngineView.tsx",
+      "sha256": "57fa93131318e739f27bb4ac7cdeee868cbea21d305d7f65b36f60ea46436b9b",
+      "bytes": 52740
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "sha256": "da1a89c209c76a193e2ad9033339fb5b05dbc8242ad5d4fbad6d4f6dac763553",
+      "bytes": 10985
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "sha256": "503785102b19018cc92f8b9927074190df735cf87330bef1a71f6717a15c71c3",
+      "bytes": 321872
+    },
+    {
+      "path": "src/firebase/authContext.tsx",
+      "sha256": "166b390e6026932ae98afb1c19d6e048413719b2bc3cf72797c1e2c3b85af42d",
+      "bytes": 8081
+    },
+    {
+      "path": "src/services/canonicalTripPersistence.server.ts",
+      "sha256": "be86aa1460e3025f8818f7b2884dbf27afc0a21d50418bc21c03d7f0d4830eb5",
+      "bytes": 19831
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "sha256": "dcd5f58c063935d090ce2eae06124ab8796f843fa6a59d59bc9e90f824e404ec",
+      "bytes": 2421
+    },
+    {
+      "path": "src/services/import/googleDrivePipeline.service.ts",
+      "sha256": "8957f454167c7503875f953ccce02197e70265dcd38ff4897d06437a299953bc",
+      "bytes": 8547
+    },
+    {
+      "path": "src/services/import/unifiedImportPipeline.service.ts",
+      "sha256": "be569ad7a00876425fe0e71e9a3d290bb33e2556b9ca546d9587d21928444702",
+      "bytes": 16514
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "sha256": "4c66df6756ab54946c41e1d517b0322d473887a02b0a32a0301e34cd632e8eb3",
+      "bytes": 22376
+    },
+    {
+      "path": "src/services/offline/outbox.service.ts",
+      "sha256": "96bd7ae05c6cd0ab5f7f39de272c7f200e094251a3c4cd917e9dfa1de6060a61",
+      "bytes": 19504
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "sha256": "10dfe9c60eb62c6dc110d4349105217cf4a6df4b7f56982b96dafc30e6bab74b",
+      "bytes": 58642
+    },
+    {
+      "path": "src/services/tripCommandClient.service.ts",
+      "sha256": "03f03b7fc50edc77502685292e8c769e5e95265d63a40364e140ca6810c627d7",
+      "bytes": 4616
+    },
+    {
+      "path": "src/tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+      "sha256": "fc6bfeea851b28d0ba1c103d612365528b13b082a0332157d31005eedc838dc3",
+      "bytes": 22446
+    },
+    {
+      "path": "src/tests/conflictEngine.test.ts",
+      "sha256": "89b8a63ab895412eaff609940bb3199ff1ace4f009ef2b86f3475646b700874e",
+      "bytes": 3171
+    },
+    {
+      "path": "src/tests/conflictResolution.test.ts",
+      "sha256": "4f9cbf53d133718247d0a71c14b9a0e8551292c6ed31d95d790e6932a9b107e9",
+      "bytes": 22725
+    },
+    {
+      "path": "src/tests/controlledIncrementalWorkspaceProjection.test.ts",
+      "sha256": "1e33bd5b2c50889de81e9aded27f44a1cbe0da4768d050e9309d9fd343f6aed5",
+      "bytes": 18611
+    },
+    {
+      "path": "src/tests/convergence3DurableCommand.test.ts",
+      "sha256": "1adde8b8a274051788b90ee39df76691fb927c4560399b5837eb2cbd1dddf19e",
+      "bytes": 2184
+    },
+    {
+      "path": "src/tests/convergence3ImportIdentity.test.ts",
+      "sha256": "e594b56d3eca814e6aeda43eb942a5fd10219b1208e1e616b0ca0bf0703dc229",
+      "bytes": 2645
+    },
+    {
+      "path": "src/tests/convergence3JournalBrowser.test.ts",
+      "sha256": "b26f6f6463e367597b3585784981b4cef73341b4e30dafaebb9a13c68d61e7b8",
+      "bytes": 2939
+    },
+    {
+      "path": "src/tests/convergence3Journey.test.ts",
+      "sha256": "77e92b4ba8f72e2f1ef8652457a8b71cbab52d91e01c2bee83526cdd5e99d5a2",
+      "bytes": 24955
+    },
+    {
+      "path": "src/tests/dashboardReportsI18n.test.ts",
+      "sha256": "9599e9b08370617ae74d23368181a0f25062093e9c852d244fdb220b3dd4b31b",
+      "bytes": 7316
+    },
+    {
+      "path": "src/tests/fieldSupervisionDriverBlock78.test.ts",
+      "sha256": "1b2f816552ab096e3763e6442221e6e26d4992205b8f565924137e672196d153",
+      "bytes": 3632
+    },
+    {
+      "path": "src/tests/finalReleaseReadiness.test.ts",
+      "sha256": "55856136135b6fb12deaf65b027e5679e24983d6914ed9f847d8e027b033c603",
+      "bytes": 24658
+    },
+    {
+      "path": "src/tests/finalUiArchitectureBlock76.test.ts",
+      "sha256": "df2e34229427cc8706bfa7a76f369c8156f3000375259e5f1cc5008c389c4f5b",
+      "bytes": 11304
+    },
+    {
+      "path": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "sha256": "cbf48f4037e9c8a14eae8890798d232d0b4f9303a04b59532c15a13b9249e6cb",
+      "bytes": 6869
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "sha256": "e6ae6dfbf702c5fa0e597cc3f9bc0cd0cbb5a61e13950d0d77fe338c1fe569a6",
+      "bytes": 19326
+    },
+    {
+      "path": "src/tests/googleDriveImport.test.ts",
+      "sha256": "403eea94765e77d71ca18e402bc2726ada41f883f830cbf0eb8beb7961d5d187",
+      "bytes": 671
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "sha256": "aebae24571f3e938dd203e89c58a92aeb0f496b3b88eb947526e96f179ef239a",
+      "bytes": 31923
+    },
+    {
+      "path": "src/tests/googleSheetsImport.test.ts",
+      "sha256": "79ae53b76ca1def0adcdc506f440d2085836a20dcf59e05ebc2643de8f5d8e2f",
+      "bytes": 718
+    },
+    {
+      "path": "src/tests/helpers/convergence3BrowserEntry.tsx",
+      "sha256": "738c3765ea4e7ac375406ceeade327772b7c0740d161c2503a40ed4c6434f6b0",
+      "bytes": 617
+    },
+    {
+      "path": "src/tests/operationalProfileAssessment.test.ts",
+      "sha256": "829d6cd91396ab022a3f5bd95b8c60bbee51e3b44abcdd56fe6670c0524d1b02",
+      "bytes": 18004
+    },
+    {
+      "path": "src/tests/operationalProfileUi.test.tsx",
+      "sha256": "45a34b705e9dc682c61e9acf83594395eb48ccbc211deeeb9a23d0b6639f0895",
+      "bytes": 7588
+    },
+    {
+      "path": "src/tests/pricingEngine.cases.ts",
+      "sha256": "2e9d2dc68d7ed80dfc1bcdea91abc16d24b61e76b97f80df1e5f2053424cebc1",
+      "bytes": 42286
+    },
+    {
+      "path": "src/tests/pricingEngine.test.ts",
+      "sha256": "0903ecc127503240d7d0ba7d9b9fa0fcc6a6b5cde85ba87766e85c41ac2bd78b",
+      "bytes": 911
+    },
+    {
+      "path": "src/tests/projectCentricOperationsBlock87.test.ts",
+      "sha256": "e69adf60f64111292249aa0937cc466f76a53a73583ef642ad5395b3c37510b8",
+      "bytes": 25491
+    },
+    {
+      "path": "src/tests/projectFormDateUx86F.test.ts",
+      "sha256": "23d9eafff354ca334829c955b4294a6ca04512b752830d038733fa84bd37dfe0",
+      "bytes": 5168
+    },
+    {
+      "path": "src/tests/reportsEngine.test.ts",
+      "sha256": "dffa60c6890573b4424aafe2e143f9904feacb53f626c07a8b70dd165eb91bf7",
+      "bytes": 15680
+    },
+    {
+      "path": "src/tests/reportsEngineControlCleanup.test.ts",
+      "sha256": "919662ba522c02e5f160d280f10cf52334f29861b08f5e34c12233405fe67681",
+      "bytes": 5094
+    },
+    {
+      "path": "src/tests/reportsEngineConvergence.test.ts",
+      "sha256": "070a3d06ffd9b0fead04faad1e0fdd41df5adcf6d44783cabbfa66d3d0761a07",
+      "bytes": 41954
+    },
+    {
+      "path": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "sha256": "dc49bdac261fc615bbe3095c4d915599e96cbb2f77b09bb81142820d0d220ca4",
+      "bytes": 23031
+    },
+    {
+      "path": "src/tests/setupReadinessBoundary.test.ts",
+      "sha256": "6c30cdc137bab03d779533494e139ec5074fd5e048a75a4adcb8b499dd2ea039",
+      "bytes": 14861
+    },
+    {
+      "path": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "sha256": "8a3e6ec92964949fe24452afb4f82068a0725c443be1ae4c4d96615acf2f071c",
+      "bytes": 20790
+    },
+    {
+      "path": "src/tests/smartImportUnit4AServerSessionPersistence.test.ts",
+      "sha256": "343669a3d45d0cf575ae7eb07b3dbb125410ec66685242507b999006a44211e9",
+      "bytes": 16057
+    },
+    {
+      "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "sha256": "c5e4857cc83ed993d925593c5b45194652d7fa46a940c314bc57904e92f6ab1c",
+      "bytes": 18313
+    },
+    {
+      "path": "src/tests/tripIdentityAdjustmentBlock89.test.ts",
+      "sha256": "406ef2f8f7f81f5db8aac19aab202adaadc62f69861898c8b039c0915d3f5b10",
+      "bytes": 22111
+    },
+    {
+      "path": "src/tests/weighbridgeImport.test.ts",
+      "sha256": "a42dfd0dba97aee7dc930f920e3626003fd1085c7c4d8cc5a32db7e05fd16c3f",
+      "bytes": 49946
+    },
+    {
+      "path": "src/tests/workspaceConvergence.test.ts",
+      "sha256": "1f05c1dbf0782560999c9c783e0a983e6c7c4341b241ca6373f7657f47517d2c",
+      "bytes": 7252
+    },
+    {
+      "path": "src/tests/workspaceIntegration.test.ts",
+      "sha256": "5d625cfebd29b3631e5775735fd969721df2af83e405253165b8399e8cc5051f",
+      "bytes": 11439
+    },
+    {
+      "path": "src/types/googleDriveImport.ts",
+      "sha256": "d50a45c78ffa816d09451388706fbc01692ea27f876742f2234cd472fc73976f",
+      "bytes": 1385
+    },
+    {
+      "path": "src/types/offline.ts",
+      "sha256": "0e9a4417636c98d9f77829270ac5d4ce9573c6ed96c3d58bece8efdf53141909",
+      "bytes": 3998
+    },
+    {
+      "path": "src/types/unifiedImport.ts",
+      "sha256": "460fefabbecab7d459167a8184df3f63f4ed1d6b3422b813fe4fde277c983e7c",
+      "bytes": 8735
+    }
+  ]
+}

@@ -289,6 +289,8 @@ export interface RawParsedOutput<TRaw = Record<string, any>> {
  * Pipeline Execution Context
  */
 export interface PipelineContext {
+  /** Legacy matching read model only; canonical authorization remains server-owned. */
+  relContext?: import('./dataQuality').RelationshipContext;
   resolutionContext?: ImportResolutionContext;
   projectId: string;
   userId: string;

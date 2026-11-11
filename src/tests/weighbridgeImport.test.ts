@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 /**
  * Weighbridge Import Pipeline Automated Test Suite
  * BLOCK 34: 33 Standard Test Cases (WB-01 to WB-33)
@@ -1452,3 +1453,7 @@ if (
     }
   });
 }
+
+let registeredResult: Awaited<ReturnType<typeof runWeighbridgeImportTests>>;
+beforeAll(async()=>{registeredResult=await runWeighbridgeImportTests();},60000);
+it.each(["WB-01", "WB-02", "WB-03", "WB-04", "WB-05", "WB-06", "WB-07", "WB-08", "WB-09", "WB-10", "WB-11", "WB-12", "WB-13", "WB-14", "WB-15", "WB-16", "WB-17", "WB-18", "WB-19", "WB-20", "WB-21", "WB-22", "WB-23", "WB-24", "WB-25", "WB-26", "WB-27", "WB-28", "WB-29", "WB-30", "WB-31", "WB-32", "WB-33"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

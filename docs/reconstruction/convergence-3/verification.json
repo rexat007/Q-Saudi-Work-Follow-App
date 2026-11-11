@@ -1,0 +1,127 @@
+{
+  "status": "NO_GO_QUALITY_AND_ACCEPTANCE_GATES",
+  "branch": "engineering/convergence-1-20261110",
+  "startingHead": "9d798dfb9dd90d8ffa19bcba5f03ac41db2cd746",
+  "runs": {
+    "auth": {
+      "numTotalTests": 25,
+      "numPassedTests": 25,
+      "numFailedTests": 0
+    },
+    "corrective-focused": {
+      "numTotalTests": 63,
+      "numPassedTests": 63,
+      "numFailedTests": 0
+    },
+    "registration": {
+      "numTotalTests": 235,
+      "numPassedTests": 223,
+      "numFailedTests": 12
+    },
+    "journal-focused": {
+      "numTotalTests": 48,
+      "numPassedTests": 48,
+      "numFailedTests": 0
+    },
+    "journal-browser": {
+      "numTotalTests": 13,
+      "numPassedTests": 12,
+      "numFailedTests": 1
+    },
+    "journey-attempt18": {
+      "numTotalTests": 1,
+      "numPassedTests": 1,
+      "numFailedTests": 0
+    },
+    "connected-final": {
+      "numTotalTests": 4,
+      "numPassedTests": 3,
+      "numFailedTests": 1
+    },
+    "connected-verified": {
+      "numTotalTests": 2,
+      "numPassedTests": 2,
+      "numFailedTests": 0
+    },
+    "connected-scale": {
+      "numTotalTests": 2,
+      "numPassedTests": 2,
+      "numFailedTests": 0
+    },
+    "mobile-final": {
+      "numTotalTests": 17,
+      "numPassedTests": 17,
+      "numFailedTests": 0
+    },
+    "candidate-historical": {
+      "numTotalTests": 2761,
+      "numPassedTests": 2646,
+      "numFailedTests": 115
+    },
+    "historical-final": {
+      "numTotalTests": 2761,
+      "numPassedTests": 2666,
+      "numFailedTests": 95
+    },
+    "contract-regressions": {
+      "numTotalTests": 91,
+      "numPassedTests": 88,
+      "numFailedTests": 3
+    },
+    "contract-final": {
+      "numTotalTests": 115,
+      "numPassedTests": 115,
+      "numFailedTests": 0
+    },
+    "native-source-regressions": {
+      "numTotalTests": 121,
+      "numPassedTests": 119,
+      "numFailedTests": 2
+    },
+    "sql-matched": {
+      "numTotalTests": 280,
+      "numPassedTests": 278,
+      "numFailedTests": 2
+    },
+    "sql-timeout-recheck": {
+      "numTotalTests": 82,
+      "numPassedTests": 80,
+      "numFailedTests": 2
+    },
+    "focused-preservation": {
+      "numTotalTests": 96,
+      "numPassedTests": 96,
+      "numFailedTests": 0
+    },
+    "final-timeout-recheck": {
+      "numTotalTests": 36,
+      "numPassedTests": 35,
+      "numFailedTests": 1
+    },
+    "final-fixtures": {
+      "numTotalTests": 50,
+      "numPassedTests": 50,
+      "numFailedTests": 0
+    }
+  },
+  "historicalFullFailures": 95,
+  "historicalLatestFocusedOverlayFailures": 94,
+  "typecheck": {
+    "baseline": 442,
+    "final": 314,
+    "newSemanticDiagnostics": 0,
+    "status": "FAIL"
+  },
+  "build": "PASS browser/PWA and server; chunk-size warning retained",
+  "lint": "FAIL",
+  "releaseGate": "FAIL at unchanged lint stage; subsequent chained release commands not executed",
+  "registrationFailures": 0,
+  "independentOrganizationalReview": false,
+  "operatorAcceptance": false,
+  "physicalDeviceAcceptance": false,
+  "deploymentChecks": "NOT_AUTHORIZED_NOT_EXECUTED",
+  "productionGoogleAcceptance": "NOT_EXECUTED",
+  "sqlProductionActivation": false,
+  "rb4Preserved": true,
+  "localCommitOnly": true
+}

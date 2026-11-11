@@ -82,7 +82,8 @@ export class GoogleDrivePipelineService {
     }
 
     const format = intakeValidation.fileType === 'EXCEL' ? 'EXCEL' : 'CSV';
-    const importBatchId = `BAT-GDRV-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    if(options?.importBatchId!==undefined&&(typeof options.importBatchId!=='string'||!/^[a-zA-Z0-9_-]{1,128}$/.test(options.importBatchId)))throw Error('INVALID_IMPORT_BATCH_ID');
+    const importBatchId = options?.importBatchId ?? `BAT-GDRV-${crypto.randomUUID()}`;
 
     // 2. Reuse existing BLOCK 31 parsers based on format (NO DUPLICATION)
     const parser = format === 'EXCEL' ? new ExcelImportParser() : new CsvImportParser();

@@ -11,6 +11,7 @@ export interface OutboxOperation {
   userId: string;
   deviceId: string;
   operationType: 
+    | 'TRIP_COMMAND'
     | 'CREATE_TRIP_LOADING' 
     | 'UPDATE_TRIP_STATUS' 
     | 'RECORD_RECEIPT' 
@@ -24,6 +25,8 @@ export interface OutboxOperation {
   errorReason?: string;
   syncedAt?: string;
   serverAck?: {
+    /** Read-only canonical server response for presentation after durable ACK. */
+    canonicalTrip?: import('./entities').TripEntity;
     tripId?: string;
     tripSerial?: string;
     serverVersion?: number;

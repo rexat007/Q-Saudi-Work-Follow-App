@@ -114,7 +114,7 @@ export class OutboxService {
    * 4. Commit: Save to authoritative server store
    * 5. ACK: Mark operation as SYNCED with server details
    */
-  public async syncAll(isSimulatedOffline = false): Promise<{
+  public async syncAll(isSimulatedOffline = false, projectScope?: string): Promise<{
     processedCount: number;
     syncedCount: number;
     failedCount: number;
@@ -138,7 +138,7 @@ export class OutboxService {
     let conflictCount = 0;
 
     try {
-      const ops = await this.getOperations();
+      const ops = (await this.getOperations()).filter(op=>!projectScope||op.projectId===projectScope);
       const eligible = ops.filter(o => o.status === 'PENDING' || (['FAILED','SENDING','AWAITING_RECEIPT'].includes(o.status) && o.retryCount < 5));
       const phase=(o:OutboxOperation)=>o.operationType==='RECORD_RECEIPT'?2:o.operationType==='UPDATE_TRIP_STATUS'?({AT_DESTINATION:1,OFFLOADED:3,COMPLETED:4} as Record<string,number>)[o.payload.status]??0:0;
       eligible.sort((a,b)=>a.createdAt.localeCompare(b.createdAt)||phase(a)-phase(b)||a.operationId.localeCompare(b.operationId));
@@ -183,7 +183,15 @@ export class OutboxService {
           const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId, replayPrincipal, op.payload.expectedRevision, recoveryRequired);
 
           if(auth.currentUser?.uid!==replayPrincipal)break;
-          if (op.operationType === 'CREATE_TRIP_LOADING') {
+          if(op.operationType==='TRIP_COMMAND'){
+            const serverTrip=resData.trip;
+            if(!serverTrip||serverTrip.projectId!==op.projectId)throw Error('INVALID_TRIP_ACK');
+            await indexedDBService.put('trips',operationalTripProjection(serverTrip),replayPrincipal);
+            await indexedDBService.updateOutboxStatus(op.operationId,'SYNCED',{
+              syncedAt:new Date().toISOString(),serverAck:{tripId:serverTrip.tripId,tripSerial:serverTrip.tripNumber,serverVersion:serverTrip.version,canonicalTrip:serverTrip,committedAt:new Date().toISOString()}
+            });
+            syncedCount++;
+          } else if (op.operationType === 'CREATE_TRIP_LOADING') {
             const serverTrip = resData.trip;
             if (op.payload.tripId) {
               await indexedDBService.delete('trips', op.payload.tripId,op.projectId,replayPrincipal);

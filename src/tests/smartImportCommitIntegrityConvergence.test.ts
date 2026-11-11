@@ -308,7 +308,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     batch.commitStatus = 'AWAITING_REVIEW';
 
     const updated = unifiedImportPipelineService.confirmWarnings(batch, dummyContext);
-    expect(updated.commitStatus).toBe('REVIEW_REQUIRED');
+    expect(updated.commitStatus).toBe('AWAITING_REVIEW');
   });
 
   it('19. executeCommit fails closed with unresolved review state', async () => {
@@ -479,7 +479,10 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
 
   it('39. report states server canonical snapshot authority holds true', () => {
     const appCode = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf-8');
-    expect(appCode).toContain("serverTripService.dispatchImportedTrip");
+    const route=appCode.slice(appCode.indexOf("'/api/projects/:projectId/import-sessions/:importSessionId/commit-reviewed-intent'"));
+    expect(route).toContain('enforceProjectIsolation');expect(route).toContain('enforceDispatcherOrAbove');
+    expect(route).toContain('new RosterExecutionServer().requestCommit');
+    expect(appCode).not.toContain('serverTripService.dispatchImportedTrip');
   });
 
   it('40. no Unit 5B behavior is modified', () => {

@@ -126,17 +126,40 @@ function LegacyAuthorityApp() {
 
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
 
+  const inventoryScope = JSON.stringify([user?.uid, effectiveRole, assignedProjectScopeKey, profileAuthority, userProfile?.status]);
+  const inventoryScopeRef = useRef(inventoryScope);
+  inventoryScopeRef.current = inventoryScope;
+  const inventoryGeneration = useRef(0);
+  const publishCanonicalProject = (project: ProjectEntity) => {
+    if (inventoryScopeRef.current !== inventoryScope || profileUnavailable || !user || userProfile?.status !== 'ACTIVE') return;
+    if (effectiveRole !== 'SUPER_ADMIN' && !userProfile?.assignedProjectIds?.includes(project.projectId)) return;
+    inventoryGeneration.current++;
+    setProjects(previous => {
+      const existing = previous.find(value => value.projectId === project.projectId);
+      if (existing && (existing.version ?? 0) > (project.version ?? 0)) return previous;
+      return existing ? previous.map(value => value.projectId === project.projectId ? project : value) : [...previous, project];
+    });
+    setLoadingProjects(false);
+  };
+
   // One-shot project fetch (Inventory cards only require eventual consistency)
   useEffect(() => {
+    if (!user || profileAuthority !== 'AVAILABLE' || userProfile?.status !== 'ACTIVE') {
+      inventoryGeneration.current++;
+      setProjects([]);
+      setLoadingProjects(false);
+      return;
+    }
     const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
     const isSuperAdmin = effectiveRole === 'SUPER_ADMIN';
     setProjects(previous => previous.filter(project => isSuperAdmin || assignedProjectIds.includes(project.projectId)));
     setLoadingProjects(true);
     
     let active = true;
+    const generation = ++inventoryGeneration.current;
     void projectRepository.listAll(assignedProjectIds, isSuperAdmin)
       .then(list => {
-        if (active) {
+        if (active && generation === inventoryGeneration.current && inventoryScopeRef.current === inventoryScope) {
           setProjects(list || []);
           setLoadingProjects(false);
         }
@@ -147,7 +170,7 @@ function LegacyAuthorityApp() {
       });
 
     return () => { active = false; };
-  }, [user?.uid, effectiveRole, assignedProjectScopeKey]);
+  }, [inventoryScope]);
 
   // Synchronize and reconcile selectedProjectId without restarting project subscription
   useEffect(() => {
@@ -355,7 +378,7 @@ function LegacyAuthorityApp() {
       {/* Top Application Header */}
       <header className="bg-[#0f1115] border-b-2 border-white/10 sticky top-0 z-30 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Left: Brand & Mobile Menu Toggle */}
             <div className="flex items-center gap-3">
               {/* Mobile Menu Hamburger */}
@@ -389,7 +412,7 @@ function LegacyAuthorityApp() {
             </div>
 
             {/* Right: Telemetry Status, Role Switcher, Language, Outbox & Auth */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex flex-wrap min-w-0 max-w-full items-center gap-2">
               {/* Telemetry Status Pill */}
               <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#1a1d23] border border-white/10 text-[11px] font-mono">
                 <span className="text-white/40">STATUS:</span>
@@ -400,8 +423,8 @@ function LegacyAuthorityApp() {
               </div>
 
               {/* Active Role Selector / Simulator */}
-              <div className={`relative flex items-center bg-[#1a1d23] rounded px-1 py-0.5 border ${userProfile ? 'border-[#10b981]/30 opacity-75' : 'border-white/10'}`}>
-                <div className="flex items-center gap-1.5 px-2 py-1">
+              <div className={`relative flex min-w-0 max-w-full items-center bg-[#1a1d23] rounded px-1 py-0.5 border ${userProfile ? 'border-[#10b981]/30 opacity-75' : 'border-white/10'}`}>
+                <div className="flex min-w-0 max-w-full items-center gap-1.5 px-2 py-1">
                   {userProfile ? (
                     <Lock className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                   ) : (
@@ -411,7 +434,7 @@ function LegacyAuthorityApp() {
                     id="header-role-selector"
                     value={presentationRole}
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
-                    className="bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
+                    className="min-w-0 max-w-[220px] sm:max-w-[320px] bg-transparent text-[#f8fafc] font-bold font-mono text-xs focus:outline-hidden cursor-pointer disabled:cursor-not-allowed"
                     title={t('navigation.labels.switch_active_role')}
                     disabled={Boolean(user)}
                   >
@@ -490,8 +513,8 @@ function LegacyAuthorityApp() {
           {/* Sub-Header: Active Profile & Isolation Scope Ribbon */}
           <div className="bg-[#14171c] text-white/60 py-1.5 px-4 text-[11px] font-mono border-b border-white/10">
             <div className="w-full flex flex-wrap items-center justify-between gap-2">
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1 text-white/60">
+              <div className="flex flex-wrap min-w-0 max-w-full items-center gap-3">
+                <span className="flex min-w-0 items-center gap-1 text-white/60">
                   <Lock className="w-3 h-3 text-[#10b981]" />
                   <span className="text-white/40">USER:</span>
                   <strong className="text-[#f8fafc] font-bold">{activeAuthContext?.displayName || t('auth.fallback.unregistered_user')}</strong>
@@ -562,6 +585,7 @@ function LegacyAuthorityApp() {
                 {activeTab === 'WIZARD' && (
                   <ProjectSetupWizard 
                     projects={projects}
+                    onProjectChanged={publishCanonicalProject}
                     authContext={activeAuthContext!}
                     selectedProjectId={selectedProjectId}
                     onSelectProject={(projId) => setSelectedProjectId(projId || '')}

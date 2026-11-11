@@ -1,3 +1,4 @@
+import {beforeAll,it,expect as vitestExpect} from 'vitest';
 /**
  * BLOCK 89 — TRIP IDENTITY, HISTORICAL SNAPSHOT & AUTHORIZED ADJUSTMENTS TEST SUITE
  * 
@@ -472,3 +473,7 @@ if (typeof process !== 'undefined' && process.argv && process.argv[1]?.endsWith(
     process.exit(res.allPassed ? 0 : 1);
   });
 }
+
+let registeredResult: Awaited<ReturnType<typeof runTests>>;
+beforeAll(async()=>{registeredResult=await runTests();},60000);
+it.each(["[TRIP-ID-01]", "[TRIP-ID-02]", "[TRIP-ID-03]", "[TRIP-ID-04]", "[TRIP-SNAPSHOT-01]", "[TRIP-SNAPSHOT-02]", "[TRIP-SNAPSHOT-03]", "[TRIP-SNAPSHOT-04]", "[TRIP-SNAPSHOT-05]", "[TRIP-SNAPSHOT-06]", "[TRIP-SNAPSHOT-07]", "[TRIP-LOOKUP-01]", "[TRIP-LOOKUP-02]", "[TRIP-ADJUST-01]", "[TRIP-ADJUST-02]", "[TRIP-ADJUST-03]", "[TRIP-ADJUST-04]", "[TRIP-ADJUST-05]", "[TRIP-ADJUST-06]", "[TRIP-ADJUST-07]", "[TRIP-ADJUST-08]"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);vitestExpect(result,'Missing legacy assertion '+id).toBeDefined();vitestExpect(result?.passed,JSON.stringify(result)).toBe(true);});

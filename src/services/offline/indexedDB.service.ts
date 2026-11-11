@@ -352,11 +352,18 @@ export class IndexedDBService {
   public async insertOutboxOperation(op:OutboxOperation):Promise<OutboxOperation>{
     const identity=(v:OutboxOperation)=>JSON.stringify([v.projectId,v.userId,v.operationType,v.payload,v.dependsOnOperationId??null]);
     const check=(old:OutboxOperation|undefined)=>{if(old&&identity(old)!==identity(op))throw Error('OUTBOX_OPERATION_CONFLICT');return old||structuredClone(op);};
-    if(!this.isSupported()){const result=check(this.getMemoryStore('outbox').get(op.operationId));this.getMemoryStore('outbox').set(op.operationId,result);return structuredClone(result);}
+    const reserve=(records:OutboxOperation[])=>{
+      if(!this.isCurrentPrincipal(op.userId))throw Error('AUTH_CONTEXT_CHANGED');
+      const sameId=records.find(old=>old.operationId===op.operationId);if(sameId)return check(sameId);
+      // Serial read/write reservation also fences simultaneous tabs. A new UI
+      // payload cannot replace an unresolved canonical operation for this resource.
+      return records.filter(old=>old.operationType==='TRIP_COMMAND'&&old.projectId===op.projectId&&old.userId===op.userId&&(old.payload.tripId||null)===(op.payload.tripId||null)&&['PENDING','SENDING','AWAITING_RECEIPT'].includes(old.status)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))[0]||structuredClone(op);
+    };
+    if(!this.isSupported()){const records=[...this.getMemoryStore('outbox').values()];const result=op.operationType==='TRIP_COMMAND'?reserve(records):check(this.getMemoryStore('outbox').get(op.operationId));this.getMemoryStore('outbox').set(result.operationId,result);return structuredClone(result);}
     const db=await this.getDB();return new Promise((resolve,reject)=>{
-      const tx=db.transaction('outbox','readwrite'),store=tx.objectStore('outbox'),request=store.get(op.operationId);let result:OutboxOperation,error:unknown;
-      request.onsuccess=()=>{try{result=check(request.result);if(!request.result)store.add(result);}catch(e){error=e;tx.abort();}};
-      tx.oncomplete=()=>{this.getMemoryStore('outbox').set(op.operationId,result);resolve(structuredClone(result));};
+      const tx=db.transaction('outbox','readwrite'),store=tx.objectStore('outbox'),request=op.operationType==='TRIP_COMMAND'?store.getAll():store.get(op.operationId);let result:OutboxOperation,error:unknown;
+      request.onsuccess=()=>{try{result=op.operationType==='TRIP_COMMAND'?reserve(request.result):check(request.result);if(op.operationType==='TRIP_COMMAND'?!request.result.some((old:OutboxOperation)=>old.operationId===result.operationId):!request.result)store.add(result);}catch(e){error=e;tx.abort();}};
+      tx.oncomplete=()=>{this.getMemoryStore('outbox').set(result.operationId,result);resolve(structuredClone(result));};
       tx.onabort=()=>reject(error||tx.error||Error('INDEXEDDB_WRITE_ABORTED'));tx.onerror=()=>reject(error||tx.error);
     });
   }

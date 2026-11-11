@@ -1,0 +1,807 @@
+{
+  "releaseVerdict": "NO_GO",
+  "items": [
+    {
+      "id": "ACCOUNT_APPROVAL",
+      "exactContract": "Actual Google Auth emulator login, request, authorized owner approval, live server-confirmed profile update.",
+      "sourceImplementationPaths": [
+        "src/firebase/authContext.tsx",
+        "server/app.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "AUTH_REVOCATION_AND_SWITCH",
+      "exactContract": "Cached/pending profile cannot grant authority; revocation removes mutation UI and current server authority rejects later writes.",
+      "sourceImplementationPaths": [
+        "src/firebase/authContext.tsx",
+        "src/App.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "authProviderContinuity.test.tsx",
+        "convergence2Browser.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "PROJECT_INVENTORY",
+      "exactContract": "Canonical setup results reach current-principal inventory without stale read or Project version replacement.",
+      "sourceImplementationPaths": [
+        "src/App.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "FOUNDATION",
+      "exactContract": "Authorized creation and server-validated Foundation; lifecycle setup review remains separate from activation readiness.",
+      "sourceImplementationPaths": [
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/services/projectCommands.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "setupReadinessBoundary.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "OPERATIONAL_CONFIGURATION",
+      "exactContract": "Actual dual-weighbridge/MIXED configuration, route and capability snapshot.",
+      "sourceImplementationPaths": [
+        "src/components/wizard/OperationalConfigurationForm.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "GLOBAL_IDENTITIES_AND_TEMPORAL_FLEET",
+      "exactContract": "Canonical carrier/material/driver/truck intake, Project participation and current temporal assignment; import explicitly resolves existing identities.",
+      "sourceImplementationPaths": [
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/services/import/rosterExecution.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "ar2U03TemporalAuthority.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "PRICING",
+      "exactContract": "Approved PER_TON 12.5 SAR rule; historical pricing snapshot and final VAT/settlement preserved.",
+      "sourceImplementationPaths": [
+        "src/services/pricing.service.ts",
+        "src/services/tripCommands.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "convergence2Operational.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "CSV_INTAKE",
+      "exactContract": "Actual CSV chooser, column mapping approval, canonical selection and reviewed semantic intent.",
+      "sourceImplementationPaths": [
+        "src/components/wizard/ProjectSetupWizard.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "EXCEL_INTAKE",
+      "exactContract": "Actual XLSX chooser and same authenticated reviewed workflow, with supported parser contract.",
+      "sourceImplementationPaths": [
+        "src/components/wizard/ProjectSetupWizard.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "REVIEW_AND_DURABLE_IMPORT",
+      "exactContract": "Human mapping/canonical/intent acceptance precedes frozen execution; execution COMPLETED and session COMMITTED agree.",
+      "sourceImplementationPaths": [
+        "src/services/import/rosterExecution.server.ts",
+        "src/services/importSession.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "ACTIVATION",
+      "exactContract": "SETUP -> READY_FOR_REVIEW -> APPROVED -> ACTIVE after server operational readiness, without manufacturing Workspace grants.",
+      "sourceImplementationPaths": [
+        "src/services/projectActivation.service.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "TRIP_LIFECYCLE",
+      "exactContract": "Actual dispatch, origin, loading, measured origin, transit, arrival, measured destination, offload and completion controls agree with persisted FSM.",
+      "sourceImplementationPaths": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/services/tripCommands.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "SETTLEMENT",
+      "exactContract": "20t origin/19t destination, captured rate, immutable final total 273.13 SAR and finalized state.",
+      "sourceImplementationPaths": [
+        "src/services/tripCommands.server.ts",
+        "src/services/reportsEngine.service.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "DURABLE_RECOVERY",
+      "exactContract": "Lost dispatch/completion ACK, reload and simultaneous two-tab recovery preserve one Trip, nine events/nine mutation calls and three receipt lookups.",
+      "sourceImplementationPaths": [
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "convergence3JournalBrowser.test.ts",
+        "convergence3DurableCommand.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Actual IndexedDB reservation, immutable identity, receipt-first replay and no additional mutation POST during recovery."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "REPORT_RECONCILIATION_1002",
+      "exactContract": "Actual complete Project read, 1002 unique source-derived records including RECON-1000; totals 20040/19038 tonnes.",
+      "sourceImplementationPaths": [
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/repositories/trip.repository.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "convergence2Browser.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "CSV_XLSX_PRINT",
+      "exactContract": "Actual binary XLSX, CSV identity and printable report summary; PDF file generated.",
+      "sourceImplementationPaths": [
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/services/reportsEngine.service.ts",
+        "src/components/reports/PrintableReportModal.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS_PHYSICAL_PRINT_PENDING",
+      "unresolvedDefects": [
+        "Physical print, full PDF visual pagination and operator acceptance are not recorded."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "RTL_MOBILE",
+      "exactContract": "Actual Arabic 390px viewport; document scrollWidth equals 390, role controls wrap and KPI text fits; screenshot inspected.",
+      "sourceImplementationPaths": [
+        "src/App.tsx",
+        "src/components/reports/AdaptiveOperationalReports.tsx"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "AUTOMATED_PASS_PHYSICAL_DEVICE_PENDING",
+      "unresolvedDefects": [
+        "Physical phone, assistive input and human usability acceptance pending."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "AUDIT",
+      "exactContract": "Actual Admin audit screen, persisted Trip events, account suspension and unchanged finalized financials after revocation.",
+      "sourceImplementationPaths": [
+        "src/components/admin/AdminConsoleView.tsx",
+        "src/services/tripCommands.server.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_PASS",
+      "unresolvedDefects": [],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "ROLE_COMPANY_PROJECT_SECURITY",
+      "exactContract": "Existing current-principal/project isolation authority preserved; local actual-UI suspension and previous server/SQL boundary evidence.",
+      "sourceImplementationPaths": [
+        "src/utils/principal.ts",
+        "server/app.ts",
+        "server/sqlRuntimeRoutes.ts"
+      ],
+      "testIdentities": [
+        "convergence2Browser.test.ts",
+        "ar2U08WorkspaceAuthority.test.ts",
+        "ar2U09Rb1Governance.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_EVIDENCE_NOT_FULL_ROLE_ACCEPTANCE",
+      "unresolvedDefects": [
+        "All nine role-specific screens and production company/project/IAM acceptance are not independently accepted."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "ALL_OPERATIONAL_PROFILES",
+      "exactContract": "Every approved capability/profile, cancellation/correction/exception branch and supported output must have integrated role acceptance.",
+      "sourceImplementationPaths": [
+        "src/services/operationalProfileResolver.ts",
+        "src/components/reports/AdaptiveOperationalReports.tsx"
+      ],
+      "testIdentities": [
+        "operationalProfileAssessment.test.ts",
+        "convergence3Journey.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "NOT_COMPLETE",
+      "unresolvedDefects": [
+        "Full connected UI acceptance is dual-weighbridge/MIXED only. Other profile/exception/correction branches retain unit/source evidence and unresolved historical verification."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "HISTORICAL_QUALITY",
+      "exactContract": "All frozen case identities retained; all registered assertions must pass under valid current contracts.",
+      "sourceImplementationPaths": [
+        "src/tests"
+      ],
+      "testIdentities": [
+        "138 frozen suite paths; historical-failures.json"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "FAIL",
+      "unresolvedDefects": [
+        "Full run 95 failed assertions; explicit focused overlay 94, including six newly exposed manual-only positive legacy provider/import failures."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "COMPILER_RELEASE",
+      "exactContract": "Full unchanged TypeScript/lint and release command must pass.",
+      "sourceImplementationPaths": [
+        "package.json",
+        "src/tests"
+      ],
+      "testIdentities": [
+        "npm run lint",
+        "npm run verify:beta2"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "FAIL",
+      "unresolvedDefects": [
+        "314 remaining diagnostics; release command stops at lint."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "SQL_PRESERVATION",
+      "exactContract": "Inactive ARCH-R1 target, epochs, receipt contracts and migrations preserved without production activation.",
+      "sourceImplementationPaths": [
+        "src/db",
+        "server/sqlRuntimeRoutes.ts"
+      ],
+      "testIdentities": [
+        "ar2U03TemporalAuthority.test.ts",
+        "ar2U08WorkspaceTransport.test.ts",
+        "ar2U09Rb1Governance.test.ts",
+        "ar2U07OfflineContinuity.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "PRESERVED_VERIFICATION_TIMEOUTS_OPEN",
+      "unresolvedDefects": [
+        "Native combined 278/280 and RB1 cleanup-hook timeout; recheck 80/82 and cleanup timeout. Full SQL regression gate remains non-green; RB4 unchanged and incomplete."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "GOOGLE_SINGLE_WRITER",
+      "exactContract": "Existing U08 transport and server-owned binding/grant remain sole delivery authority; no browser automatic global writer.",
+      "sourceImplementationPaths": [
+        "server/workspaceProjectionDelivery.ts",
+        "src/hooks/useUserActiveWorkspaceSync.ts"
+      ],
+      "testIdentities": [
+        "ar2U08WorkspaceTransport.test.ts",
+        "googleDerivedReportRefreshUi.test.tsx",
+        "operationalProfileUi.test.tsx"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "SOURCE_PRESERVED_LIVE_ACCEPTANCE_PENDING",
+      "unresolvedDefects": [
+        "No real Google transport/credential/resource acceptance executed; static Auth SDK loading is not Google provider acceptance."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "PERFORMANCE_AND_RESOURCES",
+      "exactContract": "Record bounded HTTP/event/journal observations; do not infer full billable SDK budgets or production latency.",
+      "sourceImplementationPaths": [
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/services/offline/outbox.service.ts"
+      ],
+      "testIdentities": [
+        "src/tests/convergence3Journey.test.ts :: connected actual UI CSV",
+        "src/tests/convergence3Journey.test.ts :: connected actual UI EXCEL",
+        "workspaceQuiescenceBudget.test.ts"
+      ],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "BOUNDED_LOCAL_METRICS",
+      "unresolvedDefects": [
+        "All-flow billable Firestore operations, production load/IAM and physical-device latency are not certified; native restart/cleanup timeouts remain."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "INDEPENDENT_REVIEW",
+      "exactContract": "Independent integrated source/security review signed by separate authority.",
+      "sourceImplementationPaths": [
+        "docs/reconstruction/23_ENGINEERING_CONVERGENCE_3_FINAL_ACCEPTANCE.md"
+      ],
+      "testIdentities": [],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "NOT_RECORDED",
+      "unresolvedDefects": [
+        "Implementing executor cannot self-certify independent organizational review."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "OPERATOR_ACCEPTANCE",
+      "exactContract": "Explicit role-specific operator and physical-device acceptance record.",
+      "sourceImplementationPaths": [
+        "docs/reconstruction/23_ENGINEERING_CONVERGENCE_3_FINAL_ACCEPTANCE.md"
+      ],
+      "testIdentities": [],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "NOT_RECORDED",
+      "unresolvedDefects": [
+        "No operator acceptance record provided."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    },
+    {
+      "id": "PRODUCTION_DEPLOYMENT",
+      "exactContract": "Authorized deployment/environment/credential/rollback/readiness checks; no source/build result substitutes for them.",
+      "sourceImplementationPaths": [
+        "docs/reconstruction/16_AR2_U09_RUNTIME_CUTOVER_READINESS.md"
+      ],
+      "testIdentities": [],
+      "runtimeEvidence": [
+        "connected-csv.json",
+        "connected-excel.json",
+        "verification-raw.json.gz"
+      ],
+      "securityAndRecoveryResult": {
+        "security": "Current authenticated authority is rechecked by existing server routes.",
+        "recovery": "Covered only where explicitly identified by the test identities."
+      },
+      "operationalStatus": "NOT_AUTHORIZED_NOT_EXECUTED",
+      "unresolvedDefects": [
+        "No push/PR/merge/deployment/production mutation/SQL activation authorized."
+      ],
+      "acceptanceAuthority": {
+        "localExecutor": "Automated disposable-environment verification only",
+        "independentReviewer": "NOT_RECORDED",
+        "operator": "NOT_RECORDED"
+      }
+    }
+  ]
+}

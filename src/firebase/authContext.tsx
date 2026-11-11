@@ -69,7 +69,16 @@ function LegacyAuthProvider({ children }: { children: ReactNode }) {
         const snapshot=await getDocFromServer(doc(db,'users',current.uid));
         return normalizeProfile(snapshot.exists() ? decodeUser<UserEntity>(snapshot.data(),current.uid) : null,current.uid);
       },
-      watch: () => () => {},
+      watch: (current, receive, fail) => {
+        // SQL composition owns its profile authority and must never open a
+        // Firestore listener. Firestore revocations are server-confirmed only.
+        if(runtime)return () => {};
+        return onSnapshot(doc(db, 'users', current.uid), {includeMetadataChanges:true}, snapshot => {
+          if(snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites){fail();return;}
+          try{receive(normalizeProfile(snapshot.exists()?decodeUser<UserEntity>(snapshot.data(),current.uid):null,current.uid));}
+          catch{fail();}
+        }, () => fail());
+      },
       terminate: () => signOut(auth),
     });
     session.current = controller;

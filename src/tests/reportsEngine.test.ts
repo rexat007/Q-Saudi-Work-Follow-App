@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 /**
  * Reports Engine Automated Test Suite
  * 
@@ -418,3 +419,7 @@ if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes(
     process.exit(0);
   }
 }
+
+let registeredResult: Awaited<ReturnType<typeof runReportsEngineTests>>;
+beforeAll(async()=>{registeredResult=await runReportsEngineTests();},60000);
+it.each(["REP-TST-01", "REP-TST-02", "REP-TST-03", "REP-TST-04", "REP-TST-05", "REP-TST-06", "REP-TST-07", "REP-TST-08", "REP-TST-09", "REP-TST-10", "REP-TST-11", "REP-TST-12"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

@@ -3,13 +3,13 @@ import { createInMemoryAdminDb, setTestDbOverride, inMemoryAdminStore } from '..
 import { importSessionServerService } from '../services/importSession.server';
 
 describe('Smart Import Unit 4A Server Session Persistence Test Suite', () => {
-  const adminContext = {
+  const adminContext = {displayName: '',
     userId: 'admin-1',
     email: 'admin@q-saudi.com',
     role: 'PROJECT_ADMIN' as const,
   };
 
-  const dispatcherContext = {
+  const dispatcherContext = {displayName: '',
     userId: 'disp-1',
     email: 'dispatcher@q-saudi.com',
     role: 'DISPATCHER' as const,

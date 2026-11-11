@@ -1,0 +1,2242 @@
+{
+  "baseline": 442,
+  "final": 314,
+  "newSemanticDiagnostics": 0,
+  "resolvedSemanticDiagnostics": 128,
+  "remainingByFile": {
+    "src/tests/driverTruckSmartImportMappingGate.test.ts": 11,
+    "src/tests/exceptionEngineRetirement.test.ts": 4,
+    "src/tests/i18nTranslationCatalog.test.ts": 1,
+    "src/tests/i18nTranslationGeneration.test.ts": 2,
+    "src/tests/importCenterConvergence.test.ts": 1,
+    "src/tests/liveProjectRosterSmartConvergence.test.ts": 38,
+    "src/tests/projectRouteConvergence.test.ts": 2,
+    "src/tests/projectWorkflowNavigation86E.test.ts": 1,
+    "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts": 5,
+    "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts": 1,
+    "src/tests/rosterSmartImportCarrierLayerC2.test.ts": 12,
+    "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts": 27,
+    "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts": 16,
+    "src/tests/rosterSmartImportJourneyNavigation.test.ts": 19,
+    "src/tests/rosterSmartImportMaterialLayerC3.test.ts": 13,
+    "src/tests/rosterSmartImportPortalRenderQuality.test.tsx": 66,
+    "src/tests/smartImportCanonicalCommitCutoverC2.test.ts": 2,
+    "src/tests/smartImportCommitIntegrityConvergence.test.ts": 4,
+    "src/tests/smartImportEntityReviewWorkspaceR2.test.ts": 9,
+    "src/tests/smartImportExternalSourceReviewConvergence.test.ts": 6,
+    "src/tests/smartImportExternalSourceSessionPersistence.test.ts": 10,
+    "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts": 3,
+    "src/tests/smartImportPostResolutionValidationConvergence.test.ts": 18,
+    "src/tests/smartImportServerCanonicalCommitContractC1.test.ts": 16,
+    "src/tests/smartImportSharedContrast.test.tsx": 1,
+    "src/tests/smartImportTripWriteFailureIntegrity.test.ts": 6,
+    "src/tests/smartImportUnit4B2UiSessionResume.test.ts": 1,
+    "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts": 1,
+    "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts": 4,
+    "src/tests/systemAuditMigrationRationalization91A.test.ts": 5,
+    "src/tests/systemToolsRationalization90A.test.ts": 5,
+    "src/tests/tripEngineRetirement.test.ts": 4
+  },
+  "remaining": [
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 106,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 113,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 120,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 127,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 134,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 141,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 148,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 155,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 162,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 169,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/driverTruckSmartImportMappingGate.test.ts",
+      "line": 176,
+      "column": 53,
+      "code": "TS2345",
+      "message": "Argument of type 'keyof CanonicalTripRow' is not assignable to parameter of type 'string'. Type 'number' is not assignable to type 'string'."
+    },
+    {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "line": 46,
+      "column": 31,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"EXCEPTION_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "line": 49,
+      "column": 30,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"EXCEPTION_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "line": 68,
+      "column": 53,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"EXCEPTION_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/exceptionEngineRetirement.test.ts",
+      "line": 71,
+      "column": 59,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"EXCEPTION_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/i18nTranslationCatalog.test.ts",
+      "line": 90,
+      "column": 17,
+      "code": "TS2554",
+      "message": "Expected 2 arguments, but got 1."
+    },
+    {
+      "file": "src/tests/i18nTranslationGeneration.test.ts",
+      "line": 76,
+      "column": 16,
+      "code": "TS2554",
+      "message": "Expected 2 arguments, but got 1."
+    },
+    {
+      "file": "src/tests/i18nTranslationGeneration.test.ts",
+      "line": 86,
+      "column": 16,
+      "code": "TS2554",
+      "message": "Expected 2 arguments, but got 1."
+    },
+    {
+      "file": "src/tests/importCenterConvergence.test.ts",
+      "line": 315,
+      "column": 21,
+      "code": "TS2304",
+      "message": "Cannot find name 'createEmptyImportBatch'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 14,
+      "column": 5,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'assignedProjectIds' does not exist in type 'PipelineContext'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 38,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: undefined; recommendation: \"REVIEW\"; candidates: { candidateEntityId: string; candidateDisplayName: string; }[]; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 45,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; recommendation: \"ACCEPT\"; entityId: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 46,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; recommendation: \"ACCEPT\"; entityId: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 47,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; recommendation: \"ACCEPT\"; entityId: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 67,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'importBatchId' is missing in type '{ sourceType: \"EXCEL\"; sourceFileId: string; sourceFileName: string; }' but required in type 'ImportSource'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 165,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"WARNING\"; blocking: false; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 166,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"BLOCKING\"; blocking: true; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 189,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"BLOCKING\"; blocking: true; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 215,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 216,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 217,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 218,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 221,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"WARNING\"; blocking: false; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 233,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 234,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 235,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 236,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 239,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"WARNING\"; blocking: false; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 251,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 252,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 253,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 254,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 268,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"BLOCKING\"; blocking: true; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 274,
+      "column": 20,
+      "code": "TS2339",
+      "message": "Property 'status' does not exist on type 'UnifiedImportBatch'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 281,
+      "column": 20,
+      "code": "TS2339",
+      "message": "Property 'status' does not exist on type 'UnifiedImportBatch'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 287,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 288,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 289,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 290,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchMethod: \"EXACT\"; recommendation: \"ACCEPT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 293,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; message: string; severity: \"WARNING\"; blocking: false; }' is missing the following properties from type 'ImportIssue': row, resolvable"
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 298,
+      "column": 20,
+      "code": "TS2339",
+      "message": "Property 'status' does not exist on type 'UnifiedImportBatch'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 310,
+      "column": 36,
+      "code": "TS2339",
+      "message": "Property 'knownEntities' does not exist on type 'RelationshipContext'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 324,
+      "column": 100,
+      "code": "TS2345",
+      "message": "Argument of type '() => Promise<{ success: boolean; matchedId: string; matchedName: string; }>' is not assignable to parameter of type '(params: CreateCarrierParams) => Promise<NormalizedEntityResolutionResult>'. Type 'Promise<{ success: boolean; matchedId: string; matchedName: string; }>' is not assignable to type 'Promise<NormalizedEntityResolutionResult>'. Type '{ success: boolean; matchedId: string; matchedName: string; }' is missing the following properties from type 'NormalizedEntityResolutionResult': entityType, sourceValue, matchMethod, confidence, and 4 more."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 335,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'commercialRegistrationNo' is missing in type '{ nameAr: string; }' but required in type '{ [key: string]: any; nameAr: string; commercialRegistrationNo: string; transportLicenseNo?: string; }'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 343,
+      "column": 7,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'success' does not exist in type 'NormalizedEntityResolutionResult'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 351,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'commercialRegistrationNo' is missing in type '{ nameAr: string; }' but required in type '{ [key: string]: any; nameAr: string; commercialRegistrationNo: string; transportLicenseNo?: string; }'."
+    },
+    {
+      "file": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "line": 359,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type '(i: number) => { entityResolutions: { carrier: { entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; }; }; } | { entityResolutions?: undefined; }' is not assignable to parameter of type '(i: number) => Partial<ImportRow<Record<string, any>, Record<string, any>>>'. Type '{ entityResolutions: { carrier: { entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; }; }; } | { entityResolutions?: undefined; }' is not assignable to type 'Partial<ImportRow<Record<string, any>, Record<string, any>>>'. Type '{ entityResolutions: { carrier: { entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; }; }; }' is not assignable to type 'Partial<ImportRow<Record<string, any>, Record<string, any>>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/projectRouteConvergence.test.ts",
+      "line": 29,
+      "column": 7,
+      "code": "TS2561",
+      "message": "Object literal may only specify known properties, but 'clientNameAr' does not exist in type 'ProjectEntity'. Did you mean to write 'clientName'?"
+    },
+    {
+      "file": "src/tests/projectRouteConvergence.test.ts",
+      "line": 49,
+      "column": 7,
+      "code": "TS2561",
+      "message": "Object literal may only specify known properties, but 'clientNameAr' does not exist in type 'ProjectEntity'. Did you mean to write 'clientName'?"
+    },
+    {
+      "file": "src/tests/projectWorkflowNavigation86E.test.ts",
+      "line": 193,
+      "column": 49,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"MASTER_DATA\"' have no overlap."
+    },
+    {
+      "file": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "line": 163,
+      "column": 68,
+      "code": "TS2551",
+      "message": "Property 'buildInitialProjectionSnapshot' does not exist on type 'ProjectWorkspaceInitialProjectionServer'. Did you mean 'buildInitialProjection'?"
+    },
+    {
+      "file": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "line": 263,
+      "column": 68,
+      "code": "TS2551",
+      "message": "Property 'buildInitialProjectionSnapshot' does not exist on type 'ProjectWorkspaceInitialProjectionServer'. Did you mean 'buildInitialProjection'?"
+    },
+    {
+      "file": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "line": 278,
+      "column": 101,
+      "code": "TS2345",
+      "message": "Argument of type '{ tabKey: \"FLEET_ROSTER\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is not assignable to parameter of type 'UpsertResult'. Type '{ tabKey: \"FLEET_ROSTER\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is missing the following properties from type 'UpsertResult': columnsCount, durationMs"
+    },
+    {
+      "file": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "line": 314,
+      "column": 101,
+      "code": "TS2345",
+      "message": "Argument of type '{ tabKey: \"DRIVERS\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is not assignable to parameter of type 'UpsertResult'. Type '{ tabKey: \"DRIVERS\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is missing the following properties from type 'UpsertResult': columnsCount, durationMs"
+    },
+    {
+      "file": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "line": 375,
+      "column": 47,
+      "code": "TS2551",
+      "message": "Property 'buildInitialProjectionSnapshot' does not exist on type 'ProjectWorkspaceInitialProjectionServer'. Did you mean 'buildInitialProjection'?"
+    },
+    {
+      "file": "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+      "line": 214,
+      "column": 101,
+      "code": "TS2345",
+      "message": "Argument of type '{ tabKey: \"DRIVERS\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is not assignable to parameter of type 'UpsertResult'. Type '{ tabKey: \"DRIVERS\"; tabTitle: string; primaryKey: string; processedCount: number; insertedCount: number; updatedCount: number; deletedCount: number; unchangedCount: number; }' is missing the following properties from type 'UpsertResult': columnsCount, durationMs"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 48,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 49,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 50,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 51,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 61,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 62,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 63,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 64,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 74,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; candidates: { candidateEntityId: string; candidateDisplayName: string; matchConfidence: number; }[]; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 85,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 86,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "line": 87,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 46,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 47,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 48,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 49,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 59,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 60,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 61,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 62,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 266,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 267,
+      "column": 13,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 301,
+      "column": 65,
+      "code": "TS2322",
+      "message": "Type '{ rowNumber: number; raw: { '\\u0627\\u0633\\u0645 \\u0627\\u0644\\u0633\\u0627\\u0626\\u0642': string; '\\u0631\\u0642\\u0645 \\u0627\\u0644\\u0647\\u0648\\u064A\\u0629': string; الجوال: string; }; canonical: { driverName: string; driverIdentity: string; driverPhone: string; }; entityResolutions: { carrier: { ...; }; driver: { ...; ...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>[]'. Type '{ rowNumber: number; raw: { '\\u0627\\u0633\\u0645 \\u0627\\u0644\\u0633\\u0627\\u0626\\u0642': string; '\\u0631\\u0642\\u0645 \\u0627\\u0644\\u0647\\u0648\\u064A\\u0629': string; الجوال: string; }; canonical: { driverName: string; driverIdentity: string; driverPhone: string; }; entityResolutions: { carrier: { ...; }; driver: { ...; ...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { sourceValue: string; recommendation: string; confidence: number; isExact: boolean; originalValue: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 341,
+      "column": 71,
+      "code": "TS2322",
+      "message": "Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status: \"WARNING\"; validati...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>[]'. Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status: \"WARNING\"; validati...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { sourceValue: string; recommendation: string; confidence: number; isExact: boolean; originalValue: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 372,
+      "column": 70,
+      "code": "TS2322",
+      "message": "Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; driverPhone: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>[]'. Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; driverPhone: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { sourceValue: string; recommendation: string; confidence: number; isExact: boolean; originalValue: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 390,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 391,
+      "column": 13,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 440,
+      "column": 65,
+      "code": "TS2322",
+      "message": "Type '{ rowNumber: number; raw: {}; canonical: { truckPlate: string; tareWeightKg: number; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; truck: { ...; }; }; status: \"WARNING\"; validationI...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>[]'. Type '{ rowNumber: number; raw: {}; canonical: { truckPlate: string; tareWeightKg: number; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; truck: { ...; }; }; status: \"WARNING\"; validationI...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; truck: { sourceValue: string; recommendation: string; confidence: number; isExact: boolean; originalValue: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 459,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 460,
+      "column": 13,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 486,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 487,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 488,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 499,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 500,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 501,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 534,
+      "column": 57,
+      "code": "TS2322",
+      "message": "Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status: \"WARNING\"; validati...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>[]'. Type '{ rowNumber: number; raw: {}; canonical: { driverName: string; driverIdentity: string; }; entityResolutions: { carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { ...; }; }; status: \"WARNING\"; validati...' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }; driver: { sourceValue: string; recommendation: string; confidence: number; isExact: boolean; originalValue: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: string; matchMethod: string; confidence: number; isExact: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 568,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "line": 569,
+      "column": 13,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 515,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 530,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 537,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 538,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 561,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 587,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 594,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 595,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 621,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 657,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 664,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 665,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"VALID\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 688,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 703,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 710,
+      "column": 9,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; raw: {}; canonical: {}; status: \"REJECTED\"; reviewStatus: \"accepted\"; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "line": 715,
+      "column": 7,
+      "code": "TS2322",
+      "message": "Type '\"REVIEW_REQUIRED\"' is not assignable to type 'ImportCommitStatus'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 134,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 146,
+      "column": 70,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 147,
+      "column": 68,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 148,
+      "column": 63,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 358,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 366,
+      "column": 56,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 372,
+      "column": 16,
+      "code": "TS2739",
+      "message": "Type '{ code: string; message: string; severity: \"BLOCKING\"; blocking: true; field: string; }' is missing the following properties from type 'ImportIssue': issueId, row, resolvable"
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 373,
+      "column": 47,
+      "code": "TS2322",
+      "message": "Type '\"BLOCKED\"' is not assignable to type 'ImportCommitStatus'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 383,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 391,
+      "column": 63,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 392,
+      "column": 57,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 398,
+      "column": 16,
+      "code": "TS2739",
+      "message": "Type '{ code: string; message: string; severity: \"BLOCKING\"; blocking: true; field: string; }' is missing the following properties from type 'ImportIssue': issueId, row, resolvable"
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 399,
+      "column": 47,
+      "code": "TS2322",
+      "message": "Type '\"BLOCKED\"' is not assignable to type 'ImportCommitStatus'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 409,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 417,
+      "column": 63,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 418,
+      "column": 64,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 419,
+      "column": 55,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'resolutionType' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 425,
+      "column": 16,
+      "code": "TS2739",
+      "message": "Type '{ code: string; message: string; severity: \"BLOCKING\"; blocking: true; field: string; }' is missing the following properties from type 'ImportIssue': issueId, row, resolvable"
+    },
+    {
+      "file": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "line": 426,
+      "column": 47,
+      "code": "TS2322",
+      "message": "Type '\"BLOCKED\"' is not assignable to type 'ImportCommitStatus'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 50,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 51,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 52,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 53,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 63,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 64,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 65,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 66,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 76,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 77,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; candidates: { candidateEntityId: string; candidateDisplayName: string; matchConfidence: number; }[]; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 88,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 89,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "line": 291,
+      "column": 7,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'sourceHeaders' does not exist in type 'UnifiedImportBatch'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 141,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 153,
+      "column": 73,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 154,
+      "column": 65,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 155,
+      "column": 53,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 156,
+      "column": 43,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 172,
+      "column": 11,
+      "code": "TS2322",
+      "message": "Type '{ importBatch: UnifiedImportBatch; projectCarriers: { carrierId: string; name: string; }[]; projectDrivers: undefined[]; projectTrucks: undefined[]; onAcceptDriverCandidate: () => void; ... 5 more ...; onOpenFinalReview: () => void; }' is not assignable to type 'IntrinsicAttributes & RosterDriverTruckResolutionLayerProps'. Property 'projectCarriers' does not exist on type 'IntrinsicAttributes & RosterDriverTruckResolutionLayerProps'. Did you mean 'projectDrivers'?"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 211,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 223,
+      "column": 70,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 234,
+      "column": 56,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 246,
+      "column": 81,
+      "code": "TS2554",
+      "message": "Expected 1 arguments, but got 2."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 266,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 278,
+      "column": 66,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 288,
+      "column": 48,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 300,
+      "column": 83,
+      "code": "TS2554",
+      "message": "Expected 1 arguments, but got 2."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 321,
+      "column": 17,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 333,
+      "column": 70,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 334,
+      "column": 67,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 335,
+      "column": 68,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 336,
+      "column": 66,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 343,
+      "column": 9,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; message: string; severity: \"WARNING\"; blocking: false; resolvable: true; }' is missing the following properties from type 'ImportIssue': row, field"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 398,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 410,
+      "column": 53,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 441,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 453,
+      "column": 82,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 501,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 513,
+      "column": 59,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 543,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 555,
+      "column": 75,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 602,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 614,
+      "column": 75,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 615,
+      "column": 67,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 616,
+      "column": 75,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 617,
+      "column": 65,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 672,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 684,
+      "column": 71,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 685,
+      "column": 70,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 686,
+      "column": 68,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 687,
+      "column": 68,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 735,
+      "column": 19,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 753,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 783,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 789,
+      "column": 18,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; message: string; severity: \"BLOCKING\"; }' is missing the following properties from type 'ImportIssue': row, field, code, resolvable, blocking"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 812,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"EXCEL_CSV\"' is not assignable to type 'OperationSourceType'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 818,
+      "column": 18,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; message: string; severity: \"BLOCKING\"; }' is missing the following properties from type 'ImportIssue': row, field, code, resolvable, blocking"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 900,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; matchedId: string; matchedName: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 901,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 902,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 960,
+      "column": 91,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'entityType' does not exist in type 'ImportIssue'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1011,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1012,
+      "column": 15,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1074,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1075,
+      "column": 15,
+      "code": "TS2741",
+      "message": "Property 'entityType' is missing in type '{ sourceValue: string; recommendation: \"REVIEW\"; confidence: number; isExact: false; originalValue: string; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1140,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1141,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1152,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1153,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1240,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1241,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1252,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1253,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1339,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1340,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1351,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1352,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1363,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ matchedId: string; matchedName: string; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; confidence: number; isExact: true; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue"
+    },
+    {
+      "file": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "line": 1364,
+      "column": 15,
+      "code": "TS2739",
+      "message": "Type '{ sourceValue: string; recommendation: \"REVIEW\"; }' is missing the following properties from type 'ImportEntityResolutionInfo': entityType, originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+      "line": 44,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'validationIssues' is missing in type '{ rowNumber: number; sourceRowId: number; status: \"VALID\"; reviewStatus: \"accepted\"; raw: { carrier: string; truckNo: string; driverName: string; materialType: string; }; canonical: { shiftDate: string; ... 6 more ...; status: string; }; resolvedValues: { ...; }; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+      "line": 343,
+      "column": 21,
+      "code": "TS2345",
+      "message": "Argument of type '{ rowNumber: number; sourceRowId: number; status: \"VALID\"; reviewStatus: \"accepted\"; raw: {}; resolvedValues: { carrierId: string; truckId: string; driverId: string; materialId: string; }; }' is not assignable to parameter of type 'ImportRow<Record<string, any>, Record<string, any>>'. Property 'validationIssues' is missing in type '{ rowNumber: number; sourceRowId: number; status: \"VALID\"; reviewStatus: \"accepted\"; raw: {}; resolvedValues: { carrierId: string; truckId: string; driverId: string; materialId: string; }; }' but required in type 'ImportRow<Record<string, any>, Record<string, any>>'."
+    },
+    {
+      "file": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "line": 56,
+      "column": 11,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; isExact: true; isAuthorized: true; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "line": 57,
+      "column": 11,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; isExact: true; isAuthorized: true; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "line": 58,
+      "column": 11,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; isExact: true; isAuthorized: true; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "line": 59,
+      "column": 11,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; isExact: true; isAuthorized: true; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 65,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; riskLevel: \"MEDIUM\"; relationshipStatus: \"VALID\"; candidates: { entityId: string; displayName: string; score: number; }[]; matchedId: string; matchedName: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 78,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 86,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 94,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 110,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; recommendation: \"REVIEW\"; riskLevel: \"MEDIUM\"; relationshipStatus: \"VALID\"; candidates: { entityId: string; displayName: string; score: number; }[]; matchedId: string; matchedName: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 123,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 131,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 139,
+      "column": 13,
+      "code": "TS2322",
+      "message": "Type '\"CREATE\"' is not assignable to type '\"UNKNOWN\" | \"REVIEW\" | \"REJECT\" | \"ACCEPT\"'."
+    },
+    {
+      "file": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "line": 155,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ entityType: \"CARRIER\"; sourceValue: string; recommendation: \"ACCEPT\"; matchMethod: \"EXACT\"; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; candidates: undefined[]; matchedId: string; matchedName: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 78,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; severity: \"WARNING\"; message: string; resolvable: true; }' is missing the following properties from type 'ImportIssue': row, blocking"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 210,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ issueId: string; code: string; field: string; severity: \"WARNING\"; message: string; resolvable: true; }' is missing the following properties from type 'ImportIssue': row, blocking"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 1001,
+      "column": 105,
+      "code": "TS2345",
+      "message": "Argument of type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is not assignable to parameter of type 'NormalizedEntityResolutionResult'. Type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is missing the following properties from type 'NormalizedEntityResolutionResult': entityType, matchMethod, isAuthorized, riskLevel, relationshipStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 1020,
+      "column": 106,
+      "code": "TS2345",
+      "message": "Argument of type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is not assignable to parameter of type 'NormalizedEntityResolutionResult'. Type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is missing the following properties from type 'NormalizedEntityResolutionResult': entityType, matchMethod, isAuthorized, riskLevel, relationshipStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 1051,
+      "column": 105,
+      "code": "TS2345",
+      "message": "Argument of type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is not assignable to parameter of type 'NormalizedEntityResolutionResult'. Type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is missing the following properties from type 'NormalizedEntityResolutionResult': entityType, matchMethod, isAuthorized, riskLevel, relationshipStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "line": 1070,
+      "column": 106,
+      "code": "TS2345",
+      "message": "Argument of type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is not assignable to parameter of type 'NormalizedEntityResolutionResult'. Type '{ matchedId: string; matchedName: string; sourceValue: string; isExact: true; confidence: number; }' is missing the following properties from type 'NormalizedEntityResolutionResult': entityType, matchMethod, isAuthorized, riskLevel, relationshipStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 342,
+      "column": 15,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 353,
+      "column": 15,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'rowNumber' does not exist in type 'ImportIssue'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 443,
+      "column": 9,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 682,
+      "column": 13,
+      "code": "TS2739",
+      "message": "Type '{ rowNumber: number; status: \"VALID\"; canonical: { carrier: string; }; resolvedValues: { carrierId: string; truckId: string; driverId: string; materialId: string; }; validationIssues: undefined[]; }' is missing the following properties from type 'ImportRow<Record<string, any>, Record<string, any>>': raw, reviewStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 713,
+      "column": 13,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 1332,
+      "column": 15,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'status' does not exist in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 1871,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ rowNumber: number; status: \"COMMITTED\"; validationIssues: undefined[]; }' is missing the following properties from type 'ImportRow<Record<string, any>, Record<string, any>>': raw, reviewStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 1878,
+      "column": 17,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'rowNumber' does not exist in type 'ImportIssue'."
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 2011,
+      "column": 11,
+      "code": "TS2739",
+      "message": "Type '{ rowNumber: number; status: \"COMMITTED\"; validationIssues: undefined[]; }' is missing the following properties from type 'ImportRow<Record<string, any>, Record<string, any>>': raw, reviewStatus"
+    },
+    {
+      "file": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "line": 2018,
+      "column": 17,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'rowNumber' does not exist in type 'ImportIssue'."
+    },
+    {
+      "file": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "line": 468,
+      "column": 5,
+      "code": "TS2741",
+      "message": "Property 'importBatchId' is missing in type '{ sourceType: \"WEIGHBRIDGE\"; sourceFileId: string; sourceFileName: string; sourceMimeType: string; }' but required in type 'ImportSource'."
+    },
+    {
+      "file": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "line": 479,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"matched\"' is not assignable to type 'ImportReviewStatus'."
+    },
+    {
+      "file": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "line": 505,
+      "column": 5,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'assignedProjectIds' does not exist in type 'PipelineContext'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 84,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type 'ImportRow<Record<string, any>, Record<string, any>>' is not assignable to parameter of type 'ImportRow<any, CanonicalTripRow>'. Property 'projectId' is missing in type 'Record<string, any>' but required in type 'CanonicalTripRow'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 99,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type 'ImportRow<Record<string, any>, Record<string, any>>' is not assignable to parameter of type 'ImportRow<any, CanonicalTripRow>'. Property 'projectId' is missing in type 'Record<string, any>' but required in type 'CanonicalTripRow'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 114,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type 'ImportRow<Record<string, any>, Record<string, any>>' is not assignable to parameter of type 'ImportRow<any, CanonicalTripRow>'. Property 'projectId' is missing in type 'Record<string, any>' but required in type 'CanonicalTripRow'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 207,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { truckNo: string; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; rowNumber: number; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 224,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { materialType: string; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; entityResolutions: { ...; }; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ material: { entityType: string; sourceValue: string; recommendation: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'material' is incompatible with index signature. Type '{ entityType: string; sourceValue: string; recommendation: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 247,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ resolvedValues: { driverId: string; }; entityResolutions: { carrier: { entityType: string; sourceValue: string; matchedId: any; recommendation: string; isExact: boolean; isAuthorized: boolean; }; }; ... 11 more ...; rejectionReason?: string; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { entityType: string; sourceValue: string; matchedId: any; recommendation: string; isExact: boolean; isAuthorized: boolean; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ entityType: string; sourceValue: string; matchedId: any; recommendation: string; isExact: boolean; isAuthorized: boolean; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence"
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 284,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ entityResolutions: { carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; }; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ entityType: string; recommendation: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 300,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ entityResolutions: { carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; }; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ entityType: string; recommendation: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 355,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type '{ entityResolutions: { carrier: { entityType: string; entityId: string; recommendation: string; isAuthorized: boolean; }; }; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to parameter of type 'ImportRow<any, CanonicalTripRow>'. Types of property 'canonical' are incompatible. Property 'projectId' is missing in type 'Record<string, any>' but required in type 'CanonicalTripRow'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 367,
+      "column": 42,
+      "code": "TS2345",
+      "message": "Argument of type '{ entityResolutions: { carrier: { entityType: string; matchedId: string; isExact: boolean; }; }; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to parameter of type 'ImportRow<any, CanonicalTripRow>'. Types of property 'canonical' are incompatible. Property 'projectId' is missing in type 'Record<string, any>' but required in type 'CanonicalTripRow'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 417,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { grossWeight: number; tareWeight: number; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; ... 11 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 447,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { driverName: any; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; rowNumber: number; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 482,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { grossWeight: any; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; rowNumber: number; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 558,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ entityResolutions: { carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; material: { entityType: string; recommendation: string; }; }; ... 12 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'entityResolutions' are incompatible. Type '{ carrier: { entityType: string; recommendation: string; }; truck: { entityType: string; recommendation: string; }; material: { entityType: string; recommendation: string; }; }' is not assignable to type 'Record<string, ImportEntityResolutionInfo>'. Property 'carrier' is incompatible with index signature. Type '{ entityType: string; recommendation: string; }' is missing the following properties from type 'ImportEntityResolutionInfo': originalValue, confidence, isExact"
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 589,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ canonical: { truckNo: string; }; resolvedValues: { truckId: string; carrierId: string; }; validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; ... 10 more ...; rejectionReason?: string; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 606,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ validationIssues: { issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 10 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'validationIssues' are incompatible. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }[]' is not assignable to type 'ImportIssue[]'. Type '{ issueId: string; row: number; field: string; code: string; severity: string; message: string; resolvable: boolean; blocking: boolean; }' is not assignable to type 'ImportIssue'. Types of property 'severity' are incompatible. Type 'string' is not assignable to type 'ImportIssueSeverity'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 625,
+      "column": 36,
+      "code": "TS2322",
+      "message": "Type '{ status: string; reviewStatus: any; validationIssues: any[]; rowNumber: number; sourceLocation?: ImportSourceLocation; sourceRowId?: string | number; ... 7 more ...; resolvedValues?: Record<string, any>; }' is not assignable to type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'status' are incompatible. Type 'string' is not assignable to type '\"PENDING\" | \"REJECTED\" | \"ERROR\" | \"COMMITTED\" | \"WARNING\" | \"VALID\"'."
+    },
+    {
+      "file": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "line": 631,
+      "column": 66,
+      "code": "TS2345",
+      "message": "Argument of type '{ canonical: { tareWeight: number; }; status: string; reviewStatus: any; validationIssues: any[]; rowNumber: number; sourceLocation?: ImportSourceLocation; ... 7 more ...; resolvedValues?: Record<string, any>; }' is not assignable to parameter of type 'ImportRow<Record<string, any>, Record<string, any>>'. Types of property 'status' are incompatible. Type 'string' is not assignable to type '\"PENDING\" | \"REJECTED\" | \"ERROR\" | \"COMMITTED\" | \"WARNING\" | \"VALID\"'."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 65,
+      "column": 64,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string) => Promise<{ projectId: string; projectNumber: number; nameAr: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string) => Promise<ProjectEntity>'. Type 'Promise<{ projectId: string; projectNumber: number; nameAr: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectEntity>'. Type '{ projectId: string; projectNumber: number; nameAr: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectEntity': nameEn, clientName, location, settings, and 4 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 72,
+      "column": 70,
+      "code": "TS2345",
+      "message": "Argument of type '(cId: string) => Promise<{ carrierId: string; nameAr: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(carrierId: string) => Promise<GlobalCarrierEntity>'. Type 'Promise<{ carrierId: string; nameAr: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<GlobalCarrierEntity>'. Type '{ carrierId: string; nameAr: string; status: \"ACTIVE\"; }' is missing the following properties from type 'GlobalCarrierEntity': commercialRegistrationNo, createdAt, createdBy, updatedAt, updatedBy"
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 77,
+      "column": 86,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, cId: string) => Promise<{ status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectCarrierMembershipEntity>'. Type 'Promise<{ status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectCarrierMembershipEntity>'. Type '{ status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectCarrierMembershipEntity': carrierId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 82,
+      "column": 71,
+      "code": "TS2345",
+      "message": "Argument of type '(mId: string) => Promise<{ materialId: string; nameAr: string; code: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(materialId: string) => Promise<GlobalMaterialEntity>'. Type 'Promise<{ materialId: string; nameAr: string; code: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<GlobalMaterialEntity>'. Type '{ materialId: string; nameAr: string; code: string; status: \"ACTIVE\"; }' is missing the following properties from type 'GlobalMaterialEntity': unitOfMeasure, createdAt, createdBy, updatedAt, updatedBy"
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 87,
+      "column": 87,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, mId: string) => Promise<{ status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectMaterialMembershipEntity>'. Type 'Promise<{ status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectMaterialMembershipEntity>'. Type '{ status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectMaterialMembershipEntity': materialId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 92,
+      "column": 69,
+      "code": "TS2345",
+      "message": "Argument of type '(dId: string) => Promise<{ driverId: string; fullNameAr: string; idNumber: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(driverId: string) => Promise<GlobalDriverEntity>'. Type 'Promise<{ driverId: string; fullNameAr: string; idNumber: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<GlobalDriverEntity>'. Type '{ driverId: string; fullNameAr: string; idNumber: string; status: \"ACTIVE\"; }' is missing the following properties from type 'GlobalDriverEntity': nationalId, phone, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 97,
+      "column": 85,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, dId: string) => Promise<{ status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectDriverMembershipEntity>'. Type 'Promise<{ status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectDriverMembershipEntity>'. Type '{ status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectDriverMembershipEntity': driverId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 102,
+      "column": 68,
+      "code": "TS2345",
+      "message": "Argument of type '(tId: string) => Promise<{ truckId: string; plateNumberAr: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(truckId: string) => Promise<GlobalTruckEntity>'. Type 'Promise<{ truckId: string; plateNumberAr: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<GlobalTruckEntity>'. Type '{ truckId: string; plateNumberAr: string; status: \"ACTIVE\"; }' is missing the following properties from type 'GlobalTruckEntity': plate, normalizedPlate, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 107,
+      "column": 84,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, tId: string) => Promise<{ status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectTruckMembershipEntity>'. Type 'Promise<{ status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectTruckMembershipEntity>'. Type '{ status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectTruckMembershipEntity': truckId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 112,
+      "column": 94,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, dId: string) => Promise<{ carrierId: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectDriverCarrierAffiliationEntity>'. Type 'Promise<{ carrierId: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectDriverCarrierAffiliationEntity>'. Type '{ carrierId: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectDriverCarrierAffiliationEntity': driverId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 117,
+      "column": 93,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, tId: string) => Promise<{ carrierId: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, entityId: string, transaction?: Transaction) => Promise<ProjectTruckCarrierAffiliationEntity>'. Type 'Promise<{ carrierId: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<ProjectTruckCarrierAffiliationEntity>'. Type '{ carrierId: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectTruckCarrierAffiliationEntity': truckId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 137,
+      "column": 68,
+      "code": "TS2345",
+      "message": "Argument of type '(pId: string, prId: string) => Promise<{ pricingRuleId: string; projectId: string; carrierId: string; materialId: string; agreedRate: number; pricingType: string; status: \"ACTIVE\"; }>' is not assignable to parameter of type '(projectId: string, pricingRuleId: string) => Promise<PricingRuleEntity>'. Type 'Promise<{ pricingRuleId: string; projectId: string; carrierId: string; materialId: string; agreedRate: number; pricingType: string; status: \"ACTIVE\"; }>' is not assignable to type 'Promise<PricingRuleEntity>'. Type '{ pricingRuleId: string; projectId: string; carrierId: string; materialId: string; agreedRate: number; pricingType: string; status: \"ACTIVE\"; }' is missing the following properties from type 'PricingRuleEntity': name, pricingModel, baseRateSAR, demurrageRatePerHourSAR, and 7 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 187,
+      "column": 67,
+      "code": "TS2345",
+      "message": "Argument of type '{ projectId: string; status: \"ARCHIVED\"; }' is not assignable to parameter of type 'ProjectEntity'. Type '{ projectId: string; status: \"ARCHIVED\"; }' is missing the following properties from type 'ProjectEntity': nameAr, nameEn, clientName, location, and 5 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 217,
+      "column": 97,
+      "code": "TS2345",
+      "message": "Argument of type '{ carrierId: string; status: \"ACTIVE\"; }' is not assignable to parameter of type 'ProjectDriverCarrierAffiliationEntity'. Type '{ carrierId: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectDriverCarrierAffiliationEntity': driverId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 222,
+      "column": 96,
+      "code": "TS2345",
+      "message": "Argument of type '{ carrierId: string; status: \"ACTIVE\"; }' is not assignable to parameter of type 'ProjectTruckCarrierAffiliationEntity'. Type '{ carrierId: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectTruckCarrierAffiliationEntity': truckId, projectId, createdAt, createdBy, and 2 more."
+    },
+    {
+      "file": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "line": 227,
+      "column": 108,
+      "code": "TS2345",
+      "message": "Argument of type '{ materialId: string; status: \"ACTIVE\"; }' is not assignable to parameter of type 'ProjectTruckMaterialAllocationEntity'. Type '{ materialId: string; status: \"ACTIVE\"; }' is missing the following properties from type 'ProjectTruckMaterialAllocationEntity': allocationId, projectId, truckId, effectiveFrom, and 3 more."
+    },
+    {
+      "file": "src/tests/smartImportSharedContrast.test.tsx",
+      "line": 112,
+      "column": 7,
+      "code": "TS2322",
+      "message": "Type '{ candidateIdentities: any[]; onEnroll: Mock<Procedure>; kind: \"CARRIER\"; busy: boolean; }' is not assignable to type 'IntrinsicAttributes & { projectId: string; kind: \"CARRIER\" | \"MATERIAL\"; isCurrent: () => boolean; onChanged: () => Promise<void>; }'. Property 'candidateIdentities' does not exist on type 'IntrinsicAttributes & { projectId: string; kind: \"CARRIER\" | \"MATERIAL\"; isCurrent: () => boolean; onChanged: () => Promise<void>; }'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 20,
+      "column": 5,
+      "code": "TS2353",
+      "message": "Object literal may only specify known properties, and 'assignedProjectIds' does not exist in type 'PipelineContext'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 36,
+      "column": 5,
+      "code": "TS2741",
+      "message": "Property 'importBatchId' is missing in type '{ sourceType: \"WEIGHBRIDGE\"; sourceFileId: string; sourceFileName: string; sourceMimeType: string; }' but required in type 'ImportSource'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 47,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"matched\"' is not assignable to type 'ImportReviewStatus'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 81,
+      "column": 5,
+      "code": "TS2741",
+      "message": "Property 'importBatchId' is missing in type '{ sourceType: \"WEIGHBRIDGE\"; sourceFileId: string; sourceFileName: string; sourceMimeType: string; }' but required in type 'ImportSource'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 92,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"matched\"' is not assignable to type 'ImportReviewStatus'."
+    },
+    {
+      "file": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "line": 110,
+      "column": 9,
+      "code": "TS2322",
+      "message": "Type '\"matched\"' is not assignable to type 'ImportReviewStatus'."
+    },
+    {
+      "file": "src/tests/smartImportUnit4B2UiSessionResume.test.ts",
+      "line": 79,
+      "column": 7,
+      "code": "TS2345",
+      "message": "Argument of type '{ projectId: string; operationId: string; }' is not assignable to parameter of type 'PipelineContext'. Property 'userId' is missing in type '{ projectId: string; operationId: string; }' but required in type 'PipelineContext'."
+    },
+    {
+      "file": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "line": 118,
+      "column": 5,
+      "code": "TS2820",
+      "message": "Type '\"FIELD_SUPERVISOR\"' is not assignable to type 'UserRole'. Did you mean '\"SITE_SUPERVISOR\"'?"
+    },
+    {
+      "file": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "line": 469,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"CARRIER\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; matchMethod: \"EXACT\"; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; isExact: true; isAuthorized: true; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "line": 470,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"TRUCK\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; matchMethod: \"EXACT\"; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; isExact: true; isAuthorized: true; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "line": 471,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"DRIVER\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; matchMethod: \"EXACT\"; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; isExact: true; isAuthorized: true; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "line": 472,
+      "column": 7,
+      "code": "TS2741",
+      "message": "Property 'originalValue' is missing in type '{ entityType: \"MATERIAL\"; sourceValue: string; matchedId: string; matchedName: string; confidence: number; matchMethod: \"EXACT\"; riskLevel: \"LOW\"; relationshipStatus: \"VALID\"; recommendation: \"ACCEPT\"; isExact: true; isAuthorized: true; }' but required in type 'ImportEntityResolutionInfo'."
+    },
+    {
+      "file": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "line": 45,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"EXCEPTION_ENGINE\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "line": 46,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"IMPORT_CENTER\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "line": 47,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"DATA_QUALITY\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "line": 67,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"TRIP_ENGINE\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "line": 96,
+      "column": 32,
+      "code": "TS2345",
+      "message": "Argument of type '\"WORKSPACE_INTEGRATION\"' is not assignable to parameter of type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemToolsRationalization90A.test.ts",
+      "line": 45,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"EXCEPTION_ENGINE\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemToolsRationalization90A.test.ts",
+      "line": 46,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"IMPORT_CENTER\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemToolsRationalization90A.test.ts",
+      "line": 47,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"DATA_QUALITY\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemToolsRationalization90A.test.ts",
+      "line": 67,
+      "column": 5,
+      "code": "TS2322",
+      "message": "Type '\"TRIP_ENGINE\"' is not assignable to type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/systemToolsRationalization90A.test.ts",
+      "line": 96,
+      "column": 32,
+      "code": "TS2345",
+      "message": "Argument of type '\"WORKSPACE_INTEGRATION\"' is not assignable to parameter of type 'NavTabId'."
+    },
+    {
+      "file": "src/tests/tripEngineRetirement.test.ts",
+      "line": 44,
+      "column": 59,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"TRIP_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/tripEngineRetirement.test.ts",
+      "line": 47,
+      "column": 53,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"TRIP_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/tripEngineRetirement.test.ts",
+      "line": 57,
+      "column": 31,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"TRIP_ENGINE\"' have no overlap."
+    },
+    {
+      "file": "src/tests/tripEngineRetirement.test.ts",
+      "line": 60,
+      "column": 30,
+      "code": "TS2367",
+      "message": "This comparison appears to be unintentional because the types 'NavTabId' and '\"TRIP_ENGINE\"' have no overlap."
+    }
+  ],
+  "configurationOrSuppressionChanges": false,
+  "status": "FAIL"
+}

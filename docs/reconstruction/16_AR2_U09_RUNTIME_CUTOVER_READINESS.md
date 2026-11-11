@@ -1,5 +1,9 @@
 # AR2-U09 — Runtime composition and controlled cutover readiness
 
+## Engineering convergence 3 reconciliation — 2026-11-11
+
+[Final local evidence](23_ENGINEERING_CONVERGENCE_3_FINAL_ACCEPTANCE.md) verifies actual CSV/XLSX account-to-Foundation/Fleet/Import/activation/Trip/settlement/report/audit flows and bounded durable recovery. Release remains **NO-GO**: 95 full-run historical failures (94 explicit focused overlay), 314 diagnostics, native restart/cleanup timeouts and separate review/operator/production gates. Original nine dirty RB4 files/013 and published migrations 001–012 are fingerprint-identical. No SQL source completion, integrated U09 acceptance, production cutover or Google acceptance is inferred. Firestore remains production authority; SQL inactive; overall U09 remains BLOCKED. Local convergence commit only; no push/PR/merge/deployment/production operation.
+
 ## Engineering convergence 2 reconciliation — 2026-11-11
 
 [Operational source corrections](22_ENGINEERING_CONVERGENCE_2.md) add real Firestore/Rules/Auth/browser verification, server receipt recovery and revision fencing, persisted exception decisions, canonical report financial/readback corrections and scoped durable offline replay. Focused 88/88, current Portal 20/20, SQL/Workspace 217/217 across documented runs, actual Arabic desktop/mobile CSV and print-preview 2/2; build PASS. Compiler/lint and remaining historical integration evidence are not represented as green. Execution 2 operational acceptance remains INCOMPLETE; this does not complete the whole account-to-import setup chain, independent review, operational acceptance or RB4. Exact identity/delta evidence is retained. Original nine-file RB4 state and migrations 001–012 remain unchanged. Firestore remains production authority; no publication, live Google operation, production migration or SQL activation.
