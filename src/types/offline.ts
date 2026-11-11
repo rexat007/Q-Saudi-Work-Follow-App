@@ -2,9 +2,10 @@
  * Types and interfaces for Offline-First PWA, IndexedDB storage, and Outbox sync engine.
  */
 
-export type OutboxStatus = 'PENDING' | 'SENDING' | 'SYNCED' | 'FAILED' | 'CONFLICT';
+export type OutboxStatus = 'PENDING' | 'SENDING' | 'AWAITING_RECEIPT' | 'SYNCED' | 'FAILED' | 'CONFLICT';
 
 export interface OutboxOperation {
+  dependsOnOperationId?: string;
   operationId: string;
   projectId: string;
   userId: string;
@@ -159,6 +160,7 @@ export interface OfflineTripPrerequisitesReport {
 }
 
 export interface OutboxStats {
+  awaiting_receipt?: number;
   total: number;
   pending: number;
   sending: number;

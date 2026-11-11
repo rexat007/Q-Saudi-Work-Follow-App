@@ -112,7 +112,9 @@ export class ExceptionRepository {
     onData: (exceptions: TripExceptionEntity[]) => void,
     onError?: (error: Error) => void
   ) {
-    if (!auth.currentUser) {
+    const principal=auth.currentUser?.uid;
+    if (!principal) {
+      onError?.(new Error('UNAUTHENTICATED'));
       return () => {};
     }
     const path = `projects/${projectId}/exceptions`;
@@ -123,13 +125,14 @@ export class ExceptionRepository {
     return onSnapshot(
       q,
       (snapshot) => {
+        if(auth.currentUser?.uid!==principal)return;
         onData(snapshot.docs.map(d => d.data() as TripExceptionEntity));
       },
       (error) => {
-        handleFirestoreError(error, OperationType.LIST, path);
+        if(auth.currentUser?.uid!==principal)return;
         if (onError) {
           onError(error);
-        }
+        } else handleFirestoreError(error, OperationType.LIST, path);
       }
     );
   }

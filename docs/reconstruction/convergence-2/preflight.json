@@ -1,0 +1,215 @@
+{
+  "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+  "branch": "engineering/convergence-1-20261110",
+  "clean": true,
+  "reviewed28Files": [
+    {
+      "path": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "sha256": "03a14d5fe01d3375e46eff4d1751b24056131855b08993bec1302545ab7e10a2",
+      "bytes": 218746,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "sha256": "110681ec86985de8bf0f7c84459ddfb333cc4d06ec4d35e6db581fa7a07fc3af",
+      "bytes": 203679,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/16_AR2_U09_RUNTIME_CUTOVER_READINESS.md",
+      "sha256": "1b79b7818142bbb97c389d76af3ff33dc3c29e78ec5f5b3e03d6a690dda60b0a",
+      "bytes": 59305,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/21_ENGINEERING_CONVERGENCE_1.md",
+      "sha256": "2b34aafb069cc5bb1a3077c3a53ebff2605e2d3373ebb17b8e5346f15dfbdb0e",
+      "bytes": 12324,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/changed-files.txt",
+      "sha256": "e482885c3d5ac74e80c5889d82175bd3a0f3f87a7d0ad3c16aa3780fecd03bd3",
+      "bytes": 1462,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/compiler-delta.json",
+      "sha256": "627b5347846105d008232cba83e8c12329de8b7d32f1f91faec7ddb16c1a86b5",
+      "bytes": 83427,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/dependency-graph.md",
+      "sha256": "f0c4474e8c322ab6e44bdc4d2dad43afe9a38cbf93981982f7815ff703b46776",
+      "bytes": 2482,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/dynamic-module-edges.json",
+      "sha256": "88e8eca7f45d39d99c3c89ffa05b4ef452b4a9d1c95bc9e28b0ebbb2f817b263",
+      "bytes": 60710,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/historical-failures.json",
+      "sha256": "fd7f1a7cefe53a0de102c4ca95c061e7c2fd2dfe2853f36a71ee6881bd58328b",
+      "bytes": 71058,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/historical-selection.txt",
+      "sha256": "7e08c2f718956d4a8c70420861c7d4c5e56169692eac637f66d946b6234993fb",
+      "bytes": 5002,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/imports.csv",
+      "sha256": "a2b565363ab0cd8a619cc2b12ffaaaaad1c40871ca6104fba2f8edbe4d5a8ec1",
+      "bytes": 642839,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/preservation.json",
+      "sha256": "3fd7c887a4408fcedb56d6bf031cc1946967589a3e7f2bb769598b74d353684f",
+      "bytes": 3919,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/routes.csv",
+      "sha256": "1b197845824a09982d84a6a5a681f75e5b298b33e46a9e463a4bdd4975f04a4f",
+      "bytes": 9657,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/scan.mjs",
+      "sha256": "a79d34956a661d2a5e51d9c1574248c9d02563a9fa6fbacbd797d785da9bd691",
+      "bytes": 4050,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/source-map.json.gz",
+      "sha256": "1210dcdf13ef31097f7001c9219c166bb5defc8b88076b94c41e49d01bfa4c66",
+      "bytes": 1240098,
+      "decoded": "gzip JSON"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/test-map.csv",
+      "sha256": "435101b9c12668d2c16ea7c0c1a6252b8d7184ecace34b4e89d6002e178784c6",
+      "bytes": 18964,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/tracked-inventory.csv",
+      "sha256": "8989d9b74d28433210463bb09f62f845863fc06431d86a684d93ba14092bdac6",
+      "bytes": 266595,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/verification-raw.json.gz",
+      "sha256": "140d1abfc397e06af375c4eac72e7e40abb39efede49fc2c2fd0b5bf2ae2605e",
+      "bytes": 416665,
+      "decoded": "gzip JSON"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/verification.json",
+      "sha256": "b31300026489d75a09ba6f1c64b4f9aaf5f7c810d69985a1f5352bb93926a9af",
+      "bytes": 78852,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/workflow-evidence.json",
+      "sha256": "f4356a4fc086a88e5cdef819c476ec9c19fd4034a43e097416d7fe86d92a9a57",
+      "bytes": 369912,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "docs/reconstruction/convergence-1/workflow-traces.md",
+      "sha256": "5a08e03d7408afa76f35d30df74aa49cdcafa56c99f2aa79b62d7977bd96429f",
+      "bytes": 10143,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+      "sha256": "081fe1963d0c7f9995bff3304a90bbbf4f1b971b694fdc59f8162f1cd61df3c3",
+      "bytes": 20680,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+      "sha256": "5b25d38a5114571d96fc2beeb2826d4e35f3be31121e12926e53b37ae0787069",
+      "bytes": 20882,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/services/import/rosterBatchReview.service.ts",
+      "sha256": "4b8afad51741a47ccb674501ef8fde5d89a953e54defb9cd4670af61dffe90f9",
+      "bytes": 23866,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/services/import/rosterMaterialBinding.ts",
+      "sha256": "1bc07c91d6a6506c7962ea03e6b9154b7f09f26d7591c24236e793bd597d7a7b",
+      "bytes": 1386,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/tests/helpers/rosterReadinessBrowserEntry.tsx",
+      "sha256": "b2a123e870f88b464015d1b95feecbbb7e5ba17ea012b81128aa7d21091b6802",
+      "bytes": 1790,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/tests/rosterReadinessBrowserConvergence.test.ts",
+      "sha256": "b4a1dd65b5b715bed51bb3310af6cad73a65b33a6f9007bd6475b42858a980d7",
+      "bytes": 3095,
+      "decoded": "UTF8"
+    },
+    {
+      "path": "src/tests/rosterResolutionReadinessConvergence.test.ts",
+      "sha256": "d618151bf93c51f3104f63203b5e1ad2eda38d44087568c5d6482195ff8b102c",
+      "bytes": 4132,
+      "decoded": "UTF8"
+    }
+  ],
+  "baseInventoryBlobsVerified": 1502,
+  "rb4Preserved": {
+    "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "status": [
+      " M server/workspaceProjectionDelivery.ts",
+      "?? docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md",
+      "?? server/sqlWorkspaceDelivery.ts",
+      "?? server/workspaceDeliveryJournal.ts",
+      "?? src/db/migrations/013_workspace_delivery_journal.sql",
+      "?? src/db/workspaceBindingAuthority.ts",
+      "?? src/db/workspaceDeliveryJournal.ts",
+      "?? src/db/workspaceGrantAuthority.ts",
+      "?? src/tests/ar2U09Rb4Workspace.test.ts"
+    ],
+    "files": {
+      "server/workspaceProjectionDelivery.ts": "6e2de083d64939792463e8c35b9958687a677c1e2d7ac4ddcdfa6d72a046d917",
+      "docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md": "4214dd0fa88d7f381cdf511a9f70b791532f61976e311fe2d2ff512e5708a7f2",
+      "server/sqlWorkspaceDelivery.ts": "abd6bdaf7cba2a96b3ff7ecd521740243a48d559c61bb6c0a0b554b2f9d518ac",
+      "server/workspaceDeliveryJournal.ts": "4937ce73ae7e7b7626d4578134efa26801b3579fedaec02c9d9facd2408ca1b0",
+      "src/db/migrations/013_workspace_delivery_journal.sql": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+      "src/db/workspaceBindingAuthority.ts": "adee0db02f2ad1e878670ad3d75247620c70cb281350ca40368fb059bcf634de",
+      "src/db/workspaceDeliveryJournal.ts": "c2031e414589f15712cff4429c38f46e364b403b09d135f05853711c81ef6d3d",
+      "src/db/workspaceGrantAuthority.ts": "22db6d8b8baf7064d5a2c556cdc9394c24745b4c4b2eed23a45e46612f6afaf2",
+      "src/tests/ar2U09Rb4Workspace.test.ts": "451be2507a1fb02d28e17553c6b73891bd083e2947ddf5932f24e561663f972d"
+    },
+    "diffSha256": "723843220e18b96cf8ad33182ae5f4b5f5453fef1fb294c771d5df50aad4795a"
+  },
+  "staticCoverageVerified": {
+    "tracked": 1502,
+    "readable": 1497,
+    "ast": 953,
+    "binary": [
+      "public/apple-touch-icon.png",
+      "public/favicon.ico",
+      "public/pwa-192x192.png",
+      "public/pwa-512x512.png",
+      "public/pwa-maskable-512x512.png"
+    ]
+  },
+  "reviewLimit": "Artifact/content identity verified; runtime authority and behavior review follows. No independent second reviewer was used."
+}

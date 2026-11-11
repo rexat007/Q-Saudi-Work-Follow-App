@@ -1,0 +1,218 @@
+[
+  {
+    "path": "docs/reconstruction/02_PHASE_LEDGER.md",
+    "reason": "Reconcile implementation, exact verification and explicit incomplete acceptance/release gates."
+  },
+  {
+    "path": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "reason": "Reconcile implementation, exact verification and explicit incomplete acceptance/release gates."
+  },
+  {
+    "path": "docs/reconstruction/16_AR2_U09_RUNTIME_CUTOVER_READINESS.md",
+    "reason": "Reconcile implementation, exact verification and explicit incomplete acceptance/release gates."
+  },
+  {
+    "path": "docs/reconstruction/22_ENGINEERING_CONVERGENCE_2.md",
+    "reason": "Reconcile implementation, exact verification and explicit incomplete acceptance/release gates."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/changed-files.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/changed-files.txt",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/compiler-delta.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/historical-failures.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/preflight.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/preservation.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/verification-raw.json.gz",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "docs/reconstruction/convergence-2/verification.json",
+    "reason": "Reproducible source-review, preservation, matched failure, compiler and raw verification evidence."
+  },
+  {
+    "path": "firestore.rules",
+    "reason": "Deny direct browser exception mutations and forged exception-command receipts; preserve existing reads."
+  },
+  {
+    "path": "reports/trip-identity-adjustment-block89.json",
+    "reason": "Standalone historical harness regenerated its existing timestamped evidence; no assertion change."
+  },
+  {
+    "path": "reports/trip-identity-adjustment-block89.md",
+    "reason": "Standalone historical harness regenerated its existing timestamped evidence; no assertion change."
+  },
+  {
+    "path": "server/app.ts",
+    "reason": "Compose authenticated shared Trip receipt/command, exception decision and bounded audit routes; fail closed on unimplemented compatibility writes."
+  },
+  {
+    "path": "server/tripCommandHandler.ts",
+    "reason": "Shared production handler with known denial/conflict vs transient error mapping."
+  },
+  {
+    "path": "src/App.tsx",
+    "reason": "Count uncertain receipt work as pending."
+  },
+  {
+    "path": "src/components/field/DriverView.tsx",
+    "reason": "Persisted exceptions or canonical workstation ACK, principal scope, real measurement and uncertainty UI."
+  },
+  {
+    "path": "src/components/field/FieldSupervisionView.tsx",
+    "reason": "Persisted exceptions or canonical workstation ACK, principal scope, real measurement and uncertainty UI."
+  },
+  {
+    "path": "src/components/field/LoadingOperatorView.tsx",
+    "reason": "Persisted exceptions or canonical workstation ACK, principal scope, real measurement and uncertainty UI."
+  },
+  {
+    "path": "src/components/field/UnloadingOperatorView.tsx",
+    "reason": "Persisted exceptions or canonical workstation ACK, principal scope, real measurement and uncertainty UI."
+  },
+  {
+    "path": "src/components/offline/OutboxDrawer.tsx",
+    "reason": "Principal/Project cache, durable journal, causal replay, uncertainty and account/transaction fencing; remove production simulator controls."
+  },
+  {
+    "path": "src/components/reports/ReportsEngineView.tsx",
+    "reason": "Composite report identity, complete scoped generations and persisted financial/unload provenance."
+  },
+  {
+    "path": "src/locales/ar/index.ts",
+    "reason": "Seven parity-preserving exception/recovery/scale-status labels in AR/EN/UR."
+  },
+  {
+    "path": "src/locales/en/index.ts",
+    "reason": "Seven parity-preserving exception/recovery/scale-status labels in AR/EN/UR."
+  },
+  {
+    "path": "src/locales/ur/index.ts",
+    "reason": "Seven parity-preserving exception/recovery/scale-status labels in AR/EN/UR."
+  },
+  {
+    "path": "src/repositories/exception.repository.ts",
+    "reason": "Paged complete Trip reader, subscription principal/error fencing."
+  },
+  {
+    "path": "src/repositories/trip.repository.ts",
+    "reason": "Paged complete Trip reader, subscription principal/error fencing."
+  },
+  {
+    "path": "src/services/exceptionCommandClient.service.ts",
+    "reason": "Current-principal scoped idempotent exception decisions and guarded authenticated client."
+  },
+  {
+    "path": "src/services/exceptionCommands.server.ts",
+    "reason": "Current-principal scoped idempotent exception decisions and guarded authenticated client."
+  },
+  {
+    "path": "src/services/offline/conflictResolution.service.ts",
+    "reason": "Principal/Project cache, durable journal, causal replay, uncertainty and account/transaction fencing; remove production simulator controls."
+  },
+  {
+    "path": "src/services/offline/indexedDB.service.ts",
+    "reason": "Principal/Project cache, durable journal, causal replay, uncertainty and account/transaction fencing; remove production simulator controls."
+  },
+  {
+    "path": "src/services/offline/outbox.service.ts",
+    "reason": "Principal/Project cache, durable journal, causal replay, uncertainty and account/transaction fencing; remove production simulator controls."
+  },
+  {
+    "path": "src/services/projectAuditRead.server.ts",
+    "reason": "Bounded read of existing persisted audit sources with current authorization and scope integrity."
+  },
+  {
+    "path": "src/services/reportsEngine.service.ts",
+    "reason": "Composite report identity, complete scoped generations and persisted financial/unload provenance."
+  },
+  {
+    "path": "src/services/trip.service.ts",
+    "reason": "Unique identities/events, immutable tariff, measured-weight provenance and canonical settlement/import finality."
+  },
+  {
+    "path": "src/services/tripCommandClient.service.ts",
+    "reason": "Receipt-before-replay with captured principal and accurate HTTP result status."
+  },
+  {
+    "path": "src/services/tripCommands.server.ts",
+    "reason": "Optional revision fencing, authorized receipt readback, legacy fingerprint compatibility and duplicate exception prevention."
+  },
+  {
+    "path": "src/tests/ar2U07OfflineContinuity.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/convergence2Browser.test.ts",
+    "reason": "Real emulator transaction, scope, role, measurement, financial, recovery and browser IndexedDB/export verification."
+  },
+  {
+    "path": "src/tests/convergence2CacheBrowser.test.ts",
+    "reason": "Real emulator transaction, scope, role, measurement, financial, recovery and browser IndexedDB/export verification."
+  },
+  {
+    "path": "src/tests/convergence2Operational.test.ts",
+    "reason": "Real emulator transaction, scope, role, measurement, financial, recovery and browser IndexedDB/export verification."
+  },
+  {
+    "path": "src/tests/helpers/convergence2BrowserEntry.tsx",
+    "reason": "Actual isolated Firestore/Auth fixture and actual App browser entry; synthetic data only."
+  },
+  {
+    "path": "src/tests/helpers/convergence2Firestore.ts",
+    "reason": "Actual isolated Firestore/Auth fixture and actual App browser entry; synthetic data only."
+  },
+  {
+    "path": "src/tests/reportsEngineConvergence.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/tripMutationBoundary.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/tripOperationalCommands.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/tests/tripOperationalOutbox.test.ts",
+    "reason": "Documented current-contract fixture/selector/handler/HTTP/client-version correction; business assertions preserved."
+  },
+  {
+    "path": "src/types/entities.ts",
+    "reason": "Additive Trip revision, report provenance and outbox recovery/dependency types."
+  },
+  {
+    "path": "src/types/offline.ts",
+    "reason": "Additive Trip revision, report provenance and outbox recovery/dependency types."
+  },
+  {
+    "path": "src/types/tripEngine.ts",
+    "reason": "Additive Trip revision, report provenance and outbox recovery/dependency types."
+  }
+]

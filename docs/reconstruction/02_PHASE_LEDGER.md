@@ -1,3 +1,11 @@
+## 2026-11-11 — Engineering convergence 2, local operational corrections
+
+Source starting HEAD `b52e0167e3f60c59af3ad843a618ba2e95cef246`, existing branch `engineering/convergence-1-20261110`. Implemented real Firestore command revision/receipt recovery, unique event identity, canonical exception decisions/readback, report completeness/financial provenance, scoped additive IndexedDB cache and causal workstation/outbox recovery. Production simulator/test journal controls are removed. See [bounded evidence and remaining gates](22_ENGINEERING_CONVERGENCE_2.md).
+
+Focused acceptance 88/88; desktop/mobile actual App/Auth/Rules/Firestore/IndexedDB CSV+print-preview 2/2; Portal 14/20→20/20 with documented current-editor fixtures and preserved business assertions; SQL/Workspace 217/217 across the main run plus corrected U07 version-4 assertion run. Build PASS, compiler/lint debt remains (442 baseline diagnostics). Matched historical 2,422/2,526→2,431/2,526; 95 remaining failed assertions, same 13 standalone registrations, zero new failure identities and nine resolved. All exact identities remain in convergence-2 evidence. This is source correction, **not complete Execution 2 operational acceptance**: full seeded-setup replacement with account→Foundation→Fleet→reviewed source→Import UI journey, remaining historical integration adjudication, independent review and operator acceptance remain gates. No observed local P0; zero unresolved whole-scope P1 is not certified.
+
+All migrations 001–012 and original RB4 nine-file checkpoint/HEAD/diff are fingerprint-identical. Overall U09 remains BLOCKED. Local commit only; no push, PR, merge, deploy, production data mutation, SQL activation or live Google operation.
+
 # PHASE LEDGER
 
 ### Engineering convergence 1 — local source correction; release gates remain open — 2026-11-10

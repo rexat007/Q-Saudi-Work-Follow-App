@@ -1,0 +1,8 @@
+{
+  "baseline": 442,
+  "final": 442,
+  "added": [],
+  "removed": [],
+  "normalization": "line/column positions; nondeterministic quoted string-union ordering; full diagnostic records compared as multisets",
+  "lint": "NOT_PASS; package lint script is tsc --noEmit, identical check"
+}

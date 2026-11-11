@@ -1,0 +1,94 @@
+{
+  "sourceHead": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+  "branch": "engineering/convergence-1-20261110",
+  "status": "CORRECTIVE_SOURCE_VERIFIED_OPERATIONAL_ACCEPTANCE_INCOMPLETE",
+  "independentOrganizationalReviewer": false,
+  "runs": {
+    "matched-baseline": {
+      "numTotalTests": 2526,
+      "numPassedTests": 2422,
+      "numFailedTests": 104,
+      "numPendingTests": 0
+    },
+    "matched-candidate": {
+      "numTotalTests": 2526,
+      "numPassedTests": 2418,
+      "numFailedTests": 108,
+      "numPendingTests": 0
+    },
+    "matched-final": {
+      "numTotalTests": 2526,
+      "numPassedTests": 2431,
+      "numFailedTests": 95,
+      "numPendingTests": 0
+    },
+    "acceptance-focused": {
+      "numTotalTests": 88,
+      "numPassedTests": 88,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "browser-export": {
+      "numTotalTests": 2,
+      "numPassedTests": 2,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "cache-browser": {
+      "numTotalTests": 1,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "sql-final": {
+      "numTotalTests": 217,
+      "numPassedTests": 216,
+      "numFailedTests": 1,
+      "numPendingTests": 0
+    },
+    "sql-u07-final": {
+      "numTotalTests": 53,
+      "numPassedTests": 53,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "corrected-regressions": {
+      "numTotalTests": 63,
+      "numPassedTests": 63,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "portal-current": {
+      "numTotalTests": 20,
+      "numPassedTests": 20,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    }
+  },
+  "matchedHistorical": {
+    "paths": 138,
+    "newFailureIdentities": 0,
+    "resolvedFailureIdentities": 9,
+    "remainingAssertionFailures": 95,
+    "remainingSuiteRegistrationFailures": 13,
+    "removedOrSkippedAssertions": 0
+  },
+  "sqlIdentityOverlay": {
+    "mainPassed": 216,
+    "mainTotal": 217,
+    "u07CorrectedPassed": 53,
+    "u07CorrectedTotal": 53,
+    "finalDistinctIdentitiesPassed": 217,
+    "note": "Only explicit client database version assertion revised 3\u21924; all business and SQL preservation assertions retained."
+  },
+  "build": "PASS browser/PWA + bundled server; npm run build exit 0",
+  "compiler": {
+    "baseline": 442,
+    "final": 442,
+    "newSemanticDiagnostics": 0,
+    "lint": "NOT_PASS"
+  },
+  "migrationChanges": [],
+  "productionGoogleOrPublicationOperations": [],
+  "remainingP0P1": "No observed P0 in local verified scope; whole-scope zero P1 NOT certified; exact acceptance gaps in report."
+}

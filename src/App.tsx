@@ -220,7 +220,7 @@ function LegacyAuthorityApp() {
           outboxService.getOperations(),
           conflictResolutionService.getConflicts(),
         ]);
-        const pending = ops.filter(o => o.status === 'PENDING' || o.status === 'FAILED' || o.status === 'SENDING').length;
+        const pending = ops.filter(o => o.status === 'PENDING' || o.status === 'FAILED' || o.status === 'SENDING' || o.status === 'AWAITING_RECEIPT').length;
         const openConflicts = confs.filter(c => c.status === 'OPEN').length;
         setPendingCount(pending);
         setConflictCount(openConflicts);

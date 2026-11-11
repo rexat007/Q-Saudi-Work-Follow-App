@@ -13,7 +13,11 @@ import { RosterMaterialResolutionLayer, checkMaterialResolutionReadiness } from 
 import { RosterDriverTruckResolutionLayer } from '../components/import/RosterDriverTruckResolutionLayer';
 import { RosterFinalReviewLayer, classifyFinalReviewBlocker } from '../components/import/RosterFinalReviewLayer';
 import { RosterCommitResultLayer } from '../components/import/RosterCommitResultLayer';
+import type {RelationshipContext} from '../types/dataQuality';
 import { UnifiedImportBatch, ImportResult } from '../types/unifiedImport';
+
+// Current canonical read evidence required by the shared identity editor.
+const canonicalFleetContext:RelationshipContext={projectId:'PRJ-101',authorizedCarrierIds:['CAR-101'],authorizedMaterialIds:[],knownCarriers:[],knownTrucks:[],knownDrivers:[],knownMaterials:[],importResolution:{projectId:'PRJ-101',entities:[{kind:'CARRIER',id:'CAR-101',name:'Carrier fixture',globalStatus:'ACTIVE',membershipStatus:'ACTIVE',eligible:true,canReactivate:false,affiliation:null}]}};
 
 describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests', () => {
   let container: HTMLDivElement;
@@ -191,8 +195,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     });
 
     // Driver creation modal is portaled into document.body
-    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.create_carrier_driver'));
-    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.residency_identifier_label'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('setup.editor.DRIVER'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('setup.nationalId'));
 
     await act(async () => {
       root.unmount();
@@ -1016,7 +1020,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1027,16 +1031,16 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       expect(createDriverBtn).toBeDefined();
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      const nameInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: 'سالم علي القحطاني' })}"]`) as HTMLInputElement;
-      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
-      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
+      const nameInput = document.body.querySelector('input[name="driverName"]') as HTMLInputElement;
+      const iqamaInput = document.body.querySelector('input[name="residencyId"]') as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[name="phone"]') as HTMLInputElement;
 
       expect(nameInput).not.toBeNull();
       expect(nameInput.value).toBe('علي المنصور');
@@ -1079,7 +1083,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1090,17 +1094,17 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       expect(createTruckBtn).toBeDefined();
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      const plateInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "أ ب ج 1234" })}"]`) as HTMLInputElement;
-      const typeInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('entityResolution.labels.truck_body_examples') })}"]`) as HTMLInputElement;
-      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
-      const grossInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "45000" })}"]`) as HTMLInputElement;
+      const plateInput = document.body.querySelector('input[name="plateNumber"]') as HTMLInputElement;
+      const typeInput = document.body.querySelector('input[name="truckType"]') as HTMLInputElement;
+      const tareInput = document.body.querySelector('input[name="tareWeightKg"]') as HTMLInputElement;
+      const grossInput = document.body.querySelector('input[name="maxGrossWeightKg"]') as HTMLInputElement;
 
       expect(plateInput.value).toBe('ح ط ي 7777');
       expect(typeInput.value).toBe('سطحة هايدروليك');
@@ -1157,7 +1161,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1168,23 +1172,24 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`0501111111 / 0502222222`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_driver')));
+      const submitBtn = document.body.querySelector('form button:not([type])') as HTMLButtonElement;
+      expect(submitBtn).not.toBeNull();
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateDriver).toHaveBeenCalledTimes(0);
 
-      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[name="phone"]') as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1200,6 +1205,9 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         submitBtn?.click();
       });
 
+      expect(handleCreateDriver).toHaveBeenCalledTimes(0);
+      await act(async () => { (document.body.querySelector('input[type=checkbox]') as HTMLInputElement).click(); });
+      await act(async () => { submitBtn.click(); });
       expect(handleCreateDriver).toHaveBeenCalledTimes(1);
       expect(handleCreateDriver.mock.calls[0][1].phone).toBe('0501111111');
 
@@ -1253,7 +1261,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1264,23 +1272,24 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`14000 ${canonicalBatch4Label('entityResolution.labels.versus')} 16000`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`14000 / 16000`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_truck')));
+      const submitBtn = document.body.querySelector('form button:not([type])') as HTMLButtonElement;
+      expect(submitBtn).not.toBeNull();
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateTruck).toHaveBeenCalledTimes(0);
 
-      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
+      const tareInput = document.body.querySelector('input[name="tareWeightKg"]') as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1296,6 +1305,9 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         submitBtn?.click();
       });
 
+      expect(handleCreateTruck).toHaveBeenCalledTimes(0);
+      await act(async () => { (document.body.querySelector('input[type=checkbox]') as HTMLInputElement).click(); });
+      await act(async () => { submitBtn.click(); });
       expect(handleCreateTruck).toHaveBeenCalledTimes(1);
       expect(handleCreateTruck.mock.calls[0][1].tareWeightKg).toBe(15000);
 
@@ -1360,7 +1372,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={multiGroupBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1370,13 +1382,13 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         );
       });
 
-      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       await act(async () => {
         createButtons[0]?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`0501111111 / 0502222222`);
 
       const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === canonicalBatch4Label('shared.actions.cancel'));
       await act(async () => {
@@ -1387,8 +1399,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         createButtons[1]?.click();
       });
 
-      expect(document.body.textContent).not.toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBe(0);
+      const iqamaInput = document.body.querySelector('input[name="residencyId"]') as HTMLInputElement;
       expect(iqamaInput.value).toBe('1099887766');
 
       await act(async () => {

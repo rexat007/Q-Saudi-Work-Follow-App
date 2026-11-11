@@ -321,7 +321,10 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
       const app = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
       expect(app).toContain("app.post('/api/projects/:projectId/trips/:tripId/receipt'");
       expect(app).toContain("command: 'RECORD_DESTINATION_WEIGHT', tripId: req.params.tripId, payload, operationId");
-      expect(app).toContain('new TripCommandsServerService().execute(req.params.projectId, input, req.user)');
+      expect(app).toContain('const executeTripCommand = tripCommandHandler()');
+      const handler=fs.readFileSync(path.resolve(__dirname, '../../server/tripCommandHandler.ts'),'utf8');
+      expect(handler).toContain('new TripCommandsServerService()');
+      expect(handler).toContain('authority.execute(req.params.projectId, input, req.user)');
     });
     it('28. Exception endpoint delegates to the audited command and existing exception domain service', () => {
       const app = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
@@ -346,7 +349,10 @@ describe('Unit 6A: Server Canonical Trip Persistence Boundary Convergence (40 Co
     it('30. server/app.ts invokes the command boundary rather than unguarded domain mutations', () => {
       const content = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf8');
       expect(content).toContain('import { TripCommandsServerService, TripCommandError }');
-      expect(content).toContain('new TripCommandsServerService().execute');
+      expect(content).toContain('const executeTripCommand = tripCommandHandler()');
+      const handler=fs.readFileSync(path.resolve(__dirname, '../../server/tripCommandHandler.ts'),'utf8');
+      expect(handler).toContain('new TripCommandsServerService()');
+      expect(handler).toContain('authority.execute(req.params.projectId, input, req.user)');
       expect(content).not.toContain('serverTripService.transitionTripStatus(');
     });
 

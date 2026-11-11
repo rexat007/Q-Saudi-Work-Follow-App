@@ -284,18 +284,7 @@ service cloud.firestore {
         // Trip Exceptions
         match /exceptions/{exceptionId} {
           allow get, list: if isSignedIn() && isProjectMember(projectId);
-          allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(exceptionId) &&
-                           isProjectMember(projectId) &&
-                           isAuditStampedCreate(incoming()) &&
-                           incoming().exceptionId == exceptionId &&
-                           incoming().tripId == tripId &&
-                           incoming().projectId == projectId;
-          allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(exceptionId) &&
-                           hasProjectRole(projectId, ['PROJECT_ADMIN', 'FINANCE_AUDITOR', 'SUPER_ADMIN']) &&
-                           isAuditStampedUpdate(incoming()) &&
-                           incoming().exceptionId == existing().exceptionId &&
-                           incoming().tripId == existing().tripId &&
-                           incoming().projectId == existing().projectId;
+          allow create, update: if false; // Current-principal server exception commands + atomic audit only.
           allow delete: if false;
         }
 
@@ -323,12 +312,14 @@ service cloud.firestore {
         allow get, list: if isSignedIn() && isValidId(projectId) && isProjectMember(projectId);
         allow create: if operationalAuthorityOpen() && isSignedIn() && isValidId(operationId) &&
                          !operationId.matches('^TRIP-CMD-.*') &&
+                         !operationId.matches('^EXCEPTION-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedCreate(incoming()) &&
                          incoming().operationId == operationId &&
                          incoming().projectId == projectId;
         allow update: if operationalAuthorityOpen() && isSignedIn() && isValidId(operationId) &&
                          !operationId.matches('^TRIP-CMD-.*') &&
+                         !operationId.matches('^EXCEPTION-CMD-.*') &&
                          isProjectMember(projectId) &&
                          isAuditStampedUpdate(incoming()) &&
                          incoming().operationId == existing().operationId &&

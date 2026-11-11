@@ -336,9 +336,11 @@ export async function runConvergenceTests() {
       'PRJ-2': tripsPrj2,
     });
 
-    expect(merged.length).toBe(2);
+    // Canonical identity is Project + Trip, not an assumed global Trip ID.
+    expect(merged.length).toBe(3);
     expect(merged[0].tripId).toBe('TRP-DUP-01');
-    expect(merged[1].tripId).toBe('TRP-UNIQUE-02');
+    expect(merged.filter(t=>t.tripId==='TRP-DUP-01').map(t=>t.projectId).sort().join(',')).toBe('PRJ-1,PRJ-2');
+    expect(merged[2].tripId).toBe('TRP-UNIQUE-02');
   });
 
   // 10. Origin / Destination / Variance Weight Mapping

@@ -1,3 +1,11 @@
+## 2026-11-11 — Engineering convergence 2 decisions and debt
+
+- RESOLVED_IN_VERIFIED_SCOPE: server revision fencing and authenticated receipt-only recovery; unique event identity; real transactional exception decisions and audit readback; report Project/Trip identity and bounded complete paging; canonical financial/unload provenance; FIFO/dependency outbox ordering and uncertain ACK state; principal-scoped cache and atomic insert/status acknowledgment. UI callers cannot substitute local records for online server ACK. Production simulator/test writes removed.
+- PRESERVED: accepted FSM, U05 source/reviewed intent/batch receipts, epoch/fencing, current role policy, one existing Google transport, SQL stores and migrations 001–012; original RB4 nine dirty files/013 untouched.
+- JUSTIFIED_TEST_CONTRACT_REVISIONS: canonical allocation pointer/effective-window fixtures; cross-Project Trip identity; current Portal editor labels/fields/context/explicit conflict confirmation; shared handler delegation trace and actual HTTP denial status in outbox mocks; additive client IndexedDB 4 expectation with all legacy/SQL preservation assertions retained. No SQL inventory assertion changes or test exclusions.
+- STILL_OPEN_RELEASE_GATES: remaining exact historical integration/registration failures, 442 compiler diagnostics, full account/setup/fleet/import-to-trip UI acceptance, operational-profile/cancellation/adjustment coverage, all-Project generation/exception and XLSX/physical-PDF acceptance, independent integrated review and operational acceptance. No blanket inherited-failure waiver and no whole-scope P1 clearance.
+- STATUS: Execution 2 corrective source is locally reviewable; operational acceptance INCOMPLETE. No new architectural phase is created. See [report](22_ENGINEERING_CONVERGENCE_2.md) and `convergence-2` evidence. No publication/production authority used.
+
 ## 2026-11-10 — Engineering convergence 1, isolated local correction
 
 - RESOLVED: Carrier/Material readiness no longer equates a candidate ID with accepted row evidence. A shared pure predicate consumes the existing review policy, preserves historical omitted-kind compatibility, and is used by both layer checks and canonical rendering/resume consumers. No persisted fact or business authority changes.

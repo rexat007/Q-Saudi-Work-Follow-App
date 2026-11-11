@@ -1,4 +1,7 @@
 import {registerProductionRuntimeBoundary} from './runtimeComposition';
+import {tripCommandHandler} from './tripCommandHandler';
+import {ExceptionCommandsServerService} from '../src/services/exceptionCommands.server';
+import {readProjectAudit} from '../src/services/projectAuditRead.server';
 import {WorkspaceProvisioningOrchestrator} from '../src/services/workspaceProvisioning.server';
 import {registerUserActiveWorkspaceSync} from './workspaceSyncCoordinator.routes';
 import {resolveWorkspaceExecutionToken} from './workspaceExecutionToken';
@@ -1548,11 +1551,9 @@ app.post(
   enforceProjectIsolation,
   enforceAdminOnly,
   (req, res) => {
-    res.json({
-      success: true,
-      message: 'تم اعتماد وتثبيت حزمة الهجرة القديمة بنجاح من قبل مدير المشروع',
-      projectId: req.params.projectId,
-      batchId: req.body.batchId,
+    res.status(501).json({
+      success: false,
+      code: 'CANONICAL_MIGRATION_AUTHORITY_REQUIRED',
     });
   }
 );
@@ -1565,11 +1566,9 @@ app.post(
   enforceProjectIsolation,
   enforceAdminOnly,
   (req, res) => {
-    res.json({
-      success: true,
-      message: 'تم اعتماد مطابقة ودمج الكيانات بنجاح من قبل مدير المشروع',
-      projectId: req.params.projectId,
-      candidateId: req.body.candidateId,
+    res.status(501).json({
+      success: false,
+      code: 'CANONICAL_RESOLUTION_COMMAND_REQUIRED',
     });
   }
 );
@@ -1582,11 +1581,9 @@ app.post(
   enforceProjectIsolation,
   enforceDispatcherOrAbove,
   (req, res) => {
-    res.json({
-      success: true,
-      message: 'تم اعتماد واستيراد تذاكر الميزان بنجاح',
-      projectId: req.params.projectId,
-      ticketsCount: req.body.tickets?.length || 0,
+    res.status(501).json({
+      success: false,
+      code: 'CANONICAL_TRIP_COMMAND_REQUIRED',
     });
   }
 );
@@ -1598,27 +1595,21 @@ app.get(
   '/api/projects/:projectId/audit-logs',
   enforceProjectIsolation,
   enforceAuditorOrAdmin,
-  (req, res) => {
-    res.json({
-      success: true,
-      projectId: req.params.projectId,
-      auditLogs: [],
-      message: 'تم استرجاع سجلات التدقيق للمستخدم المصرح له بنجاح',
-    });
+  async (req:any, res) => {
+    try{res.json({success:true,projectId:req.params.projectId,...await readProjectAudit(req.params.projectId,req.user,{limit:req.query.limit===undefined?undefined:Number(req.query.limit),afterProject:req.query.afterProject,afterGlobal:req.query.afterGlobal})});}
+    catch(error:any){res.status(error.status||503).json({success:false,code:error.status?error.code:'AUDIT_READ_UNAVAILABLE'});}
   }
 );
 
 // Named operational commands; service re-reads current principal inside the transaction.
-const executeTripCommand = async (req: any, res: any, input: any) => {
-  try {
-    const result = await new TripCommandsServerService().execute(req.params.projectId, input, req.user);
-    res.json({ success: true, ...result });
-  } catch (error: any) {
-    const code = error instanceof TripCommandError ? error.code : ['ACCOUNT_NOT_ACTIVE', 'INVALID_ACCOUNT_PROFILE'].includes(error.code) ? error.code : 'TRIP_COMMAND_FAILED';
-    res.status(code.startsWith('FORBIDDEN') ? 403 : code === 'TRIP_NOT_FOUND' ? 404 : 400).json({ success: false, code, error: code });
-  }
-};
+const executeTripCommand = tripCommandHandler();
 app.post('/api/projects/:projectId/trips/commands', (req, res) => executeTripCommand(req, res, req.body));
+const recoverTripCommand = tripCommandHandler(undefined, true);
+app.post('/api/projects/:projectId/trips/commands/receipt', (req, res) => recoverTripCommand(req, res, req.body));
+app.post('/api/projects/:projectId/trips/:tripId/exceptions/:exceptionId/commands',async(req:any,res)=>{
+  try{res.json({success:true,...await new ExceptionCommandsServerService().execute(req.params.projectId,req.params.tripId,req.params.exceptionId,req.body,req.user)});}
+  catch(error:any){res.status(error.status||503).json({success:false,code:error.status?error.code:'EXCEPTION_DECISION_UNAVAILABLE'});}
+});
 // Existing URLs remain bounded compatibility adapters, never generic field mutation.
 app.post('/api/projects/:projectId/trips', (req, res) => {
   const { operationId, clientUUID, ...payload } = req.body;
@@ -1650,12 +1641,9 @@ app.post(
   enforceProjectIsolation,
   enforceIdempotency,
   (req, res) => {
-    res.json({
-      success: true,
-      isDuplicate: false,
-      message: `تمت معالجة العملية (${req.body.operationId}) بنجاح لأول مرة`,
-      operationId: req.body.operationId,
-      projectId: req.params.projectId,
+    res.status(501).json({
+      success: false,
+      code: 'CANONICAL_TRIP_COMMAND_REQUIRED',
     });
   }
 );
