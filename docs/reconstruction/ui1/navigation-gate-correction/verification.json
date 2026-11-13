@@ -1,0 +1,104 @@
+{
+  "base": "4685999f6c77b7911e5b90c2b307f8384568a241",
+  "branch": "ui/ui1-trip-entry-20261113",
+  "sourceSha256": {
+    "src/App.tsx": "97842ae11fc4d89b7f6541e537796a7862a5d62e57d59bbf53d855801261a307",
+    "src/components/wizard/ProjectSetupWizard.tsx": "2531dff195fcf82ef4180de26e6c8aee136bdc9dcd9a3c1541ffeee37fd075cc",
+    "src/tests/ui1WizardEntryGate.test.tsx": "9467291b49b3e9e098f5b518a542cac887456de055a5ecd3d4e2fec682289252",
+    "src/tests/convergence3Journey.test.ts": "67fa7883227fd38a626ef7cd9cab18498447fc6de2291ba68fc1df16f6de255a"
+  },
+  "newGateCases": {
+    "passed": 16,
+    "total": 16
+  },
+  "affectedWizardUi1": {
+    "passed": 225,
+    "total": 227,
+    "failed": 2,
+    "pending": 0,
+    "newFailures": 0,
+    "unchangedBaselineFailures": [
+      {
+        "file": "operationalMessages.test.ts",
+        "identity": "Batch-2 operational message presentation adapter keeps the registry unique and grounded in current service literals/templates"
+      },
+      {
+        "file": "projectSetupLayeredWorkflow.test.tsx",
+        "identity": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode"
+      }
+    ]
+  },
+  "release": {
+    "exit": 0,
+    "typescriptDiagnostics": 0,
+    "lint": "PASS",
+    "frontendPwaServerBuild": "PASS",
+    "reports": 19,
+    "suite": 443
+  },
+  "actualAppJourneys": {
+    "passed": 2,
+    "total": 2,
+    "newAssertions": "Manage Fleet→ROSTER preserves Project; leaving/revisiting Wizard does not reopen ROSTER after canonical load; original Trip/receipt/financial assertions unchanged",
+    "outcomes": {
+      "CSV": {
+        "result": "PASS",
+        "reportTrips": 1002,
+        "projectId": "Q-PRJ-001",
+        "tripId": "TRP-062fc41f-03c4-47c1-a743-fcc02dae6135",
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9,
+        "receiptLookups": 3
+      },
+      "EXCEL": {
+        "result": "PASS",
+        "reportTrips": 1,
+        "projectId": "Q-PRJ-002",
+        "tripId": "TRP-cd3312d9-5637-4ae0-b596-925783320b88",
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9,
+        "receiptLookups": 3
+      }
+    },
+    "unhandledErrors": [],
+    "cleanupErrors": []
+  },
+  "initialBrowserInterruption": "A final-source run failed at Google Auth popup before any Project operation (auth/internal-error). Public Auth script probe200; unchanged-source retry passed both complete journeys. No assertion, timeout or auth policy changed for retry. Failed evidence retained.",
+  "preservation": {
+    "convergenceHead": true,
+    "convergenceClean": true,
+    "rehearsalHead": true,
+    "rehearsalClean": true,
+    "rb4Head": true,
+    "rb4Status": true,
+    "rb4Hashes": true,
+    "rb4Diff": true,
+    "mainMigrations": true,
+    "convergenceMigrations001To012": true,
+    "rb4Migrations001To012": true
+  },
+  "closedPorts": {
+    "8085": false,
+    "9099": false,
+    "4400": false,
+    "4500": false,
+    "9150": false,
+    "55439": false
+  },
+  "refsBeforeCommit": {
+    "refs/heads/main": "5f82f43ee1a6002729f0d300fa7cf27f177bacfa",
+    "refs/remotes/origin/main": "653655d1e332559055d6928721026896320ab0ae",
+    "refs/heads/engineering/convergence-1-20261110": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+    "refs/heads/reconstruction/ar2-u09-sql-runtime-cutover-readiness": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "refs/heads/rehearsal/firestore-main-20261113": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+    "refs/remotes/origin/ui/ui1-trip-entry-20261113": "4685999f6c77b7911e5b90c2b307f8384568a241"
+  },
+  "contracts": "No Trip/Outbox/pricing/auth-policy/SQL/migration/UI2 changes",
+  "scope": "Navigation intent only; no business command authority or durable intent semantics changed."
+}

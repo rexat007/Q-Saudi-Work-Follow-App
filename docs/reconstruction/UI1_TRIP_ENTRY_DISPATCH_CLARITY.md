@@ -76,3 +76,8 @@ Generated Block89 timestamp/date-only report churn was proven semantically uncha
 UI2 owns the complete profile-aware timeline/next-action hierarchy, driver-association UX beyond the existing canonical-ID workflow, broader loading/unloading/driver station convergence and richer weighing control presentation. UI3–UI6 and the overall UI audit roadmap remain separate. No new provider, domain state machine or business authority is authorized by these follow-ups.
 
 UI1 is ready for independent review as a local bounded commit with inherited debt explicitly retained. Publication, PR, merge, deployment and operational acceptance require separate owner authorization. Overall SQL/U09/RB4 completion and cutover remain excluded.
+
+
+## Final navigation gate correction
+
+The original source/evidence above describes commit4685999. Independent review identified that its external ROSTER effect bypassed the shared readiness/layer gate. The additive [navigation correction](UI1_NAVIGATION_GATE_CORRECTION.md) now supersedes that path: canonical current-generation readiness, one shared gate, scope invalidation and parent-consumed one-shot requests across remounts. New tests16/16; affected225/227 with the same2 untouched baseline failures; beta2/build/typecheck PASS; real CSV/Excel journeys2/2 including no ROSTER reopening after revisit. No domain, authorization policy, SQL, migration, Outbox or UI2 changes.

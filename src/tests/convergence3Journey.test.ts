@@ -123,6 +123,13 @@ it.each(['CSV','EXCEL'] as const)('connected actual UI %s: registration, approva
   await page.getByRole('button',{name:label('projects.batch4.manual_add'),exact:true}).waitFor();
   expect(await page.locator('#sidebar-project-quick-selector').inputValue()).toBe(projectId);
   await page.locator('#sidebar-tab-field-operations').click();
+  await page.getByRole('heading',{name:label('ui1.new_trip'),exact:true}).waitFor();
+  await page.locator('#sidebar-tab-wizard').click();
+  await poll(async()=>await page.getByRole('button',{name:label('ui1.open_operations'),exact:true}).isEnabled()).toBe(true);
+  expect(await page.locator('main h2').filter({hasText:label('projects.batch4.layer_roster')}).count()).toBe(0);
+  expect(await page.getByRole('button',{name:label('projects.batch4.manual_add'),exact:true}).count()).toBe(0);
+  expect(await page.locator('#sidebar-project-quick-selector').inputValue()).toBe(projectId);
+  await page.locator('#sidebar-tab-field-operations').click();
   await page.getByRole('heading',{name:label('ui1.title'),exact:true}).waitFor();
   const truckId=(await projectDoc.ref.collection('truck_memberships').get()).docs[0].id;
   await page.getByLabel(label('op.truck'),{exact:false}).selectOption(truckId);

@@ -185,6 +185,7 @@ export interface ProjectSetupWizardProps {
   onProjectChanged?: (project: ProjectEntity) => void;
   onOpenProjectOperations?: (projectId:string)=>void;
   entryIntent?: {projectId:string;actorId:string;layer:'ROSTER'};
+  onEntryIntentConsumed?: (intent:NonNullable<ProjectSetupWizardProps['entryIntent']>)=>void;
 }
 
 export interface ProjectWorkspaceSyncParams {
@@ -300,7 +301,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   onSelectProject,
   onProjectChanged,
   onOpenProjectOperations,
-  entryIntent
+  entryIntent,
+  onEntryIntentConsumed
 }) => {
   const { t, isRTL, locale } = useI18n();
   // Keep presentation current without changing canonical-read callback identities or effects.
@@ -308,6 +310,8 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   presentationTranslator.current = t;
   const projectChanged = useRef(onProjectChanged);
   projectChanged.current = onProjectChanged;
+  const entryConsumed = useRef(onEntryIntentConsumed);
+  entryConsumed.current = onEntryIntentConsumed;
   const [editingProjectId, updateEditingProjectId] = useState<string | null>(null);
   const projectContext = useRef(new ProjectContextLifetime()).current;
   const renderedContext = projectContext.capture();
@@ -336,9 +340,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Active Project Sub-collection States
   const [activeSetupLayer, setActiveSetupLayer] = useState<ProjectSetupLayer>('FOUNDATION');
   const [navigationError, setNavigationError] = useState<string | null>(null);
-  useEffect(()=>{
-    if(entryIntent?.projectId===editingProjectId && entryIntent.actorId===authContext.userId && canPresentProjectAction(authContext,editingProjectId||'')) setActiveSetupLayer(entryIntent.layer);
-  },[entryIntent,editingProjectId,projectScopeKey]);
+  const loadedProjectContext = useRef<ProjectContextToken | null>(null);
+  const pendingLayerEntry = useRef<{key:string;scope:string;token:ProjectContextToken|null;intent:NonNullable<ProjectSetupWizardProps['entryIntent']>} | null>(null);
+  const retiredLayerEntries = useRef(new Set<string>());
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleSummary[]>([]);
@@ -383,13 +387,13 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   }, [selectedProjectId]);
 
   const attemptProjectSetupLayerNavigation = useCallback((targetLayer: ProjectSetupLayer) => {
-    if(targetLayer==='ACCESS'&&!canPresentProjectAction(authContext,editingProjectId||'')){setNavigationError(presentationTranslator.current('setup.errors.denied'));return;}
+    if(targetLayer==='ACCESS'&&!canPresentProjectAction(authContext,editingProjectId||'')){setNavigationError(presentationTranslator.current('setup.errors.denied'));return false;}
     const t = (key: string, params?: Record<string, string | number>) => presentationTranslator.current(key, params);
     // Unit 3A.2: Block data-dependent layers while project data is loading or project ID not yet loaded
     if (editingProjectId && (isProjectDataLoading || loadedProjectId !== editingProjectId)) {
       if (['ROSTER', 'PRICING', 'REVIEW_ACTIVATION'].includes(targetLayer)) {
         setNavigationError(t('projects.messages.canonical_data_loading'));
-        return;
+        return false;
       }
     }
 
@@ -402,10 +406,12 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
     if (gate.allowed) {
       setActiveSetupLayer(targetLayer);
       setNavigationError(null);
+      return true;
     } else {
       setNavigationError(gate.reason || t('projects.batch4.navigation_failed'));
+      return false;
     }
-  }, [editingProjectId, isProjectDataLoading, loadedProjectId, materials.length, carriers.length]);
+  }, [editingProjectId, isProjectDataLoading, loadedProjectId, materials.length, carriers.length, projectScopeKey]);
 
 
   // Dashboard view search & filtering
@@ -984,6 +990,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     if (!targetProjectId || generation === undefined || !projectContext.isCurrent({ projectId: targetProjectId, generation }, targetProjectId)) return;
 
+    loadedProjectContext.current = {projectId:targetProjectId,generation};
     if(snapshot.project)setCurrentProjectOverride(snapshot.project,{projectId:targetProjectId,generation},'FOUNDATION');
     if(snapshot.readiness)setServerReadiness(snapshot.readiness);
     if(snapshot.pricingRules)setPricingRules(snapshot.pricingRules);
@@ -1107,6 +1114,52 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
     fetchCanonicalData();
   }, [editingProjectId, applyCanonicalSnapshot, projectScopeKey]);
+
+  // External entry is one-shot presentation intent, never an alternative layer gate.
+  useEffect(() => {
+    const key = entryIntent ? JSON.stringify([entryIntent.projectId, entryIntent.actorId, entryIntent.layer]) : null;
+    let pending = pendingLayerEntry.current;
+    if (pending && (pending.key !== key || pending.scope !== projectScopeKey ||
+        entryIntent?.projectId !== selectedProjectId ||
+        pending.token && !projectContext.isCurrent(pending.token, entryIntent?.projectId))) {
+      const obsolete = pending;
+      retiredLayerEntries.current.add(obsolete.key);
+      pendingLayerEntry.current = pending = null;
+      entryConsumed.current?.(obsolete.intent);
+    }
+    if (!entryIntent || !key || retiredLayerEntries.current.has(key)) return;
+    const retire = () => { retiredLayerEntries.current.add(key); pendingLayerEntry.current = null; entryConsumed.current?.(entryIntent); };
+    if (entryIntent.projectId !== selectedProjectId) { retire(); return; }
+    if (!pending) pendingLayerEntry.current = pending = {key, scope:projectScopeKey, token:null, intent:entryIntent};
+    // Let initial selection and its layout resets settle before publishing an error or entering a layer.
+    if (editingProjectId !== entryIntent.projectId) return;
+    if (entryIntent.actorId !== authContext.userId || !canPresentProjectAction(authContext, entryIntent.projectId)) {
+      retire();
+      setActiveSetupLayer('FOUNDATION');
+      setNavigationError(presentationTranslator.current('setup.errors.denied'));
+      return;
+    }
+    if (!pending.token) {
+      const token = projectContext.capture();
+      if (!projectContext.isCurrent(token, entryIntent.projectId)) return;
+      pending.token = token;
+    }
+    if (projectDataLoadError) {
+      retire();
+      setActiveSetupLayer('FOUNDATION');
+      setNavigationError(presentationTranslator.current('setup.errors.read'));
+      return;
+    }
+    if (isProjectDataLoading || loadedProjectId !== entryIntent.projectId ||
+        !loadedProjectContext.current || !projectContext.isCurrent(loadedProjectContext.current, entryIntent.projectId)) {
+      setNavigationError(presentationTranslator.current('projects.messages.canonical_data_loading'));
+      return;
+    }
+    // Consume before calling the shared gate: refreshes and parent rerenders cannot reopen it.
+    retire();
+    if (!attemptProjectSetupLayerNavigation(entryIntent.layer)) setActiveSetupLayer('FOUNDATION');
+  }, [entryIntent, selectedProjectId, editingProjectId, projectScopeKey, isProjectDataLoading,
+      projectDataLoadError, loadedProjectId, attemptProjectSetupLayerNavigation, projectContext]);
 
   // Pricing changes use the same coherent foundation read; no independently applied list generation.
   useEffect(()=>{const refresh=()=>{if(editingProjectId)void fetchServerReadiness(editingProjectId);};window.addEventListener('pricing-rules-updated',refresh);return()=>window.removeEventListener('pricing-rules-updated',refresh);},[editingProjectId,projectScopeKey,fetchServerReadiness]);

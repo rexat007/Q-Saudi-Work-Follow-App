@@ -126,6 +126,8 @@ export default function App() {
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
 
   const inventoryScope = JSON.stringify([user?.uid, effectiveRole, assignedProjectScopeKey, profileAuthority, userProfile?.status]);
+  // A navigation request cannot survive a principal/authorization change while the Wizard is unmounted.
+  useEffect(() => { setSetupEntry(undefined); }, [inventoryScope]);
   const inventoryScopeRef = useRef(inventoryScope);
   inventoryScopeRef.current = inventoryScope;
   const inventoryGeneration = useRef(0);
@@ -596,6 +598,7 @@ export default function App() {
                     projects={projects}
                     onProjectChanged={publishCanonicalProject}
                     entryIntent={setupEntry}
+                    onEntryIntentConsumed={intent => setSetupEntry(current => current === intent ? undefined : current)}
                     onOpenProjectOperations={projectId => {
                       const target=tripEntryTarget(activeAuthContext,projects.find(p=>p.projectId===projectId),'OPERATIONS');
                       if(!target)return;
