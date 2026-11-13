@@ -1,0 +1,24 @@
+{
+  "files": 25,
+  "passed": 668,
+  "failed": 0,
+  "pending": 0,
+  "nativeExit": 0,
+  "pgStopExit": 0,
+  "finalUnhandledErrors": [],
+  "addedDatabases": [],
+  "remainingClients": [],
+  "sameCombinedRunU07Rb1": [
+    {
+      "file": "ar2U07OfflineContinuity.test.ts",
+      "passed": 53,
+      "failed": 0
+    },
+    {
+      "file": "ar2U09Rb1Governance.test.ts",
+      "passed": 29,
+      "failed": 0
+    }
+  ],
+  "sourceSha256": "7a76527dd992fa4fbf83693609c6bd3b64210bca00da0d560e95c4a176fff1ad"
+}

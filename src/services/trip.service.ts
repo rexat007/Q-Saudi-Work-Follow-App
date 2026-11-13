@@ -1,5 +1,5 @@
 import {snapshotOperationalConfiguration,resolveOperationalWeights,resolveTimeMetrics,profileTransitionAllowed,validateOperationalConfiguration} from './operationalProfileResolver';
-import { commercialTotals, PricingService } from './pricing.service';
+import { canonicalPricingRule, commercialTotals, PricingService } from './pricing.service';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
@@ -930,7 +930,7 @@ export class TripService {
     }
 
     if (pricingRule) {
-      const calculation = new PricingService().calculateSettlement({pricingRule:{...pricingRule,pricingType:pricingRule.pricingType || pricingRule.pricingModel,rate:pricingRule.baseRateSAR ?? pricingRule.rate},netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
+      const calculation = new PricingService().calculateSettlement({pricingRule:canonicalPricingRule(pricingRule),netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
       pricingSnapshot={...pricingSnapshot,...calculation.snapshot,vatApplicable:pricingRule.vatApplicable,vatRatePercent:pricingRule.vatRatePercent ?? 15};
       financials={...financials,baseAmountSAR:calculation.settlementAmount,...commercialTotals(calculation.settlementAmount,pricingSnapshot)};
     }
@@ -983,7 +983,7 @@ export class TripService {
     const driverSnapshot = driverGlobal?{
       driverId: driverGlobal.driverId,
       fullNameAr: driverGlobal.fullNameAr || driverGlobal.name || '',
-      nationalOrIqamaId: driverGlobal.idNumber || (driverGlobal as any).nationalOrIqamaId || '',
+      nationalOrIqamaId: driverGlobal.nationalId ?? driverGlobal.idNumber ?? (driverGlobal as any).nationalOrIqamaId ?? '',
       phone: driverGlobal.phone || '',
     }:null;
     const materialSnapshot = {

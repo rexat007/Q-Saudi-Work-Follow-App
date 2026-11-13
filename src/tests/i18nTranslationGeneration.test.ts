@@ -73,7 +73,7 @@ describe('Block 43 AI-Assisted Translation Generation Test Suite (20 Test Cases)
 
   it('I18N-GEN-08: Review queue markdown formatting', () => {
     const queues = buildReviewQueuesByReason([]);
-    const md = formatReviewQueueMarkdown(queues);
+    const md = formatReviewQueueMarkdown(queues, 0);
     expect(typeof md).toBe('string');
   });
 
@@ -93,7 +93,7 @@ describe('Block 43 AI-Assisted Translation Generation Test Suite (20 Test Cases)
       tierBreakdown: { 1: 5, 2: 3, 3: 2, 4: 0 },
       categoryBreakdown: {},
       reviewReasonsBreakdown: {},
-    } as any);
+    } as any, 'deterministic');
     expect(typeof md).toBe('string');
   });
 

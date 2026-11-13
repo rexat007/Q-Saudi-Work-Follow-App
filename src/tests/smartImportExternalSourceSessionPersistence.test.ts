@@ -298,7 +298,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
   // GOOGLE SHEETS — REVIEW UPDATES (Tests 9–19)
   // =========================================================================
   describe('GOOGLE SHEETS — REVIEW UPDATES', () => {
-    const createSampleBatch = (): UnifiedImportBatch => ({
+    const createSampleBatch = (): UnifiedImportBatch => ({operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BAT-GSHT-999',
       projectId: 'PRJ-TEST-6B1',
       source: {
@@ -338,8 +338,8 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             materialId: 'MAT-401',
           },
           entityResolutions: {
-            carrier: {
-              status: 'MATCHED_EXACT',
+            carrier: {entityType:'CARRIER',originalValue:'شركة النقل المعتمدة',isExact:false,
+
               confidence: 1.0,
               sourceValue: 'شركة النقل المعتمدة',
               entityId: 'CAR-101',
@@ -348,17 +348,17 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             },
           },
           validationIssues: [
-            {
+            {resolvable: true,code: 'FORMAT_WARNING',
               issueId: 'ISSUE-1',
-              rowNumber: 1,
+              row: 1,
               severity: 'WARNING',
               blocking: false,
-              category: 'FORMAT',
+
               field: 'grossWeight',
               message: 'Weight warning',
             },
           ],
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
     });
@@ -440,7 +440,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     it('11. ACCEPT_CANDIDATE checkpointed with entityType in reviewAction', async () => {
       const initialBatch = createSampleBatch();
       initialBatch.rows[0].entityResolutions!.carrier = {
-        status: 'MATCHED_FUZZY',
+        entityType:'CARRIER',originalValue:'شركة النقل المعتمدة',isExact:false,matchMethod:'FUZZY',recommendation:'REVIEW',
         confidence: 0.88,
         sourceValue: 'شركة النقل المعتمدة',
         candidates: [{ entityId: 'CAR-101', displayName: 'شركة النقل المعتمدة', confidence: 0.88 }],
@@ -679,7 +679,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     });
 
     it('18. resolvedValues survive checkpoint serialisation and deserialisation', () => {
-      const row: ImportRow = {
+      const row: ImportRow = {reviewStatus: 'requires_review', raw: {},
         rowNumber: 1,
         status: 'VALID',
         canonical: { carrier: 'ناقل 1' },
@@ -690,7 +690,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
           materialId: 'MAT-401',
         },
         validationIssues: [],
-      };
+      } satisfies ImportRow;
 
       const serialized = JSON.stringify(row);
       const deserialized: ImportRow = JSON.parse(serialized);
@@ -704,13 +704,13 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     });
 
     it('19. entityResolutions map survives checkpoint serialisation', () => {
-      const row: ImportRow = {
+      const row: ImportRow = {reviewStatus: 'requires_review', raw: {},
         rowNumber: 1,
         status: 'VALID',
         canonical: { carrier: 'ناقل 1' },
         entityResolutions: {
-          carrier: {
-            status: 'MATCHED_EXACT',
+          carrier: {entityType:'CARRIER',originalValue:'ناقل 1',isExact:false,
+
             confidence: 1.0,
             sourceValue: 'ناقل 1',
             entityId: 'CAR-101',
@@ -719,7 +719,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
           },
         },
         validationIssues: [],
-      };
+      } satisfies ImportRow;
 
       const serialized = JSON.stringify(row);
       const deserialized: ImportRow = JSON.parse(serialized);
@@ -837,8 +837,8 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
         reviewSnapshot: {
           totalRows: 2,
           rows: [
-            { rowNumber: 1, status: 'VALID', canonical: { ticketId: 'TCK-1' } },
-            { rowNumber: 2, status: 'WARNING', canonical: { ticketId: 'TCK-2' } },
+            {validationIssues: [], reviewStatus: 'requires_review', raw: {}, rowNumber: 1, status: 'VALID', canonical: { ticketId: 'TCK-1' } } satisfies ImportRow,
+            {validationIssues: [], reviewStatus: 'requires_review', raw: {}, rowNumber: 2, status: 'WARNING', canonical: { ticketId: 'TCK-2' } } satisfies ImportRow,
           ],
         },
       };
@@ -898,7 +898,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             {
               rowNumber: 1,
               entityResolutions: {
-                carrier: { matchedId: 'CAR-101', confidence: 1.0 },
+                carrier: {entityType:'CARRIER',originalValue:'',isExact:false, matchedId: 'CAR-101', confidence: 1.0 },
               },
             },
           ],
@@ -925,9 +925,9 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
         updatedBy: 'user',
         sourceMetadata: {},
         validationIssues: [
-          {
+          {field: 'row',resolvable: true,code: 'FORMAT_WARNING',
             issueId: 'ISSUE-1',
-            rowNumber: 1,
+            row: 1,
             severity: 'WARNING',
             blocking: false,
             message: 'Net weight variance',
@@ -981,7 +981,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     it('30. live spreadsheet is NOT auto-refetched on resume (stored snapshot is authoritative)', () => {
       // The resume procedure sets batch directly from reviewSnapshot without invoking clientWorkspaceService.getSpreadsheetValues
       const snapshot = {
-        rows: [{ rowNumber: 1, status: 'VALID', canonical: { ticketId: 'AUTH-SNAPSHOT-001' } }],
+        rows: [{validationIssues: [], reviewStatus: 'requires_review', raw: {}, rowNumber: 1, status: 'VALID', canonical: { ticketId: 'AUTH-SNAPSHOT-001' } } satisfies ImportRow],
       };
       expect(snapshot.rows[0].canonical.ticketId).toBe('AUTH-SNAPSHOT-001');
     });
@@ -1288,7 +1288,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
   // GOOGLE DRIVE — REVIEW / RESUME (Tests 46–54)
   // =========================================================================
   describe('GOOGLE DRIVE — REVIEW / RESUME', () => {
-    const createSampleDriveBatch = (): UnifiedImportBatch => ({
+    const createSampleDriveBatch = (): UnifiedImportBatch => ({operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BAT-GDRV-888',
       projectId: 'PRJ-TEST-6B1',
       source: {
@@ -1328,8 +1328,8 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             materialId: 'MAT-401',
           },
           entityResolutions: {
-            carrier: {
-              status: 'MATCHED_EXACT',
+            carrier: {entityType:'CARRIER',originalValue:'شركة النقل المعتمدة',isExact:false,
+
               confidence: 1.0,
               sourceValue: 'شركة النقل المعتمدة',
               entityId: 'CAR-101',
@@ -1338,7 +1338,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             },
           },
           validationIssues: [],
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
     });
@@ -1435,7 +1435,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
         updatedBy: 'user',
         sourceMetadata: { sourceFileName: 'resumed_drive.xlsx' },
         reviewSnapshot: {
-          rows: [{ rowNumber: 1, status: 'VALID', canonical: { ticketId: 'DRV-TCK-1' } }],
+          rows: [{validationIssues: [], reviewStatus: 'requires_review', raw: {}, rowNumber: 1, status: 'VALID', canonical: { ticketId: 'DRV-TCK-1' } } satisfies ImportRow],
         },
       };
 
@@ -1494,7 +1494,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
             {
               rowNumber: 1,
               entityResolutions: {
-                truck: { matchedId: 'TRK-201', confidence: 1.0 },
+                truck: {entityType:'TRUCK',originalValue:'',isExact:false, matchedId: 'TRK-201', confidence: 1.0 },
               },
             },
           ],
@@ -1853,7 +1853,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     });
 
     it('68. Google Sheets partial returned batch snapshot preserves committed rows and failure issues', () => {
-      const partialBatch: UnifiedImportBatch = {
+      const partialBatch: UnifiedImportBatch = {operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
         importBatchId: 'BAT-GSHT-PART',
         projectId: 'PRJ-TEST-6B1',
         source: { sourceType: 'GOOGLE_SHEETS', importBatchId: 'BAT-GSHT-PART' },
@@ -1868,14 +1868,14 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
         committedRows: 1,
         auditTrail: [],
         rows: [
-          { rowNumber: 1, status: 'COMMITTED', validationIssues: [] },
-          {
+          {raw: {},reviewStatus: 'accepted', rowNumber: 1, status: 'COMMITTED', validationIssues: [] },
+          {raw: {},reviewStatus: 'error',
             rowNumber: 2,
             status: 'ERROR',
             validationIssues: [
-              {
+              {field: 'row',resolvable: true,
                 issueId: 'ERR-PERSIST-1',
-                rowNumber: 2,
+                row: 2,
                 severity: 'BLOCKING',
                 blocking: true,
                 code: 'TRIP_PERSISTENCE_FAILED',
@@ -1993,7 +1993,7 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
     });
 
     it('71. Google Drive partial returned batch snapshot preserves committed rows and failure issues', () => {
-      const partialBatch: UnifiedImportBatch = {
+      const partialBatch: UnifiedImportBatch = {operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
         importBatchId: 'BAT-GDRV-PART',
         projectId: 'PRJ-TEST-6B1',
         source: { sourceType: 'GOOGLE_DRIVE', importBatchId: 'BAT-GDRV-PART' },
@@ -2008,14 +2008,14 @@ describe('Unit 6B-1 — External Source Session Persistence Test Suite (65+ Test
         committedRows: 1,
         auditTrail: [],
         rows: [
-          { rowNumber: 1, status: 'COMMITTED', validationIssues: [] },
-          {
+          {raw: {},reviewStatus: 'accepted', rowNumber: 1, status: 'COMMITTED', validationIssues: [] },
+          {raw: {},reviewStatus: 'error',
             rowNumber: 2,
             status: 'ERROR',
             validationIssues: [
-              {
+              {field: 'row',resolvable: true,
                 issueId: 'ERR-PERSIST-DRV-1',
-                rowNumber: 2,
+                row: 2,
                 severity: 'BLOCKING',
                 blocking: true,
                 code: 'TRIP_PERSISTENCE_FAILED',

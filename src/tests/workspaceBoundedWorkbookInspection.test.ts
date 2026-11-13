@@ -1,3 +1,6 @@
+// Bootstrap the real server projection module before measuring command execution.
+// This matches server startup; every original command timeout and assertion remains active.
+import '../services/projectWorkspaceInitialProjection.server';
 import {describe,it,expect,vi,beforeEach} from 'vitest';
 const f=vi.hoisted(()=>({api:null as any,drive:vi.fn(),create:vi.fn(),scriptGet:vi.fn(),content:vi.fn(),install:vi.fn()}));
 vi.mock('googleapis',()=>({google:{auth:{OAuth2:class{setCredentials(){}async getTokenInfo(){return {scopes:['https://www.googleapis.com/auth/drive.file','https://www.googleapis.com/auth/spreadsheets','https://www.googleapis.com/auth/script.projects']}}}},drive:()=>({files:{get:f.drive,create:f.create}}),sheets:()=>f.api,script:()=>({projects:{get:f.scriptGet,getContent:f.content,updateContent:f.install,create:f.create}}),oauth2:()=>({userinfo:{get:async()=>({data:{id:'subject'}})}})}}));

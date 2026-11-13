@@ -1,0 +1,16 @@
+[
+  {
+    "path": "reports/trip-identity-adjustment-block89.json",
+    "generatedSha256": "548c43fa0288a94f7e539c6386a352a07023561840e165b0d97909d81e080858",
+    "acceptedBlobSha256": "d990f473bfdd8e78f5d42908bb25ea0262be63c64e193647206d9c94fa6f1e45",
+    "onlyDifference": "timestamp/date",
+    "acceptedBytesRestored": true
+  },
+  {
+    "path": "reports/trip-identity-adjustment-block89.md",
+    "generatedSha256": "47fd69729beb877507f18685138e292af11d0265ddc57e66254bea6f62125b3c",
+    "acceptedBlobSha256": "27d5c194053c83e1008ff310cc079cde54033bf95b872ef355be59e86f80c2bc",
+    "onlyDifference": "timestamp/date",
+    "acceptedBytesRestored": true
+  }
+]

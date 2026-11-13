@@ -39,7 +39,7 @@ export async function runSystemToolsRationalizationTests() {
   const superAdminTools = navigationService.getAuthorizedSystemTools('SUPER_ADMIN');
   assert(superAdminTools.length === 5, 'Production System Tools registry contains exactly 5 tools');
 
-  const expectedToolIds: NavTabId[] = [
+  const expectedToolIds: string[] = [
     'ADMIN_CONSOLE',
     'SECURITY_AUDIT',
     'EXCEPTION_ENGINE',
@@ -63,7 +63,7 @@ export async function runSystemToolsRationalizationTests() {
   const devTools = navigationService.getAuthorizedDeveloperTools('SUPER_ADMIN');
   assert(devTools.length === 3, 'Developer Mode tools registry contains exactly 3 tools');
 
-  const expectedDevIds: NavTabId[] = [
+  const expectedDevIds: string[] = [
     'TRIP_ENGINE',
     'PRICING_ENGINE',
     'DOCS'
@@ -92,7 +92,7 @@ export async function runSystemToolsRationalizationTests() {
   assert(navigationService.isTabAuthorizedForRole('RELATIONS', 'SUPER_ADMIN') === true, 'RELATIONS backward authorization preserved');
   assert(navigationService.isTabAuthorizedForRole('PRINCIPLES', 'SUPER_ADMIN') === true, 'PRINCIPLES backward authorization preserved');
 
-  const prodToolIds = navigationService.getAuthorizedSystemTools('SUPER_ADMIN').map(t => t.id);
+  const prodToolIds = navigationService.getAuthorizedSystemTools('SUPER_ADMIN').map(t => String(t.id));
   assert(!prodToolIds.includes('WORKSPACE_INTEGRATION'), 'WORKSPACE_INTEGRATION retired from main production tools');
   assert(!prodToolIds.includes('LEGACY_MIGRATION'), 'LEGACY_MIGRATION retired from main production tools');
   assert(!prodToolIds.includes('FIRESTORE_ARCH'), 'FIRESTORE_ARCH retired from main production tools');

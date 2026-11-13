@@ -30,7 +30,7 @@ export class CodemodReporter {
     manifestPath: string;
   } {
     const cwd = process.cwd();
-    const targetDir = path.join(cwd, outputDir);
+    const targetDir = path.resolve(cwd, outputDir);
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }

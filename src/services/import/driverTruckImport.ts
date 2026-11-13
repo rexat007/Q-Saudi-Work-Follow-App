@@ -82,9 +82,9 @@ export function validateRosterMapping(headers: string[], mappings: Record<string
 }
 
 export function translateDiscoveryToRosterTarget(
-  canonicalField?: string
+  canonicalField?: string | number
 ): DriverTruckCanonicalMappingTarget | 'unmapped' {
-  if (!canonicalField || String(canonicalField).startsWith('unmapped_')) {
+  if (typeof canonicalField!=='string' || !canonicalField || canonicalField.startsWith('unmapped_')) {
     return 'unmapped';
   }
   switch (canonicalField) {

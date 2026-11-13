@@ -1,3 +1,5 @@
+import {workspaceProjectionProvider,cellBatch} from './helpers/workspaceProjectionProvider';
+import {projectionRequest} from '../../server/workspaceProjectionDelivery';
 import {describe,it,expect,vi,afterEach} from 'vitest';
 import fs from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -12,13 +14,15 @@ const config:OfflineConfig={clientId:'fixture-client',clientSecret:'fixture-secr
 const who={userId:'actor',role:'SUPER_ADMIN' as const,email:'',displayName:'',assignedProjectIds:[]};
 const path='projects/P1/workspace_continuity/current';
 function setup(){
- const x=commandDatabase({'users/actor':accountProfile(),'projects/P1':{projectId:'P1',nameAr:'Project',status:'SETUP',settings:{}},[path]:{projectId:'P1',state:'READY',workbookHealth:'HEALTHY',automationState:'READY',binding:{projectId:'P1',spreadsheetId:'file',projectFolderId:'folder',destinationRootFolderId:'root',googleSubject:'subject',revision:1,workspaceBlueprintVersion:'SABIL-HAIL-V1'}}});setTestDbOverride(x.db);
+ const x=commandDatabase({'users/actor':accountProfile(),'projects/P1':{projectId:'P1',nameAr:'Project',status:'ACTIVE',settings:{}},[path]:{projectId:'P1',state:'READY',workbookHealth:'HEALTHY',automationState:'READY',binding:{projectId:'P1',spreadsheetId:'file',projectFolderId:'folder',destinationRootFolderId:'root',googleSubject:'subject',revision:1,workspaceBlueprintVersion:'SABIL-HAIL-V1'}}});setTestDbOverride(x.db);
  const provider={authorizationUrl:vi.fn((o:any)=>`https://accounts.google.com/o/oauth2/v2/auth?state=${o.state}&code_challenge=${o.challenge}`),exchange:vi.fn(async()=>({refreshToken:'fixture-private-refresh',subject:'subject',scopes:[...REQUIRED_WORKSPACE_SCOPES]})),refresh:vi.fn(async()=>({accessToken:'fixture-private-access',subject:'subject',scopes:[...REQUIRED_WORKSPACE_SCOPES]})),revoke:vi.fn(async()=>{})};
  const subject=vi.fn(async()=> 'subject'),authorization=new WorkspaceGoogleOfflineAuthorization(()=>provider,x.db,()=>config,subject);
- const port={subject:vi.fn(async()=> 'subject'),verifyBinding:vi.fn(async()=>({title:'Sheet'})),projectMasterTabs:vi.fn(async()=>{}),upsert:vi.fn(async()=>{})};
+ const transport=workspaceProjectionProvider();
+ const projectMasterTabs=vi.fn(async(file:string,snapshot:unknown,tabs:readonly string[])=>{await projectionRequest(cellBatch(file,JSON.stringify({snapshot,tabs})),transport.send);});
+ const port={subject:vi.fn(async()=> 'subject'),verifyBinding:vi.fn(async()=>({title:'Sheet'})),projectMasterTabs,upsert:vi.fn(async()=>{})};
  const authorize=async()=>{const start=await authorization.begin('P1',who,true),state=new URL(start.url).searchParams.get('state')!;await authorization.callback(state,'fixture-code',start.browser);return {state,start};};
  const dirty=()=>x.db.runTransaction((tx:any)=>markDirtyInTransaction(tx,'P1',['CARRIERS'],'TEST',undefined,x.db));
- return {...x,provider,subject,authorization,port,authorize,dirty};
+ return {...x,provider,subject,authorization,port,authorize,dirty,transport};
 }
 afterEach(()=>vi.unstubAllEnvs());
 describe('server-only offline Google authorization',()=>{
@@ -74,6 +78,12 @@ describe('server-only offline Google authorization',()=>{
  });
 });
 describe('browser-absent canonical worker using the existing drain',()=>{
+ it('does not schedule delivery for a SETUP project, even with a valid grant and dirty master data',async()=>{
+  const x=setup();await x.authorize();await x.dirty();x.store['projects/P1'].status='SETUP';x.provider.refresh.mockClear();
+  expect(await runWorkspaceSyncWorker(x.db,x.authorization,(()=>x.port) as any,()=>config)).toEqual({examined:1,delivered:0,deferred:0});
+  expect(x.provider.refresh).not.toHaveBeenCalled();expect(x.port.projectMasterTabs).not.toHaveBeenCalled();
+  expect(x.store['projects/P1/workspace_sync_outbox/MASTER_DATA'].status).toBe('PENDING');
+ });
  it('accepts usable binding/sync authorization even when optional Script scope is declined',async()=>{
   const x=setup();x.provider.exchange.mockResolvedValueOnce({refreshToken:'fixture-private-refresh',subject:'subject',scopes:REQUIRED_WORKSPACE_SCOPES.slice(0,2)});x.provider.refresh.mockResolvedValueOnce({accessToken:'fixture-private-access',subject:'subject',scopes:REQUIRED_WORKSPACE_SCOPES.slice(0,2)});await x.authorize();
   const grant=x.store[AUTHORIZATIONS+'/'+x.store[path].backgroundAuthorizationId];expect(grant.status).toBe('ACTIVE');expect(grant.scopes).not.toContain(REQUIRED_WORKSPACE_SCOPES[2]);expect(x.store[path].binding.spreadsheetId).toBe('file');

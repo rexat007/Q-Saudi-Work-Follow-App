@@ -1,0 +1,31 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess
+out=Path('docs/reconstruction/release-blocker-closure');out.mkdir(exist_ok=True)
+names=['native-reliability','native-reliability-isolated','native-full','native-expanded','native-source-isolated','import-command-family','operational-domain-final','connected-browser','csv-isolated','driver-owner','codemod-path','historical-final','historical-verified','complete-package-tests','runtime-translation','localization-final','localization-verified','register-recovery-final','roster-confidence-final','catalog-contract-final','historical-recovery-final','journal-browser-final','journal-teardown-final','journal-context-final']
+rows=[]
+for name in names:
+ p=Path('../release-blocker-'+name+'.json')
+ if not p.exists():continue
+ b=p.read_bytes();j=json.loads(b.decode('utf-8-sig'));fail=[]
+ for suite in j['testResults']:
+  for a in suite['assertionResults']:
+   if a['status']=='failed':fail.append({'file':Path(suite['name']).name,'identity':a.get('title'),'fullName':a['fullName'],'failureMessages':a['failureMessages']})
+ (out/(name+'.json.gz')).write_bytes(gzip.compress(b,mtime=0));rows.append({'selection':name,'total':j['numTotalTests'],'passed':j['numPassedTests'],'failed':j['numFailedTests'],'pending':j.get('numPendingTests'),'success':j.get('success'),'failures':fail,'rawSha256':hashlib.sha256(b).hexdigest()})
+result={'release':'NO_GO','head':'3edaa8799954145e438daa48cc6f80b4fe288f10','baselineTypeScriptDiagnostics':314,'finalTypeScriptDiagnostics':0,'typeScriptExit':0,'buildExit':0,'releaseBeta2':{'lint':'PASS','build':'PASS','finalSuiteTests':443,'passed':443},'note':'Selections overlap; do not add counts. Focused repeats are not complete-suite passes. Full historical result is fixed; later focused reruns are separately labeled. Final npm chain: exit 0, 48 commands, 546 passed. Final lint/build exits 0. No full release PASS.','runs':rows}
+(out/'verification-results.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+p=Path('../release-blocker-historical-verified.json')
+if p.exists():
+ j=json.loads(p.read_text(encoding='utf-8-sig'));index={(Path(suite['name']).name,identity):a['status'] for suite in j['testResults'] for a in suite['assertionResults'] for identity in [a['title'],a['fullName']]}
+ old=json.loads(Path('docs/reconstruction/convergence-3/historical-failures.json').read_text(encoding='utf-8'));records=[dict(file=r['file'],identity=r['identity'],candidateStatus=index.get((r['file'],r['identity']),'NOT_REGISTERED')) for r in old['records'] if r['latestStatus']=='failed']
+ delta={'baselineLatestFailed':len(records),'candidateMatchedPassed':sum(r['candidateStatus']=='passed' for r in records),'candidateMatchedFailed':sum(r['candidateStatus']=='failed' for r in records),'unmatched':sum(r['candidateStatus']=='NOT_REGISTERED' for r in records),'records':records};(out/'historical-identity-delta.json').write_text(json.dumps(delta,ensure_ascii=False,indent=2),encoding='utf-8')
+for label in ['verify-complete','release-verified','npm-verified','types-final','build-final','final-lint','final-build','journal-stage','journal-context-final','journal-teardown-final','browser-diagnostic']:
+ p=Path('../release-blocker-'+label+'.log')
+ if p.exists():(out/(label+'.log.gz')).write_bytes(gzip.compress(p.read_bytes(),mtime=0))
+print([(r['selection'],r['passed'],r['total'],r['failed']) for r in rows[-5:]])
+
+p=Path('../release-blocker-historical-verified.json')
+if p.exists():
+ current=json.loads(p.read_text(encoding='utf-8-sig'));baseline=json.loads(Path('../convergence3-candidate-historical.json').read_text(encoding='utf-8-sig'))
+ def ids(j):return {(Path(s['name']).name,a['fullName']) for s in j['testResults'] for a in s['assertionResults']}
+ before,after=ids(baseline),ids(current)
+ (out/'assertion-registration.json').write_text(json.dumps({'baselineRegistered':len(before),'candidateRegistered':len(after),'missingBaselineIdentities':[{'file':f,'fullName':n} for f,n in sorted(before-after)],'newlyRegistered':len(after-before),'allBaselineIdentitiesRetained':before<=after},ensure_ascii=False,indent=2),encoding='utf-8')

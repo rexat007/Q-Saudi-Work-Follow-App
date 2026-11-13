@@ -1,0 +1,94 @@
+{
+  "rb4": {
+    "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "headMatches": true,
+    "statusMatches": true,
+    "filesMatch": true,
+    "fileCount": 9,
+    "diffSha256": "723843220e18b96cf8ad33182ae5f4b5f5453fef1fb294c771d5df50aad4795a",
+    "diffMatches": true
+  },
+  "migrations": [
+    {
+      "path": "src/db/migrations/001_canonical_schema.sql",
+      "sha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/002_roles_and_rls.sql",
+      "sha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+      "sha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+      "sha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+      "sha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+      "sha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/007_durable_import_execution.sql",
+      "sha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+      "sha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+      "sha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+      "sha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/011_runtime_composition_readiness.sql",
+      "sha256": "52d1ddcc3382da4d02660630da8abb35524fc9b94254b810b879f501b205a100",
+      "unchanged": true
+    },
+    {
+      "path": "src/db/migrations/012_project_account_governance.sql",
+      "sha256": "9001bd9fe208f74f693c94850948ce4556dbfa904c12ac739eaefe1482cbf4ce",
+      "unchanged": true
+    }
+  ],
+  "approvedBlueprintAssets": [
+    {
+      "path": "src/services/googleWorkspaceBlueprint/localWorkbook.json",
+      "sha256": "5a8bc7ba191360c97b03aa22e08540ceb6625c4b922811c4ab4359dc447d6ac5",
+      "headBlobSha256": "5a8bc7ba191360c97b03aa22e08540ceb6625c4b922811c4ab4359dc447d6ac5",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/scriptSource.json",
+      "sha256": "8acc1aa9b435fb93b4eddfdfc7faec91133e606439a9f5c969cc44ff7340360f",
+      "headBlobSha256": "8acc1aa9b435fb93b4eddfdfc7faec91133e606439a9f5c969cc44ff7340360f",
+      "unchanged": true
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/provenance.json",
+      "sha256": "cc989a8d5d6689ad78ce7ec9bd1bd46ec53eaf725929abbec2f0a72129c43da2",
+      "headBlobSha256": "cc989a8d5d6689ad78ce7ec9bd1bd46ec53eaf725929abbec2f0a72129c43da2",
+      "unchanged": true
+    }
+  ],
+  "allPreserved": true
+}

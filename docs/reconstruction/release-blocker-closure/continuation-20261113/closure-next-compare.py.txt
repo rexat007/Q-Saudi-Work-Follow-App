@@ -1,0 +1,33 @@
+import json,gzip,hashlib
+from pathlib import Path
+root=Path('docs/reconstruction/release-blocker-closure/continuation-20261113')
+load=lambda p:json.loads(Path(p).read_text(encoding='utf-8'))
+result=load('../closure-next-historical-environment-gate.json')
+exit=load('../closure-next-environment-gate-exit.json')
+diag=load('../closure-next-environment-gate-diagnostics.json')
+assert exit['status']==0 and result['numFailedTests']==0 and result['numPendingTests']==0
+assert diag.get('observedProcessExitCode')==0 and not diag.get('unhandledErrors') and not diag.get('finalUnhandledErrors') and not diag.get('processTimeout')
+index={}; titles={}
+for f in result['testResults']:
+ for a in f['assertionResults']:
+  key=(Path(f['name']).name,a['fullName']);index.setdefault(key,[]).append(a['status'])
+  titles.setdefault((key[0],a['title']),[]).append(a['status'])
+def match(file,identity):
+ key=(file,identity)
+ if key in index:return {'match':'EXACT_FULL_NAME','statuses':index[key]}
+ if key in titles:return {'match':'EXACT_TITLE','statuses':titles[key]}
+ return {'match':'MISSING','statuses':[]}
+old14=load(root/'original-14-failures.json')['cases']
+cases=[{**c,'fullGate':match(c['file'],c['identity'])} for c in old14]
+assert all(c['fullGate']['statuses'] and set(c['fullGate']['statuses'])=={'passed'} for c in cases)
+old=load('docs/reconstruction/convergence-3/historical-failures.json')
+old94=[{**c,'fullGate':match(c['file'],c['identity'])} for c in old['records'] if c['latestStatus']=='failed']
+assert len(old94)==94
+baseline=load('../convergence3-candidate-historical.json')
+registered={(Path(f['name']).name,a['fullName']) for f in baseline['testResults'] for a in f['assertionResults']}
+comparison={'nativeExit':exit['status'],'fileCount':len(result['testResults']),'total':result['numTotalTests'],'passed':result['numPassedTests'],'failed':result['numFailedTests'],'pending':result['numPendingTests'],'uniqueRegistered':len(index),'original14Passed':len(cases),'original14':cases,'old94Passed':sum(bool(c['fullGate']['statuses']) and set(c['fullGate']['statuses'])=={'passed'} for c in old94),'old94':old94,'priorRegistered':len(registered),'missingPriorRegistered':[list(k) for k in sorted(registered-set(index))],'newRegistered':len(set(index)-registered),'unhandledErrors':diag.get('finalUnhandledErrors',[]),'sourceSha256':hashlib.sha256(Path('../closure-next-historical-environment-gate.json').read_bytes()).hexdigest()}
+assert comparison['old94Passed']==94 and not comparison['missingPriorRegistered']
+(root/'full-historical-comparison.json').write_text(json.dumps(comparison,indent=2),encoding='utf-8')
+for name in ['closure-next-historical-environment-gate.json','closure-next-historical-environment-gate.log','closure-next-environment-gate-exit.json','closure-next-environment-gate-diagnostics.json']:
+ p=Path('../'+name);(root/(name+'.gz')).write_bytes(gzip.compress(p.read_bytes(),mtime=0))
+print(json.dumps({k:v for k,v in comparison.items() if k not in ['original14','old94']},indent=2))

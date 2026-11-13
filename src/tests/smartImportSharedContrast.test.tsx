@@ -109,10 +109,10 @@ it('GlobalRegistryEnrollment search and controls expose explicit dark background
   const onEnroll = vi.fn();
   await render(
     <GlobalRegistryEnrollment
-      candidateIdentities={[{ id: 'I1', candidateName: 'Carrier Alpha', kind: 'CARRIER', globalStatus: 'ACTIVE', membershipStatus: 'AVAILABLE' } as any]}
-      onEnroll={onEnroll}
+      projectId="PRJ-CONTRAST"
       kind="CARRIER"
-      busy={false}
+      isCurrent={() => true}
+      onChanged={async () => { onEnroll(); }}
     />
   );
   const input = host.querySelector('input')!;

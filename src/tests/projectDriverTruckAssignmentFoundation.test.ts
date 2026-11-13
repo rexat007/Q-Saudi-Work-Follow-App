@@ -655,7 +655,7 @@ describe('PHASE 6 — UNIT 2B-2: Project Driver ↔ Truck Temporal Assignment Fo
       const callers: string[] = [];
       for (const file of files) {
         if (
-          file.includes('/tests/') ||
+          file.split(path.sep).includes('tests') ||
           file.endsWith('projectDriverTruckAssignment.service.ts') ||
           file.endsWith('projectDriverTruckAssignment.repository.ts') ||
           file.endsWith('driverTruckIntake.service.ts')
@@ -675,16 +675,9 @@ describe('PHASE 6 — UNIT 2B-2: Project Driver ↔ Truck Temporal Assignment Fo
 });
 
 function getAllTsFiles(dir: string): string[] {
-  let results: string[] = [];
-  const list = fs.readdirSync(dir);
-  for (const file of list) {
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
-    if (stat && stat.isDirectory()) {
-      results = results.concat(getAllTsFiles(filePath));
-    } else if (file.endsWith('.ts') || file.endsWith('.tsx')) {
-      results.push(filePath);
-    }
-  }
-  return results;
+  return fs.readdirSync(dir, {withFileTypes:true}).flatMap(entry => {
+    const filePath=path.join(dir,entry.name);
+    if(entry.isDirectory())return entry.name==='tests'?[]:getAllTsFiles(filePath);
+    return /\.tsx?$/.test(entry.name)?[filePath]:[];
+  });
 }

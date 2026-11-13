@@ -1,0 +1,22 @@
+{
+  "initialCount": 131,
+  "missing": [],
+  "changedInitialFiles": [
+    "docs/reconstruction/24_VERIFIED_RELEASE_BLOCKER_CLOSURE.md",
+    "docs/reconstruction/release-blocker-closure/assertion-registration.json",
+    "docs/reconstruction/release-blocker-closure/historical-identity-delta.json",
+    "docs/reconstruction/release-blocker-closure/integration-dependencies.json",
+    "docs/reconstruction/release-blocker-closure/preservation-current.json",
+    "docs/reconstruction/release-blocker-closure/remaining-failures.json",
+    "docs/reconstruction/release-blocker-closure/verification-commands.md",
+    "docs/reconstruction/release-blocker-closure/verification-results.json",
+    "src/tests/googleSheetsImport.test.ts",
+    "src/tests/helpers/workspaceEnsureFixture.ts",
+    "src/tests/operationalReportTabIsolation.test.ts",
+    "src/tests/operationalWorkspaceTemplates.test.ts",
+    "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+    "src/tests/workspaceProviderResilience.test.ts"
+  ],
+  "allOtherInitialFingerprintsUnchanged": true,
+  "preservation": "Original complete binary diff and all fingerprints retained; intentional source fixes and current documentation reconciliation only. Initial report/inventory/results archives retained."
+}

@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 /**
  * SMART IMPORT CANONICAL COMMIT CONVERGENCE
  * C2 — SMART IMPORT COMMITTER SERVER CUTOVER TEST SUITE
@@ -20,7 +21,7 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
     allowWarningsCommit: true,
   };
 
-  const createBatchWithRow = (): UnifiedImportBatch => ({
+  const createBatchWithRow = (): UnifiedImportBatch => ({operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
     importBatchId: 'BAT-C2-888',
     projectId: 'PRJ-C2-NEOM',
     source: {
@@ -41,7 +42,7 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
     requiresReviewRows: 0,
     committedRows: 0,
     rows: [
-      {
+      {validationIssues: [],
         rowNumber: 1,
         sourceRowId: 101,
         status: 'VALID',
@@ -63,7 +64,7 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
           driverId: 'DRV-CANONICAL-300',
           materialId: 'MAT-CANONICAL-400',
         },
-      },
+      } satisfies ImportRow,
     ],
     issues: [],
     auditTrail: [],
@@ -98,10 +99,14 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
   it('2–6. importedTripClientService source uses Firebase auth, getIdToken, Authorization Bearer, and endpoint', () => {
     const code = fs.readFileSync(path.resolve(__dirname, '../services/import/importedTripClient.service.ts'), 'utf-8');
     expect(code).toContain("auth.currentUser");
-    expect(code).toContain("currentUser.getIdToken()");
-    expect(code).toContain("Authorization': `Bearer ${token}`");
-    expect(code).toContain("/api/projects/");
-    expect(code).toContain("/trips/import");
+    expect(code).toContain('sendTripCommand');
+    expect(code).toContain('TRIP_COMMANDS.IMPORT_TRIP.fields');
+    const transport=fs.readFileSync(path.resolve(__dirname,'../services/tripCommandClient.service.ts'),'utf8');
+    expect(transport).toContain('actor.getIdToken()');
+    expect(transport).toContain('Authorization: `Bearer ${token}`');
+    expect(transport).toContain('/api/projects/');
+    expect(transport).toContain('/trips/commands');
+    expect(transport).toContain('AUTH_CONTEXT_CHANGED');
     expect(code).not.toContain("gapi.auth");
   });
 
@@ -340,14 +345,14 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
     const committer = new ExcelCsvTripCommitter();
     const batch = createBatchWithRow();
     batch.totalRows = 2;
-    batch.rows.push({
+    batch.rows.push({validationIssues: [],
       rowNumber: 2,
       sourceRowId: 102,
       status: 'VALID',
       reviewStatus: 'accepted',
       raw: {},
       resolvedValues: { carrierId: 'CAR-100', truckId: 'TRK-200', driverId: 'DRV-300', materialId: 'MAT-400' },
-    });
+    } satisfies ImportRow);
 
     const res = await committer.commit(batch, dummyContext);
 
@@ -398,7 +403,7 @@ describe('SMART IMPORT C2 — Committer Server Cutover Test Suite (55 Contracts)
 
   it('52. C1 server contract remains unchanged', () => {
     const appContent = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf-8');
-    expect(appContent).toContain("app.post(\n  '/api/projects/:projectId/trips/import'");
+    expect(appContent).toMatch(/app\.post\(\s*['"]\/api\/projects\/:projectId\/trips\/import['"]/);
   });
 
   it('53–55. Unit 6A, workspace services, and ID-generation systems unmodified', () => {

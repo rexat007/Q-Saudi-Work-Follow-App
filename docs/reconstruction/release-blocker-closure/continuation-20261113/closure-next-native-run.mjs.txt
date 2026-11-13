@@ -1,0 +1,30 @@
+import {createRequire} from 'node:module';
+import {randomUUID} from 'node:crypto';
+import fs from 'node:fs';
+import cp from 'node:child_process';
+const require=createRequire(process.cwd()+'/package.json'), {Pool}=require('pg');
+const owner=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55439/postgres'});
+const beforeDatabases=(await owner.query('SELECT datname FROM pg_database ORDER BY datname')).rows.map(row=>row.datname);
+const db='qsa_rbclosure_'+randomUUID().replaceAll('-','');
+if(!/^qsa_rbclosure_[a-f0-9]{32}$/.test(db))throw Error('ISOLATION_NAME');
+const url=user=>`postgresql://${user}@127.0.0.1:55439/${db}`;
+const label=process.env.QSA_CONVERGENCE_LABEL||'native-correct-env';
+const env={...process.env,QSA_TEST_DATABASE_ISOLATED:'1',TEST_DATABASE_URL:url('postgres'),DATABASE_URL:url('qsa_runtime'),AUTH_DATABASE_URL:url('qsa_auth'),MIGRATION_DATABASE_URL:url('qsa_migrator'),PG_BIN_DIR:process.env.QSA_CONVERGENCE_PG_BIN_DIR||'C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/pg-client',QSA_BROWSER_TOOL_ROOT:'C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-tools'};
+let created=false;
+try {
+  await owner.query('CREATE DATABASE '+db+' OWNER qsa_migrator');created=true;
+  fs.writeFileSync('../closure-next-native-isolation.json',JSON.stringify({host:'127.0.0.1',port:55439,database:db,roles:['postgres','qsa_migrator','qsa_runtime','qsa_auth'],createdByThisRun:true},null,2));
+  const migration=cp.spawnSync(process.execPath,['node_modules/tsx/dist/cli.mjs','-e',"import pg from 'pg'; import {applyMigrations} from './src/db/migrator.ts'; (async()=>{const p=new pg.Pool({connectionString:process.env.MIGRATION_DATABASE_URL});try{console.log(await applyMigrations(p));}finally{await p.end();}})().catch(e=>{console.error(e);process.exitCode=1;});"],{env,encoding:'utf8'});
+  fs.writeFileSync('../closure-next-native-migrate.log',migration.stdout+ migration.stderr);if(migration.status!==0)throw Error('FIXTURE_MIGRATION_FAILED');
+  const files=process.argv.length>2?process.argv.slice(2):fs.readdirSync('src/tests').filter(p=>/^ar2U0[1-7].*\.test\.ts$/.test(p)).map(p=>'src/tests/'+p);
+  const log=fs.openSync('../closure-next-'+label+'.log','w');
+  const result=cp.spawnSync(process.execPath,['node_modules/vitest/vitest.mjs','run',...files,'--maxWorkers=1','--fileParallelism=false','--reporter=default','--reporter=json','--reporter=../closure-next-native-reporter.mjs','--outputFile.json=../closure-next-'+label+'.json'],{env,stdio:['ignore',log,log]});
+  fs.closeSync(log);process.exitCode=result.status??1;
+} finally {
+  try {
+    if(created)await owner.query('DROP DATABASE '+db+' WITH (FORCE)');
+    const afterDatabases=(await owner.query('SELECT datname FROM pg_database ORDER BY datname')).rows.map(row=>row.datname);
+    const clients=(await owner.query("SELECT datname,state,application_name,usename FROM pg_stat_activity WHERE backend_type='client backend' AND pid<>pg_backend_pid()")).rows;
+    fs.writeFileSync('../closure-next-native-resources.json',JSON.stringify({host:'127.0.0.1',port:55439,baseDatabase:db,beforeDatabases,afterDatabases,addedDatabases:afterDatabases.filter(name=>!beforeDatabases.includes(name)),remainingClients:clients,node:process.version},null,2));
+  } finally { await owner.end(); }
+}

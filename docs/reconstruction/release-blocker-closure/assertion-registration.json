@@ -1,0 +1,9 @@
+{
+  "baselineRegistered": 2758,
+  "candidateRegistered": 3446,
+  "rawCandidateRegistrations": 3449,
+  "missingBaselineIdentities": [],
+  "newlyRegistered": 688,
+  "allBaselineIdentitiesRetained": true,
+  "evidence": "continuation-20261113/full-historical-comparison.json"
+}

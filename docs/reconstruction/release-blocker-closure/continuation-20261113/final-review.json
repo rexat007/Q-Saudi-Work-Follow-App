@@ -1,0 +1,19 @@
+{
+  "branch": "engineering/convergence-1-20261110",
+  "startingHead": "3edaa8799954145e438daa48cc6f80b4fe288f10",
+  "preCommitIndexEmpty": true,
+  "allChangedPathsWithinReviewedSourceAndEvidence": true,
+  "noMigrationChanges": true,
+  "noUnintendedRuntimeArtifacts": true,
+  "credentialPatternFindings": [],
+  "credentialScanLimit": "Supplemental recognizable-pattern check, including decompressed evidence; exact file/source review remains required. No credential values emitted.",
+  "diffCheckExit": 0,
+  "allRequiredSourceGates": "PASS",
+  "commitAuthorization": "One bounded local commit only; no push/PR/merge/deploy/production activation",
+  "status": "READY_FOR_ONE_AUTHORIZED_LOCAL_COMMIT",
+  "stagingCorrection": {
+    "firstAttempt": "Commit not reached: core.autocrlf=false staged CRLF as trailing whitespace",
+    "correction": "Renormalize only the exact reviewed index paths using repository existing core.autocrlf=true; no working byte changes or Git configuration changes",
+    "validation": "Every staged blob must equal working bytes or only CRLF-to-LF normalization; staged diff check must pass"
+  }
+}

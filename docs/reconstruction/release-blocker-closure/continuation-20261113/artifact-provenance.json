@@ -1,0 +1,66 @@
+{
+  "artifacts": [
+    {
+      "source": "closure-next-historical-final-gate.json",
+      "archivedAs": "closure-next-historical-final-gate.json.gz",
+      "sourceSha256": "25a6e9586bd56a56200ac94698444bc35ef1d69bf187733914ad469ba0a6ea42"
+    },
+    {
+      "source": "closure-next-historical-final-gate.log",
+      "archivedAs": "closure-next-historical-final-gate.log.gz",
+      "sourceSha256": "e5ceeb0fd66bb61e8fd113121f1a1f58563f6c1ecc33c18aeb959b2fc84921a3"
+    },
+    {
+      "source": "closure-next-final-gate-exit.json",
+      "archivedAs": "closure-next-final-gate-exit.json.gz",
+      "sourceSha256": "54332b8649d895cf1107443129691e5888a5c0002e2c121e9a24dd8c523a7837"
+    },
+    {
+      "source": "closure-next-owner-diagnostics.json",
+      "archivedAs": "closure-next-owner-diagnostics.json.gz",
+      "sourceSha256": "4d850ebe441adcca916f1a591f822f7739f83a2bddf26fcdab96515d949dcde7"
+    },
+    {
+      "source": "closure-next-native-run.mjs",
+      "archivedAs": "closure-next-native-run.mjs.txt",
+      "sourceSha256": "42dfa4cb13f93bc56b2694de624feba57723be02c2f3fcf10c79ba23e067f83b"
+    },
+    {
+      "source": "closure-next-native-reporter.mjs",
+      "archivedAs": "closure-next-native-reporter.mjs.txt",
+      "sourceSha256": "4810f1deeea0a11b7c644a0c0d2821ad6d8d4615c5e9ab449e1d9fe45627174c"
+    },
+    {
+      "source": "closure-next-environment-gate-run.mjs",
+      "archivedAs": "closure-next-environment-gate-run.mjs.txt",
+      "sourceSha256": "a5174d549fa3729c9f4c09cceb9339414e1fe7ba53c9ad32014656bb98a3bd16"
+    },
+    {
+      "source": "closure-next-environment-gate-reporter.mjs",
+      "archivedAs": "closure-next-environment-gate-reporter.mjs.txt",
+      "sourceSha256": "0c916f39a3f6c6e9249074ec5faa97f63bf2eb68cb59899b98bc801e40f09bf6"
+    },
+    {
+      "source": "closure-next-compare.py",
+      "archivedAs": "closure-next-compare.py.txt",
+      "sourceSha256": "434778e26ffdf5ac51b5225e007baa6be43d137fc880252fa5d2b0882cacafe7"
+    },
+    {
+      "source": "closure-next-normalization-original.json",
+      "archivedAs": "closure-next-normalization-original.json.gz",
+      "sourceSha256": "4af566906ca1c95cf9bcc5cb07efa201c7df36004cfcf015a741942da67e1207"
+    },
+    {
+      "source": "closure-next-normalization-memo-reuse.json",
+      "archivedAs": "closure-next-normalization-memo-reuse.json.gz",
+      "sourceSha256": "a731bfedf967b8a969bdf4a15e13441a15ed88ead72bafcb4d67af59d42111a4"
+    },
+    {
+      "source": "closure-next-host-sample.json",
+      "archivedAs": "closure-next-host-sample.json.gz",
+      "sourceSha256": "1b8941da2b31100720827cbac94ba07351955d4f27141166b94c6478f7b35b3e"
+    }
+  ],
+  "excludedAmbiguousDiagnostic": "closure-next-full-gate-unhandled-before-fix.json and final-gate-diagnostics.json were overwritten by a later focused run; neither is authoritative for the earlier complete gate. Use the earlier full console log and native-exit record.",
+  "hostSampleLimit": "Memory available was read successfully; ProcessorLoad null represents an unavailable WMI query, not measured zero load."
+}

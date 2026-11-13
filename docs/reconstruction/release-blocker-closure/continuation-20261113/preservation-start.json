@@ -1,0 +1,7 @@
+{
+  "rb4Head": true,
+  "rb4Status": true,
+  "rb4Files": true,
+  "rb4Diff": true,
+  "migrations": true
+}

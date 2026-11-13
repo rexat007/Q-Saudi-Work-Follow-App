@@ -1,3 +1,4 @@
+import type {reviewedTripCommandFixture} from './helpers/reviewedTripCommandFixture';
 /**
  * Google Sheets Import Pipeline Test Suite
  * BLOCK 33: Technical Verification and Automated Compliance Tests
@@ -47,7 +48,7 @@ export interface GoogleSheetsTestReport {
   results: TestCaseResult[];
 }
 
-export async function runGoogleSheetsImportTests(): Promise<GoogleSheetsTestReport> {
+export async function runGoogleSheetsImportTests(canonicalFixture?:typeof reviewedTripCommandFixture): Promise<GoogleSheetsTestReport> {
   const results: TestCaseResult[] = [];
   const testProjectId = 'PRJ-NEOM-NORTH-01';
 
@@ -590,7 +591,11 @@ export async function runGoogleSheetsImportTests(): Promise<GoogleSheetsTestRepo
       context
     );
 
-    const { batch: committedBatch, result } = await GoogleSheetsPipelineService.commitBatch(batch, context);
+    const fixture=canonicalFixture?.(context);
+    let committed;
+    try {committed=await GoogleSheetsPipelineService.commitBatch(fixture?fixture.review(batch):batch,fixture?.context||context);}
+    finally {fixture?.close();}
+    const {batch:committedBatch,result}=committed;
 
     const isCommittedStage = committedBatch.currentStage === 'AUDIT' || committedBatch.currentStage === 'COMMIT';
     const rowsCommitted = result.committedRows === 1;
@@ -601,7 +606,7 @@ export async function runGoogleSheetsImportTests(): Promise<GoogleSheetsTestRepo
       name: 'Successful COMMIT: sourceType = GOOGLE_SHEETS & Audit Recording',
       passed: isCommittedStage && rowsCommitted && isSourceTypeSheets,
       expected: 'اعتماد الشحنة بنجاح وتوثيق sourceType = GOOGLE_SHEETS وسجل التدقيق',
-      actual: `تم اعتماد ${result.committedRows} رحلة، المصدر: ${committedBatch.source.sourceType}، المرحلة: ${committedBatch.currentStage}`,
+      actual: `تم اعتماد ${result.committedRows} رحلة، المصدر: ${committedBatch.source.sourceType}، المرحلة: ${committedBatch.currentStage}, issues=${JSON.stringify(result.issues)}`,
       notes: 'التحقق من إنشاء الرحلة رسميًا وتوثيق عملية الاستيراد في سجل التدقيق',
     });
   } catch (err: any) {

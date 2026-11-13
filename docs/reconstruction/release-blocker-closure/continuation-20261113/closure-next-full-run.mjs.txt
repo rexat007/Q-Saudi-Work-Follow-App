@@ -1,0 +1,6 @@
+import fs from 'node:fs';import cp from 'node:child_process';
+const files=JSON.parse(fs.readFileSync('docs/reconstruction/release-blocker-closure/release-blocker-final-suite-files.json','utf8'));
+const log=fs.openSync('../closure-next-historical-confirmed.log','w');
+const args=['node_modules/vitest/vitest.mjs','run',...files,'src/tests/driverViewConvergenceP603.test.ts','src/tests/i18nCodemod.test.ts','--maxWorkers=1','--fileParallelism=false','--reporter=default','--reporter=json','--reporter=../closure-next-reporter.mjs','--outputFile.json=../closure-next-historical-confirmed.json'];
+const result=cp.spawnSync(process.execPath,args,{stdio:['ignore',log,log],env:process.env});fs.closeSync(log);
+fs.writeFileSync('../closure-next-full-exit.json',JSON.stringify({status:result.status,signal:result.signal,error:result.error?.message,arguments:args},null,2));console.log('HISTORICAL_NATIVE_EXIT='+result.status);process.exitCode=result.status??1;

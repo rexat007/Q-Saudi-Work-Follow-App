@@ -5,6 +5,7 @@ import { outboxService } from '../services/offline/outbox.service';
 import { indexedDBService } from '../services/offline/indexedDB.service';
 import { TripValidator } from '../validators/trip.validator';
 
+const originalFetch=globalThis.fetch;
 vi.mock('../firebase/config', () => ({ auth: { currentUser: { uid: 'driver-login', getIdToken: async () => 'test-token' } }, db: {} }));
 
 describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
@@ -20,6 +21,7 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
   });
 
   afterEach(() => {
+    globalThis.fetch=originalFetch;
     vi.restoreAllMocks();
   });
 
@@ -76,19 +78,21 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
     // Queue operation as DriverView would
     const queuedOp = await outboxService.queueOperation({
       projectId,
-      userId: driverId,
+      userId: 'driver-login',
       operationType: 'UPDATE_TRIP_STATUS',
       payload: {
         tripId,
         status: 'AT_DESTINATION',
         arrivedAt: now,
         timestamp: now,
-        actorId: driverId,
+        actorId: 'driver-login',
         actorName: 'سائق اختبار',
         actorRole: 'DRIVER',
       },
     });
 
+    expect(queuedOp.userId).toBe('driver-login');expect(queuedOp.userId).not.toBe(driverId);
+    await expect(outboxService.queueOperation({projectId,userId:driverId,operationType:'UPDATE_TRIP_STATUS',payload:{tripId,status:'AT_DESTINATION'}})).rejects.toThrow('AUTH_CONTEXT_CHANGED');
     expect(queuedOp.operationType).toBe('UPDATE_TRIP_STATUS');
     expect(queuedOp.payload.status).toBe('AT_DESTINATION');
     expect(queuedOp.payload.tripId).toBe(tripId);
@@ -131,7 +135,7 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
 
     await outboxService.queueOperation({
       projectId,
-      userId: driverId,
+      userId: 'driver-login',
       operationType: 'UPDATE_TRIP_STATUS',
       payload: { tripId, status: 'AT_DESTINATION' },
     });
@@ -139,7 +143,7 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
       status: 200,
-      json: async () => ({ success: true, trip: { tripId, status: 'AT_DESTINATION', version: 2 } }),
+      json: async () => ({ success: true, trip: { tripId, projectId,driverId, status: 'AT_DESTINATION', version: 2 } }),
     });
     global.fetch = mockFetch;
 
@@ -167,7 +171,7 @@ describe('LU-P6-03 — Field Driver View Operational Convergence Tests', () => {
     // Queue operation offline
     await outboxService.queueOperation({
       projectId,
-      userId: driverId,
+      userId: 'driver-login',
       operationType: 'UPDATE_TRIP_STATUS',
       payload: {
         tripId,

@@ -1,0 +1,144 @@
+{
+  "kind": "IDENTITY_UNION_OF_THREE_SEPARATE_COMPLETE_GATES_NOT_ONE_INTEGRATED_RUN",
+  "uniqueIdentities": 4088,
+  "passed": 4088,
+  "failed": 0,
+  "remainingFailures": [],
+  "resolvedPriorRemaining": [
+    {
+      "file": "convergence3JournalBrowser.test.ts",
+      "identity": "real cross-tab transactions reserve one immutable Trip command; scope and acknowledged receipts survive restart",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        },
+        {
+          "status": "passed",
+          "gate": "connected-browser-pwa"
+        }
+      ]
+    },
+    {
+      "file": "operationalProfiles.test.ts",
+      "identity": "4 measurement topologies \u00d7 3 independent intake policies DUAL_WEIGHBRIDGE / PRELOADED_ROSTER: configuration, activation, template, trip completion and metrics",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "deployed Q-PRJ-007-shaped partial V1 recovery, without hardcoded Project IDs preserves legacy and partial tabs, rehydrates delivered canonical Trips, upgrades the known Script once, and retains the binding",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE uncertain create is never repeated, generic recovery proves parent then installs correct bundle",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization repairs the same 24-tab workbook, preserves legacy Dashboard and Script identity, and is idempotent",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization a bounded metadata failure keeps the process/binding/pending work and releases the owned lease",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization a bounded write failure keeps the process/binding/pending work and releases the owned lease",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization a canonical range response-size failure leaves pending work intact and a later bounded retry recovers",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization owned report reads address only finite Ops ranges, never legacy history or open columns",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceLocalBlueprint.test.ts",
+      "identity": "real local SABIL source release has deterministic normalized source digests",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceProviderResilience.test.ts",
+      "identity": "Q-PRJ-007-shaped user-active execution with durable authority automation recovery uses the fresh durable credential for parent/content proof without creating another Script",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    },
+    {
+      "file": "workspaceProviderResilience.test.ts",
+      "identity": "one accepted OAuth grant survives initialize/retry cycles, actual Ops migration, workbook repair and Script package installation",
+      "completeGateEvidence": [
+        {
+          "status": "passed",
+          "gate": "full-historical"
+        }
+      ]
+    }
+  ],
+  "note": "Counts overlap. Each constituent gate independently passed with native exit zero and no unhandled errors. Exact npm/release commands are separate evidence, not fabricated per-identity records."
+}

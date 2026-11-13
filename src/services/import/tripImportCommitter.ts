@@ -527,7 +527,7 @@ export class ExcelCsvTripCommitter implements IImportCommitter {
           tareWeightKg: canonical.tareWeight,
           grossWeightKg: canonical.grossWeight,
           netWeightKg: canonical.netWeight,
-          destinationNetWeightKg: canonical.destNetWeight,
+          ...(canonical.destNetWeight === null || canonical.destNetWeight === undefined ? {} : {destinationNetWeightKg: canonical.destNetWeight}),
           weighTime: canonical.weighTime,
           loadTime: canonical.loadTime,
           unloadTime: canonical.unloadTime,

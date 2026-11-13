@@ -4549,7 +4549,7 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   {/* Smart Import Dedicated Material Creation Modal */}
 
-                  {editingMaterial && (
+                  {editingMaterial && isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                     <MaterialEditorModal
                     key={`3:${project.projectId}:${renderedContext.generation}:${editingMaterial?.materialId}`}
                     isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
@@ -4613,7 +4613,7 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5">{m.unitOfMeasure}</td>
                               <td className="py-2.5 font-mono">{m.standardDensityTonPerM3 || 1.6} {t('projects.batch4.ton_per_cubic_meter')}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && (
+                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingMaterial(m)}
@@ -4679,7 +4679,7 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
                   {/* Smart Import Dedicated Material Creation Modal (D02: Reachable in Phase 2) */}
 
-                  {editingCarrier && (
+                  {editingCarrier && isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                     <CarrierEditorModal
                     key={`7:${project.projectId}:${renderedContext.generation}:${editingCarrier?.carrierId}`}
                     isCurrent={() => projectContext.isCurrent(renderedContext, project.projectId)}
@@ -4739,7 +4739,7 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="py-2.5 font-mono">{c.transportLicenseNo || '—'}</td>
                               <td className="py-2.5 truncate font-mono">{c.contactPerson?.email || '—'}</td>
                               <td className="py-2.5 text-center">
-                                {isOperationallyMutable && (
+                                {isOperationallyMutable && authContext.role === 'SUPER_ADMIN' && (
                                   <button
                                     type="button"
                                     onClick={() => setEditingCarrier(c)}
@@ -5245,10 +5245,11 @@ const LegacyProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   ) : importSessionVersion < 0 ? (
                     <button
                       type="button"
-                      onClick={() => window.location.reload()}
+                      disabled={isProcessing}
+                      onClick={restoreRosterAfterReconnect}
                       className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-900/60 hover:bg-rose-800 text-rose-200 border border-rose-700/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                     >
-                      {t('shared.error_boundary.reload')}
+                      {t('shared.error_boundary.retry')}
                     </button>
                   ) : (pendingRosterCheckpoint.current || pendingRosterRestore.current) ? (
                     <button

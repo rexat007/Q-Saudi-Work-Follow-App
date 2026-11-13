@@ -1,11 +1,16 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { projectService } from '../services/project.service';
 import { materialService } from '../services/material.service';
 import { carrierService } from '../services/carrier.service';
 import { driverService } from '../services/driver.service';
 import { truckService } from '../services/truck.service';
 import { pricingRuleService } from '../services/pricingRule.service';
-import { tripService } from '../services/trip.service';
+import { TripService } from '../services/trip.service';
+import {ProjectCommandsServerService} from '../services/projectCommands.server';
+import {ServerTripPersistenceAdapter} from '../services/canonicalTripPersistence.server';
+import {commandDatabase,accountProfile} from './helpers/commandDatabase';
+import {auth} from '../firebase/config';
+import {tripEventRepository} from '../repositories/tripEvent.repository';
 import { settlementAdjustmentService } from '../services/settlementAdjustment.service';
 import { auditLogService } from '../services/auditLog.service';
 import { dashboardService } from '../services/dashboard.service';
@@ -26,8 +31,10 @@ import { AuthUserContext } from '../types/common';
 import { ProjectEntity, CarrierEntity, MaterialEntity, TruckEntity, DriverEntity, PricingRuleEntity, TripEntity, SettlementAdjustmentEntity, AuditLogEntity } from '../types/entities';
 import { TripRecord } from '../types/tripEngine';
 
+vi.mock('../firebase/config',()=>({db:{},auth:{currentUser:null}}));
+
 describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
-  const projectId = 'Q-PRJ-0001';
+  const projectId = 'Q-PRJ-001';
   const carrierAId = 'CAR-A-01';
   const carrierBId = 'CAR-B-01';
   const materialAId = 'MAT-A-01';
@@ -48,6 +55,31 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
     adjustments: new Map<string, SettlementAdjustmentEntity>(),
     auditLogs: [] as AuditLogEntity[],
   };
+
+  // Domain integration over explicit canonical read fixtures. Governed activation,
+  // OAuth and durable server transactions are verified separately by the native/browser journeys.
+  const authority=commandDatabase({'users/B94-OWNER':{...accountProfile('SUPER_ADMIN'),userId:'B94-OWNER'}});
+  const serverPersistence=new ServerTripPersistenceAdapter(authority.db);
+  const relations=new Map<string,Record<string,unknown>>();
+  const membership=(kind:string,p:string,id:string)=>relations.get(`${kind}:${p}:${id}`)||null;
+  const tripService=new TripService({
+    tripNumberGenerator:serverPersistence.tripNumberGenerator,
+    globalCarrierRepository:{findById:async id=>{const c=store.carriers.get(id);return c?{...c,nameAr:c.companyNameAr}:null;}},
+    globalMaterialRepository:{findById:async id=>store.materials.get(id)||null},
+    globalDriverRepository:{findById:async id=>{const d=store.drivers.get(id);return d?{...d,nationalId:d.idNumber}:null;}},
+    globalTruckRepository:{findById:async id=>{const t=store.trucks.get(id);return t?{...t,plate:t.plateNumberAr}:null;}},
+    projectCarrierMembershipRepository:{getMembership:async(p,id)=>membership('carrier',p,id)},
+    projectMaterialMembershipRepository:{getMembership:async(p,id)=>membership('material',p,id)},
+    projectDriverMembershipRepository:{getMembership:async(p,id)=>membership('driver',p,id)},
+    projectTruckMembershipRepository:{getMembership:async(p,id)=>membership('truck',p,id)},
+    projectDriverCarrierAffiliationRepository:{getAffiliation:async(p,id)=>membership('driverCarrier',p,id)},
+    projectTruckCarrierAffiliationRepository:{getAffiliation:async(p,id)=>membership('truckCarrier',p,id)},
+    projectDriverTruckAssignmentRepository:{getActiveAssignmentByDriver:async(p,id)=>membership('assignmentDriver',p,id),getActiveAssignmentByTruck:async(p,id)=>membership('assignmentTruck',p,id)},
+    projectTruckMaterialAllocationRepository:{getActiveAllocationByTruck:async(p,id)=>membership('allocation',p,id)},
+  });
+  const eventRecords:unknown[]=[];
+  const originalFetch=globalThis.fetch,authDescriptor=Object.getOwnPropertyDescriptor(auth,'currentUser');
+  afterAll(()=>{globalThis.fetch=originalFetch;if(authDescriptor)Object.defineProperty(auth,'currentUser',authDescriptor);else Reflect.deleteProperty(auth,'currentUser');vi.restoreAllMocks();});
 
   const adminContext: AuthUserContext = {
     userId: 'USR-ADMIN-1',
@@ -74,6 +106,14 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
   };
 
   beforeAll(() => {
+    const projectCommands=new ProjectCommandsServerService(authority.db);
+    Object.defineProperty(auth,'currentUser',{configurable:true,value:{uid:'B94-OWNER',getIdToken:async()=> 'synthetic-b94-owner'}});
+    globalThis.fetch=vi.fn(async(url,init)=>{
+      expect(url).toBe('/api/projects');expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer synthetic-b94-owner');
+      try {return Response.json({data:await projectCommands.createProject(JSON.parse(String(init?.body)),{userId:'B94-OWNER',role:'SUPER_ADMIN',email:'',displayName:'',assignedProjectIds:[]})});}
+      catch(error){const failure=error as {code:string;status:number;message:string};return Response.json({code:failure.code,error:failure.message},{status:failure.status});}
+    });
+    vi.spyOn(tripEventRepository,'create').mockImplementation(async event=>{eventRecords.push(structuredClone(event));});
     // Setup in-memory repository spies
     vi.spyOn(projectRepository, 'create').mockImplementation(async (p: any) => {
       store.projects.set(p.projectId, p);
@@ -199,7 +239,9 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
       status: 'ACTIVE',
     };
 
-    const project = await projectService.createProject(projectPayload, adminContext);
+    await expect(projectService.createProject({...projectPayload,operationId:'B94-INVALID-ACTIVE'},adminContext)).rejects.toMatchObject({code:'INVALID_PROJECT_INITIAL_STATE'});
+    const project = await projectService.createProject({...projectPayload,status:'SETUP',authorizedCarrierIds:[],authorizedMaterialIds:[],operationId:'B94-CREATE'}, adminContext);
+    expect(project.status).toBe('SETUP');store.projects.set(project.projectId,project);
     expect(project).toBeDefined();
     expect(project.projectId).toBe(projectId);
     expect(project.projectNumber).toBe(1);
@@ -277,6 +319,15 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
     };
     const truck = await truckService.registerTruck(truckPayload, adminContext);
     expect(truck.truckId).toBe(truckAId);
+    // Explicit accepted participation/temporal fixtures, not an inferred legacy project assignment.
+    const interval={projectId,status:'ACTIVE',effectiveFrom:'2020-01-01T00:00:00Z',effectiveTo:null};
+    for(const [kind,id]of [['carrier',carrierAId],['carrier',carrierBId],['material',materialAId],['driver',driverAId],['truck',truckAId]])relations.set(`${kind}:${projectId}:${id}`,{...interval,[kind+'Id']:id});
+    relations.set(`driverCarrier:${projectId}:${driverAId}`,{...interval,driverId:driverAId,carrierId:carrierAId});
+    relations.set(`truckCarrier:${projectId}:${truckAId}`,{...interval,truckId:truckAId,carrierId:carrierAId});
+    const assignment={...interval,assignmentId:'B94-ASSIGNMENT',driverId:driverAId,truckId:truckAId};
+    relations.set(`assignmentDriver:${projectId}:${driverAId}`,assignment);relations.set(`assignmentTruck:${projectId}:${truckAId}`,assignment);
+    relations.set(`allocation:${projectId}:${truckAId}`,{...interval,allocationId:'B94-ALLOCATION',truckId:truckAId,materialId:materialAId});
+
   });
 
   it('Step 3: Configure Carrier-Specific Pricing Rules', async () => {
@@ -337,6 +388,7 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
     expect(createdTrip.tripId).toBeDefined();
     expect(createdTrip.tripNumber).toBeDefined();
     expect(createdTrip.tripNumber).toBe('Q-PRJ-0001-TRP-00001');
+    expect(authority.store['systemCounters/tripNumber_'+projectId].nextNumber).toBe(2);
 
     // Verify snapshots
     expect(createdTrip.driverSnapshot?.fullNameAr).toBe('طارق منصور الحربي');
@@ -542,6 +594,7 @@ describe('BLOCK 94 — End-to-End Operational Lifecycle Validation', () => {
   });
 
   it('Step 14: Audit Trail Integrity', async () => {
+    expect(eventRecords.length).toBeGreaterThan(0);
     expect(store.auditLogs.length).toBeGreaterThan(0);
     const projectLog = store.auditLogs.find(l => l.projectId === projectId);
     expect(projectLog).toBeDefined();

@@ -1,0 +1,381 @@
+{
+  "sourceSha256": "72f06d11588a7eb6c532f3bff7464c5c3bc292e66a7a304c2bc9e959b02bf6da",
+  "originalCount": 14,
+  "cases": [
+    {
+      "file": "convergence3JournalBrowser.test.ts",
+      "identity": "real cross-tab transactions reserve one immutable Trip command; scope and acknowledged receipts survive restart",
+      "failureMessages": [
+        "Error: Test timed out in 60000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/convergence3JournalBrowser.test.ts:6:1\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/module-evaluator.js:261:4)\n    at VitestModuleRunner.directRequest (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1284:61)\n    at VitestModuleRunner.cachedRequest (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1180:76)\n    at VitestModuleRunner.import (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1117:12)"
+      ],
+      "initialClassification": "C_E_BROWSER_LIFECYCLE_TIMING_COMPARISON",
+      "sourceDependencies": [
+        "src/services/offline/indexedDB.service.ts",
+        "src/tests/convergence3JournalBrowser.test.ts"
+      ],
+      "adjudication": "Existing phase logs locate previous delay after assertions/context close. Same preserved test now passes alone in 9.52s; combined gate still required.",
+      "directSourceAndFixtureDependencies": [],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "durableImportSessionP8B1.test.ts",
+      "identity": "P8-B1 durable session authority supports a realistic 10,000-row snapshot through ordered revision-bound chunks",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/durableImportSessionP8B1.test.ts:91:3\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:22)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2768:51)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/durableImportSessionP8B1.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "src/services/import/durableSessionContract.ts",
+        "src/services/import/sessionArtifactCodec.ts",
+        "src/services/importSession.server.ts",
+        "src/services/importSessionArtifacts.server.ts",
+        "src/tests/helpers/commandDatabase.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "finalReleaseReadiness.test.ts",
+      "identity": "AUDIT-I18N-01",
+      "failureMessages": [
+        "AssertionError: {\"id\":\"AUDIT-I18N-01\",\"category\":\"I18N Freeze Gate\",\"description\":\"Verify Arabic, English, and Urdu dictionaries contain exactly 4,755 frozen keys with 100% parity\",\"passed\":false,\"expected\":{\"ar\":4755,\"en\":4755,\"ur\":4755,\"parity\":true},\"actual\":{\"ar\":4756,\"en\":4756,\"ur\":4756,\"parity\":true},\"details\":\"All three language catalogs strictly match the frozen 4,755 key specification with zero drift.\"}: expected false to be true // Object.is equality\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/finalReleaseReadiness.test.ts:626:446\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2869:63\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)"
+      ],
+      "initialClassification": "B_OUTDATED_FIXTURE_OR_EXPECTATION_ALREADY_CORRECTED",
+      "sourceDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/components/field/SqlTripWorkstation.tsx"
+      ],
+      "adjudication": "Prior full run captured a transient added pricing key; existing final source reuses approved pricing label. Frozen 4755-key assertion remains unchanged.",
+      "directSourceAndFixtureDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/dashboard.service.ts",
+        "src/services/exceptionEngine.service.ts",
+        "src/services/import/entityResolution.service.ts",
+        "src/services/masterData.service.ts",
+        "src/services/navigation.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripEngine.service.ts",
+        "src/types/common.ts",
+        "src/types/dashboard.ts",
+        "src/types/reports.ts",
+        "src/types/tripEngine.ts",
+        "src/types/unifiedImport.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "finalReleaseReadiness.test.ts",
+      "identity": "AUDIT-REG-01",
+      "failureMessages": [
+        "AssertionError: {\"id\":\"AUDIT-REG-01\",\"category\":\"Regression Verification\",\"description\":\"Verify BLOCKS 77, 78, 79, 80, 81 and earlier foundations remain fully functional without regression\",\"passed\":false,\"expected\":true,\"actual\":false,\"details\":\"All functional modules across the full product lifecycle remain completely intact.\"}: expected false to be true // Object.is equality\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/finalReleaseReadiness.test.ts:626:446\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2869:63\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1628:35\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:26\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3321:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3316:10)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3301:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3259:10)"
+      ],
+      "initialClassification": "B_OUTDATED_FIXTURE_OR_EXPECTATION_ALREADY_CORRECTED",
+      "sourceDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/components/field/SqlTripWorkstation.tsx"
+      ],
+      "adjudication": "Prior full run captured a transient added pricing key; existing final source reuses approved pricing label. Frozen 4755-key assertion remains unchanged.",
+      "directSourceAndFixtureDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/dashboard.service.ts",
+        "src/services/exceptionEngine.service.ts",
+        "src/services/import/entityResolution.service.ts",
+        "src/services/masterData.service.ts",
+        "src/services/navigation.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripEngine.service.ts",
+        "src/types/common.ts",
+        "src/types/dashboard.ts",
+        "src/types/reports.ts",
+        "src/types/tripEngine.ts",
+        "src/types/unifiedImport.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "operationalProfiles.test.ts",
+      "identity": "4 measurement topologies × 3 independent intake policies DUAL_WEIGHBRIDGE / PRELOADED_ROSTER: configuration, activation, template, trip completion and metrics",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at Object.chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2869:10\n    at Array.forEach (<anonymous>)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2866:10\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/operationalProfiles.test.ts:14:16\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/operationalProfiles.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/operationalProfileResolver.ts",
+        "src/services/operationalReporting.ts",
+        "src/services/projectActivation.service.ts",
+        "src/services/projectReadiness.server.ts",
+        "src/services/projectReadiness.service.ts",
+        "src/services/tripCommands.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "deployed Q-PRJ-007-shaped partial V1 recovery, without hardcoded Project IDs preserves legacy and partial tabs, rehydrates delivered canonical Trips, upgrades the known Script once, and retains the binding",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/operationalReportTabIsolation.test.ts:49:2\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:22)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2768:51)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ],
+      "initialClassification": "B_FIXTURE_CONTRADICTS_ACCEPTED_PENDING_ONLY_DELIVERY",
+      "sourceDependencies": [
+        "src/services/projectGoogleWorkspace.server.ts",
+        "server/workspaceProjectionDelivery.ts",
+        "server/projectGoogleBlueprint.adapter.ts",
+        "src/tests/helpers/operationalSheetsFixture.ts"
+      ],
+      "adjudication": "Fixture expects a DELIVERED-only history row to become new pending consequences. Accepted quiescence/U08 contract forbids history replay. Preserve actual pending-event delivery and immutable delivered history in the corrected fixture.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/workspace.service.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/operationalProfileResolver.ts",
+        "src/services/operationalReportTabRegistry.ts",
+        "src/services/operationalReporting.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/operationalSheetsFixture.ts"
+      ],
+      "contractEvidence": [
+        "docs/reconstruction/WORKSPACE_SYNC_QUIESCENCE_CONTRACT.md: ordinary retry has zero full Trip scans; delivered history retained",
+        "docs/reconstruction/15_AR2_U08_WORKSPACE_REPORTING_AUTHORITY.md: frozen event identity and atomic marker receipts",
+        "src/services/projectGoogleWorkspace.server.ts: retrySync selects PENDING; matching revision ACK sets DELIVERED"
+      ],
+      "closureEvidence": "closure-next-workspace-focused: 129/129; original T1 register-presence assertion retained; separate delivered history/receipt immutability and two new physical-transport recovery cases added.",
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at Object.chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2868:38\n    at Array.forEach (<anonymous>)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2866:10\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/operationalWorkspaceTemplates.test.ts:19:22\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/operationalWorkspaceTemplates.test.ts",
+        "src/services/googleWorkspaceBlueprint/capture.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/workspaceProjectionDelivery.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/workspaceProjectionProvider.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE uncertain create is never repeated, generic recovery proves parent then installs correct bundle",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at Object.chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2868:38\n    at Array.forEach (<anonymous>)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2866:10\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/operationalWorkspaceTemplates.test.ts:25:22\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/operationalWorkspaceTemplates.test.ts",
+        "src/services/googleWorkspaceBlueprint/capture.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/workspaceProjectionDelivery.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/workspaceProjectionProvider.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization repairs the same 24-tab workbook, preserves legacy Dashboard and Script identity, and is idempotent",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceBoundedWorkbookInspection.test.ts:73:2\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:22)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2768:51)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/workspaceWorkbookInspection.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/googleWorkspaceBlueprint/inspection.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/projectWorkspaceProjectionState.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/workbookInspectionFixture.ts",
+        "src/tests/helpers/workspaceBlueprintFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization a bounded metadata failure keeps the process/binding/pending work and releases the owned lease",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at Object.chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2869:10\n    at Array.forEach (<anonymous>)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2866:10\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceBoundedWorkbookInspection.test.ts:79:30\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/workspaceWorkbookInspection.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/googleWorkspaceBlueprint/inspection.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/projectWorkspaceProjectionState.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/workbookInspectionFixture.ts",
+        "src/tests/helpers/workspaceBlueprintFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceBoundedWorkbookInspection.test.ts",
+      "identity": "large legacy workbook actual initialization without whole-grid materialization a bounded write failure keeps the process/binding/pending work and releases the owned lease",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at Object.chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2869:10\n    at Array.forEach (<anonymous>)\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2866:10\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceBoundedWorkbookInspection.test.ts:79:30\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/workspaceWorkbookInspection.ts",
+        "src/firebase/admin.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/googleWorkspaceBlueprint/inspection.ts",
+        "src/services/googleWorkspaceBlueprint/repair.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/projectWorkspaceProjectionState.server.ts",
+        "src/services/workspaceTemplateRegistry.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/workbookInspectionFixture.ts",
+        "src/tests/helpers/workspaceBlueprintFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceLocalBlueprint.test.ts",
+      "identity": "real local SABIL source release has deterministic normalized source digests",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceLocalBlueprint.test.ts:34:2\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:22)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2768:51)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceLocalBlueprint.test.ts",
+        "src/services/googleWorkspaceBlueprint/capture.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "src/services/googleWorkspaceBlueprint/capture.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/googleWorkspaceBlueprint/provenance.json",
+        "src/services/googleWorkspaceBlueprint/sabilHailV1.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceProviderResilience.test.ts",
+      "identity": "Q-PRJ-007-shaped user-active execution with durable authority automation recovery uses the fresh durable credential for parent/content proof without creating another Script",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceProviderResilience.test.ts:40:2\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:52\n    at runWithSuite (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:3250:8)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2763:22)\n    at Object.collect (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2768:51)\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceProviderResilience.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/projectGoogleTemplate.adapter.ts",
+        "server/workspaceExecutionToken.ts",
+        "server/workspaceGoogleErrors.ts",
+        "src/firebase/admin.ts",
+        "src/services/operationalProfileResolver.ts",
+        "src/services/operationalReportTabRegistry.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/workspaceGoogleOfflineAuthorization.server.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/operationalSheetsFixture.ts",
+        "src/tests/helpers/workspaceBlueprintFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    },
+    {
+      "file": "workspaceProviderResilience.test.ts",
+      "identity": "one accepted OAuth grant survives initialize/retry cycles, actual Ops migration, workbook repair and Script package installation",
+      "failureMessages": [
+        "Error: Test timed out in 5000ms.\nIf this is a long-running test, pass a timeout value as the last argument or configure it globally with \"testTimeout\".\n    at task (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2681:43)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2698:16)\n    at Object.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2471:28)\n    at chain (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:1859:14)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1/src/tests/workspaceProviderResilience.test.ts:47:1\n    at processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/module-evaluator.js:261:4)\n    at VitestModuleRunner.directRequest (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1284:61)\n    at VitestModuleRunner.cachedRequest (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1180:76)\n    at VitestModuleRunner.import (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vite/dist/node/module-runner.js:1117:12)"
+      ],
+      "initialClassification": "E_RUNTIME_CONTENTION_UNDER_INVESTIGATION",
+      "sourceDependencies": [
+        "src/tests/workspaceProviderResilience.test.ts",
+        "src/services/projectGoogleWorkspace.server.ts"
+      ],
+      "adjudication": "Original five-second timeout. Must compare unchanged individual/sequential/combined runs; no database/emulator or common production defect is assumed.",
+      "directSourceAndFixtureDependencies": [
+        "server/projectGoogleBlueprint.adapter.ts",
+        "server/projectGoogleTemplate.adapter.ts",
+        "server/workspaceExecutionToken.ts",
+        "server/workspaceGoogleErrors.ts",
+        "src/firebase/admin.ts",
+        "src/services/operationalProfileResolver.ts",
+        "src/services/operationalReportTabRegistry.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "src/services/workspaceGoogleOfflineAuthorization.server.ts",
+        "src/tests/helpers/operationalProfileFixture.ts",
+        "src/tests/helpers/operationalSheetsFixture.ts",
+        "src/tests/helpers/workspaceBlueprintFixture.ts"
+      ],
+      "originalFailurePreserved": true
+    }
+  ]
+}

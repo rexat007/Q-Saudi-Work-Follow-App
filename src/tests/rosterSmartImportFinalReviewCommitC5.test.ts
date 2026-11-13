@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
@@ -277,8 +278,13 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
   it('38. Commit performs fresh second revalidation preflight', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
     const fnBlock = wizardContent.slice(fnIdx, fnIdx + 4000);
-    expect(fnBlock).toContain('canonicalRelationshipContextService.getProjectRelationshipContext');
-    expect(fnBlock).toContain('DriverTruckPipelineService.revalidateRosterBatch');
+    expect(fnBlock).toContain("session.lifecycleState !== 'INTENT_REVIEWED'");
+    expect(fnBlock).toContain('session.version !== importSessionVersionRef.current');
+    expect(fnBlock).toContain('importSessionClientService.commitReviewedIntent(project.projectId, session.importSessionId, session.version)');
+    const authority = findFileContent('src/services/import/reviewedRosterCommit.server.ts');
+    expect(authority).toContain('header.version!==request.expectedVersion');
+    expect(authority).toContain('query.contextInTransaction(tx,projectId,authenticated,actor,{resolution:true})');
+    expect(authority).toContain('INVALID_REVIEWED_INTENT_BINDING');
   });
 
   it('39. Changed canonical context can newly block commit preflight', () => {
@@ -442,15 +448,15 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
 
   // RESET
   it('61. Reset clears smartImportCommitResult', () => {
-    const fnIdx = wizardContent.indexOf('handleResetRosterImport');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1000);
+    const fnIdx = wizardContent.indexOf('const handleResetRosterImport =');
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('\n  };', fnIdx) + 5);
     expect(fnBlock).toContain('setSmartImportCommitResult(null)');
     expect(fnBlock).toContain('setSmartImportCommitError(null)');
   });
 
   it('62. Reset returns to SOURCE_DISCOVERY stage', () => {
-    const fnIdx = wizardContent.indexOf('handleResetRosterImport');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1000);
+    const fnIdx = wizardContent.indexOf('const handleResetRosterImport =');
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('\n  };', fnIdx) + 5);
     expect(fnBlock).toContain("setRosterImportStage('SOURCE_DISCOVERY')");
   });
 
@@ -483,7 +489,7 @@ describe('C5 — Smart Import Final Review & Commit Result Layer Contract Suite'
 
   it('67. handleSmartImportCommit blocks repeat commit only on full success; partial failure remains retryable', () => {
     const fnIdx = wizardContent.indexOf('handleSmartImportCommit');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 500);
+    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1500);
     expect(fnBlock).toContain('if (smartImportCommitResult !== null && smartImportCommitResult.success)');
     expect(fnBlock).toContain("t('entityResolution.messages.already_committed')");
     for (const locale of ['ar', 'en', 'ur'] as const) {
@@ -512,7 +518,7 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
         importBatchId: batch.importBatchId,
         projectId: batch.projectId,
         operationId: ctx.operationId,
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: true,
         totalRows: 2,
         committedRows: 2,
@@ -524,18 +530,18 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
     };
 
     const pipeline = new UnifiedImportPipelineService({ committer: mockCommitter as any });
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BATCH-001',
       projectId: 'PRJ-TEST',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'BATCH-001', sourceType: 'EXCEL' },
       totalRows: 2,
       validRows: 2,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        {validationIssues: [], rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
+        {validationIssues: [], rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -558,7 +564,7 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
         importBatchId: batch.importBatchId,
         projectId: batch.projectId,
         operationId: ctx.operationId,
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: true,
         totalRows: 2,
         committedRows: 1,
@@ -581,18 +587,18 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
     };
 
     const pipeline = new UnifiedImportPipelineService({ committer: mockCommitter as any });
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BATCH-002',
       projectId: 'PRJ-TEST',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'BATCH-002', sourceType: 'EXCEL' },
       totalRows: 2,
       validRows: 2,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        {validationIssues: [], rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
+        {validationIssues: [], rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -618,7 +624,7 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
         importBatchId: batch.importBatchId,
         projectId: batch.projectId,
         operationId: ctx.operationId,
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: false,
         totalRows: 2,
         committedRows: 0,
@@ -651,18 +657,18 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
     };
 
     const pipeline = new UnifiedImportPipelineService({ committer: mockCommitter as any });
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BATCH-003',
       projectId: 'PRJ-TEST',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'BATCH-003', sourceType: 'EXCEL' },
       totalRows: 2,
       validRows: 2,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
-        { rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' },
+        {validationIssues: [], rowNumber: 1, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
+        {validationIssues: [], rowNumber: 2, raw: {}, canonical: {}, status: 'VALID', reviewStatus: 'accepted' } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -685,7 +691,7 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
         importBatchId: batch.importBatchId,
         projectId: batch.projectId,
         operationId: ctx.operationId,
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: true,
         totalRows: 1,
         committedRows: 0,
@@ -697,22 +703,22 @@ describe('C5 — UnifiedImportPipelineService executeCommit Partial Contract Run
     };
 
     const pipeline = new UnifiedImportPipelineService({ committer: mockCommitter as any });
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BATCH-004',
       projectId: 'PRJ-TEST',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'BATCH-004', sourceType: 'EXCEL' },
       totalRows: 1,
       validRows: 0,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        { rowNumber: 1, raw: {}, canonical: {}, status: 'REJECTED', reviewStatus: 'accepted' },
+        {validationIssues: [], rowNumber: 1, raw: {}, canonical: {}, status: 'REJECTED', reviewStatus: 'accepted' } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
       currentStage: 'REVIEW',
-      commitStatus: 'REVIEW_REQUIRED',
+      commitStatus: 'AWAITING_REVIEW',
     };
 
     const { batch: finalBatch, result } = await pipeline.executeCommit(batch, dummyContext);

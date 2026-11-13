@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { importSessionClientService } from '../services/import/importSessionClient.service';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
@@ -76,7 +77,7 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
       'trips.csv',
       sampleCsv.length,
       'text/csv',
-      { projectId: 'PRJ-4B2', operationId: stable.operationId },
+      { projectId: 'PRJ-4B2', userId: 'user-1', operationId: stable.operationId },
       { importBatchId: stable.importBatchId }
     );
 
@@ -560,7 +561,7 @@ describe('Smart Import Unit 4B-2 UI Session Wiring & Resume Test Suite', () => {
             raw: { driver: 'Ahmed' },
             canonical: { driverName: 'Ahmed' },
             validationIssues: [],
-          },
+          } satisfies ImportRow,
         ],
       },
       validationIssues: [],

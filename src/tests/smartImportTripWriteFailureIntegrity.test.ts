@@ -17,34 +17,34 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     userId: 'USER-DISPATCHER-01',
     userName: 'Test Dispatcher',
     role: 'DISPATCHER',
-    assignedProjectIds: ['PRJ-1'],
+
     projectId: 'PRJ-1',
     operationId: 'OP-1234',
   };
 
-  const getSingleRowBatch = (): UnifiedImportBatch => ({
+  const getSingleRowBatch = (): UnifiedImportBatch => ({currentStage:'REVIEW',validationStatus:'PASSED',commitStatus:'READY_TO_COMMIT',validRows:1,requiresReviewRows:0,operationId:'OP-1234',
     importBatchId: 'BCH-TEST-001',
     projectId: 'PRJ-1',
-    batchType: 'WEIGHBRIDGE_IMPORT',
+
     totalRows: 1,
     committedRows: 0,
-    skippedRows: 0,
-    failedRows: 0,
+
+
     errorRows: 0,
     warningRows: 0,
-    status: 'PENDING',
-    source: {
+
+    source: {importBatchId:'BCH-TEST-001',
       sourceType: 'WEIGHBRIDGE',
       sourceFileId: 'FILE-1',
       sourceFileName: 'tickets.xlsx',
       sourceMimeType: 'application/vnd.ms-excel',
     },
     rows: [
-      {
+      {raw:{},validationIssues:[],
         rowNumber: 1,
         sourceRowId: 1,
         status: 'PENDING',
-        reviewStatus: 'matched',
+        reviewStatus: 'accepted',
         resolvedValues: {
           carrierId: 'CAR-1',
           truckId: 'TRK-1',
@@ -63,33 +63,33 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     auditTrail: [],
     createdAt: '2026-01-01',
     createdBy: 'USER-1',
-    updatedAt: '2026-01-01',
-    updatedBy: 'USER-1',
+
+
   });
 
-  const getTwoRowBatch = (): UnifiedImportBatch => ({
+  const getTwoRowBatch = (): UnifiedImportBatch => ({currentStage:'REVIEW',validationStatus:'PASSED',commitStatus:'READY_TO_COMMIT',validRows:2,requiresReviewRows:0,operationId:'OP-1234',
     importBatchId: 'BCH-TEST-002',
     projectId: 'PRJ-1',
-    batchType: 'WEIGHBRIDGE_IMPORT',
+
     totalRows: 2,
     committedRows: 0,
-    skippedRows: 0,
-    failedRows: 0,
+
+
     errorRows: 0,
     warningRows: 0,
-    status: 'PENDING',
-    source: {
+
+    source: {importBatchId:'BCH-TEST-002',
       sourceType: 'WEIGHBRIDGE',
       sourceFileId: 'FILE-1',
       sourceFileName: 'tickets.xlsx',
       sourceMimeType: 'application/vnd.ms-excel',
     },
     rows: [
-      {
+      {raw:{},validationIssues:[],
         rowNumber: 1,
         sourceRowId: 1,
         status: 'PENDING',
-        reviewStatus: 'matched',
+        reviewStatus: 'accepted',
         resolvedValues: {
           carrierId: 'CAR-1',
           truckId: 'TRK-1',
@@ -103,11 +103,11 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
           netWeight: 20000,
         },
       },
-      {
+      {raw:{},validationIssues:[],
         rowNumber: 2,
         sourceRowId: 2,
         status: 'PENDING',
-        reviewStatus: 'matched',
+        reviewStatus: 'accepted',
         resolvedValues: {
           carrierId: 'CAR-1',
           truckId: 'TRK-1',
@@ -126,8 +126,8 @@ describe('Trip Write Failure Integrity (Unit 6)', () => {
     auditTrail: [],
     createdAt: '2026-01-01',
     createdBy: 'USER-1',
-    updatedAt: '2026-01-01',
-    updatedBy: 'USER-1',
+
+
   });
 
   beforeEach(() => {

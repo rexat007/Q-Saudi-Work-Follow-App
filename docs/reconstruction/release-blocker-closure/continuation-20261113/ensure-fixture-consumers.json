@@ -1,0 +1,7 @@
+[
+  "src/tests/workspaceEnsureReload.test.tsx",
+  "src/tests/workspaceLiveClosure.test.ts",
+  "src/tests/workspaceOneClickJourney.test.tsx",
+  "src/tests/workspaceOneClickProvisioning.test.ts",
+  "src/tests/workspaceQuiescenceBudget.test.ts"
+]

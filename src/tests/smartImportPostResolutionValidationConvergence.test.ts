@@ -1,3 +1,4 @@
+import type { CanonicalTripRow } from '../types/excelCsvImport';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { UnifiedImportBatch, PipelineContext, ImportRow } from '../types/unifiedImport';
@@ -53,12 +54,12 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
     createdBy: 'user-1',
   });
 
-  const unresolvedRow: ImportRow = {
+  const unresolvedRow: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
     rowNumber: 1,
     status: 'WARNING',
     reviewStatus: 'requires_review',
     raw: { 'Carrier': 'Unknown Carrier', 'Truck': '123 ABC', 'Material': 'M1' },
-    canonical: { carrier: 'Unknown Carrier', truckNo: '123 ABC', driverName: 'Driver One', materialType: 'Material One', ticketId: 'T-001', shiftDate: '2024-01-01', grossWeight: 100, tareWeight: 50, netWeight: 50, destNetWeight: 50 },
+    canonical: { projectId: 'PRJ-CONV-001', carrier: 'Unknown Carrier', truckNo: '123 ABC', driverName: 'Driver One', materialType: 'Material One', ticketId: 'T-001', shiftDate: '2024-01-01', grossWeight: 100, tareWeight: 50, netWeight: 50, destNetWeight: 50 },
     validationIssues: [
       { issueId: 'iss-1', row: 1, field: 'carrier', code: 'UNKNOWN_CARRIER', severity: 'WARNING', message: 'Unknown', resolvable: true, blocking: false }
     ],
@@ -69,15 +70,15 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
       driver: { entityType: 'DRIVER', sourceValue: 'Driver One', originalValue: 'Driver One', normalizedValue: 'Driver One', matchedId: 'DRV-100', matchedName: 'Driver One', confidence: 1, matchMethod: 'EXACT', riskLevel: 'LOW', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
       material: { entityType: 'MATERIAL', sourceValue: 'Material One', originalValue: 'Material One', normalizedValue: 'Material One', matchedId: 'MAT-100', matchedName: 'Material One', confidence: 1, matchMethod: 'EXACT', riskLevel: 'LOW', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
     },
-  };
+  } satisfies ImportRow;
 
   it('1. Precedence: resolvedValues.carrierId wins over entityResolution', () => {
-    const row: ImportRow = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       resolvedValues: { carrierId: 'CAR-UNKNOWN' },
       entityResolutions: {
         ...unresolvedRow.entityResolutions,
-        carrier: { ...unresolvedRow.entityResolutions!.carrier as any, matchedId: 'CAR-100', recommendation: 'ACCEPT' }
+        carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, ...unresolvedRow.entityResolutions!.carrier as any, matchedId: 'CAR-100', recommendation: 'ACCEPT' }
       }
     };
     const validator = new ExcelCsvTripValidator();
@@ -87,12 +88,12 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('2. Precedence: accepted entityResolution wins over canonical', () => {
-    const row: ImportRow = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, carrier: 'Raw Text' },
       entityResolutions: {
         ...unresolvedRow.entityResolutions,
-        carrier: { ...unresolvedRow.entityResolutions!.carrier, matchedId: 'CAR-100', recommendation: 'ACCEPT' }
+        carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, ...unresolvedRow.entityResolutions!.carrier, matchedId: 'CAR-100', recommendation: 'ACCEPT' }
       }
     };
     const validator = new ExcelCsvTripValidator();
@@ -102,12 +103,12 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('3. Precedence: fallback to canonical if no resolved/accepted', () => {
-    const row: ImportRow = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, carrier: 'Carrier One' },
       entityResolutions: {
         ...unresolvedRow.entityResolutions,
-        carrier: { ...unresolvedRow.entityResolutions!.carrier, matchedId: undefined, recommendation: 'REVIEW' }
+        carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, ...unresolvedRow.entityResolutions!.carrier, matchedId: undefined, recommendation: 'REVIEW' }
       }
     };
     const validator = new ExcelCsvTripValidator();
@@ -159,7 +160,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('8. Numeric invariant violation detected after resolution', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, tareWeight: -50 }, // Invalid tare
       validationIssues: []
@@ -199,7 +200,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('11. Truck resolution clears UNKNOWN_TRUCK', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, truckNo: '999 UNK' },
       validationIssues: [{ issueId: 'iss-2', row: 1, field: 'truckNo', code: 'UNKNOWN_TRUCK', severity: 'WARNING', message: 'UNK', resolvable: true, blocking: false }]
@@ -212,13 +213,13 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('12. Material resolution clears UNKNOWN_MATERIAL', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, materialType: 'UNK MAT' },
       validationIssues: [{ issueId: 'iss-3', row: 1, field: 'materialType', code: 'UNKNOWN_MATERIAL', severity: 'WARNING', message: 'UNK', resolvable: true, blocking: false }],
       entityResolutions: {
         ...unresolvedRow.entityResolutions,
-        material: { entityType: 'MATERIAL', sourceValue: 'UNK MAT', recommendation: 'REVIEW' }
+        material: {originalValue:'UNK MAT',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'UNK MAT', recommendation: 'REVIEW' }
       }
     };
     const batch = createBaseBatch([row]);
@@ -236,12 +237,12 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
         driverCarrierMap: { 'DRV-100': 'CAR-100' }
       }
     };
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       resolvedValues: { driverId: 'DRV-100' },
       entityResolutions: {
         ...unresolvedRow.entityResolutions,
-        carrier: { entityType: 'CARRIER', sourceValue: 'c', matchedId: undefined, recommendation: 'REVIEW', isExact: false, isAuthorized: false }
+        carrier: {originalValue:'c',confidence:0, entityType: 'CARRIER', sourceValue: 'c', matchedId: undefined, recommendation: 'REVIEW', isExact: false, isAuthorized: false }
       }
     };
     const batch = createBaseBatch([row]);
@@ -274,11 +275,11 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('16. Multiple resolutions in one row: stage 1', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', recommendation: 'REVIEW' },
-        truck: { entityType: 'TRUCK', recommendation: 'REVIEW' }
+        carrier: {originalValue:'',confidence:0,isExact:false, entityType: 'CARRIER', recommendation: 'REVIEW' },
+        truck: {originalValue:'',confidence:0,isExact:false, entityType: 'TRUCK', recommendation: 'REVIEW' }
       }
     };
     const batch = createBaseBatch([row]);
@@ -290,11 +291,11 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('17. Multiple resolutions in one row: stage 2 completion', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', recommendation: 'REVIEW' },
-        truck: { entityType: 'TRUCK', recommendation: 'REVIEW' }
+        carrier: {originalValue:'',confidence:0,isExact:false, entityType: 'CARRIER', recommendation: 'REVIEW' },
+        truck: {originalValue:'',confidence:0,isExact:false, entityType: 'TRUCK', recommendation: 'REVIEW' }
       }
     };
     const batch = createBaseBatch([row]);
@@ -308,7 +309,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('18. Weight calculation warning appears if weights were unresolved but then validated', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, grossWeight: 100, tareWeight: 50, netWeight: 40 }, // 100-50 != 40
       validationIssues: [] // Suppose it was empty
@@ -345,10 +346,10 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('22. Identity precedence: isAuthorized resolution used if matchedId missing', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', entityId: 'CAR-AUTH', recommendation: 'ACCEPT', isAuthorized: true }
+        carrier: {originalValue:'',confidence:0,isExact:false, entityType: 'CARRIER', entityId: 'CAR-AUTH', recommendation: 'ACCEPT', isAuthorized: true }
       }
     };
     const validator = new ExcelCsvTripValidator();
@@ -357,10 +358,10 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('23. Identity precedence: isExact resolution used', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', matchedId: 'CAR-100', isExact: true }
+        carrier: {originalValue:'',confidence:0, entityType: 'CARRIER', matchedId: 'CAR-100', isExact: true }
       }
     };
     const validator = new ExcelCsvTripValidator();
@@ -396,7 +397,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('27. MISSING_IDENTIFICATION cleared after truck resolution', () => {
-    const row: ImportRow = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, ticketId: undefined, truckNo: undefined },
       validationIssues: [{ issueId: 'iss-4', row: 1, field: 'identification', code: 'MISSING_IDENTIFICATION', severity: 'BLOCKING', message: 'M', resolvable: true, blocking: true }]
@@ -409,7 +410,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('28. Physics error remains after resolution', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, grossWeight: 50, tareWeight: 100 },
       validationIssues: [{ issueId: 'iss-5', row: 1, field: 'grossWeight', code: 'GROSS_LESS_THAN_TARE', severity: 'BLOCKING', message: 'P', resolvable: true, blocking: true }]
@@ -439,7 +440,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('30. Driver missing warning disappears if driver resolved', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, driverName: undefined },
       validationIssues: [{ issueId: 'iss-6', row: 1, field: 'driverName', code: 'MISSING_OPTIONAL_DRIVER', severity: 'WARNING', message: 'W', resolvable: true, blocking: false }]
@@ -452,7 +453,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('31. applyCreatedEntityResolution preserves existing resolvedValues', () => {
-    const row = { ...unresolvedRow, resolvedValues: { truckId: 'T-EXIST' } };
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = { ...unresolvedRow, resolvedValues: { truckId: 'T-EXIST' } };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyCreatedEntityResolution(
       batch, 1, 'carrier', { matchedId: 'C-NEW', matchedName: 'N' }, dummyContext
@@ -462,7 +463,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('32. applyEntityResolutionDecision preserves existing resolvedValues', () => {
-    const row = { ...unresolvedRow, resolvedValues: { truckId: 'TRK-100' } };
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = { ...unresolvedRow, resolvedValues: { truckId: 'TRK-100' } };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.applyEntityResolutionDecision(
       batch, 1, 'carrier', 'ACCEPT_CANDIDATE', { selectedEntityId: 'CAR-100' }, dummyContext, 'user-1'
@@ -474,7 +475,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   it('33. Weighbridge mandatory ticket check clears after ticketId resolved?', () => {
     // ticketId isn't an entity, but let's check if revalidation happens correctly for weights
     const wbContext = { ...dummyContext, profile: 'WEIGHBRIDGE' };
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, grossWeight: undefined },
       validationIssues: [{ issueId: 'iss-7', row: 1, field: 'grossWeight', code: 'MISSING_GROSS_WEIGHT', severity: 'BLOCKING', message: 'M', resolvable: true, blocking: true }]
@@ -512,10 +513,10 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('37. applyCreatedEntityResolution clears ambiguous flag', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { ...unresolvedRow.entityResolutions!.carrier, ambiguous: true }
+        carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, ...unresolvedRow.entityResolutions!.carrier, ambiguous: true }
       }
     };
     const batch = createBaseBatch([row]);
@@ -526,10 +527,10 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('38. applyEntityResolutionDecision clears ambiguous flag', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { ...unresolvedRow.entityResolutions!.carrier, ambiguous: true }
+        carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, ...unresolvedRow.entityResolutions!.carrier, ambiguous: true }
       }
     };
     const batch = createBaseBatch([row]);
@@ -540,19 +541,19 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('39. Pipeline recalculateBatchCounts handles error reviewStatus', () => {
-    const row = { ...unresolvedRow, reviewStatus: 'error' as any };
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = { ...unresolvedRow, reviewStatus: 'error' as any };
     const batch = createBaseBatch([row]);
     const updated = ExcelCsvPipelineService.recalculateBatchCounts(batch);
     expect(updated.errorRows).toBe(1);
   });
 
   it('40. Final Convergence: Full row acceptance after all entities resolved', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', recommendation: 'REVIEW' },
-        truck: { entityType: 'TRUCK', recommendation: 'REVIEW' },
-        material: { entityType: 'MATERIAL', recommendation: 'REVIEW' }
+        carrier: {originalValue:'',confidence:0,isExact:false, entityType: 'CARRIER', recommendation: 'REVIEW' },
+        truck: {originalValue:'',confidence:0,isExact:false, entityType: 'TRUCK', recommendation: 'REVIEW' },
+        material: {originalValue:'',confidence:0,isExact:false, entityType: 'MATERIAL', recommendation: 'REVIEW' }
       }
     };
     const batch = createBaseBatch([row]);
@@ -566,7 +567,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('41. Truck/Carrier conflict appears after carrier change', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, truckNo: '123 ABC' },
       resolvedValues: { truckId: 'TRK-100' }
@@ -580,7 +581,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('42. Truck/Carrier conflict removed after carrier correction', () => {
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       canonical: { ...unresolvedRow.canonical, truckNo: '123 ABC' },
       resolvedValues: { truckId: 'TRK-100', carrierId: 'CAR-200' },
@@ -599,7 +600,7 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
       ...dummyContext,
       knownEntities: { ...dummyContext.knownEntities, projectMaterials: ['MAT-100'] }
     };
-    const row = {
+    const row: ImportRow<Record<string, unknown>, CanonicalTripRow> = {
       ...unresolvedRow,
       validationIssues: [{ issueId: 'iss-9', row: 1, field: 'materialType', code: 'MATERIAL_PROJECT_CONFLICT', severity: 'WARNING', message: 'C', resolvable: true, blocking: false }]
     };
@@ -621,13 +622,13 @@ describe('Smart Import Post-Resolution Validation Convergence Test Suite', () =>
   });
 
   it('45. Batch counters: requiresReview increases when new conflict appears', () => {
-    const validRow = { ...unresolvedRow, status: 'VALID', reviewStatus: 'accepted' as any, validationIssues: [] };
+    const validRow: ImportRow<Record<string, unknown>, CanonicalTripRow> = { ...unresolvedRow, status: 'VALID', reviewStatus: 'accepted' as any, validationIssues: [] };
     const batch = createBaseBatch([validRow]);
     batch.requiresReviewRows = 0;
     batch.validRows = 1;
     
     // Create a conflict (e.g. invalid tare)
-    const rowWithConflict = { ...validRow, canonical: { ...validRow.canonical, tareWeight: -10 } };
+    const rowWithConflict: ImportRow<Record<string, unknown>, CanonicalTripRow> = { ...validRow, canonical: { ...validRow.canonical, tareWeight: -10 } };
     const updated = ExcelCsvPipelineService.revalidateRow(batch, rowWithConflict, dummyContext);
     
     expect(updated.requiresReviewRows).toBe(1);

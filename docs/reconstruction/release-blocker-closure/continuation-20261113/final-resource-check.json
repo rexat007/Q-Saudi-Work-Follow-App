@@ -1,0 +1,30 @@
+{
+  "checkedAt": "2026-11-13T07:19:42.000Z",
+  "loopbackListeners": [
+    {
+      "port": 55439,
+      "listening": false
+    },
+    {
+      "port": 8085,
+      "listening": false
+    },
+    {
+      "port": 9099,
+      "listening": false
+    },
+    {
+      "port": 4400,
+      "listening": false
+    },
+    {
+      "port": 4500,
+      "listening": false
+    },
+    {
+      "port": 9150,
+      "listening": false
+    }
+  ],
+  "allClosed": true
+}

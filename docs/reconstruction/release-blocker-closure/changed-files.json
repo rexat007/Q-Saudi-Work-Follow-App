@@ -1,0 +1,1453 @@
+{
+  "branch": "engineering/convergence-1-20261110",
+  "head": "3edaa8799954145e438daa48cc6f80b4fe288f10",
+  "headRole": "STARTING_COMMITTED_HEAD_BEFORE_SINGLE_LOCAL_CLOSURE_COMMIT",
+  "published": false,
+  "worktree": "REVIEWED_ADDITIVE_CLOSURE_PATCH; manifest captured immediately before authorized local commit",
+  "diffCheck": "PASS",
+  "rb4Preserved": true,
+  "migrations001to012": "BYTE_FOR_BYTE_UNCHANGED",
+  "fileCount": 240,
+  "selfHashNote": "Own size/hash omitted to avoid circular digest. Hashes describe reviewed working bytes; exact resulting local commit is returned in the final execution report. No push.",
+  "files": [
+    {
+      "path": "src/components/field/SqlTripWorkstation.tsx",
+      "status": "MODIFIED",
+      "bytes": 4379,
+      "sha256": "86db75ef62584f8bd419c42fd3fc6a0447de0091fbc508a6291cfbae00feae39"
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "status": "MODIFIED",
+      "bytes": 13420,
+      "sha256": "a48c28fddb614b77d0886bebbb52b8a7e06a6f2357e5642725139f6a87c0ce87"
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "status": "MODIFIED",
+      "bytes": 322118,
+      "sha256": "a99838820518de1557a2e39bcf3d6d21885800424e60b9f003b41c835cb60fd7"
+    },
+    {
+      "path": "src/i18n/codemod/codemod.reporter.ts",
+      "status": "MODIFIED",
+      "bytes": 7951,
+      "sha256": "a7aacabb85425f25307658ac031318697b4f9cd77f7588cbb0b5da0fcf12102b"
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "status": "MODIFIED",
+      "bytes": 512102,
+      "sha256": "c560c51683826b4b713848a52b2905e662945cdb98be28c2cd535c4298063c47"
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "status": "MODIFIED",
+      "bytes": 404426,
+      "sha256": "6bfeb5c95cf19934cc8954c1dc396f2e238f961c5ae9a876bf2b7dc8003ac669"
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "status": "MODIFIED",
+      "bytes": 526559,
+      "sha256": "e2f0ea8be673a6c915f66f869fb54ca7f32d69e373c2765a426546cb175e89d4"
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "status": "MODIFIED",
+      "bytes": 2955,
+      "sha256": "32efe554b68ec3c2f06304e51fb106e163d681c5553717980dae6556c49269c1"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+      "status": "MODIFIED",
+      "bytes": 8863,
+      "sha256": "2ac2d47d17f1f16dfeb8d6e8ea0fef099c3a623a8d2cc12bab1aa1e7971bdf83"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+      "status": "MODIFIED",
+      "bytes": 18330,
+      "sha256": "808a8438759c61ac024e9ab873d51318ad1e9bfa2cf7aead565b7f35255483a3"
+    },
+    {
+      "path": "src/services/import/driverTruckImport.ts",
+      "status": "MODIFIED",
+      "bytes": 25033,
+      "sha256": "e67e55669aed57dac7d77271ad20bfe7f7d9f3cec3f4db9bece329b819f7528b"
+    },
+    {
+      "path": "src/services/import/tripImportCommitter.ts",
+      "status": "MODIFIED",
+      "bytes": 26036,
+      "sha256": "94e68f3a6e3d672a9714c82fcc4bac19a6d8aa95fcce1e011b1f159e9f33f7be"
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "status": "MODIFIED",
+      "bytes": 23015,
+      "sha256": "f4cbb429950015c5223032d8e68f27e5aa14b5c135e79e8d0c2ab699a9a4dfa3"
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "status": "MODIFIED",
+      "bytes": 23404,
+      "sha256": "158d4c45f18bffb9f41bf407589ba4cd149cdcb036182c3f3c85b2dda1c44bf1"
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "status": "MODIFIED",
+      "bytes": 58595,
+      "sha256": "856c3b6309d16dceba3bd3a18992da1bae21084d6a8c1f8f466b082114564365"
+    },
+    {
+      "path": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+      "status": "MODIFIED",
+      "bytes": 5511,
+      "sha256": "2b9aa84f24e7d714a898fcbecc3cffe010965a2507289177514e857a3fc08f84"
+    },
+    {
+      "path": "src/tests/canonicalTripDispatchAuthority.test.ts",
+      "status": "MODIFIED",
+      "bytes": 27435,
+      "sha256": "dc5a0e9364bb79fabd8ec46de0084451b8367dd54d92ba8ed792042bae0aa602"
+    },
+    {
+      "path": "src/tests/convergence3DurableCommand.test.ts",
+      "status": "MODIFIED",
+      "bytes": 3538,
+      "sha256": "be0cdcec1b66badb8345d7e175888c7cc49fca86131d8cd1b566d1e4ce03d07e"
+    },
+    {
+      "path": "src/tests/convergence3JournalBrowser.test.ts",
+      "status": "MODIFIED",
+      "bytes": 5046,
+      "sha256": "d72e7a911a0d95d2a64917a05d428b03e7f4fc0954b54b6dfce380f312899d28"
+    },
+    {
+      "path": "src/tests/driverViewConvergenceP603.test.ts",
+      "status": "MODIFIED",
+      "bytes": 6615,
+      "sha256": "efa6012d84d46169b1db8544683a52c9767b3f59d26f581f4659026a83ad2057"
+    },
+    {
+      "path": "src/tests/endToEndOperationalValidationBlock94.test.ts",
+      "status": "MODIFIED",
+      "bytes": 26531,
+      "sha256": "8bc7e103a59e7eb1b0380a070a3ddbc63769f1d83b88ca8dd284fdf7e2ed0879"
+    },
+    {
+      "path": "src/tests/exceptionEngineRetirement.test.ts",
+      "status": "MODIFIED",
+      "bytes": 7539,
+      "sha256": "a37128145768d9b26f93914f239966541634d6f351e607477f5d6d1422546d26"
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "status": "MODIFIED",
+      "bytes": 19960,
+      "sha256": "06541062ce8af0cbdeb1e83ba290cab6799341edc3be6593df2e9c653cd285af"
+    },
+    {
+      "path": "src/tests/googleDriveImport.test.ts",
+      "status": "MODIFIED",
+      "bytes": 778,
+      "sha256": "119b13c6874beecedfe200a0f359ac6ebc8eddf99aad5aca13fbbbe3dc2ef830"
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "status": "MODIFIED",
+      "bytes": 32271,
+      "sha256": "cfe027ada70bbe9773e019a460e218b2bf9169d736a789193a772fc005dfcbfa"
+    },
+    {
+      "path": "src/tests/googleSheetsImport.test.ts",
+      "status": "MODIFIED",
+      "bytes": 1584,
+      "sha256": "70d2bef56845ff796d27a1b278a1600cb32277922d6251dafdc05bb0533123b7"
+    },
+    {
+      "path": "src/tests/helpers/commandDatabase.ts",
+      "status": "MODIFIED",
+      "bytes": 3982,
+      "sha256": "cd16cfa8db2c07d88cfd24a58db86b29ebf899b01ce91469587ffc57aba80814"
+    },
+    {
+      "path": "src/tests/helpers/operationalSheetsFixture.ts",
+      "status": "MODIFIED",
+      "bytes": 5846,
+      "sha256": "dbf7863f00d49e9518b62f00418b473d2c5d95f0052c1e4763f9dcdaf03fd393"
+    },
+    {
+      "path": "src/tests/helpers/workspaceEnsureFixture.ts",
+      "status": "MODIFIED",
+      "bytes": 7173,
+      "sha256": "c860ecb7932a1954d831cc395c93f7e22c78bf727c432258c34319a330519e7e"
+    },
+    {
+      "path": "src/tests/i18nTranslationCatalog.test.ts",
+      "status": "MODIFIED",
+      "bytes": 5248,
+      "sha256": "062775b01b8d5b15021a9f213c74625476d0ae3adf7852c8794b28387a1c6b5f"
+    },
+    {
+      "path": "src/tests/i18nTranslationGeneration.test.ts",
+      "status": "MODIFIED",
+      "bytes": 4974,
+      "sha256": "06cd485e4619228faf95bdbe96a03500c05556faa560a04beaf9a0ebbd2e6b64"
+    },
+    {
+      "path": "src/tests/importCenterConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18189,
+      "sha256": "2ab7e1186f9616beb230f9440b588a858c3d9ab6223addbda13c147c93f16e2d"
+    },
+    {
+      "path": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 17818,
+      "sha256": "f8ba37dba73f363eb4317b4917a8a0e207f2177f62459639f3be1131cd2012a9"
+    },
+    {
+      "path": "src/tests/materialAuthorityP602B2.test.ts",
+      "status": "MODIFIED",
+      "bytes": 10502,
+      "sha256": "1452ecb4ee190493c1206689fa852bc5c687c04e25e4ca370c348cdba63eba64"
+    },
+    {
+      "path": "src/tests/operationalReportTabIsolation.test.ts",
+      "status": "MODIFIED",
+      "bytes": 25015,
+      "sha256": "9849069913a740e8886267fb72a27d3b64781625d95aabe40ea5a72fd13b140d"
+    },
+    {
+      "path": "src/tests/operationalWorkspaceTemplates.test.ts",
+      "status": "MODIFIED",
+      "bytes": 9687,
+      "sha256": "a921f7f1603475e5c9bc7a54ddc9f25cfcca80d2adccf3ce4d68ef2eb0a34bff"
+    },
+    {
+      "path": "src/tests/projectActivationReadiness.test.ts",
+      "status": "MODIFIED",
+      "bytes": 29322,
+      "sha256": "22c325f8c83013ea6c7841670d89a39a7868619d367d9c09462da30a39609432"
+    },
+    {
+      "path": "src/tests/projectCentricOperationsBlock87.test.ts",
+      "status": "MODIFIED",
+      "bytes": 25670,
+      "sha256": "081dae1741343786849e41fd0aa246195e549994f8f6db723b28aa5429ccffd3"
+    },
+    {
+      "path": "src/tests/projectContextLifetime.test.tsx",
+      "status": "MODIFIED",
+      "bytes": 20461,
+      "sha256": "7354543db82433696e8a5109f8ca9cdb4654e40a0333a440debd3df43f087c0b"
+    },
+    {
+      "path": "src/tests/projectDriverTruckAssignmentFoundation.test.ts",
+      "status": "MODIFIED",
+      "bytes": 30916,
+      "sha256": "2d7cfb27fa7f1c04cec0648ab7f5abc525b6923758f2afb43c003924ab3275e9"
+    },
+    {
+      "path": "src/tests/projectGoogleWorkspaceTemplateSync.test.ts",
+      "status": "MODIFIED",
+      "bytes": 15594,
+      "sha256": "76591ddb08f19e4d650a840067cc0c9de1ca247c330aa5c8d9574d4873fa32bf"
+    },
+    {
+      "path": "src/tests/projectRouteConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 4467,
+      "sha256": "fd0151559838ce9830f870a512bc39c7e19c1e4bd23baa291d4b0d9107beaab5"
+    },
+    {
+      "path": "src/tests/projectWorkflowNavigation86E.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18513,
+      "sha256": "fe96e6f633d2a9ac1b8b760dd89115b517c4e1361b2a2832c7c424bcc3ca71c3"
+    },
+    {
+      "path": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18681,
+      "sha256": "b046710d9bfa1fcb3957e0d60fdc466d9ab99f54ef74670e2c9aba5d402c4a0b"
+    },
+    {
+      "path": "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+      "status": "MODIFIED",
+      "bytes": 29454,
+      "sha256": "7dfd16148e876e6d8426c741c97180e2936f80270d53fd7ac89d1682ef7336b1"
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+      "status": "MODIFIED",
+      "bytes": 24863,
+      "sha256": "4d7c53e57984b8f929dc941b2a448317802c41e0e7eee541127830e2bed4222a"
+    },
+    {
+      "path": "src/tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18762,
+      "sha256": "caa1ea363265b0d8f692078c3b71c7d2d701dedef011b651219e7f5bbd58031a"
+    },
+    {
+      "path": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "status": "MODIFIED",
+      "bytes": 24196,
+      "sha256": "f9d0c2d090cbaa8086675843f12334af101502e2ce5744ab1fa1eddd03e097fc"
+    },
+    {
+      "path": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "status": "MODIFIED",
+      "bytes": 33253,
+      "sha256": "691f8acb57f6b857673355cbe655ec8a4a77a42f30c93d5dee232c160620b64b"
+    },
+    {
+      "path": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "status": "MODIFIED",
+      "bytes": 31973,
+      "sha256": "16a175a2284309ff4f29262bcf41bcd34a4dedf9ed0224c81ac50c2a70f8fc60"
+    },
+    {
+      "path": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "status": "MODIFIED",
+      "bytes": 26150,
+      "sha256": "33c6acec5ab719385cb486e302127d73c95b76c05ea6c3dd352179c52de0fb87"
+    },
+    {
+      "path": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "status": "MODIFIED",
+      "bytes": 20403,
+      "sha256": "8726305a467094a15ff9ac14f9610194c1116a9304cec445998704ccd8e6a43d"
+    },
+    {
+      "path": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "status": "MODIFIED",
+      "bytes": 59585,
+      "sha256": "6a128faf1c417ee16fa496bacb8f712f01e3e37afefde9e5e29cb549c5338bc3"
+    },
+    {
+      "path": "src/tests/runtimeGenerationConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 6215,
+      "sha256": "c73b1eb47e7be93fb445574ba0ddb62b03065b93a0629f82edb8312cce348938"
+    },
+    {
+      "path": "src/tests/secureTripNumberingOffline89B.test.ts",
+      "status": "MODIFIED",
+      "bytes": 8367,
+      "sha256": "8149ee02c39cbd4566065442d5342f0b113ab272789a211278eab8313d8da58b"
+    },
+    {
+      "path": "src/tests/setupWizardContinuity.test.tsx",
+      "status": "MODIFIED",
+      "bytes": 11862,
+      "sha256": "9a2fd2607795e3bbda2e37177f8687f5e5b3e973d0f0226da6121b2d1e831221"
+    },
+    {
+      "path": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+      "status": "MODIFIED",
+      "bytes": 17530,
+      "sha256": "4eb8ca1ab264e637b166df706353893bd4b373d5026a169c02850ca7bdf1fd8e"
+    },
+    {
+      "path": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 20960,
+      "sha256": "1b4299e167b26d5e12aac08b05f099fe43ce6cd3f6da356b3ca5dc24f685a312"
+    },
+    {
+      "path": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "status": "MODIFIED",
+      "bytes": 23434,
+      "sha256": "e9054b38062b04ea134055303b0a84713104ebc80e62269620e32f7c6dfb99e3"
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 47940,
+      "sha256": "68da8f144ad42af023647b97ae5d8d7747cc0c0243d5dc51ecf7ee012e98d788"
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 71752,
+      "sha256": "a3e05358692d9fa888b4af684d56231e5ecd33a6885904f45560ee0dd20e9df6"
+    },
+    {
+      "path": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "status": "MODIFIED",
+      "bytes": 24652,
+      "sha256": "8c026838191082b504e3827fb925694514142e7469e7b8d780aa2d175773e752"
+    },
+    {
+      "path": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 33255,
+      "sha256": "4901c2b9c068a4726daaaf542f4d1d831dcda602eaa758e2392afb2ed7020727"
+    },
+    {
+      "path": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "status": "MODIFIED",
+      "bytes": 24915,
+      "sha256": "25b3763048881c71359169c318bb4064180bdefa5dc35115e89470ea64554616"
+    },
+    {
+      "path": "src/tests/smartImportSharedContrast.test.tsx",
+      "status": "MODIFIED",
+      "bytes": 11566,
+      "sha256": "fbc75822e974a477429c1e9c19a0a6c10e0ee0955f8c7029b30ea6025827f884"
+    },
+    {
+      "path": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "status": "MODIFIED",
+      "bytes": 14772,
+      "sha256": "3d085d62679a032c1da0fb683d29e2b536ecbb4305e9182799d8d478b105bf3b"
+    },
+    {
+      "path": "src/tests/smartImportUnit4B2UiSessionResume.test.ts",
+      "status": "MODIFIED",
+      "bytes": 23197,
+      "sha256": "c55e85896354da61adf5d509a8ae59dcf9434ea4dd425d8a5e8dfc044efc4733"
+    },
+    {
+      "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18327,
+      "sha256": "ccf4b2e75fefb57513cd933581441f9cc0971c12a20aa454a83c44ede39403c7"
+    },
+    {
+      "path": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "status": "MODIFIED",
+      "bytes": 24142,
+      "sha256": "41d5222f4ec8686602532d27f529288c7515b29ebd070e4e825031b94f42c22d"
+    },
+    {
+      "path": "src/tests/smartTripImportOperationalConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 9117,
+      "sha256": "e4eee1a90adfe16725c1f1cf9ac739a6321d26c8ded079128bfb0f0838b4eeb9"
+    },
+    {
+      "path": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "status": "MODIFIED",
+      "bytes": 11825,
+      "sha256": "32337e6cfbacdff067664285025ae180897e8c4482288d9e741928f004b5f0b4"
+    },
+    {
+      "path": "src/tests/systemToolsRationalization90A.test.ts",
+      "status": "MODIFIED",
+      "bytes": 9845,
+      "sha256": "406d35a4b47cfcfa3a0e736ec0a50251c0615c5850397dce741483cfd0091e72"
+    },
+    {
+      "path": "src/tests/tripEngineRetirement.test.ts",
+      "status": "MODIFIED",
+      "bytes": 8393,
+      "sha256": "df0057f5ffca82facae4d4272dc05a14b059cae134789c06208ee03013de2700"
+    },
+    {
+      "path": "src/tests/tripIdentityAdjustmentBlock89.test.ts",
+      "status": "MODIFIED",
+      "bytes": 22742,
+      "sha256": "24974b51bfafd4c9cef6b684141c82ad26a0f87d4a559cea9d412be231129cfc"
+    },
+    {
+      "path": "src/tests/tripIntakeConvergence.test.ts",
+      "status": "MODIFIED",
+      "bytes": 8276,
+      "sha256": "f618364e9692785d5d4911e405d92dafaaa9ec5cfe84c916af2be22f09b7fc35"
+    },
+    {
+      "path": "src/tests/weighbridgeImport.test.ts",
+      "status": "MODIFIED",
+      "bytes": 50121,
+      "sha256": "23359fb3025d98afc0f58d3f5591d2a11b0172072bda7b4854637b98c3c6bb2a"
+    },
+    {
+      "path": "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+      "status": "MODIFIED",
+      "bytes": 21730,
+      "sha256": "96203c4016562568b77e1e2d08732e76513bfaa63574acbb8df4a098420e044d"
+    },
+    {
+      "path": "src/tests/workspaceLocalBlueprint.test.ts",
+      "status": "MODIFIED",
+      "bytes": 8561,
+      "sha256": "eefd72635aeaf0b174cf116da1f41c16038ebd20c872034c3a8d8e331a69e28d"
+    },
+    {
+      "path": "src/tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+      "status": "MODIFIED",
+      "bytes": 16468,
+      "sha256": "00ee61d49e7bad073c6b7e6b886283fa42b5e802dbc1262ebec6bf9d6cb7a15c"
+    },
+    {
+      "path": "src/tests/workspaceOneClickProvisioning.test.ts",
+      "status": "MODIFIED",
+      "bytes": 18200,
+      "sha256": "9aae56d9518ec4bb4dca6622655d5c795b1e890ccec1d1c6dfb48e167fd5f35d"
+    },
+    {
+      "path": "src/tests/workspaceProviderResilience.test.ts",
+      "status": "MODIFIED",
+      "bytes": 15718,
+      "sha256": "466d8be21d2a87d0938d446caa391c1dd9dd81a2ab5606cfd317da599bd0387c"
+    },
+    {
+      "path": "src/tests/workspaceQuiescenceUi.test.tsx",
+      "status": "MODIFIED",
+      "bytes": 5175,
+      "sha256": "bd85427909d0d799ccc817757bafe5f0649588f18617060d7d69be292fcbedb1"
+    },
+    {
+      "path": "docs/reconstruction/24_VERIFIED_RELEASE_BLOCKER_CLOSURE.md",
+      "status": "UNTRACKED",
+      "bytes": 28702,
+      "sha256": "17edc45bfc84921e345e40ea6710014883b3da308a707731862a6416b00157f8"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/assertion-registration.json",
+      "status": "UNTRACKED",
+      "bytes": 281,
+      "sha256": "e4e989325c5834ec7804f2b5ff915c91c87d00cf08d8cce41f14b5fb7646f074"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/boundaries-current.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 5953,
+      "sha256": "ff9988c63cb692eb35b2e2de41fa7854ae250aa15db45f8938d94d6e8962cfde"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/browser-diagnostic.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 71,
+      "sha256": "7116f9605ce1e063f88f36ae7bd2eb18627d242e52d85681e2bcbe74c25dbf78"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/build-final.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2287,
+      "sha256": "75ed2a2a55ebb81ab6e852fab463fff73ea1ecfe38cb398c3e2c472dc61cd2d8"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/catalog-contract-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2249,
+      "sha256": "348a356a0132bed5271691ba3c8d20b25f2dc647b228bde2d31a09b4aeeec40f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/changed-files.json",
+      "status": "UNTRACKED"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/codemod-path.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1301,
+      "sha256": "ced340ed006cefc482e5c17b03b929598cc3bcf8b45b0cacc881f3cc7fc32ecc"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/complete-package-tests.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 27000,
+      "sha256": "4ffda76f9745b3747cf617c80da0f5bcc8b898a31e867d575b9a14dc8715b066"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/connected-browser.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1546,
+      "sha256": "f00738947cd533c840a989b89f363f4780bffdcfe2f8caa7703143ae2d1fd981"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/CONTINUATION.md",
+      "status": "UNTRACKED",
+      "bytes": 12116,
+      "sha256": "c3e2374cb1b2c0e24790ff0f57b9ca9524d126d15dc6fbe4cd732a6fba6b2a55"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/artifact-provenance.json",
+      "status": "UNTRACKED",
+      "bytes": 3130,
+      "sha256": "f29f6b7e0f3fed1ef87d220d274a7b35ec2172c8c82dbb4fc0134a37c274e648"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/checkpoint.json",
+      "status": "UNTRACKED",
+      "bytes": 6764,
+      "sha256": "0d4510b2bc2365cf64277636f4c65d66a0c46ea12651e42fb6eca52bf21de013"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-auth-emulator.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 494,
+      "sha256": "f079b2d40039e493ca4e748d135441bf6269f386bf9f383b12539d7829dc55b0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-compare.py.txt",
+      "status": "UNTRACKED",
+      "bytes": 3011,
+      "sha256": "434778e26ffdf5ac51b5225e007baa6be43d137fc880252fa5d2b0882cacafe7"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser-diagnostics.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 116,
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 125,
+      "sha256": "790d48dcff7c07788592c861d9e4e07e8e0c1cd53ec04732c472b7a86127cc15"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser-reporter.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1021,
+      "sha256": "8dff2628013fa29c6e09aa3b906c607e1d6d0f63622411cb7dff459a030a6021"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 5886,
+      "sha256": "80d11e728ebdab40bdac7405915d2db94438f5c0eb760f1a47bc0016b4a03aaf"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1261,
+      "sha256": "ee4b18670a01d711feef3e34f34425d0c555124001caaf57c53441d9a2433089"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-connected-browser.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2074,
+      "sha256": "adad1aca44176c33ef0fbe98b885582e64ba49cbf9385d97f650c6b34fc5b2a9"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-emulator-ownership.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 428,
+      "sha256": "3bd941bf495d4471def5fbf7abae6edda2a3ac898d24bcfcdc782b3cce055c02"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-ensure-bootstrap.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 5677,
+      "sha256": "4f486b0ed61cb31022f0594a4428c42dfcb8e46467b4b43ddf6141b2ef0d1209"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-ensure-bootstrap.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 3494,
+      "sha256": "22cf39328b892185dad5b3fc0e74d1ef94fedb9f2d78721fb5d16a250e2ebe52"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-ensure-ordered-combined.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 4564,
+      "sha256": "9613e0b11d2a65b84df0fd4b9fa65531f820d5dfb1ce8092cabcfc5dbde40d8e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-ensure-ordered-combined.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 925,
+      "sha256": "5433e5cb563470c3a30bf0b0f98331f660737c757ec437beb27e3e7c3c22aa0e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-environment-gate-diagnostics.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 116,
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-environment-gate-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2256,
+      "sha256": "e480da07e3aa2c3ac9a179845b2e58fe2e6ca7e83d8bb478b041c4c9554f4518"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-environment-gate-reporter.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1020,
+      "sha256": "0c916f39a3f6c6e9249074ec5faa97f63bf2eb68cb59899b98bc801e40f09bf6"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-environment-gate-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1322,
+      "sha256": "a5174d549fa3729c9f4c09cceb9339414e1fe7ba53c9ad32014656bb98a3bd16"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-final-gate-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2147,
+      "sha256": "324551383a90332b18dd1aa6e8d95cff579f32cc1ee6d8aeb70e29f301819d69"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-firestore-emulator.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 3107,
+      "sha256": "e9a17f3ad909024c628a0971164a51cf37aa58af389d9402ab21008ad37bf7e5"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-full-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 959,
+      "sha256": "b2803569683230779458897ab843eb4ad111c250e3d98b5888a7f6b2c0d4f8f6"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-accepted-gate.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 159446,
+      "sha256": "360675527ec9de121ddb5862e6214cd63e8a01cfaec84ba4e938a5ec5d93d461"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-accepted-gate.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 24194,
+      "sha256": "0978ea94bbf8753de319b99533eba60423779e66226f246c128f586453708761"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-environment-gate.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 158338,
+      "sha256": "6390f960212121722fb651d03a57847e8adf582e82a4cff9bfecbc96065f02be"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-environment-gate.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 23459,
+      "sha256": "26139fe21f2fde0ac745a6549c5bb033f950900574a7db7f2ebf105535c9ef62"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-final-gate.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 158738,
+      "sha256": "f82585bc69bfa93d5b136c3dbae323c5cc1b8be7996bc21806fd2ff58b32f23f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-final-gate.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 23852,
+      "sha256": "15903cf0dc9c668fedf8ac7304519887f03374a6c37f78922117d61070e26976"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-reviewed-gate.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 157717,
+      "sha256": "9a0480c677fb542205aee30ae0fce4e53191c0d18309cf328c71a2347c2a01d3"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-historical-reviewed-gate.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 20303,
+      "sha256": "9b3135c9319e52f65277a6bdfd86e2237a0d965b43ead6d991de17aeb43af207"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-host-sample.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 151,
+      "sha256": "e467fb814ab7a8e99d5ce89e0e2a6671279772a0bdec18ab81e777684fbdf04d"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-interrupted-native-wrapper.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 254,
+      "sha256": "4b718af7bcd8af52023de38df4429171da72d19ef9d56d4553a34479fcb20dc9"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-combined.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 29706,
+      "sha256": "2afbd249ebaa804309d5409c96ef8b8493e41201fbb092cfb563c48a1c73b1a9"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-combined.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 10978,
+      "sha256": "33cbed9acaac73df5fef11fd912c5ebdd88dd6122233737d2c3c1027a0e9353e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-command-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 218,
+      "sha256": "940bd0f7f1295651948acc507e133e57d7221602c762cc51bce2fe0a003268a2"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-diagnostics.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 116,
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-isolation.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 175,
+      "sha256": "3596e8b72d0f0a37aed48900f0b48f20a27547f1d2ba2a2341d9a1035677c729"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-migrate.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 103,
+      "sha256": "1c105a43ed365057f1ff96e270f4f6351e8d0db1a093bd974648e08ad529e700"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-reporter.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1020,
+      "sha256": "4810f1deeea0a11b7c644a0c0d2821ad6d8d4615c5e9ab449e1d9fe45627174c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-resources.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 191,
+      "sha256": "214c8fd8bd92303908474053f75d2c819f0f3a22809a8b11db59be6946cdb19c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-native-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 3352,
+      "sha256": "42dfa4cb13f93bc56b2694de624feba57723be02c2f3fcf10c79ba23e067f83b"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-normalization-memo-reuse.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 127,
+      "sha256": "bd46edad11f5374b03afb46d0700dc4398152dc587e615e7dc49e96eb1d2ede4"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-normalization-original.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 127,
+      "sha256": "72c5b31e0e5398f077434a401695dba32265e10b5a82db855f9007a04cf6005a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-npm-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1297,
+      "sha256": "ded59d2fc6942e8a9c4d02d646fa7094d55011a0bca264e45a7860aa3e252dd7"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-npm-test-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 229,
+      "sha256": "84d5b403e7ff64221cedb1603f9231da31c3a2131a1fd6b1f3bc8b6dc40972cb"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-npm-test.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 1854,
+      "sha256": "605c08e31e56bde742722e347de9e3ec316fb79969ac3af707a5f3dd45f82ed0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-oneclick-bootstrap-order.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2787,
+      "sha256": "7b46fab9e1494c8bf4d8572e55a4a71c68696ece27847a0f13873fa0d5b3d682"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-oneclick-bootstrap-order.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 1968,
+      "sha256": "cd9bbaca91e404e059ca3a77f39c687c0d658c6a283cf2fb8ead00e3a13d526a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-oneclick-environment.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2872,
+      "sha256": "a2b129920bc0d5f63f2850d611923ecf829defd4e72a89a2db944b5d72d3b11e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-oneclick-environment.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 1995,
+      "sha256": "f4cd12942333334dd5aa3f34696911a70f3b8cb47d029d218d894f501ad2f9c5"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-owner-diagnostics.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 116,
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-pg-before.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 47,
+      "sha256": "57c5a344c15b4a8b37fbadf634678361f72eda3969fe47977e23f05785aec94c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-pg-start.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 64,
+      "sha256": "0a091b37d90fef0c03e3f9d904b6414fac22dde23a1b2eadb27be7aba4e9a344"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-pg-stop.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 70,
+      "sha256": "7c4418131cc35ee63af5a34a0d37871218747c5d71a7157aa51024753b162071"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-postgres.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 8593,
+      "sha256": "f0e0cb3102535fa1924e8101398641c3ffbe0125c750abbcb4e4cc96dca83e37"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-register-readonly.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1880,
+      "sha256": "8ab0e9456960f20eadf696b250c7b87877fe55ebd1596d7491d2e321d9b35350"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-register-readonly.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 495,
+      "sha256": "6ca0ea5442d03d9fcca8d7b253dae5033b9b1f9133244dadbe2c992816e5c850"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-release-beta2-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 240,
+      "sha256": "183787edcc3a5dac944fe439e2e1f46eb29aa7a0424b96e1bc6918fe4e6a5f3d"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-release-beta2-verified-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 241,
+      "sha256": "e0f44ce1fc2e7d1863f2dbe45a733f6843c59f49cc8ed4b530fb488bf944276c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-release-beta2-verified.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 3002,
+      "sha256": "541e936715e3d7cae425b0bf746e573258fe29f66d6ac8a6c86d29e1da49127e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-release-beta2.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 512,
+      "sha256": "3f36a28680a619f22b82c58790dfbeae3ef66165bda66a8c9d2af77426b2bc27"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-release-verified-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 1306,
+      "sha256": "35ae957b0ee4e669c91b5100a2b7b4c34b2d8e0433c46cab411e45b2a509ab6f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-reporter.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 664,
+      "sha256": "b202750eece3afe4b06d002f2fc3ec395b191ed5bd93b14b21b49cb9a32feb25"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-reviewed-gate-diagnostics.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 115,
+      "sha256": "89c1c28467b64d9750a76496373b52872de793eda3ff23e434e6e9bf5c4d9f1a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-reviewed-gate-exit.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2147,
+      "sha256": "a65bd96358cebcbef42d53ab61b653a44ecf167e31fb512ce69c8c6c4c78f504"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-unhandled-owners-corrected.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1585,
+      "sha256": "62a07d76f0c0b94ae20c3fbbd90b021855d73f3448d321b7541a19d6ba410e8f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-unhandled-owners-corrected.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 1120,
+      "sha256": "53e84b38221a0d2f79f1bc8c991c034677739ffcaa3d498378a0aad5e4847911"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-unhandled-owners.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2251,
+      "sha256": "a0050b988536d0e285ca07e84125213d08bc042c384f94dbc4dd38fdbb2aa658"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/closure-next-unhandled-owners.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 1554,
+      "sha256": "197466ddab610ee49890eab0ca3b5d6199d7ed03c92bc76229f75db347019c61"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/connected-browser-files.json",
+      "status": "UNTRACKED",
+      "bytes": 186,
+      "sha256": "6a889498fc9dccb50f1666dfa5a01b25eebef4bd595e783efa2f446a4a4e5c91"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/continuation-attempts.json",
+      "status": "UNTRACKED",
+      "bytes": 63833,
+      "sha256": "a817026e144c8fe20c602b9bee917eb66db7253dfae027fb8fc7d20626b66060"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/ensure-fixture-consumers.json",
+      "status": "UNTRACKED",
+      "bytes": 249,
+      "sha256": "1841ffc30e60d4875bdb898438c4a7974ba3c685d86e700cba9c636cdd109e19"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/final-resource-check.json",
+      "status": "UNTRACKED",
+      "bytes": 444,
+      "sha256": "7669ec0e749098807ef5f96558f7a882650aab728fe30178b74804473e6e00f2"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/final-review.json",
+      "status": "UNTRACKED",
+      "bytes": 1120,
+      "sha256": "f56d4b4de2232ceadb50aadd636f2db975f6c5a0b2112b9397d1216879707c2a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/full-historical-comparison.json",
+      "status": "UNTRACKED",
+      "bytes": 259893,
+      "sha256": "c85aefeb11e5a502ff76f6a22a61a6d62821ca22f18e1d6ba58516cb676a97ab"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/generated-report-reconciliation.json",
+      "status": "UNTRACKED",
+      "bytes": 673,
+      "sha256": "fc55cdeecd20fa61d4e7f7b97cc2792e38de80df7944ebf927f00653b3cdf1b4"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/generated-trip-identity-adjustment-block89.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1226,
+      "sha256": "b7c31d71cf0eacaea87bfc01ef4c01f61cd9e9ebaf69e0421d4794d921f34c93"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/generated-trip-identity-adjustment-block89.md.gz",
+      "status": "UNTRACKED",
+      "bytes": 1640,
+      "sha256": "f759e6cf62dfef6da1111925101db8956c7af170f735e7f607adf55c8b17120c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-assertion-registration.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 127,
+      "sha256": "45d4ea3dee44f75855dac7283f1cac6d4466c4a4e2be41fd550108768b27d5be"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-changed-files.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 8587,
+      "sha256": "b8bbba5a1dac778dc9a7e3c3a7fa54bd81f025c353b6c5e27492bdfd11c9e3fd"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-file-preservation-delta.json",
+      "status": "UNTRACKED",
+      "bytes": 1287,
+      "sha256": "3f29394f4806821aa15e30283f9711226db7cbb1296cb8cebb95b2caa79fb388"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-historical-identity-delta.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 3817,
+      "sha256": "161109572563c5339525f5f8063e72d2e9911fa22c0c63d2b5c82cfc08d9ff45"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-integration-dependencies.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 5216,
+      "sha256": "5dd7d09de6ff51715b76fb42ab7220deac9c357c2e79af510a2ff71c50dd7f1f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-preservation-current.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 990,
+      "sha256": "63c1cc96d9b0c1645ebe04478479e59ebb0b9fc49c54568a6f2cc4758aa987d7"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-remaining-failures.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2167,
+      "sha256": "00b03ba9744cb3f3777154a58ff4a7ffb3e9fe09b7fad2c3f6937bce34ad3e96"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-report.md.gz",
+      "status": "UNTRACKED",
+      "bytes": 9110,
+      "sha256": "f91ba81424ec5112c01d8b3153e4942f9abe9a260fdb623115dc2646ac54a463"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-verification-commands.md.gz",
+      "status": "UNTRACKED",
+      "bytes": 1259,
+      "sha256": "16f4d5e712cd394398355313d794ca85ed8a7cc77fc20e73790e56bae9a40d7e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-verification-results.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 11868,
+      "sha256": "fdbf23f9e21e00c44977dc1a98324fe15197c3486a9287aa251a4617c49258bd"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/initial-worktree.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 8357,
+      "sha256": "f03b7c7efdf8f5611d594b530940635e2ae9a34eb5760e5e399ec02523bcbe00"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/native-combined-files.json",
+      "status": "UNTRACKED",
+      "bytes": 1148,
+      "sha256": "3e7e37fe7e8ecdb0e3b38407f22a2f19590afc0cc320c65c00e1a898af15d11e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/native-combined-summary.json",
+      "status": "UNTRACKED",
+      "bytes": 521,
+      "sha256": "8834aafc8db698bcf417d762945274505314bf0115089191cb050747655e1800"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/original-14-failures.json",
+      "status": "UNTRACKED",
+      "bytes": 50014,
+      "sha256": "1284c840770ae1e8dff6c7300905a730c7a40d772614bad510e57630c1bdb96a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/preliminary-credential-scan.json",
+      "status": "UNTRACKED",
+      "bytes": 337,
+      "sha256": "c951513f3b7500a4d133ca2088df7897c611bc4df5b017e22107437c4096ffe9"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/preservation-current.json",
+      "status": "UNTRACKED",
+      "bytes": 215,
+      "sha256": "afed59a9299ca1ce4e8a936cd3d0f506f8fb2c6ec77e456c814027683512bc25"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/preservation-final.json",
+      "status": "UNTRACKED",
+      "bytes": 3611,
+      "sha256": "c66cad5f3dc371a5a1b4535ab91d27cc0a8a07929c4ebfb2a94a5995aa09973d"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/preservation-start.json",
+      "status": "UNTRACKED",
+      "bytes": 109,
+      "sha256": "d63ed342a3f91f39ea7efc97abce087d226c75a532116b5e55f334a7edaf3629"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/continuation-20261113/prior-browser-evidence-preserved.json",
+      "status": "UNTRACKED",
+      "bytes": 226,
+      "sha256": "65a0be588ecb984037ac2666a6d491e64ca88ff975371a288aeef3bdb2ccc38a"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/convergence2-suite-files.json",
+      "status": "UNTRACKED",
+      "bytes": 14645,
+      "sha256": "af712c0296a97583a30ebe98c7698e23bacab7e15d14d17c428956fa0df37fcd"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/convergence3-sql-suite-files.json",
+      "status": "UNTRACKED",
+      "bytes": 495,
+      "sha256": "72d2ac95d93b0c0e831e739001ef468d67f69ed4c51a59db608939aabdce0cde"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/csv-isolated.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 527,
+      "sha256": "f2a6dcb1e11b1d9103f56c6019804498ddefe8012734580030b5cd7e86ad1a76"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/driver-owner.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 917,
+      "sha256": "4aa9c79cd982169c08c4c2e730fb3b5b2a94b4c6c66c97a4db99708f7e1d8129"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/final-build.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2310,
+      "sha256": "829c5ae3da68bd4a6bd900f9cd1c45dc721fdebc2b4654cf1768174212dfd24b"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/final-lint.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 70,
+      "sha256": "5c019c787f9de0cbc3d9a64848f838562e6d2d25c562972ac569a1e4546dcc26"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/generated-trip-identity-adjustment-block89.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1226,
+      "sha256": "7bcc5ce3b9e1c8bcd5bb53024602752b475fd4a15508c6cce66a6d8af235eb57"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/generated-trip-identity-adjustment-block89.md.gz",
+      "status": "UNTRACKED",
+      "bytes": 1640,
+      "sha256": "1d48807ed21047076e9b79d992190759995b9d5fddf0e8506be2d606a5bb49fa"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/historical-current.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 136078,
+      "sha256": "c132e612701cc22961bbde9c6d8f027b6302cbac79f6256ed992e3623c03edcc"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/historical-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 159012,
+      "sha256": "4ca2eac219543631a59178dd8bfcb326d2c881f26886faa30bf08d0be38bc2c0"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/historical-identity-delta.json",
+      "status": "UNTRACKED",
+      "bytes": 27449,
+      "sha256": "9c5a52d58ce62ec64aa35434a63c4555aa00a41e1cc919b5919eb1740995e0c5"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/historical-recovery-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 9357,
+      "sha256": "1eb7e2e563dd0a20cfd5d933373cf5b8cf0c82b652e56d6510e84fdb768025c9"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/historical-verified.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 162026,
+      "sha256": "e3d5c8b1a952a5a68c6d3ff9927c34603192dcc8c22f2f7751af43e1c69e9d7f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/import-command-family.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 5698,
+      "sha256": "58d1275a2958666ae106f87e4b84c0efad68eb13c8a0179a608b6d6e23218e06"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/integration-dependencies.json",
+      "status": "UNTRACKED",
+      "bytes": 63388,
+      "sha256": "1e348ca0e753760669a377b258701ff284dd9f1689d7c979de4c2901db46c327"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-browser-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 935,
+      "sha256": "6cd751073b6f01c1e04c5f9cf3290e474f27af46d5dc39cc9326089f5029298f"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-context-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 936,
+      "sha256": "d3b2ec7368d9ebfb6183d407d03f6473ef63a7b9153c1144f3ea4f8d52bbf112"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-context-final.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 770,
+      "sha256": "f587bda3a6fa51794d56d6f988e4af1621eef5e2e265048d6ceabdc7fc10a62d"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-stage.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 411,
+      "sha256": "4f9ca61727e3988235589de69efc3d8df596d9956cd40db960593726a2559bde"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-teardown-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 934,
+      "sha256": "d01eac42c2560785827b87e550c90d4e67540a17c272bac60b538c193d0187fb"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/journal-teardown-final.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 769,
+      "sha256": "840192a3bf8ba817ca038c74b556bebdaca585862420bf9ea005c5717dbbb687"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/localization-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 2487,
+      "sha256": "d61ce0fb8fe3a7f3304428e4f3a8d82aed6b7d1fc850624f68d43aefbe186c46"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/localization-verified.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1890,
+      "sha256": "14dd55ecf4746e70272fa7840899ad6ffa471bec15892a9622c910f954fd7409"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/native-expanded.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 31002,
+      "sha256": "f2b6c0bad406a10e4c856b4f50fc187b55c4d1d1bf809928fd985d94c38f9269"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/native-full.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 13765,
+      "sha256": "7ccdc45dbe2b7748dcffeaee6064c859f85f748a63f5ea8a9db4dab4c202cf10"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/native-reliability-isolated.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 4652,
+      "sha256": "733b0f81bd745ca27e290981722bb44c8d04f4c056805aa2b4f9652d4586a2b3"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/native-reliability.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 5877,
+      "sha256": "81cc0535ee5e558049a425562796b1161c0ec582740e6dfb824fd605c795f596"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/native-source-isolated.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1801,
+      "sha256": "d33eef90341a19d4c57d0a34f4ace37725324c4112c2f0c7b3b2902eea6c74c7"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/npm-verified.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2216,
+      "sha256": "2a0aea9ac63fa4aa9963a0217ffde5e124f96f1004fcc04707eaeebd01512083"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/operational-domain-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1049,
+      "sha256": "4f06689988d7d9bd31fe8d443dd60f1165e9ccdedf0a4c733fc8ae0dd34436c1"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/preservation-current.json",
+      "status": "UNTRACKED",
+      "bytes": 3611,
+      "sha256": "c66cad5f3dc371a5a1b4535ab91d27cc0a8a07929c4ebfb2a94a5995aa09973d"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/register-recovery-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1881,
+      "sha256": "97cfa4b32cafff627269db7a092581af3287755edf0b46e801c993b4a0d2b8df"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/release-blocker-evidence.py.txt",
+      "status": "UNTRACKED",
+      "bytes": 4191,
+      "sha256": "a4de43d5c71832c0ddd040893ac25d63cd810af622c5171ff794241bbb843762"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/release-blocker-final-suite-files.json",
+      "status": "UNTRACKED",
+      "bytes": 17273,
+      "sha256": "0bea2d23a764658b6891f64b3b2a8c9614abcdb183bfbb9f70d8caed6b48c109"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/release-blocker-integration-graph.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 3861,
+      "sha256": "65be707e067590a7f3671606884d52816aab3d0c899d8b965ae245d1f864848c"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/release-blocker-native-run.mjs.txt",
+      "status": "UNTRACKED",
+      "bytes": 2500,
+      "sha256": "1d8d8bf030907671a2237b2624a19b281f60c2f9d37732065671ef7d2e204e36"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/release-verified.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2979,
+      "sha256": "c06c78a64175697a57adc0b4416ea39824f63ba03eb49c33296b55e4605b0812"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/remaining-failures.json",
+      "status": "UNTRACKED",
+      "bytes": 5536,
+      "sha256": "a17bb8c9ad9aa8793fb4601e463246165c7534cc4a608ab73889cc90eb9bd498"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/retired-boundaries.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 8165,
+      "sha256": "da799a87e853f97f7b15f745fabb46ec6f99ea14f9f603244c6b0414ad213576"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/roster-confidence-final.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 783,
+      "sha256": "be951b9835c351c15e42c001a97917c9e9240f6241b0a750f9b252b49793ef67"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/runtime-translation.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 1928,
+      "sha256": "2bea63b56ed3b7dc0bba430facc930d90be828be00600b8cd85bf042ee2f50e6"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/typed-family.json.gz",
+      "status": "UNTRACKED",
+      "bytes": 14154,
+      "sha256": "4a342f86c89fce710c1f9687124a3a5b463258d7efd75d3c512e753e05bcc167"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/types-final.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 20,
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/verification-commands.md",
+      "status": "UNTRACKED",
+      "bytes": 5115,
+      "sha256": "90d37434022a28389fddfcff6c32e8e9261d8163d9d1ab564b9208a53a52090e"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/verification-results.json",
+      "status": "UNTRACKED",
+      "bytes": 211663,
+      "sha256": "6a59ee11f584cb23d50dbe028ebc25565860098bf485477280e2994f50f4b404"
+    },
+    {
+      "path": "docs/reconstruction/release-blocker-closure/verify-complete.log.gz",
+      "status": "UNTRACKED",
+      "bytes": 2925,
+      "sha256": "8192c6cc307d60f5317d3c0ff1f287042746f1836bd42df1a027fd1eb2c7382f"
+    },
+    {
+      "path": "src/services/offline/tripCommandIdentity.ts",
+      "status": "UNTRACKED",
+      "bytes": 1007,
+      "sha256": "4cb9ad0114ae661ab610024e2f09c5290c00b6af1bbec5b9e7bc6c1d77e190f7"
+    },
+    {
+      "path": "src/tests/helpers/reviewedTripCommandFixture.ts",
+      "status": "UNTRACKED",
+      "bytes": 3530,
+      "sha256": "8744e8c57163f24e3ec31708427477e8bc41cfded9a6144bf10595dce894248f"
+    },
+    {
+      "path": "src/tests/releaseBlockerPricingAliases.test.ts",
+      "status": "UNTRACKED",
+      "bytes": 1161,
+      "sha256": "ce64ff5cc3f18694a237eb64046ff018f7bed2373b84fd88a51dd7e6440ac678"
+    },
+    {
+      "path": "src/tests/releaseBlockerTripIdentity.test.ts",
+      "status": "UNTRACKED",
+      "bytes": 3711,
+      "sha256": "66e82d2b785448b8b2968de908aa8fa790dac914088878086b2c42dcfb76a99a"
+    }
+  ],
+  "stagingLineEndings": "Existing repository core.autocrlf=true; staged text normalized; working-byte fingerprints preserved."
+}

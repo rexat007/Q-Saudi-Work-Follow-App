@@ -1,0 +1,168 @@
+{
+  "baseHead": "3edaa8799954145e438daa48cc6f80b4fe288f10",
+  "branch": "engineering/convergence-1-20261110",
+  "initialUncommittedFiles": 131,
+  "initialInventoryMatches": true,
+  "productionSourceChangedThisContinuation": [
+    "src/services/googleWorkspaceBlueprint/capture.ts",
+    "src/services/googleWorkspaceBlueprint/contract.ts"
+  ],
+  "changedTestOwners": [
+    "src/tests/operationalReportTabIsolation.test.ts",
+    "src/tests/helpers/operationalSheetsFixture.ts"
+  ],
+  "completed": {
+    "unchangedBlueprint": "8/8 PASS",
+    "unchangedRealBrowser": "1/1 PASS in 9.52 seconds",
+    "unchangedSevenFamilyComparison": "159/160; only retired DELIVERED-replay fixture assertion failed",
+    "journalAndAuthorityFocused": "129/129 PASS",
+    "firstFullHistoricalAssertions": "3443/3443 PASS; tool exit 1 requires native-exit diagnosis",
+    "legacyNumberingAndServerAdapter": "82/82 PASS after explicit offline fixture isolation; separate from native U07/RB1",
+    "sevenFamiliesAfterCorrections": "166/166 PASS, native exit 0, original timeouts retained",
+    "C1ServerBound": "47/47 PASS, native exit 0; transactional counter and project-scoped audit asserted",
+    "priorFullDiagnostic": "3449/3449 assertions but exit 1 with two unhandled rejections. This is FAIL, retained in historical-final-gate.log and final-gate-exit.json.",
+    "unhandledOwnerFixes": "30/30 PASS, native exit 0; owner-diagnostics.json contains no unhandled/final errors",
+    "historicalAcceptedAttempt": "3448/3449; one 5s timeout, zero unhandled errors, native exit 1; not PASS",
+    "ensureEagerBootstrap": "70/84, 14 original-deadline timeouts; not PASS",
+    "oneclickEnvironmentComparison": "32/43, 11 original-deadline timeouts; native run also fails; sandbox causality unproven",
+    "sharedEnsureConsumerFamily": "84/84 PASS, native exit 0, all five files together; prior eager and first ordered attempts remain failed evidence",
+    "reviewedFullMissingBrowserRoot": {
+      "files": 164,
+      "passed": 3448,
+      "failed": 1,
+      "nativeExit": 1,
+      "note": "One immediate browser environment error; all original assertions remain. Not PASS."
+    },
+    "fullHistorical": {
+      "passed": 3449,
+      "total": 3449,
+      "files": 164,
+      "pending": 0,
+      "nativeExit": 0,
+      "unhandled": 0,
+      "original14Passed": 14,
+      "old94Passed": 94,
+      "missingPriorIdentities": 0
+    },
+    "nativeCombined": {
+      "files": 25,
+      "passed": 668,
+      "failed": 0,
+      "pending": 0,
+      "nativeExit": 0,
+      "pgStopExit": 0,
+      "finalUnhandledErrors": [],
+      "addedDatabases": [],
+      "remainingClients": [],
+      "sameCombinedRunU07Rb1": [
+        {
+          "file": "ar2U07OfflineContinuity.test.ts",
+          "passed": 53,
+          "failed": 0
+        },
+        {
+          "file": "ar2U09Rb1Governance.test.ts",
+          "passed": 29,
+          "failed": 0
+        }
+      ],
+      "sourceSha256": "7a76527dd992fa4fbf83693609c6bd3b64210bca00da0d560e95c4a176fff1ad"
+    },
+    "npmTest": {
+      "nativeExit": 0,
+      "commands": 48,
+      "passed": 546
+    },
+    "readonlyFixtureCorrection": {
+      "cause": "TS4104 readonly template headers to mutable fixture row input",
+      "correction": "Copy existing headers at call site; fixture already structuredClone(initial), so no value or ownership/assertion change",
+      "ownerFilePassed": 25,
+      "ownerFileFailed": 0,
+      "nativeExit": 0
+    },
+    "releaseBeta2": {
+      "nativeExit": 0,
+      "typeScriptDiagnostics": 0,
+      "frontendPwaBuild": "PASS",
+      "serverBuild": "PASS",
+      "reportsAssertions": 19,
+      "releaseAssertions": 443
+    },
+    "connectedBrowserPwa": {
+      "files": 4,
+      "total": 14,
+      "passed": 14,
+      "pending": 0,
+      "nativeExit": 0,
+      "finalUnhandledErrors": [],
+      "cleanupErrors": [],
+      "remainingListeners": []
+    },
+    "supplementalPorts": {
+      "allClosed": [
+        55439,
+        8085,
+        9099,
+        4400,
+        4500,
+        9150
+      ]
+    },
+    "finalSourceReview": {
+      "status": "PASS",
+      "diffCheck": 0,
+      "credentialPatternFindings": 0,
+      "allOwnedFixturePortsClosed": true,
+      "rb4AndMigrationsPreserved": true,
+      "sourceRuntimeGraphRoots": 54,
+      "u09CoupledRoots": 29
+    }
+  },
+  "running": null,
+  "nextSequentialGates": [
+    "stage exact reviewed inventory",
+    "verify staged inventory and diff, create one local commit",
+    "verify branch/new HEAD, clean worktree and RB4 preservation; no push"
+  ],
+  "runtimeServicesStartedThisContinuation": [
+    "Owned PostgreSQL fixture: STOPPED; no added databases or remaining clients",
+    "Owned demo Firestore/Auth emulators: STOPPED; runner checked 8085/9099 closed"
+  ],
+  "interruptedCommands": [
+    {
+      "command": "Node 22 ../closure-next-full-run.mjs",
+      "session": 4516,
+      "reason": "Stopped owned process tree after observing live Firebase permission-denied calls from legacy TripNumberGenerator tests. Partial diagnostic output retained; not a passing full gate."
+    },
+    {
+      "command": "Node 22 ../closure-next-full-final-run.mjs",
+      "session": 70966,
+      "reason": "Observed C1 direct TripService fixture using client SDK counter; stopped owned tree. Fixture now binds actual server ports and forbids client numbering."
+    },
+    {
+      "command": "& ../closure-next-native-verification.ps1",
+      "session": 53891,
+      "wrapperPid": 8900,
+      "reason": "PostgreSQL startup returned ready but PowerShell remained blocked after the detached server launch. No Node runner, test database or SQL test had started. Verified with process inventory, pg_stat_activity, missing runner artifacts and ready-server log.",
+      "resume": "Stopped only verified wrapper PID 8900; reused the already-ready owned cluster. Actual 25-file native runner started once in session 56544."
+    }
+  ],
+  "testFixtureOwnersChanged": [
+    "canonicalTripDispatchAuthority",
+    "commandDatabase",
+    "googleSheetsImport",
+    "materialAuthorityP602B2",
+    "operationalReportTabIsolation",
+    "operationalSheetsFixture",
+    "operationalWorkspaceTemplates",
+    "projectCentricOperationsBlock87",
+    "projectContextLifetime",
+    "smartImportServerCanonicalCommitContractC1",
+    "tripIdentityAdjustmentBlock89",
+    "workspaceBoundedWorkbookInspection",
+    "workspaceEnsureFixture",
+    "workspaceLocalBlueprint",
+    "workspaceProviderResilience"
+  ],
+  "commitStatus": "EVIDENCE_FINALIZED_BEFORE_SINGLE_AUTHORIZED_LOCAL_COMMIT; exact resulting SHA returned in executor final report; NO PUSH"
+}

@@ -1,0 +1,9 @@
+import fs from 'node:fs';import cp from 'node:child_process';
+const files=JSON.parse(fs.readFileSync('docs/reconstruction/release-blocker-closure/release-blocker-final-suite-files.json','utf8'));
+const tools='C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-tools';
+if(!fs.existsSync(tools+'/node_modules/playwright-core/package.json'))throw Error('BROWSER_TOOL_ROOT_UNAVAILABLE');
+const env={...process.env,QSA_BROWSER_TOOL_ROOT:tools,QSA_TEST_DIAGNOSTICS:'1'};
+const log=fs.openSync('../closure-next-historical-environment-gate.log','w');
+const args=['node_modules/vitest/vitest.mjs','run',...files,'src/tests/driverViewConvergenceP603.test.ts','src/tests/i18nCodemod.test.ts','--maxWorkers=1','--fileParallelism=false','--reporter=default','--reporter=json','--reporter=../closure-next-environment-gate-reporter.mjs','--outputFile.json=../closure-next-historical-environment-gate.json'];
+const result=cp.spawnSync(process.execPath,args,{stdio:['ignore',log,log],env});fs.closeSync(log);
+fs.writeFileSync('../closure-next-environment-gate-exit.json',JSON.stringify({status:result.status,signal:result.signal,error:result.error?.message,arguments:args,browserToolRoot:tools,node:process.version},null,2));console.log('HISTORICAL_NATIVE_EXIT='+result.status);process.exitCode=result.status??1;

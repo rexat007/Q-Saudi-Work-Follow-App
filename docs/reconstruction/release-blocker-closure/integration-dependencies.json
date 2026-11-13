@@ -1,0 +1,1561 @@
+{
+  "analysis": "READ_ONLY_HISTORY_AND_COMPILED_RUNTIME_IMPORT_GRAPH; no cherry-pick, merge or history rewrite",
+  "pinnedMain": "030e9027685033c674cf2021499db7bfb675cbfd",
+  "u09Head": "11326e277939fe3a1d839d723085797d3d6a691f",
+  "convergenceHead": "3edaa8799954145e438daa48cc6f80b4fe288f10",
+  "commitLineage": [
+    "3edaa8799954145e438daa48cc6f80b4fe288f10 Complete connected workflow recovery and record release NO-GO",
+    "9d798dfb9dd90d8ffa19bcba5f03ac41db2cd746 fix: reconcile canonical trip evidence and durable operational recovery",
+    "b52e0167e3f60c59af3ad843a618ba2e95cef246 fix(import): require accepted row evidence for roster readiness",
+    "11326e277939fe3a1d839d723085797d3d6a691f feat(sql): add U09 RB3 immutable source authority",
+    "d13a6d4f07e21d766df09bd5dbce10bd9ac0b1f1 feat(sql): integrate U09 RB2 account and project UI",
+    "10f546177b54239f5337b938c68b35b3b3030637 feat(sql): complete U09 RB1 governance authority",
+    "545507c70c7e4861e9f732b7f9cdce613d1b3e58 Prepare U09 runtime fencing and explicit cutover readiness gates"
+  ],
+  "limitations": [
+    "Runtime imports reflect local transpilation; type/schema/call semantics and server/Rules contracts require the integration cohorts in the report.",
+    "A portable root is not a standalone safe cherry-pick. No integration is executed."
+  ],
+  "records": [
+    {
+      "path": "server/app.ts",
+      "directRuntimeImports": [
+        "server/runtimeComposition.ts",
+        "server/tripCommandHandler.ts",
+        "src/services/exceptionCommands.server.ts",
+        "src/services/projectAuditRead.server.ts",
+        "src/services/workspaceProvisioning.server.ts",
+        "server/workspaceSyncCoordinator.routes.ts",
+        "server/workspaceExecutionToken.ts",
+        "server/runtimeVersion.ts",
+        "server/workspaceGoogleOAuth.routes.ts",
+        "server/workspaceSyncWorker.ts",
+        "server/projectGoogleBlueprint.adapter.ts",
+        "src/services/projectGoogleWorkspace.server.ts",
+        "server/projectGoogleTemplate.adapter.ts",
+        "src/services/projectWorkspaceMasterContract.ts",
+        "src/types/tripCommands.ts",
+        "src/services/adminAccount.server.ts",
+        "server/workspace.isolation.ts",
+        "src/firebase/admin.ts",
+        "server/workspace.service.ts",
+        "src/services/projectWorkspaceInitialProjection.server.ts",
+        "src/services/projectWorkspaceProjectionState.server.ts",
+        "src/types/workspace.ts",
+        "server/security.middleware.ts",
+        "src/services/projectPricing.server.ts",
+        "src/services/importSession.server.ts",
+        "src/services/import/rosterExecution.server.ts",
+        "src/services/canonicalSnapshot.server.ts",
+        "src/services/projectCommands.server.ts",
+        "src/services/driverTruckIntake.server.ts",
+        "src/services/projectFleetReadModel.service.ts",
+        "src/services/projectFleetReadModel.server.ts",
+        "src/services/fleetProfileMaintenance.server.ts",
+        "src/services/projectFleetQuery.server.ts",
+        "src/services/setupFleetQuery.server.ts",
+        "src/services/import/rosterBulkDiscovery.server.ts",
+        "src/services/temporalRelationshipAuthority.server.ts",
+        "src/services/projectParticipationAuthority.server.ts",
+        "src/services/projectProvisioning.server.ts",
+        "src/services/projectActivation.service.ts",
+        "src/services/projectReadinessQuery.server.ts",
+        "src/services/projectLifecycle.server.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 144,
+      "u09TouchedRuntimeDependencies": [
+        "server/app.ts",
+        "server/runtimeComposition.ts",
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "server/runtimeComposition.ts",
+        "server/tripCommandHandler.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/services/exceptionCommands.server.ts",
+        "src/services/projectAuditRead.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "server/tripCommandHandler.ts",
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/exceptionCommands.server.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/rosterMaterialBinding.ts",
+        "src/services/pricing.service.ts",
+        "src/services/projectAuditRead.server.ts",
+        "src/services/trip.service.ts",
+        "src/services/tripCommands.server.ts"
+      ]
+    },
+    {
+      "path": "server/tripCommandHandler.ts",
+      "directRuntimeImports": [
+        "src/services/tripCommands.server.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 93,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "server/tripCommandHandler.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts",
+        "src/services/tripCommands.server.ts"
+      ]
+    },
+    {
+      "path": "src/App.tsx",
+      "directRuntimeImports": [
+        "src/runtime/SqlApplicationSession.tsx",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/components/auth/ProfileContinuity.tsx",
+        "src/runtime/workspaceProvisioningResume.ts",
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/hooks/useUserActiveWorkspaceSync.ts",
+        "src/i18n/batch4Presentation.ts",
+        "src/entityRelations.ts",
+        "src/docsData.ts",
+        "src/components/FirestoreArchitectureView.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/components/navigation/Sidebar.tsx",
+        "src/components/pricing/PricingEngineView.tsx",
+        "src/components/field/FieldOperationsView.tsx",
+        "src/components/reports/ReportsEngineView.tsx",
+        "src/components/dashboard/OperationsDashboardView.tsx",
+        "src/components/admin/AdminConsoleView.tsx",
+        "src/components/migration/LegacyMigrationView.tsx",
+        "src/components/security/SecurityAuditView.tsx",
+        "src/components/auth/AuthButton.tsx",
+        "src/components/offline/PWAInstallButton.tsx",
+        "src/components/offline/OfflineIndicator.tsx",
+        "src/components/offline/OutboxDrawer.tsx",
+        "src/components/navigation/SystemToolsDrawer.tsx",
+        "src/components/navigation/MobileNavDrawer.tsx",
+        "src/components/navigation/UnauthorizedBanner.tsx",
+        "src/hooks/useOnlineStatus.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/conflictResolution.service.ts",
+        "src/i18n/index.ts",
+        "src/components/i18n/LanguageSwitcher.tsx",
+        "src/services/navigation.service.ts",
+        "src/firebase/authContext.tsx",
+        "src/components/auth/AccountStatusGate.tsx",
+        "src/repositories/project.repository.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 279,
+      "u09TouchedRuntimeDependencies": [
+        "src/App.tsx",
+        "src/components/admin/AdminConsoleView.tsx",
+        "src/components/admin/SqlAccountAdministration.tsx",
+        "src/components/auth/AccountStatusGate.tsx",
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/components/field/FieldOperationsView.tsx",
+        "src/components/field/SqlTripWorkstation.tsx",
+        "src/components/import/SqlImportJourney.tsx",
+        "src/components/navigation/Sidebar.tsx",
+        "src/components/offline/OutboxDrawer.tsx",
+        "src/components/offline/SqlJournalPanel.tsx",
+        "src/components/wizard/OperationalConfigurationForm.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/components/wizard/SqlProjectSetup.tsx",
+        "src/components/wizard/Step1ProjectInfo.tsx",
+        "src/firebase/authContext.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/runtime/SqlApplicationSession.tsx",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/importSessionClient.service.ts",
+        "src/services/offline/legacyJournalInventory.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/types/sqlGovernance.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/components/admin/SqlAccountAdministration.tsx",
+        "src/components/field/SqlTripWorkstation.tsx",
+        "src/components/import/SqlImportJourney.tsx",
+        "src/components/offline/SqlJournalPanel.tsx",
+        "src/components/wizard/SqlProjectSetup.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/runtime/SqlApplicationSession.tsx",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/exceptionCommandClient.service.ts",
+        "src/services/offline/legacyJournalInventory.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts",
+        "src/tests/pricingEngine.cases.ts",
+        "src/types/sqlGovernance.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/components/field/DriverView.tsx",
+        "src/components/field/FieldSupervisionView.tsx",
+        "src/components/field/LoadingOperatorView.tsx",
+        "src/components/field/SqlTripWorkstation.tsx",
+        "src/components/field/UnloadingOperatorView.tsx",
+        "src/components/import/RosterCarrierResolutionLayer.tsx",
+        "src/components/import/RosterMaterialResolutionLayer.tsx",
+        "src/components/importCenter/GoogleSheetsImportSection.tsx",
+        "src/components/offline/OutboxDrawer.tsx",
+        "src/components/pricing/PricingEngineView.tsx",
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/components/reports/ReportsEngineView.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/firebase/authContext.tsx",
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/exceptionCommandClient.service.ts",
+        "src/services/import/driverTruckImport.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/rosterMaterialBinding.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/offline/conflictResolution.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/trip.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts",
+        "src/tests/pricingEngine.cases.ts",
+        "src/types/unifiedImport.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "directRuntimeImports": [
+        "src/services/projectReadTransport.ts",
+        "src/repositories/trip.repository.ts",
+        "src/repositories/pricingRule.repository.ts",
+        "src/services/pricing.service.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/types/tripCommands.ts",
+        "src/services/operationalProfileResolver.ts",
+        "src/services/operationalReporting.ts",
+        "src/i18n/index.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 56,
+      "u09TouchedRuntimeDependencies": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/DriverView.tsx",
+      "directRuntimeImports": [
+        "src/i18n/tripCommandErrors.ts",
+        "src/utils/operationalTripProjection.ts",
+        "src/utils/projectScope.ts",
+        "src/hooks/useOnlineStatus.ts",
+        "src/i18n/index.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/repositories/trip.repository.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 52,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/FieldSupervisionView.tsx",
+      "directRuntimeImports": [
+        "src/utils/projectScope.ts",
+        "src/hooks/useOnlineStatus.ts",
+        "src/i18n/index.ts",
+        "src/components/importCenter/ExcelCsvImportSection.tsx",
+        "src/components/importCenter/GoogleSheetsImportSection.tsx",
+        "src/services/offline/indexedDB.service.ts",
+        "src/repositories/trip.repository.ts",
+        "src/repositories/exception.repository.ts",
+        "src/services/exceptionCommandClient.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 143,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/importSessionClient.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/exceptionCommandClient.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/components/importCenter/GoogleSheetsImportSection.tsx",
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/exceptionCommandClient.service.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts",
+        "src/types/unifiedImport.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/LoadingOperatorView.tsx",
+      "directRuntimeImports": [
+        "src/components/wizard/ProjectOperationalReadiness.tsx",
+        "src/services/projectMutability.policy.ts",
+        "src/repositories/pricingRule.repository.ts",
+        "src/i18n/tripCommandErrors.ts",
+        "src/types/tripCommands.ts",
+        "src/i18n/operationalMessages.ts",
+        "src/services/canonicalRelationshipContext.service.ts",
+        "src/services/pricing.service.ts",
+        "src/hooks/useOnlineStatus.ts",
+        "src/repositories/project.repository.ts",
+        "src/services/offline/offlineCache.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/i18n/index.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 79,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/SqlTripWorkstation.tsx",
+      "directRuntimeImports": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/runtime/sqlUiSession.ts",
+        "src/types/tripCommands.ts",
+        "src/i18n/index.ts",
+        "src/i18n/sqlRuntime.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 59,
+      "u09TouchedRuntimeDependencies": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/components/field/SqlTripWorkstation.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/components/field/SqlTripWorkstation.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/components/field/AdaptiveOperationsView.tsx",
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/field/UnloadingOperatorView.tsx",
+      "directRuntimeImports": [
+        "src/i18n/tripCommandErrors.ts",
+        "src/types/tripCommands.ts",
+        "src/utils/operationalTripProjection.ts",
+        "src/utils/projectScope.ts",
+        "src/i18n/operationalMessages.ts",
+        "src/hooks/useOnlineStatus.ts",
+        "src/repositories/project.repository.ts",
+        "src/i18n/index.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/repositories/trip.repository.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 53,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+      "directRuntimeImports": [
+        "src/components/import/ImportGroupPage.tsx",
+        "src/components/import/ImportConfirmation.tsx",
+        "src/components/import/CanonicalResolutionDecision.tsx",
+        "src/i18n/index.ts",
+        "src/services/import/rosterBatchReview.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 52,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/import/rosterBatchReview.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+      "directRuntimeImports": [
+        "src/services/import/rosterMaterialBinding.ts",
+        "src/components/import/ImportGroupPage.tsx",
+        "src/components/import/ImportConfirmation.tsx",
+        "src/components/import/CanonicalResolutionDecision.tsx",
+        "src/i18n/index.ts",
+        "src/services/import/rosterBatchReview.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 53,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/rosterMaterialBinding.ts"
+      ]
+    },
+    {
+      "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+      "directRuntimeImports": [
+        "src/services/import/googleDrivePipeline.service.ts",
+        "src/services/workspace.service.ts",
+        "src/services/import/entityResolutionCommand.service.ts",
+        "src/services/import/importSessionClient.service.ts",
+        "src/tests/googleDriveImport.cases.ts",
+        "src/services/import/importProjectContext.adapter.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 113,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/importSessionClient.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleDriveImport.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/import/googleDrivePipeline.service.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/tests/googleDriveImport.cases.ts"
+      ]
+    },
+    {
+      "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+      "directRuntimeImports": [
+        "src/services/import/excelCsvPipeline.service.ts",
+        "src/services/import/durableSessionContract.ts",
+        "src/components/import/ContextualCanonicalCreation.tsx",
+        "src/services/import/contextualCanonicalCreation.service.ts",
+        "src/components/import/CanonicalResolutionDecision.tsx",
+        "src/services/import/importResolutionWorkflow.ts",
+        "src/i18n/importResolution.ts",
+        "src/components/import/CanonicalImportBoundary.tsx",
+        "src/i18n/batch4Messages.ts",
+        "src/i18n/batch4Presentation.ts",
+        "src/i18n/index.ts",
+        "src/services/workspace.service.ts",
+        "src/services/import/googleSheetsPipeline.service.ts",
+        "src/services/import/importSessionClient.service.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/types/unifiedImport.ts",
+        "src/tests/googleSheetsImport.cases.ts",
+        "src/services/import/importProjectContext.adapter.ts",
+        "src/services/import/smartSourceDiscovery.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 114,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/importSessionClient.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts",
+        "src/types/unifiedImport.ts"
+      ]
+    },
+    {
+      "path": "src/components/offline/OutboxDrawer.tsx",
+      "directRuntimeImports": [
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/components/offline/SqlJournalPanel.tsx",
+        "src/i18n/batch4Messages.ts",
+        "src/i18n/batch4Presentation.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/offlineCache.service.ts",
+        "src/services/offline/conflictResolution.service.ts",
+        "src/components/offline/ConflictResolutionModal.tsx",
+        "src/hooks/useOnlineStatus.ts",
+        "src/i18n/index.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 84,
+      "u09TouchedRuntimeDependencies": [
+        "src/components/offline/OutboxDrawer.tsx",
+        "src/components/offline/SqlJournalPanel.tsx",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/offline/legacyJournalInventory.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/components/offline/SqlJournalPanel.tsx",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/offline/legacyJournalInventory.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/conflictResolution.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/pricing/PricingEngineView.tsx",
+      "directRuntimeImports": [
+        "src/i18n/batch4Messages.ts",
+        "src/i18n/batch4Presentation.ts",
+        "src/tests/pricingEngine.cases.ts",
+        "src/services/pricing.service.ts",
+        "src/validators/pricingRule.validator.ts",
+        "src/i18n/index.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 57,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/tests/pricingEngine.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/tests/pricingEngine.cases.ts"
+      ]
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "directRuntimeImports": [
+        "src/repositories/trip.repository.ts",
+        "src/services/operationalReporting.ts",
+        "src/services/operationalReportColumns.ts",
+        "src/i18n/index.ts",
+        "src/services/workspace.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/components/reports/PrintableReportModal.tsx"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 59,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/reportsEngine.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/reports/ReportsEngineView.tsx",
+      "directRuntimeImports": [
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/utils/projectScope.ts",
+        "src/i18n/analyticsPresentation.ts",
+        "src/i18n/index.ts",
+        "src/types/reports.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/firebase/authContext.tsx",
+        "src/repositories/trip.repository.ts",
+        "src/repositories/project.repository.ts",
+        "src/repositories/exception.repository.ts",
+        "src/components/reports/PrintableReportModal.tsx"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 67,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/authContext.tsx",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/components/reports/AdaptiveOperationalReports.tsx",
+        "src/firebase/authContext.tsx",
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/reportsEngine.service.ts"
+      ]
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "directRuntimeImports": [
+        "src/components/wizard/SqlProjectSetup.tsx",
+        "src/components/import/GlobalRegistryEnrollment.tsx",
+        "src/components/import/RosterBulkApproval.tsx",
+        "src/components/import/ImportMaterialSelection.tsx",
+        "src/services/import/rosterBulkResolution.ts",
+        "src/services/import/rosterBulkClient.ts",
+        "src/services/import/rosterMaterialBinding.ts",
+        "src/components/import/ImportOverlay.tsx",
+        "src/components/import/ImportConfirmation.tsx",
+        "src/services/import/rosterInteractionAuthority.ts",
+        "src/runtime/workspaceProvisioningResume.ts",
+        "src/components/wizard/WorkspaceEnsurePanel.tsx",
+        "src/utils/workspaceAuthorization.ts",
+        "src/components/wizard/OperationalConfigurationForm.tsx",
+        "src/components/wizard/WorkspaceAutomationRecovery.tsx",
+        "src/utils/workspaceGenerationErrors.ts",
+        "src/utils/workspaceAuthorizationIntent.ts",
+        "src/utils/googleWorkspaceErrors.ts",
+        "src/utils/googleWorkspaceScopes.ts",
+        "src/utils/workspaceGenerationDiagnostics.ts",
+        "src/utils/permissions.ts",
+        "src/components/wizard/PricingCleanupAction.tsx",
+        "src/components/wizard/ProjectMaintenancePanel.tsx",
+        "src/services/pricing.service.ts",
+        "src/validators/pricingRule.validator.ts",
+        "src/types/workspace.ts",
+        "src/services/import/rosterResumeJourney.ts",
+        "src/services/import/durableSessionContract.ts",
+        "src/components/import/ContextualCanonicalCreation.tsx",
+        "src/services/import/contextualCanonicalCreation.service.ts",
+        "src/components/import/RosterSemanticReview.tsx",
+        "src/services/import/rosterCanonicalIntent.service.ts",
+        "src/i18n/importResolution.ts",
+        "src/services/import/rosterSourceContract.ts",
+        "src/components/wizard/SetupReadinessPanel.tsx",
+        "src/i18n/readinessPresentation.ts",
+        "src/components/wizard/FleetSetupWorkspace.tsx",
+        "src/services/setupOrchestration.service.ts",
+        "src/i18n/setupErrors.ts",
+        "src/utils/projectContextLifetime.ts",
+        "src/components/wizard/ProjectAccessView.tsx",
+        "src/i18n/batch4Messages.ts",
+        "src/i18n/batch4Presentation.ts",
+        "src/i18n/index.ts",
+        "src/services/project.service.ts",
+        "src/services/workspace.service.ts",
+        "src/services/import/driverTruckPipeline.service.ts",
+        "src/services/import/entityResolutionCommand.service.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/canonicalRelationshipContext.service.ts",
+        "src/services/import/importProjectContext.adapter.ts",
+        "src/services/import/smartSourceDiscovery.service.ts",
+        "src/services/import/driverTruckImport.ts",
+        "src/firebase/config.ts",
+        "src/components/masterData/CarrierEditorModal.tsx",
+        "src/components/masterData/MaterialEditorModal.tsx",
+        "src/components/import/RosterCarrierResolutionLayer.tsx",
+        "src/components/import/RosterMaterialResolutionLayer.tsx",
+        "src/components/import/RosterDriverTruckResolutionLayer.tsx",
+        "src/components/import/RosterFinalReviewLayer.tsx",
+        "src/components/import/RosterCommitResultLayer.tsx",
+        "src/services/import/rosterSmartImportWorkflow.service.ts",
+        "src/services/importSessionClient.service.ts",
+        "src/types/importSession.ts",
+        "src/services/projectCanonicalRefresh.service.ts",
+        "src/services/projectMutability.policy.ts",
+        "src/services/projectSetupWorkflow.service.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 162,
+      "u09TouchedRuntimeDependencies": [
+        "src/components/import/SqlImportJourney.tsx",
+        "src/components/wizard/OperationalConfigurationForm.tsx",
+        "src/components/wizard/ProjectSetupWizard.tsx",
+        "src/components/wizard/SqlProjectSetup.tsx",
+        "src/components/wizard/Step1ProjectInfo.tsx",
+        "src/firebase/authContext.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/importSessionClient.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/components/import/SqlImportJourney.tsx",
+        "src/components/wizard/SqlProjectSetup.tsx",
+        "src/i18n/sqlRuntime.ts",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/runtime/sqlUiSession.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/components/import/RosterCarrierResolutionLayer.tsx",
+        "src/components/import/RosterMaterialResolutionLayer.tsx",
+        "src/firebase/authContext.tsx",
+        "src/locales/ar/index.ts",
+        "src/locales/en/index.ts",
+        "src/locales/ur/index.ts",
+        "src/services/import/driverTruckImport.ts",
+        "src/services/import/rosterBatchReview.service.ts",
+        "src/services/import/rosterMaterialBinding.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/firebase/authContext.tsx",
+      "directRuntimeImports": [
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/firebase/config.ts",
+        "src/firebase/authSession.ts",
+        "src/utils/principal.ts",
+        "src/utils/persistenceBoundary.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 11,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/authContext.tsx",
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/RuntimeCompositionProvider.tsx",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/i18n/codemod/codemod.reporter.ts",
+      "directRuntimeImports": [
+        "src/i18n/codemod/codemod.diff.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 2,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/repositories/exception.repository.ts",
+      "directRuntimeImports": [
+        "src/firebase/config.ts",
+        "src/firebase/errors.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 4,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/repositories/trip.repository.ts",
+      "directRuntimeImports": [
+        "src/utils/persistenceBoundary.ts",
+        "src/firebase/config.ts",
+        "src/firebase/errors.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 8,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/canonicalTripPersistence.server.ts",
+      "directRuntimeImports": [
+        "src/services/projectPricing.server.ts",
+        "src/services/temporalRelationshipAuthority.server.ts",
+        "src/utils/persistenceBoundary.ts",
+        "src/utils/sanitize.ts",
+        "src/firebase/admin.ts",
+        "src/services/trip.service.ts",
+        "src/services/exception.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 65,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "directRuntimeImports": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 37,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/durableTripCommandClient.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/exceptionCommandClient.service.ts",
+      "directRuntimeImports": [
+        "src/firebase/config.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 4,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/exceptionCommandClient.service.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/exceptionCommands.server.ts",
+      "directRuntimeImports": [
+        "src/firebase/admin.ts",
+        "src/services/projectReadiness.server.ts",
+        "src/services/exception.service.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/tripCommandTransaction.server.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 67,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/services/exceptionCommands.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+      "directRuntimeImports": [
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/projectGoogleSheetContract.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 6,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/services/googleWorkspaceBlueprint/contract.ts"
+      ]
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+      "directRuntimeImports": [
+        "src/services/operationalReportTabRegistry.ts",
+        "src/services/googleWorkspaceBlueprint/operationalTabs.ts",
+        "src/services/projectGoogleSheetContract.ts",
+        "src/types/workspace.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 5,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/import/driverTruckImport.ts",
+      "directRuntimeImports": [
+        "src/services/import/canonicalResolution.ts",
+        "src/firebase/config.ts",
+        "src/utils/normalization.ts",
+        "src/services/import/rosterValueNormalizer.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 15,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/import/googleDrivePipeline.service.ts",
+      "directRuntimeImports": [
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/import/excelParser.service.ts",
+        "src/services/import/csvParser.service.ts",
+        "src/services/import/normalizer.service.ts",
+        "src/services/import/columnMapper.service.ts",
+        "src/services/import/tripEntityResolver.ts",
+        "src/services/import/tripImportValidator.ts",
+        "src/services/import/tripDuplicateChecker.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/fileIntake.validator.ts",
+        "src/services/import/excelCsvPipeline.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 39,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/import/rosterBatchReview.service.ts",
+      "directRuntimeImports": [
+        "src/utils/normalization.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 2,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/import/rosterMaterialBinding.ts",
+      "directRuntimeImports": [
+        "src/services/import/rosterBatchReview.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 3,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/services/import/rosterBatchReview.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/import/tripImportCommitter.ts",
+      "directRuntimeImports": [
+        "src/validators/unifiedImport.validator.ts",
+        "src/services/auditLog.service.ts",
+        "src/services/pricing.service.ts",
+        "src/repositories/pricingRule.repository.ts",
+        "src/services/import/legacyStatusMapper.ts",
+        "src/services/import/importedTripClient.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 19,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/services/pricing.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/import/unifiedImportPipeline.service.ts",
+      "directRuntimeImports": [
+        "src/services/import/defaultStages.ts",
+        "src/validators/unifiedImport.validator.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 4,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/offline/conflictResolution.service.ts",
+      "directRuntimeImports": [
+        "src/services/pricing.service.ts",
+        "src/data/masterPricingRules.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/tripStateMachine.service.ts",
+        "src/services/offline/outbox.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 41,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/outbox.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/pricing.service.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "directRuntimeImports": [
+        "src/services/offline/tripCommandIdentity.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 2,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts"
+      ]
+    },
+    {
+      "path": "src/services/offline/outbox.service.ts",
+      "directRuntimeImports": [
+        "src/services/runtimeClient.service.ts",
+        "src/utils/operationalTripProjection.ts",
+        "src/services/tripCommandClient.service.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/firebase/config.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 36,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/offline/outbox.service.ts",
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/trip.repository.ts",
+        "src/services/offline/indexedDB.service.ts",
+        "src/services/offline/tripCommandIdentity.ts",
+        "src/services/reportsEngine.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/offline/tripCommandIdentity.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/offline/tripCommandIdentity.ts"
+      ],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "directRuntimeImports": [
+        "src/repositories/pricingRule.repository.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 8,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/projectAuditRead.server.ts",
+      "directRuntimeImports": [
+        "src/firebase/admin.ts",
+        "src/services/projectReadiness.server.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 51,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/services/projectAuditRead.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/services/pricing.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/reportsEngine.service.ts",
+      "directRuntimeImports": [
+        "src/types/reports.ts",
+        "src/services/masterData.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 29,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/trip.repository.ts"
+      ]
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "directRuntimeImports": [
+        "src/services/operationalProfileResolver.ts",
+        "src/services/pricing.service.ts",
+        "src/utils/temporalRelationshipPolicy.ts",
+        "src/utils/globalIdentityPolicy.ts",
+        "src/repositories/trip.repository.ts",
+        "src/validators/trip.validator.ts",
+        "src/services/auditLog.service.ts",
+        "src/services/tripEvent.service.ts",
+        "src/repositories/globalIdentity.repository.ts",
+        "src/repositories/projectMembership.repository.ts",
+        "src/repositories/projectCarrierAffiliation.repository.ts",
+        "src/repositories/projectDriverTruckAssignment.repository.ts",
+        "src/repositories/projectTruckMaterialAllocation.repository.ts",
+        "src/repositories/pricingRule.repository.ts",
+        "src/repositories/project.repository.ts",
+        "src/services/tripNumberGenerator.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 29,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/trip.repository.ts",
+        "src/services/pricing.service.ts"
+      ]
+    },
+    {
+      "path": "src/services/tripCommandClient.service.ts",
+      "directRuntimeImports": [
+        "src/services/runtimeClient.service.ts",
+        "src/firebase/config.ts",
+        "src/types/tripCommands.ts"
+      ],
+      "u09TouchedRoot": true,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 5,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts"
+      ],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/services/tripCommands.server.ts",
+      "directRuntimeImports": [
+        "src/services/projectGoogleSheetEvent.server.ts",
+        "src/utils/sanitize.ts",
+        "src/firebase/admin.ts",
+        "src/utils/principal.ts",
+        "src/utils/persistenceBoundary.ts",
+        "src/types/tripCommands.ts",
+        "src/services/trip.service.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/exception.service.ts",
+        "src/services/tripCommandTransaction.server.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 92,
+      "u09TouchedRuntimeDependencies": [
+        "src/firebase/admin.ts",
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/runtime/firestoreAuthority.server.ts",
+        "src/types/runtimeAuthority.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/canonicalTripPersistence.server.ts",
+        "src/services/googleWorkspaceBlueprint/contract.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts"
+      ]
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "directRuntimeImports": [
+        "src/services/index.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 90,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleDriveImport.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/repositories/exception.repository.ts",
+        "src/repositories/trip.repository.ts",
+        "src/services/import/googleDrivePipeline.service.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/trip.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "directRuntimeImports": [
+        "src/services/import/googleSheetsParser.service.ts",
+        "src/services/import/googleSheetsPipeline.service.ts",
+        "src/services/import/columnMapper.service.ts",
+        "src/services/import/normalizer.service.ts",
+        "src/services/import/tripImportValidator.ts",
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/workspace.service.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": true,
+      "runtimeClosureSize": 54,
+      "u09TouchedRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ],
+      "missingFromPinnedMainRuntimeDependencies": [
+        "src/services/runtimeClient.service.ts",
+        "src/tests/googleSheetsImport.cases.ts"
+      ],
+      "convergenceRuntimeDependencies": [
+        "src/services/import/tripImportCommitter.ts",
+        "src/services/import/unifiedImportPipeline.service.ts",
+        "src/services/pricing.service.ts",
+        "src/services/tripCommandClient.service.ts"
+      ]
+    },
+    {
+      "path": "src/types/entities.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/types/googleDriveImport.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/types/offline.ts",
+      "directRuntimeImports": [
+        "src/types/conflict.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 2,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/types/tripEngine.ts",
+      "directRuntimeImports": [],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 1,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    },
+    {
+      "path": "src/types/unifiedImport.ts",
+      "directRuntimeImports": [
+        "src/types/entityResolution.ts"
+      ],
+      "u09TouchedRoot": false,
+      "newRelativeToPinnedMain": false,
+      "runtimeClosureSize": 2,
+      "u09TouchedRuntimeDependencies": [],
+      "missingFromPinnedMainRuntimeDependencies": [],
+      "convergenceRuntimeDependencies": []
+    }
+  ]
+}

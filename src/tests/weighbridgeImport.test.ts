@@ -1,3 +1,4 @@
+import {reviewedTripCommandFixture} from './helpers/reviewedTripCommandFixture';
 import {beforeAll,it,expect} from 'vitest';
 /**
  * Weighbridge Import Pipeline Automated Test Suite
@@ -1383,12 +1384,10 @@ export async function runWeighbridgeImportTests(): Promise<WeighbridgeTestReport
       context: { ...baseContext, operationId: `OP-WB-COMMIT-${Date.now()}` },
     });
 
-    // Commit through Weighbridge Service
-    const commitResult = await WeighbridgeImportService.commitBatch(batch, {
-      ...baseContext,
-      operationId: `OP-WB-COMMIT-${Date.now()}`,
-      allowWarningsCommit: true,
-    });
+    const fixture=reviewedTripCommandFixture({...baseContext,operationId:batch.operationId,allowWarningsCommit:true});
+    let commitResult;
+    try {commitResult=await WeighbridgeImportService.commitBatch(fixture.review(batch),fixture.context);}
+    finally {fixture.close();}
 
     const passed =
       commitResult.success &&
@@ -1400,7 +1399,7 @@ export async function runWeighbridgeImportTests(): Promise<WeighbridgeTestReport
       name: 'Commit Phase: Creates Trip with sourceType=WEIGHBRIDGE and audit log',
       passed,
       expected: 'commitResult.success=true, committedRows=1, sourceType=WEIGHBRIDGE',
-      actual: `Success: ${commitResult.success}, Committed: ${commitResult.committedRows}, SourceType: ${commitResult.sourceType}`,
+      actual: `Success: ${commitResult.success}, Committed: ${commitResult.committedRows}, SourceType: ${commitResult.sourceType}, issues=${JSON.stringify(commitResult.issues)}`,
       notes: 'Finalizes Weighbridge import into repository safely',
     });
   } catch (err: any) {

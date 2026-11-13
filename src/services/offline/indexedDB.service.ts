@@ -5,6 +5,7 @@
 
 import { OutboxOperation, CacheStoreName, CacheStoreMetadata } from '../../types/offline';
 import { ConflictRecord } from '../../types/conflict';
+import {frozenOutboxIdentity,outboxIntentConflict} from './tripCommandIdentity';
 
 const DB_NAME = 'q_saudi_logistics_offline_db';
 export const OFFLINE_DB_VERSION = 4;
@@ -345,19 +346,22 @@ export class IndexedDBService {
   }
 
   public async saveOutboxOperation(op: OutboxOperation): Promise<void> {
+    if(op.operationType==='TRIP_COMMAND'){await this.insertOutboxOperation(op);return;}
     return this.put<OutboxOperation>('outbox', op);
   }
   /** Atomic logical-identity reservation; retries cannot overwrite an ACK or
    * another tab's frozen intent. No store/schema conversion is involved. */
   public async insertOutboxOperation(op:OutboxOperation):Promise<OutboxOperation>{
-    const identity=(v:OutboxOperation)=>JSON.stringify([v.projectId,v.userId,v.operationType,v.payload,v.dependsOnOperationId??null]);
-    const check=(old:OutboxOperation|undefined)=>{if(old&&identity(old)!==identity(op))throw Error('OUTBOX_OPERATION_CONFLICT');return old||structuredClone(op);};
+    const identity=frozenOutboxIdentity;
+    const check=(old:OutboxOperation|undefined)=>{if(old&&identity(old)!==identity(op))throw outboxIntentConflict(old,'OUTBOX_OPERATION_CONFLICT');return old||structuredClone(op);};
     const reserve=(records:OutboxOperation[])=>{
       if(!this.isCurrentPrincipal(op.userId))throw Error('AUTH_CONTEXT_CHANGED');
       const sameId=records.find(old=>old.operationId===op.operationId);if(sameId)return check(sameId);
       // Serial read/write reservation also fences simultaneous tabs. A new UI
       // payload cannot replace an unresolved canonical operation for this resource.
-      return records.filter(old=>old.operationType==='TRIP_COMMAND'&&old.projectId===op.projectId&&old.userId===op.userId&&(old.payload.tripId||null)===(op.payload.tripId||null)&&['PENDING','SENDING','AWAITING_RECEIPT'].includes(old.status)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))[0]||structuredClone(op);
+      const unresolved=records.filter(old=>old.operationType==='TRIP_COMMAND'&&old.projectId===op.projectId&&old.userId===op.userId&&(old.payload.tripId||null)===(op.payload.tripId||null)&&['PENDING','SENDING','AWAITING_RECEIPT'].includes(old.status)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))[0];
+      if(unresolved&&identity(unresolved)!==identity(op))throw outboxIntentConflict(unresolved);
+      return unresolved||structuredClone(op);
     };
     if(!this.isSupported()){const records=[...this.getMemoryStore('outbox').values()];const result=op.operationType==='TRIP_COMMAND'?reserve(records):check(this.getMemoryStore('outbox').get(op.operationId));this.getMemoryStore('outbox').set(result.operationId,result);return structuredClone(result);}
     const db=await this.getDB();return new Promise((resolve,reject)=>{
@@ -376,9 +380,10 @@ export class IndexedDBService {
     const update=(existing:OutboxOperation|undefined)=>{
       if(!existing)return undefined;
       if(!this.isCurrentPrincipal(existing.userId))throw Error('AUTH_CONTEXT_CHANGED');
+      if(existing.operationType==='TRIP_COMMAND'&&frozenOutboxIdentity({...existing,...extra})!==frozenOutboxIdentity(existing))throw outboxIntentConflict(existing,'OUTBOX_OPERATION_CONFLICT');
       // Another tab's confirmed receipt cannot be downgraded by a stale worker.
       if(existing.status==='SYNCED')return existing;
-      return {...existing,...extra,status,operationId:existing.operationId,projectId:existing.projectId,userId:existing.userId};
+      return {...existing,...extra,status,operationId:existing.operationId,projectId:existing.projectId,userId:existing.userId,...(existing.operationType==='TRIP_COMMAND'?{payload:existing.payload,operationType:existing.operationType,deviceId:existing.deviceId,createdAt:existing.createdAt,dependsOnOperationId:existing.dependsOnOperationId}:{})};
     };
     if(!this.isSupported()){
       const next=update(this.getMemoryStore('outbox').get(operationId));

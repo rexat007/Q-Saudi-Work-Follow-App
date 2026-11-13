@@ -1,3 +1,4 @@
+import type {reviewedTripCommandFixture} from './helpers/reviewedTripCommandFixture';
 /**
  * Comprehensive Automated Test Suite: BLOCK 32 — Google Drive Integration
  *
@@ -35,7 +36,7 @@ export interface GoogleDriveTestCaseResult {
   notes: string;
 }
 
-export async function runGoogleDriveImportTests(): Promise<{
+export async function runGoogleDriveImportTests(canonicalFixture?:typeof reviewedTripCommandFixture): Promise<{
   allPassed: boolean;
   total: number;
   passed: number;
@@ -371,12 +372,14 @@ export async function runGoogleDriveImportTests(): Promise<{
   // -------------------------------------------------------------
   // TEST 9: Execution of Commit Stage with Google Drive Source Model Populated
   // -------------------------------------------------------------
+  const commandFixture=canonicalFixture?.(baseContext);
   let commitResult: any = null;
   try {
     ExcelCsvTripCommitter.resetIdempotencyCache();
+    driveExcelBatch=commandFixture?commandFixture.review(driveExcelBatch):driveExcelBatch;
     const { batch: finalBatch, result } = await GoogleDrivePipelineService.commitBatch(
       driveExcelBatch,
-      baseContext
+      commandFixture?.context||baseContext
     );
     commitResult = result;
 
@@ -391,7 +394,7 @@ export async function runGoogleDriveImportTests(): Promise<{
       name: 'Execution of COMMIT Stage (Trips created with sourceType = GOOGLE_DRIVE)',
       passed,
       expected: 'success=true, sourceType=GOOGLE_DRIVE, committedRows=2',
-      actual: `success=${result.success}, sourceType=${result.sourceType}, committedRows=${result.committedRows}`,
+      actual: `success=${result.success}, sourceType=${result.sourceType}, committedRows=${result.committedRows}, issues=${JSON.stringify(result.issues)}`,
       notes: passed ? 'تم اعتماد دفعة Google Drive بنجاح في سجل الرحلات' : 'فشل الاعتماد النهائي',
     });
   } catch (err: any) {
@@ -412,10 +415,12 @@ export async function runGoogleDriveImportTests(): Promise<{
     // Re-commit same batch with same context operationId
     const { result: reCommitResult } = await GoogleDrivePipelineService.commitBatch(
       driveExcelBatch,
-      baseContext
+      commandFixture?.context||baseContext
     );
 
+    const replays=await commandFixture?.replay();
     const passed =
+      (!commandFixture || replays?.length===2 && replays.every(receipt=>receipt.idempotentReplay===true) && commandFixture.trips().length===2) && reCommitResult.committedRows===2 &&
       reCommitResult.success &&
       reCommitResult.operationId === baseContext.operationId &&
       reCommitResult.committedRows === commitResult.committedRows;
@@ -473,6 +478,7 @@ export async function runGoogleDriveImportTests(): Promise<{
     });
   }
 
+  commandFixture?.close();
   const total = results.length;
   const passedCount = results.filter((r) => r.passed).length;
   const failedCount = total - passedCount;

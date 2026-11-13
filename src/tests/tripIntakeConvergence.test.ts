@@ -52,7 +52,7 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
     }).allowed).toBe(false);
 
     expect(fileContent).toContain("useState<ProjectSetupLayer>('FOUNDATION')");
-    expect(fileContent).toContain('PROJECT_SETUP_LAYERS.map((layer) => {');
+    expect(fileContent).toContain('PROJECT_SETUP_LAYERS.filter(');
     expect(fileContent).toContain('onClick={() => attemptProjectSetupLayerNavigation(layer.id)}');
     expect(fileContent).toContain('const isActive = activeSetupLayer === layer.id;');
     expect(fileContent).not.toMatch(/\bactivePhase\b/);
@@ -64,10 +64,11 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
     const accessEnd = fileContent.indexOf("{activeSetupLayer === 'REVIEW_ACTIVATION'", accessStart);
     expect(accessEnd).toBeGreaterThan(accessStart);
     const accessWorkspace = fileContent.slice(accessStart, accessEnd);
-    expect(accessWorkspace).toContain('<table');
-    expect(accessWorkspace).toContain('{authContext.displayName}');
-    expect(accessWorkspace).toContain('{authContext.email}');
-    expect(accessWorkspace).toContain('{authContext.role}');
+    expect(accessWorkspace).toContain('<ProjectAccessView key={project.projectId} projectId={project.projectId}');
+    const access = fs.readFileSync(path.join(path.dirname(wizardFilePath),'ProjectAccessView.tsx'),'utf8');
+    expect(access).toContain('hasEffectiveProjectAccess(userProfile, projectId)');
+    expect(access).toContain('userRepository.subscribeToProjectUsers(projectId');
+    expect(access).toContain("userProfile?.role === 'SUPER_ADMIN'");
   });
 
   it('3. ProjectSetupWizard has zero direct imports or dependencies on ImportCenterView', () => {
@@ -79,7 +80,7 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
   it('4. ExcelCsvImportSection correctly references and uses ExcelCsvPipelineService', () => {
     const fileContent = fs.readFileSync(sectionFilePath, 'utf-8');
     expect(fileContent).toContain("import { ExcelCsvPipelineService }");
-    expect(fileContent).toContain("ExcelCsvPipelineService.applyEntityResolutionDecision");
+    expect(fileContent).toContain("applyOperationalGroupChoice(activeBatch");
   });
 
   it('5. ExcelCsvImportSection correctly references and uses ImportSessionClientService', () => {
@@ -109,14 +110,16 @@ describe('Step 3C — Trip Ingestion Entry Convergence', () => {
 
   it('9. Entity resolution decisions route through standard ExcelCsvPipelineService path', () => {
     const fileContent = fs.readFileSync(sectionFilePath, 'utf-8');
-    expect(fileContent).toContain("ExcelCsvPipelineService.applyEntityResolutionDecision");
+    expect(fileContent).toContain("applyOperationalGroupChoice(activeBatch");
   });
 
   it('10. Explicit entity creation utilizes entityResolutionCommandService', () => {
     const fileContent = fs.readFileSync(sectionFilePath, 'utf-8');
-    expect(fileContent).toContain("import { entityResolutionCommandService");
-    expect(fileContent).toContain("entityResolutionCommandService.createCarrier");
-    expect(fileContent).toContain("entityResolutionCommandService.createMaterial");
+    expect(fileContent).toContain('<ContextualCanonicalCreation');
+    expect(fileContent).toContain('applyVerifiedChoice(group,fresh,id,prerequisite)');
+    const creation=fs.readFileSync(path.resolve(process.cwd(),'src/components/import/ContextualCanonicalCreation.tsx'),'utf8');
+    expect(creation).toContain('<CarrierEditorModal');expect(creation).toContain('<MaterialEditorModal');
+    expect(creation).toContain('refreshContextualPrerequisite');
   });
 
   it('11. No parallel parser, normalizer, or committer services were created', () => {

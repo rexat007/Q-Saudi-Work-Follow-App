@@ -1,0 +1,573 @@
+{
+  "baselineLatestFailed": 94,
+  "candidateMatchedPassed": 94,
+  "candidateMatchedFailed": 0,
+  "unmatched": 0,
+  "evidence": "continuation-20261113/full-historical-comparison.json",
+  "records": [
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 10: Settlement Adjustment Workflow: Request -> Review -> Approve -> Apply -> Audit",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 11 & 12: Dashboard & Reports Aggregation Reflects Real Data",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 1: Create Project Q-PRJ-0001",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 4 & 5 & 6: Create Trip with Server-Authoritative Trip Number & Snapshots",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 7 & 8: Progress Trip Through Complete State Machine Lifecycle",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "endToEndOperationalValidationBlock94.test.ts",
+      "identity": "BLOCK 94 \u2014 End-to-End Operational Lifecycle Validation Step 9: Snapshot & History Immutability",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "googleDriveImport.test.ts",
+      "identity": "TC-GDRV-09",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "googleDriveImport.test.ts",
+      "identity": "TC-GDRV-10",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "googleSheetsImport.test.ts",
+      "identity": "TC-GSHT-01",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "googleSheetsImport.test.ts",
+      "identity": "TC-GSHT-02",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "googleSheetsImport.test.ts",
+      "identity": "TC-GSHT-11",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "deployed Q-PRJ-007-shaped partial V1 recovery, without hardcoded Project IDs preserves legacy and partial tabs, rehydrates delivered canonical Trips, upgrades the known Script once, and retains the binding",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "lost atomic tab-creation response is recoverable by ownership discovery without creating duplicate tabs or markers",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "owned operational namespace, real adapter/reconciliation transport NONE/NONE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "owned operational namespace, real adapter/reconciliation transport NONE/WEIGHBRIDGE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "owned operational namespace, real adapter/reconciliation transport WEIGHBRIDGE/NONE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalReportTabIsolation.test.ts",
+      "identity": "owned operational namespace, real adapter/reconciliation transport WEIGHBRIDGE/WEIGHBRIDGE coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "pending unmapped legacy events remain visible without blocking current canonical profile Trips/reports",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery NONE/NONE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery NONE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/NONE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "operationalWorkspaceTemplates.test.ts",
+      "identity": "versioned templates and durable Script creation/recovery WEIGHBRIDGE/WEIGHBRIDGE provisions exact blueprint and script once; persists ID before installing; projects canonical data",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectActivationReadiness.test.ts",
+      "identity": "ProjectLifecycleService Governance & Audit Tests Scenario M: Direct status mutation via projectService.updateProject is blocked and fails",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectCanonicalRefreshBarrierA11.test.ts",
+      "identity": "FOUNDATION A1.1 \u2014 Immediate Canonical Refresh Barrier 35. No page reload is used",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectDriverTruckAssignmentFoundation.test.ts",
+      "identity": "PHASE 6 \u2014 UNIT 2B-2: Project Driver \u2194 Truck Temporal Assignment Foundation Test Suite GROUP K: Boundaries & Legacy Invariance 51. Production assignment callers zero: only services, repositories, and test files reference assignDriverToTruck",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectGoogleWorkspaceTemplateSync.test.ts",
+      "identity": "PFAG-GWS1 durable retry Google failure leaves canonical data and pending event intact, retry converges",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectGoogleWorkspaceTemplateSync.test.ts",
+      "identity": "PFAG-GWS1 durable retry cross-project event is never written",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectGoogleWorkspaceTemplateSync.test.ts",
+      "identity": "PFAG-GWS1 durable retry delivered event is not redelivered on retry",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectGoogleWorkspaceTemplateSync.test.ts",
+      "identity": "PFAG-GWS1 durable retry revision changed in-flight remains pending for latest-state convergence",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectGoogleWorkspaceTemplateSync.test.ts",
+      "identity": "PFAG-GWS1 provisioning public status never returns token-bearing internal fields",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+      "identity": "Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests 34. revision capture still occurs before snapshot build",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+      "identity": "Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests 17. /sync/initial captures freshness revision before buildInitialProjectionSnapshot",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "rosterIdentityGroupingProvenanceSiCg1.test.ts",
+      "identity": "SI-CG1 partial mapping and source provenance absent Material yields no group, default, allocation or close",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "runtimeGenerationConvergence.test.ts",
+      "identity": "runtime deployment generation gate stale lease blocks side effects and starts a fresh check",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "secureTripNumberingOffline89B.test.ts",
+      "identity": "Block 89B Secure Trip Numbering & Offline Creation Test Suite [89B-REQ-08]: Verify state machine transition from PENDING_NUMBER_ALLOCATION to IN_TRANSIT is allowed",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 Foundation and Global governance presentation Foundation refresh failure keeps a receipt; retry never repeats the Project command",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 Foundation and Global governance presentation PROJECT_ADMIN sees only its authorized Global profile controls",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 Foundation and Global governance presentation keeps the successful canonical Foundation reread visible while the project subscription is delayed",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity uses the canonical Material name and full refresh before resetting the form",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportEntityReviewWorkspaceR2.test.ts",
+      "identity": "Smart Import R2 \u2014 Entity Review Workspace Wiring Test Suite 21. Post-decision batch is revalidated",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 38. committer calls snapshot client after canonical IDs resolve",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 39. committer uses returned carrierSnapshot exactly",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 40. committer uses returned truckSnapshot exactly",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 41. committer uses returned driverSnapshot exactly",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 42. committer uses returned materialSnapshot exactly",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 45. successful snapshot allows Trip write",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 46. written Trip uses final reviewed canonical IDs",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "identity": "Global Canonical Snapshot Read Boundary (Unit 5) 48. no fabricated snapshot defaults reintroduced",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 17a. Server app route rejects client tripId with HTTP 400 and prevents dispatch/persistence",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 17b. Server app route rejects client tripNumber",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 18. Server app route rejects client pricingSnapshot",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 19. Server app route rejects client financials",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 20. Server app route rejects client settlementAmount",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 21. Server app route rejects client canonical entity snapshots",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 22. Server generates tripId on dispatchImportedTrip",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 23. Server generates tripNumber on dispatchImportedTrip",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 24. Server builds canonical snapshots authoritatively",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 25. Imported ticket preserved in weights.originTicketNo",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 26. Imported date preserved in sourceMetadata / weights",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 27. Imported origin tare preserved",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 28. Imported origin gross preserved",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 29. Imported origin net preserved or deterministically recomputed",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 30. Imported destination net preserved when valid",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 31. Import source metadata preserved",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 32. importBatchId provenance preserved",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 33. sourceRowId provenance preserved",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 34. Deterministic clientUUID accepted",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 35. Idempotent replay route exists in server/app.ts",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 36. Resolved pricing generated server-side when rule exists",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 38. Arbitrary imported status cannot bypass canonical status rules",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 39. Server route calls serverTripService.dispatchImportedTrip",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 41. No client tripRepository persistence in server route app.ts",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 45. Trip number generator used on server path",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartImportServerCanonicalCommitContractC1.test.ts",
+      "identity": "SMART IMPORT C1 \u2014 Server-Authoritative Imported Trip Creation Contract 8. Server validates project existence and non-archived status",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartTripImportOperationalConvergence.test.ts",
+      "identity": "Step 4A-RECOVERY \u2014 Smart Trip Import Operational Convergence 2. Unauthorized field roles remain blocked by the existing role guard",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "smartTripImportOperationalConvergence.test.ts",
+      "identity": "Step 4A-RECOVERY \u2014 Smart Trip Import Operational Convergence 23. Unresolved scope renders neither import child nor allows empty ID commits",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "tripIntakeConvergence.test.ts",
+      "identity": "Step 3C \u2014 Trip Ingestion Entry Convergence 10. Explicit entity creation utilizes entityResolutionCommandService",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "tripIntakeConvergence.test.ts",
+      "identity": "Step 3C \u2014 Trip Ingestion Entry Convergence 2. Project access governance remains available through the canonical ACCESS layer",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "tripIntakeConvergence.test.ts",
+      "identity": "Step 3C \u2014 Trip Ingestion Entry Convergence 4. ExcelCsvImportSection correctly references and uses ExcelCsvPipelineService",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "tripIntakeConvergence.test.ts",
+      "identity": "Step 3C \u2014 Trip Ingestion Entry Convergence 9. Entity resolution decisions route through standard ExcelCsvPipelineService path",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "weighbridgeImport.test.ts",
+      "identity": "WB-33",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain does not acknowledge after lease expiry and the next worker safely reclaims unfinished work",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain keeps an unavailable file distinct and never replaces its recorded binding",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain preserves binding and pending data on 401 while classifying authorization precisely",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain preserves binding and pending data on 403 scope while classifying authorization precisely",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain preserves binding and pending data on 429 while classifying authorization precisely",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain preserves binding and pending data on 503 while classifying authorization precisely",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain preserves binding and pending data on network while classifying authorization precisely",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain refreshes a secure grant, rereads Firestore and delivers/acknowledges with no browser token",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOfflineAuthorizationAndWorker.test.ts",
+      "identity": "browser-absent canonical worker using the existing drain retains pending work and marks degraded after a generic Sheets 403",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceOneClickProvisioning.test.ts",
+      "identity": "phase failure resume and strict READY proof same command resumes a temporary failure at reports without duplicate resources",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceProviderResilience.test.ts",
+      "identity": "Q-PRJ-007-shaped user-active execution with durable authority server refresh feeds actual isolated Ops reports; stale browser token never reaches a provider",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceQuiescenceUi.test.tsx",
+      "identity": "READY remains quiescent across timer intervals, focus/online/visibility, rerender and real remount",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    },
+    {
+      "file": "workspaceQuiescenceUi.test.tsx",
+      "identity": "real hook remounts share the minute throttle rather than restarting an activity pass",
+      "candidateStatus": "passed",
+      "match": "EXACT_FULL_NAME"
+    }
+  ]
+}

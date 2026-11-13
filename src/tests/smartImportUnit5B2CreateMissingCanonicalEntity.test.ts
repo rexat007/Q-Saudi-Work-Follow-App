@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvPipelineService } from '../services/import/excelCsvPipeline.service';
 import { entityResolutionCommandService } from '../services/import/entityResolutionCommand.service';
@@ -110,7 +111,7 @@ describe('Smart Import Unit 5B-2 Create Missing Canonical Entity Test Suite', ()
             isAuthorized: false,
           },
         },
-      },
+      } satisfies ImportRow,
     ],
     issues: [],
     operationId: 'OP-5B2-TEST',
@@ -466,10 +467,10 @@ describe('Smart Import Unit 5B-2 Create Missing Canonical Entity Test Suite', ()
     const batch = createSampleUnresolvedBatch();
     // Set all entities resolved
     batch.rows[0].entityResolutions = {
-      carrier: { entityType: 'CARRIER', sourceValue: 'c', matchedId: 'CAR-1', matchedName: 'c', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
-      truck: { entityType: 'TRUCK', sourceValue: 't', matchedId: 'TRK-1', matchedName: 't', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
-      driver: { entityType: 'DRIVER', sourceValue: 'd', matchedId: 'DRV-1', matchedName: 'd', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
-      material: { entityType: 'MATERIAL', sourceValue: 'm', matchedId: 'MAT-1', matchedName: 'm', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
+      carrier: {originalValue: 'c', entityType: 'CARRIER', sourceValue: 'c', matchedId: 'CAR-1', matchedName: 'c', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
+      truck: {originalValue: 't', entityType: 'TRUCK', sourceValue: 't', matchedId: 'TRK-1', matchedName: 't', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
+      driver: {originalValue: 'd', entityType: 'DRIVER', sourceValue: 'd', matchedId: 'DRV-1', matchedName: 'd', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
+      material: {originalValue: 'm', entityType: 'MATERIAL', sourceValue: 'm', matchedId: 'MAT-1', matchedName: 'm', confidence: 1.0, matchMethod: 'EXACT', riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT', isExact: true, isAuthorized: true },
     };
     batch.rows[0].status = 'ERROR';
     batch.rows[0].validationIssues = [{ issueId: 'iss-1', row: 1, field: 'date', code: 'FATAL_DATE', message: 'تاريخ خاطئ', severity: 'BLOCKING', resolvable: false, blocking: true }];

@@ -11,7 +11,9 @@ import type {AuthUserContext} from '../types/common';
  * 6. Audit logs: Verifies automatic logging of roster changes and adjustment approvals.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+// The repositories and reset counters below are local fixtures. Never initialize a live Firebase client.
+vi.mock('../firebase/config',()=>({db:{},auth:{currentUser:null}}));
 import { projectService } from '../services/project.service';
 import { TripNumberGenerator } from '../services/tripNumberGenerator';
 import { ProjectNumberGenerator } from '../services/projectNumberGenerator';

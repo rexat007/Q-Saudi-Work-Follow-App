@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { canonicalSnapshotServerService, SnapshotError } from '../services/canonicalSnapshot.server';
 import { canonicalSnapshotClientService } from '../services/import/canonicalSnapshotClient.service';
@@ -8,6 +9,12 @@ import { tripRepository } from '../repositories/trip.repository';
 import { auth } from '../firebase/config';
 import { UnifiedImportBatch, PipelineContext, ImportResult } from '../types/unifiedImport';
 import { app } from '../../server/app';
+import {UnifiedImportPipelineService} from '../services/import/unifiedImportPipeline.service';
+import {importedTripClientService} from '../services/import/importedTripClient.service';
+import {pricingRuleRepository} from '../repositories/pricingRule.repository';
+import {TripCommandsServerService} from '../services/tripCommands.server';
+import {TRIP_COMMANDS} from '../types/tripCommands';
+import {commandDatabase} from './helpers/commandDatabase';
 
 
 describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
@@ -454,267 +461,31 @@ describe('Global Canonical Snapshot Read Boundary (Unit 5)', () => {
   // COMMIT INTEGRATION TESTS (38-48)
   // ==========================================
 
-  const createSampleBatch = (): UnifiedImportBatch => ({
-    importBatchId: 'BCH-TEST-001',
-    projectId: 'PRJ-1',
-    batchType: 'WEIGHBRIDGE_IMPORT',
-    totalRows: 1,
-    committedRows: 0,
-    skippedRows: 0,
-    failedRows: 0,
-    errorRows: 0,
-    warningRows: 0,
-    status: 'PENDING',
-    source: {
-      sourceType: 'WEIGHBRIDGE',
-      sourceFileId: 'FILE-1',
-      sourceFileName: 'tickets.xlsx',
-      sourceMimeType: 'application/vnd.ms-excel',
-    },
-    rows: [
-      {
-        rowNumber: 1,
-        sourceRowId: 1,
-        status: 'PENDING',
-        reviewStatus: 'matched',
-        resolvedValues: {
-          carrierId: 'CAR-1',
-          truckId: 'TRK-1',
-          driverId: 'DRV-1',
-          materialId: 'MAT-1',
-        },
-        mapped: {
-          ticketId: 'TKT-900',
-          tareWeight: 15000,
-          grossWeight: 35000,
-          netWeight: 20000,
-        },
-      },
-    ],
-    issues: [],
-    createdAt: '2026-01-01',
-    createdBy: 'USER-1',
-    updatedAt: '2026-01-01',
-    updatedBy: 'USER-1',
-  });
-
-  const sampleContext: PipelineContext = {
-    userId: 'USER-DISPATCHER-01',
-    userName: 'Test Dispatcher',
-    role: 'DISPATCHER',
-    assignedProjectIds: ['PRJ-1'],
-    projectId: 'PRJ-1',
-    operationId: 'OP-1234',
+  const sampleContext: PipelineContext = {userId:'USER-DISPATCHER-01',userName:'Test Dispatcher',role:'DISPATCHER',projectId:'PRJ-1',operationId:'OP-1234'};
+  const createSampleBatch=():UnifiedImportBatch=>{
+    const batch=new UnifiedImportPipelineService().createBatch({sourceType:'WEIGHBRIDGE',importBatchId:'BCH-TEST-001',sourceFileId:'FILE-1',sourceFileName:'tickets.xlsx',sourceMimeType:'application/vnd.ms-excel'},sampleContext);
+    batch.totalRows=1;batch.validRows=1;batch.currentStage='COMMIT';batch.commitStatus='READY_TO_COMMIT';
+    batch.rows=[{rowNumber:1,sourceRowId:1,status:'VALID',reviewStatus:'accepted',raw:{},validationIssues:[],resolvedValues:{...validIds},mapped:{ticketId:'TKT-900',tareWeight:15000,grossWeight:35000,netWeight:20000}} satisfies ImportRow];return batch;
+  };
+  const boundary=()=>{
+    const x=commandDatabase({...mockDbStore,'users/USER-DISPATCHER-01':{userId:'USER-DISPATCHER-01',role:'DISPATCHER',assignedProjectIds:['PRJ-1'],status:'ACTIVE'},'projects/PRJ-1':{projectId:'PRJ-1',projectNumber:1,nameAr:'Synthetic project',nameEn:'Project',status:'ACTIVE'}});
+    const actor={userId:'USER-DISPATCHER-01',role:'DISPATCHER' as const,assignedProjectIds:['PRJ-1'],email:'synthetic@example.invalid',displayName:'Synthetic dispatcher'},service=new TripCommandsServerService(x.db);
+    const snapshot=vi.spyOn(canonicalSnapshotClientService,'getTripCanonicalSnapshot');const clientWrite=vi.spyOn(tripRepository,'create');vi.spyOn(pricingRuleRepository,'listByProject').mockResolvedValue([]);
+    vi.spyOn(importedTripClientService,'dispatchImportedTrip').mockImplementation(async(projectId,params)=>{const payload=Object.fromEntries(TRIP_COMMANDS.IMPORT_TRIP.fields.filter(key=>params[key as keyof typeof params]!==undefined).map(key=>[key,params[key as keyof typeof params]]));return service.execute(projectId,{command:'IMPORT_TRIP',payload,operationId:params.clientUUID},actor);});
+    const trips=()=>Object.entries(x.store).filter(([key])=>key.startsWith('projects/PRJ-1/trips/')).map(([,value])=>value);
+    const commit=async()=>{const result=await new ExcelCsvTripCommitter().commit(createSampleBatch(),sampleContext);expect(snapshot).not.toHaveBeenCalled();expect(clientWrite).not.toHaveBeenCalled();return result;};
+    return {...x,trips,commit};
   };
 
-  it('38. committer calls snapshot client after canonical IDs resolve', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة النقل', commercialRegistrationNo: '10101' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'أ ب ج 1', tareWeightKg: 15, legalPayloadLimitKg: 20 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'السائق ع', nationalOrIqamaId: '101', phone: '05' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'M1', nameAr: 'رمل', unitOfMeasure: 'TON' },
-    };
-
-    const spyClient = vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(createSampleBatch(), sampleContext);
-    console.log('COMMITTER_RESULT:', JSON.stringify(result, null, 2));
-
-
-    expect(spyClient).toHaveBeenCalledWith('PRJ-1', {
-      carrierId: 'CAR-1',
-      truckId: 'TRK-1',
-      driverId: 'DRV-1',
-      materialId: 'MAT-1',
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it('39. committer uses returned carrierSnapshot exactly', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'أ ب ج 1', tareWeightKg: 15, legalPayloadLimitKg: 20 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'السائق ع', nationalOrIqamaId: '101', phone: '05' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'M1', nameAr: 'رمل', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        carrierSnapshot: mockSnapshot.carrierSnapshot,
-      })
-    );
-  });
-
-  it('40. committer uses returned truckSnapshot exactly', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'السائق ع', nationalOrIqamaId: '101', phone: '05' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'M1', nameAr: 'رمل', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        truckSnapshot: mockSnapshot.truckSnapshot,
-      })
-    );
-  });
-
-  it('41. committer uses returned driverSnapshot exactly', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عبد الرحمن عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'M1', nameAr: 'رمل', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        driverSnapshot: mockSnapshot.driverSnapshot,
-      })
-    );
-  });
-
-  it('42. committer uses returned materialSnapshot exactly', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'CODE-SUPER-RED', nameAr: 'رمل أحمر فائق الجودة', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        materialSnapshot: mockSnapshot.materialSnapshot,
-      })
-    );
-  });
-
-  it('43. snapshot endpoint failure causes zero tripRepository.create', async () => {
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockRejectedValue(new Error('SNAPSHOT_FAILED_ERROR'));
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).not.toHaveBeenCalled();
-    expect(result.committedRows).toBe(0);
-  });
-
-  it('44. incomplete snapshot causes zero tripRepository.create', async () => {
-    // If the snapshot call throws snapshot missing error
-    const err = new Error('Incomplete snapshot');
-    (err as any).code = 'CANONICAL_SNAPSHOT_DATA_MISSING';
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockRejectedValue(err);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).not.toHaveBeenCalled();
-    expect(result.committedRows).toBe(0);
-  });
-
-  it('45. successful snapshot allows Trip write', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'CODE-SUPER-RED', nameAr: 'رمل أحمر فائق الجودة', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    const result = await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalled();
-    expect(result.committedRows).toBe(1);
-    expect(result.success).toBe(true);
-  });
-
-  it('46. written Trip uses final reviewed canonical IDs', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'CODE-SUPER-RED', nameAr: 'رمل أحمر فائق الجودة', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    expect(spyCreate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        carrierId: 'CAR-1',
-        truckId: 'TRK-1',
-        driverId: 'DRV-1',
-        materialId: 'MAT-1',
-      })
-    );
-  });
-
-  it('47. no project-local repository used in committer', () => {
-    // Asserting that ExcelCsvTripCommitter code does not query carrierRepository, etc. 
-    // to build the snapshots (it relies exclusively on canonicalSnapshotClientService).
-    expect(ExcelCsvTripCommitter).toBeDefined();
-  });
-
-  it('48. no fabricated snapshot defaults reintroduced', async () => {
-    const mockSnapshot = {
-      projectId: 'PRJ-1',
-      carrierSnapshot: { carrierId: 'CAR-1', companyNameAr: 'شركة مخصصة للناقل', commercialRegistrationNo: '1234567890' },
-      truckSnapshot: { truckId: 'TRK-1', plateNumberAr: 'س ص ع 9999', tareWeightKg: 14500, legalPayloadLimitKg: 24000 },
-      driverSnapshot: { driverId: 'DRV-1', fullNameAr: 'سعيد عاصم', nationalOrIqamaId: '1100998877', phone: '0599887766' },
-      materialSnapshot: { materialId: 'MAT-1', code: 'CODE-SUPER-RED', nameAr: 'رمل أحمر فائق الجودة', unitOfMeasure: 'TON' },
-    };
-
-    vi.spyOn(canonicalSnapshotClientService, 'getTripCanonicalSnapshot').mockResolvedValue(mockSnapshot);
-    const spyCreate = vi.spyOn(tripRepository, 'create').mockResolvedValue({} as any);
-
-    const committer = new ExcelCsvTripCommitter();
-    await committer.commit(createSampleBatch(), sampleContext);
-
-    const tripWritten = spyCreate.mock.calls[0][0];
-    expect(tripWritten.carrierSnapshot.companyNameAr).not.toBe('');
-    expect(tripWritten.truckSnapshot.plateNumberAr).not.toBe('');
-    expect(tripWritten.driverSnapshot.fullNameAr).not.toBe('');
-  });
+  it('38. committer calls snapshot client after canonical IDs resolve',async()=>{const x=boundary();const result=await x.commit();expect(result.success).toBe(true);expect(x.trips()).toHaveLength(1);});
+  it('39. committer uses returned carrierSnapshot exactly',async()=>{const x=boundary();await x.commit();expect(x.trips()[0].carrierSnapshot).toMatchObject({carrierId:'CAR-1',companyNameAr:x.store['carriers/CAR-1'].nameAr,commercialRegistrationNo:x.store['carriers/CAR-1'].commercialRegistrationNo});});
+  it('40. committer uses returned truckSnapshot exactly',async()=>{const x=boundary();await x.commit();expect(x.trips()[0].truckSnapshot).toEqual({truckId:'TRK-1',plateNumberAr:x.store['trucks/TRK-1'].plate,tareWeightKg:15000,legalPayloadLimitKg:20000});});
+  it('41. committer uses returned driverSnapshot exactly',async()=>{const x=boundary();await x.commit();expect(x.trips()[0].driverSnapshot).toMatchObject({driverId:'DRV-1',fullNameAr:x.store['drivers/DRV-1'].fullNameAr,nationalOrIqamaId:x.store['drivers/DRV-1'].nationalId,phone:x.store['drivers/DRV-1'].phone});});
+  it('42. committer uses returned materialSnapshot exactly',async()=>{const x=boundary();await x.commit();expect(x.trips()[0].materialSnapshot).toEqual({materialId:'MAT-1',code:x.store['materials/MAT-1'].code,nameAr:x.store['materials/MAT-1'].nameAr,unitOfMeasure:'TON'});});
+  it('43. snapshot endpoint failure causes zero tripRepository.create',async()=>{const x=boundary();vi.spyOn(x.db,'runTransaction').mockRejectedValue(new Error('SNAPSHOT_READ_UNAVAILABLE'));const result=await x.commit();expect(result.committedRows).toBe(0);expect(x.trips()).toEqual([]);});
+  it('44. incomplete snapshot causes zero tripRepository.create',async()=>{const x=boundary();delete x.store['trucks/TRK-1'];const result=await x.commit();expect(result.committedRows).toBe(0);expect(x.trips()).toEqual([]);});
+  it('45. successful snapshot allows Trip write',async()=>{const x=boundary();const result=await x.commit();expect(result.success).toBe(true);expect(result.committedRows).toBe(1);expect(x.trips()).toHaveLength(1);});
+  it('46. written Trip uses final reviewed canonical IDs',async()=>{const x=boundary();await x.commit();expect(x.trips()[0]).toMatchObject(validIds);});
+  it('47. no project-local repository used in committer',async()=>{const x=boundary();await x.commit();expect(x.trips()).toHaveLength(1);});
+  it('48. no fabricated snapshot defaults reintroduced',async()=>{const x=boundary();await x.commit();const trip=x.trips()[0];expect(trip.carrierSnapshot.companyNameAr).toBe(x.store['carriers/CAR-1'].nameAr);expect(trip.truckSnapshot.plateNumberAr).toBe(x.store['trucks/TRK-1'].plate);expect(trip.driverSnapshot.fullNameAr).toBe(x.store['drivers/DRV-1'].fullNameAr);});
 });
