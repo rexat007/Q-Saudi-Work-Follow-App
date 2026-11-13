@@ -46,7 +46,7 @@ export function commercialTotals(base:number,terms:{vatApplicable?:boolean;vatRa
 
 /** Representation mapping only; no fabricated dates, actors, fallback rate or cross-project default. */
 export function canonicalPricingRule(r:any): PricingRule {
-  return {...r,materialId:['ALL','ALL_MATERIALS','GENERAL','*','',null,undefined].includes(r.materialId)?undefined:r.materialId,pricingType:r.pricingModel ?? r.pricingType,rate:r.baseRateSAR ?? r.rate,status:r.status ?? (r.isActive===true ? 'ACTIVE':'INACTIVE')};
+  return {...r,materialId:['ALL','ALL_MATERIALS','GENERAL','*','',null,undefined].includes(r.materialId)?undefined:r.materialId,pricingType:r.pricingModel ?? r.pricingType,rate:r.baseRateSAR ?? r.rate ?? r.agreedRate,status:r.status ?? (r.isActive===true ? 'ACTIVE':'INACTIVE')};
 }
 
 export class PricingService {

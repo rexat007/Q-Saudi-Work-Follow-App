@@ -288,7 +288,7 @@ describe('Unit 5A: Workspace Projection Freshness / Invalidation Foundation Test
   // 22. WorkspaceSheetTab is reused rather than duplicated
   it('22. WorkspaceSheetTab is reused rather than duplicated', () => {
     const serviceFilePath = path.resolve(__dirname, '../services/projectWorkspaceProjectionState.server.ts');
-    const content = fs.readFileSync(serviceFilePath, 'utf-8');
+    const content = fs.readFileSync(serviceFilePath, 'utf-8').replace(/\r\n/g, '\n');
 
     expect(content).toContain("import {\n  WorkspaceSheetTab,");
     expect(content).toContain("from '../types/workspace'");

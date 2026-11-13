@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
 import { describe, it, expect } from 'vitest';
@@ -18,53 +19,53 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
   const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-  const mockBatchC4: UnifiedImportBatch = {
-    batchId: 'BATCH-C4-001',
-    fileName: 'roster_c4_test.xlsx',
-    fileSize: 18400,
-    fileType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    uploadedAt: new Date().toISOString(),
-    status: 'PARSED',
+  const mockBatchC4: UnifiedImportBatch = {importBatchId:'BATCH-C4-001',projectId:'PRJ-1',source:{sourceType:'EXCEL',importBatchId:'BATCH-C4-001',sourceFileName:'roster_c4_test.xlsx'},currentStage:'REVIEW',validationStatus:'PENDING',commitStatus:'AWAITING_REVIEW',committedRows:0,operationId:'OP-REVIEW-FIXTURE',createdAt:'2026-01-01T00:00:00Z',createdBy:'reviewer',auditTrail:[],metadata:{fileName: 'roster_c4_test.xlsx',fileSize: 18400,fileType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',uploadedAt: new Date().toISOString(),sourceHeaders: ['رقم الشاحنة', 'الناقل', 'المادة', 'اسم السائق'],columnMappings: {
+      'رقم الشاحنة': 'truck_plate',
+      'الناقل': 'carrier_name',
+      'المادة': 'material_name',
+      'اسم السائق': 'driver_name',
+    }},
+
+
+
+
+
+
     totalRows: 2,
     validRows: 0,
     warningRows: 2,
     errorRows: 0,
     requiresReviewRows: 2,
-    importedRows: 0,
-    sourceHeaders: ['رقم الشاحنة', 'الناقل', 'المادة', 'اسم السائق'],
-    columnMappings: {
-      'رقم الشاحنة': 'truck_plate',
-      'الناقل': 'carrier_name',
-      'المادة': 'material_name',
-      'اسم السائق': 'driver_name',
-    },
+
+
+
     rows: [
-      {
+      {reviewStatus: 'requires_review',
         rowNumber: 1,
         raw: { 'رقم الشاحنة': 'TRK-201', 'الناقل': 'شركة الرمال للنقل', 'المادة': 'رمل مغسول', 'اسم السائق': 'سالم علي' },
         entityResolutions: {
-          carrier: { sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          material: { sourceValue: 'رمل مغسول', matchedId: 'MAT-SAND-01', matchedName: 'رمل مغسول', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
-          truck: { sourceValue: 'TRK-201', recommendation: 'REVIEW' },
+          carrier: {entityType:'CARRIER',originalValue:'شركة الرمال للنقل',confidence:0,isExact:false, sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          material: {entityType:'MATERIAL',originalValue:'رمل مغسول',confidence:0,isExact:false, sourceValue: 'رمل مغسول', matchedId: 'MAT-SAND-01', matchedName: 'رمل مغسول', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          driver: {entityType:'DRIVER',originalValue:'سالم علي',confidence:0,isExact:false, sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+          truck: {entityType:'TRUCK',originalValue:'TRK-201',confidence:0,isExact:false, sourceValue: 'TRK-201', recommendation: 'REVIEW' },
         },
         status: 'WARNING',
         validationIssues: [],
-        resolutionDecisions: {},
-      },
-      {
+
+      } satisfies ImportRow,
+      {reviewStatus: 'requires_review',
         rowNumber: 2,
         raw: { 'رقم الشاحنة': 'TRK-202', 'الناقل': 'مؤسسة الصحراء المتقدمة', 'المادة': 'حصى ناعم', 'اسم السائق': 'خالد عمر' },
         entityResolutions: {
-          carrier: { sourceValue: 'مؤسسة الصحراء المتقدمة', matchedId: 'CAR-SAHRA-01', matchedName: 'مؤسسة الصحراء المتقدمة', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          material: { sourceValue: 'حصى ناعم', matchedId: 'MAT-HASHA-01', matchedName: 'حصى ناعم', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW' },
-          truck: { sourceValue: 'TRK-202', recommendation: 'REVIEW' },
+          carrier: {entityType:'CARRIER',originalValue:'مؤسسة الصحراء المتقدمة',confidence:0,isExact:false, sourceValue: 'مؤسسة الصحراء المتقدمة', matchedId: 'CAR-SAHRA-01', matchedName: 'مؤسسة الصحراء المتقدمة', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          material: {entityType:'MATERIAL',originalValue:'حصى ناعم',confidence:0,isExact:false, sourceValue: 'حصى ناعم', matchedId: 'MAT-HASHA-01', matchedName: 'حصى ناعم', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          driver: {entityType:'DRIVER',originalValue:'خالد عمر',confidence:0,isExact:false, sourceValue: 'خالد عمر', recommendation: 'REVIEW' },
+          truck: {entityType:'TRUCK',originalValue:'TRK-202',confidence:0,isExact:false, sourceValue: 'TRK-202', recommendation: 'REVIEW' },
         },
         status: 'WARNING',
         validationIssues: [],
-        resolutionDecisions: {},
-      },
+
+      } satisfies ImportRow,
     ],
     issues: [],
   };
@@ -263,13 +264,13 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
           raw: { 'اسم السائق': 'سالم القحطاني', 'رقم الهوية': '1023456789', 'الجوال': '0501234567' },
           canonical: { driverName: 'سالم القحطاني', driverIdentity: '1023456789', driverPhone: '0501234567' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            driver: { sourceValue: 'سالم القحطاني', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سالم القحطاني' },
+            carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: {entityType:'DRIVER', sourceValue: 'سالم القحطاني', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سالم القحطاني' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
     };
 
@@ -285,18 +286,18 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('26. Driver repeated across 5 rows with identical values yields single group and identical prefill', () => {
-    const rows = Array.from({ length: 5 }, (_, i) => ({
+    const rows: ImportRow[] = Array.from({ length: 5 }, (_, i) => ({
       rowNumber: i + 1,
       raw: { 'اسم السائق': 'أحمد فهد', 'رقم الهوية': '2034567890', 'الجوال': '0551112233' },
       canonical: { driverName: 'أحمد فهد', driverIdentity: '2034567890', driverPhone: '0551112233' },
       entityResolutions: {
-        carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-        driver: { sourceValue: 'أحمد فهد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أحمد فهد' },
+        carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+        driver: {entityType:'DRIVER', sourceValue: 'أحمد فهد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أحمد فهد' },
       },
       status: 'WARNING' as const,
       validationIssues: [],
       reviewStatus: 'requires_review' as const,
-    }));
+    } satisfies ImportRow));
 
     const multiRowBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
     const groups = RosterBatchReviewService.getBatchReviewGroups(multiRowBatch);
@@ -311,31 +312,31 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('27. Driver same name + carrier + different residency IDs yields 2 separate groups', () => {
-    const rows = [
+    const rows: ImportRow[] = [
       {
         rowNumber: 1,
         raw: {},
         canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789' },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: {entityType:'DRIVER', sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
       {
         rowNumber: 2,
         raw: {},
         canonical: { driverName: 'خالد عمر', driverIdentity: '2098765432' },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: {entityType:'DRIVER', sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
     ];
 
     const differentIqamaBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
@@ -349,25 +350,25 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
         raw: {},
         canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789', driverPhone: '0501112222' },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: {entityType:'DRIVER', sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
       {
         rowNumber: 2,
         raw: {},
         canonical: { driverName: 'خالد عمر', driverIdentity: '1023456789', driverPhone: '0509998888' },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          driver: {entityType:'DRIVER', sourceValue: 'خالد عمر', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'خالد عمر' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
     ];
     const intraConflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows: intraConflictRows };
     const intraGroups = RosterBatchReviewService.getBatchReviewGroups(intraConflictBatch);
@@ -387,13 +388,13 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
           raw: {},
           canonical: { truckPlate: 'أ ب ج 1234', truckType: 'قلاب كبير', tareWeightKg: 14500, maxGrossWeightKg: 45000 },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            truck: { sourceValue: 'أ ب ج 1234', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أ ب ج 1234' },
+            carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            truck: {entityType:'TRUCK', sourceValue: 'أ ب ج 1234', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'أ ب ج 1234' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
     };
 
@@ -410,31 +411,31 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('29. Truck tareWeight conflict across rows flags hasConflict=true', () => {
-    const rows = [
+    const rows: ImportRow[] = [
       {
         rowNumber: 1,
         raw: {},
         canonical: { truckPlate: 'د هـ و 5555', tareWeightKg: 14000 },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          truck: { sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          truck: {entityType:'TRUCK', sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
       {
         rowNumber: 2,
         raw: {},
         canonical: { truckPlate: 'د هـ و 5555', tareWeightKg: 16000 },
         entityResolutions: {
-          carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-          truck: { sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
+          carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+          truck: {entityType:'TRUCK', sourceValue: 'د هـ و 5555', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'د هـ و 5555' },
         },
         status: 'WARNING' as const,
         validationIssues: [],
         reviewStatus: 'requires_review' as const,
-      },
+      } satisfies ImportRow,
     ];
 
     const conflictBatch: UnifiedImportBatch = { ...mockBatchC4, rows };
@@ -456,13 +457,13 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
           raw: {},
           canonical: { driverName: 'سعيد العتيبي', driverIdentity: '1099999999' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            driver: { sourceValue: 'سعيد العتيبي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سعيد العتيبي' },
+            carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: {entityType:'DRIVER', sourceValue: 'سعيد العتيبي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'سعيد العتيبي' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
     };
 
@@ -483,27 +484,27 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
           raw: {},
           canonical: { driverName: 'سالم علي', truckPlate: 'أ ب ج 1000' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-001', matchedName: 'الناقل الأول', sourceValue: 'الناقل الأول', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
-            truck: { sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
+            carrier: {entityType:'CARRIER',originalValue:'الناقل الأول', matchedId: 'CAR-001', matchedName: 'الناقل الأول', sourceValue: 'الناقل الأول', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: {entityType:'DRIVER',originalValue:'سالم علي',confidence:0,isExact:false, sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+            truck: {entityType:'TRUCK',originalValue:'أ ب ج 1000',confidence:0,isExact:false, sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
         {
           rowNumber: 2,
           raw: {},
           canonical: { driverName: 'سالم علي', truckPlate: 'أ ب ج 1000' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-002', matchedName: 'الناقل الثاني', sourceValue: 'الناقل الثاني', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
-            truck: { sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
+            carrier: {entityType:'CARRIER',originalValue:'الناقل الثاني', matchedId: 'CAR-002', matchedName: 'الناقل الثاني', sourceValue: 'الناقل الثاني', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: {entityType:'DRIVER',originalValue:'سالم علي',confidence:0,isExact:false, sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+            truck: {entityType:'TRUCK',originalValue:'أ ب ج 1000',confidence:0,isExact:false, sourceValue: 'أ ب ج 1000', recommendation: 'REVIEW' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
     };
 
@@ -518,18 +519,18 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
   });
 
   it('32. Grouped Canonical Propagation: Creation updates ALL rows matching the exact group key', () => {
-    const rows = Array.from({ length: 5 }, (_, i) => ({
+    const rows: ImportRow[] = Array.from({ length: 5 }, (_, i) => ({
       rowNumber: i + 1,
       raw: {},
       canonical: { driverName: 'فيصل العلي', driverIdentity: '1088888888' },
       entityResolutions: {
-        carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-        driver: { sourceValue: 'فيصل العلي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'فيصل العلي' },
+        carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+        driver: {entityType:'DRIVER', sourceValue: 'فيصل العلي', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'فيصل العلي' },
       },
       status: 'WARNING' as const,
       validationIssues: [],
       reviewStatus: 'requires_review' as const,
-    }));
+    } satisfies ImportRow));
 
     const batch: UnifiedImportBatch = { ...mockBatchC4, rows };
     const groups = RosterBatchReviewService.getBatchReviewGroups(batch);
@@ -565,13 +566,13 @@ describe('UNIT C4 — SMART IMPORT DRIVER & TRUCK RESOLUTION LAYER', () => {
           raw: {},
           canonical: { driverName: 'نايف محمد', driverIdentity: '1077777777', driverPhone: '0507777777' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-            driver: { sourceValue: 'نايف محمد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'نايف محمد' },
+            carrier: {entityType:'CARRIER',originalValue:'ناقل الرمال', matchedId: 'CAR-001', matchedName: 'ناقل الرمال', sourceValue: 'ناقل الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+            driver: {entityType:'DRIVER', sourceValue: 'نايف محمد', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'نايف محمد' },
           },
           status: 'WARNING',
           validationIssues: [],
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
     };
 

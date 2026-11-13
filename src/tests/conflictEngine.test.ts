@@ -1,3 +1,4 @@
+import {it} from 'vitest';
 /**
  * BLOCK 123 — Conflict & Exception Engine Unit Tests
  */
@@ -83,7 +84,4 @@ async function runTests() {
   console.log('✓ BLOCK 123 Conflict Engine tests passed successfully.');
 }
 
-runTests().then(() => process.exit(0)).catch((err) => {
-  console.error('Test failed:', err);
-  process.exit(1);
-});
+it('BLOCK123 existing conflict and exception contracts',async()=>{await runTests();});

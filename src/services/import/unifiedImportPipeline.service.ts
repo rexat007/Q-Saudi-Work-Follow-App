@@ -355,7 +355,7 @@ export class UnifiedImportPipelineService {
     if (batch.errorRows === 0 && !hasUnresolved) {
       batch.commitStatus = 'READY_TO_COMMIT';
     } else {
-      batch.commitStatus = 'REVIEW_REQUIRED';
+      batch.commitStatus = 'AWAITING_REVIEW';
     }
 
     return batch;

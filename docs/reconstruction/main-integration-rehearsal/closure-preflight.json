@@ -1,0 +1,238 @@
+{
+  "preflight": "PASS",
+  "repository": "https://github.com/rexat007/Q-Saudi-Work-Follow-App.git",
+  "mainParent": "030e9027685033c674cf2021499db7bfb675cbfd",
+  "branch": "rehearsal/firestore-main-20261113",
+  "sourceAndTests": 159,
+  "productionRoots": 54,
+  "originalEvidenceFiles": 123,
+  "previousInventoryAllBytesMatch": true,
+  "sourceInventoryAllBytesMatch": true,
+  "productionRootAllNormalizedBytesMatch": true,
+  "evidence": {
+    "main-rehearsal-historical-reviewed.json.gz": {
+      "passed": 3449,
+      "sha256Artifact": "b2c991d803307cc06e860c5218a88e263ffff3ca32e8f7dfcbf2cc7ab72dce5d"
+    },
+    "main-rehearsal-final-connected-browser.json.gz": {
+      "passed": 31,
+      "sha256Artifact": "8d524907b5b1a1cc98daa7d94470bb45fff7c68a7f3ae75a8bb38b0089c4b7c5"
+    },
+    "main-rehearsal-historical-reviewed-exit.json.gz": {
+      "nativeExit": 0,
+      "sha256Artifact": "16e4df2486513303eea85c1b9ad05e4af0ac576a867faf7dc3e2ad843716e8be"
+    },
+    "main-rehearsal-final-connected-browser-exit.json.gz": {
+      "nativeExit": 0,
+      "sha256Artifact": "790d48dcff7c07788592c861d9e4e07e8e0c1cd53ec04732c472b7a86127cc15"
+    },
+    "main-rehearsal-npm-test-exit.json.gz": {
+      "nativeExit": 0,
+      "sha256Artifact": "ca28f117d5afbc5493252b8bde1675b1c7c114b8d5e868ac899b717269e95a09"
+    },
+    "main-rehearsal-release-beta2-final-exit.json.gz": {
+      "nativeExit": 0,
+      "sha256Artifact": "c4837d9aece948fb7a0b5372465911f14dbe827b339a235d0ee2d64ce79153f0"
+    }
+  },
+  "typescript": {
+    "mainBaseline": 446,
+    "candidate": 0
+  },
+  "preservation": {
+    "convergenceClean": true,
+    "convergenceHead": true,
+    "rb4Head": true,
+    "rb4Status": true,
+    "rb4Files": true,
+    "rb4Diff": true,
+    "mainMigrationBytes": true
+  },
+  "migrations": {
+    "rehearsal": [
+      {
+        "path": "src/db/migrations/001_canonical_schema.sql",
+        "committedBlobSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0",
+        "workingBytesSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0"
+      },
+      {
+        "path": "src/db/migrations/002_roles_and_rls.sql",
+        "committedBlobSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e",
+        "workingBytesSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e"
+      },
+      {
+        "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "committedBlobSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b",
+        "workingBytesSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b"
+      },
+      {
+        "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "committedBlobSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c",
+        "workingBytesSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c"
+      },
+      {
+        "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "committedBlobSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a",
+        "workingBytesSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a"
+      },
+      {
+        "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "committedBlobSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de",
+        "workingBytesSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de"
+      },
+      {
+        "path": "src/db/migrations/007_durable_import_execution.sql",
+        "committedBlobSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff",
+        "workingBytesSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff"
+      },
+      {
+        "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "committedBlobSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0",
+        "workingBytesSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0"
+      },
+      {
+        "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "committedBlobSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3",
+        "workingBytesSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3"
+      },
+      {
+        "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "committedBlobSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f",
+        "workingBytesSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f"
+      }
+    ],
+    "convergence": [
+      {
+        "path": "src/db/migrations/001_canonical_schema.sql",
+        "committedBlobSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0",
+        "workingBytesSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0"
+      },
+      {
+        "path": "src/db/migrations/002_roles_and_rls.sql",
+        "committedBlobSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e",
+        "workingBytesSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e"
+      },
+      {
+        "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "committedBlobSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b",
+        "workingBytesSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b"
+      },
+      {
+        "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "committedBlobSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c",
+        "workingBytesSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c"
+      },
+      {
+        "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "committedBlobSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a",
+        "workingBytesSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a"
+      },
+      {
+        "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "committedBlobSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de",
+        "workingBytesSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de"
+      },
+      {
+        "path": "src/db/migrations/007_durable_import_execution.sql",
+        "committedBlobSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff",
+        "workingBytesSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff"
+      },
+      {
+        "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "committedBlobSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0",
+        "workingBytesSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0"
+      },
+      {
+        "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "committedBlobSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3",
+        "workingBytesSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3"
+      },
+      {
+        "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "committedBlobSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f",
+        "workingBytesSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f"
+      },
+      {
+        "path": "src/db/migrations/011_runtime_composition_readiness.sql",
+        "committedBlobSha256": "52d1ddcc3382da4d02660630da8abb35524fc9b94254b810b879f501b205a100",
+        "workingBytesSha256": "52d1ddcc3382da4d02660630da8abb35524fc9b94254b810b879f501b205a100"
+      },
+      {
+        "path": "src/db/migrations/012_project_account_governance.sql",
+        "committedBlobSha256": "9001bd9fe208f74f693c94850948ce4556dbfa904c12ac739eaefe1482cbf4ce",
+        "workingBytesSha256": "9001bd9fe208f74f693c94850948ce4556dbfa904c12ac739eaefe1482cbf4ce"
+      }
+    ],
+    "rb4": [
+      {
+        "path": "src/db/migrations/001_canonical_schema.sql",
+        "committedBlobSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0",
+        "workingBytesSha256": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0"
+      },
+      {
+        "path": "src/db/migrations/002_roles_and_rls.sql",
+        "committedBlobSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e",
+        "workingBytesSha256": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e"
+      },
+      {
+        "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "committedBlobSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b",
+        "workingBytesSha256": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b"
+      },
+      {
+        "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "committedBlobSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c",
+        "workingBytesSha256": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c"
+      },
+      {
+        "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "committedBlobSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a",
+        "workingBytesSha256": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a"
+      },
+      {
+        "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "committedBlobSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de",
+        "workingBytesSha256": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de"
+      },
+      {
+        "path": "src/db/migrations/007_durable_import_execution.sql",
+        "committedBlobSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff",
+        "workingBytesSha256": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff"
+      },
+      {
+        "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "committedBlobSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0",
+        "workingBytesSha256": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0"
+      },
+      {
+        "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "committedBlobSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3",
+        "workingBytesSha256": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3"
+      },
+      {
+        "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "committedBlobSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f",
+        "workingBytesSha256": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f"
+      },
+      {
+        "path": "src/db/migrations/011_runtime_composition_readiness.sql",
+        "committedBlobSha256": "52d1ddcc3382da4d02660630da8abb35524fc9b94254b810b879f501b205a100",
+        "workingBytesSha256": "52d1ddcc3382da4d02660630da8abb35524fc9b94254b810b879f501b205a100"
+      },
+      {
+        "path": "src/db/migrations/012_project_account_governance.sql",
+        "committedBlobSha256": "9001bd9fe208f74f693c94850948ce4556dbfa904c12ac739eaefe1482cbf4ce",
+        "workingBytesSha256": "9001bd9fe208f74f693c94850948ce4556dbfa904c12ac739eaefe1482cbf4ce"
+      }
+    ]
+  },
+  "refsBefore": {
+    "refs/heads/main": "5f82f43ee1a6002729f0d300fa7cf27f177bacfa",
+    "refs/remotes/origin/main": "030e9027685033c674cf2021499db7bfb675cbfd",
+    "refs/heads/engineering/convergence-1-20261110": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+    "refs/heads/reconstruction/ar2-u09-sql-runtime-cutover-readiness": "11326e277939fe3a1d839d723085797d3d6a691f"
+  },
+  "localMainNote": "Local main remains at clone-time 5f82f43; reflog contains only the original clone. origin/main and rehearsal parent are the required030e902. No refs moved by closure.",
+  "noProductionOperations": "Only filesystem reads and local git operations; no tests, provider calls, migrations or services started.",
+  "evidenceIdentityLimit": "Prior runners do not embed a Git tree SHA. Unchanged current source is linked by all159 prior working-byte hashes, all54 normalized root hashes, unchanged complete evidence hashes, and the complete original patch reverse-check. No source edits or expensive suite reruns during closure."
+}

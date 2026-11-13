@@ -1,5 +1,5 @@
 import {snapshotOperationalConfiguration,resolveOperationalWeights,resolveTimeMetrics,profileTransitionAllowed,validateOperationalConfiguration} from './operationalProfileResolver';
-import { commercialTotals, PricingService } from './pricing.service';
+import { canonicalPricingRule, commercialTotals, PricingService } from './pricing.service';
 import { isCurrentTemporal, assignmentSlotsAgree } from '../utils/temporalRelationshipPolicy';
 import { evaluateGlobalEligibility } from '../utils/globalIdentityPolicy';
 import { tripRepository } from '../repositories/trip.repository';
@@ -361,7 +361,7 @@ export class TripService {
     }
 
     // 12. Snapshot Construction & Trip Creation
-    const tripId = `TRP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const tripId = `TRP-${crypto.randomUUID()}`;
     const tripNumber = await this.persistence.tripNumberGenerator.getNextTripNumber(cleanProjectId, project?.projectNumber);
 
     const agreedRate = pricingRule.baseRateSAR !== undefined 
@@ -485,7 +485,7 @@ export class TripService {
 
     // 15. Record Initial Trip Event
     await this.persistence.tripEventService.recordEvent({
-      eventId: `EVT-${Date.now()}-DISPATCH`,
+      eventId: `EVT-${tripId}-${crypto.randomUUID()}-DISPATCH`,
       tripId,
       projectId: cleanProjectId,
       eventType: 'EVENT_DISPATCHED',
@@ -529,7 +529,7 @@ export class TripService {
     const priorWeights=operational?resolveOperationalWeights(operational.configuration,{loadingMeasuredWeight:existing.weights.originNetKg==null?null:existing.weights.originNetKg/1000,unloadingMeasuredWeight:existing.weights.destinationNetKg==null?null:existing.weights.destinationNetKg/1000,estimatedCapacityTonnes:operational.estimatedCapacityTonnes}):null;
     const transitionCheck = operational?{isValid:profileTransitionAllowed(existing.status,targetStatus,operational,existing.operationalTimeline||{},priorWeights!),errors:[{messageAr:'OPERATIONAL_CHECKPOINT_REQUIRED'}]}:TripValidator.validateStatusTransition(existing.status, targetStatus);
     if (!transitionCheck.isValid) {
-      throw new Error(transitionCheck.errors[0].messageAr);
+      throw Object.assign(new Error(transitionCheck.errors[0].messageAr),{code:'TRIP_STATE_CONFLICT'});
     }
 
     const updates: Partial<TripEntity> = {
@@ -581,8 +581,7 @@ export class TripService {
     }
     // If completing trip: calculate server financials automatically
     if (targetStatus === 'COMPLETED') {
-      const billableWeightKg = updates.weights?.billableWeightKg || existing.weights.billableWeightKg || existing.weights.originNetKg || 0;
-      const billableTons = billableWeightKg / 1000;
+      const billableWeightKg = updates.weights?.billableWeightKg ?? existing.weights.billableWeightKg ?? existing.weights.destinationNetKg ?? existing.weights.originNetKg;
       const rate = existing.pricingSnapshot.agreedRate ?? existing.pricingSnapshot.baseRateSAR ?? 0;
       const pricingType = existing.pricingSnapshot.pricingType ?? (existing.pricingSnapshot.pricingModel === 'PER_TRIP' ? 'PER_TRIP' : 'PER_TON');
       
@@ -592,7 +591,7 @@ export class TripService {
 
       if (existing.pricingSnapshot.pricingType !== 'LEGACY_UNRESOLVED') {
         const calculation = new PricingService().calculateSettlement({pricingRule:{...existing.pricingSnapshot,pricingType,rate} as any,netWeightKg:operational&&billableWeightKg===0?undefined:billableWeightKg,allowMissingWeight:true});
-        settlementBase=calculation.settlementBase; baseAmount=calculation.settlementAmount;if(operational)operationalSettlement=calculation;
+        settlementBase=calculation.settlementBase; baseAmount=calculation.settlementAmount;operationalSettlement=calculation;
       } else {
         // Preserve the explicit legacy pending marker and its existing completion representation.
         settlementBase=1; baseAmount=rate;
@@ -601,7 +600,9 @@ export class TripService {
 
       updates.pricingSnapshot = {
         ...existing.pricingSnapshot,
-        ...(operationalSettlement?operationalSettlement.snapshot:{}),
+        // Completion updates settlement results, never the tariff capture's
+        // timestamp/version, identity or commercial terms.
+        ...(operationalSettlement?{isPending:operationalSettlement.isPending,pendingReason:operationalSettlement.pendingReason}:{}),
         settlementBase,
         settlementAmount: baseAmount,
       };
@@ -616,8 +617,8 @@ export class TripService {
         deductionsAmountSAR: deductions,
         ...totals,
         currency: 'SAR',
-        isFinalized: operationalSettlement?.isPending ? false : true,
-        ...(operationalSettlement?.isPending ? {} : {finalizedAt: new Date()}),
+        isFinalized: existing.pricingSnapshot.pricingType==='LEGACY_UNRESOLVED'||operationalSettlement?.isPending ? false : true,
+        ...(existing.pricingSnapshot.pricingType==='LEGACY_UNRESOLVED'||operationalSettlement?.isPending ? {} : {finalizedAt: new Date()}),
       };
     }
 
@@ -625,7 +626,7 @@ export class TripService {
 
     // Record Event
     await this.persistence.tripEventService.recordEvent({
-      eventId: `EVT-${Date.now()}-${targetStatus}`,
+      eventId: `EVT-${tripId}-${crypto.randomUUID()}-${targetStatus}`,
       tripId,
       projectId,
       eventType: `EVENT_${targetStatus}` as any,
@@ -848,6 +849,8 @@ export class TripService {
     } else if(params.pricingMode==='RESOLVED') throw Error('MISSING_PRICING');
 
     const opData = params.operationalData || {};
+    for(const key of ['tareWeightKg','grossWeightKg','netWeightKg','destinationNetWeightKg'] as const){const value=opData[key];if(value!==undefined&&(typeof value!=='number'||!Number.isFinite(value)||value<0))throw Error('INVALID_IMPORTED_WEIGHT');}
+    if(opData.tareWeightKg!==undefined&&opData.grossWeightKg!==undefined&&opData.grossWeightKg<opData.tareWeightKg)throw Error('INVALID_IMPORTED_WEIGHT');
     if(project.operationalConfiguration){const c=project.operationalConfiguration;if(c.loadingMeasurementMode==='NONE'&&[opData.tareWeightKg,opData.grossWeightKg,opData.netWeightKg].some(v=>v!==undefined)||c.unloadingMeasurementMode==='NONE'&&opData.destinationNetWeightKg!==undefined)throw Error('UNSUPPORTED_MEASUREMENT');}
     let pricingSnapshot: any;
     let financials: any;
@@ -919,7 +922,7 @@ export class TripService {
 
     if (typeof originGross === 'number' && typeof originTare === 'number' && originGross >= originTare) {
       const computedNet = originGross - originTare;
-      if (typeof originNet === 'number' && originNet > 0 && Math.abs(originNet - computedNet) > 0.01) {
+      if (typeof originNet === 'number' && Math.abs(originNet - computedNet) > 0.01) {
         originNet = computedNet;
       } else if (typeof originNet !== 'number') {
         originNet = computedNet;
@@ -927,7 +930,7 @@ export class TripService {
     }
 
     if (pricingRule) {
-      const calculation = new PricingService().calculateSettlement({pricingRule:{...pricingRule,pricingType:pricingRule.pricingType || pricingRule.pricingModel,rate:pricingRule.baseRateSAR ?? pricingRule.rate},netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
+      const calculation = new PricingService().calculateSettlement({pricingRule:canonicalPricingRule(pricingRule),netWeightKg:opData.destinationNetWeightKg ?? originNet,allowMissingWeight:true});
       pricingSnapshot={...pricingSnapshot,...calculation.snapshot,vatApplicable:pricingRule.vatApplicable,vatRatePercent:pricingRule.vatRatePercent ?? 15};
       financials={...financials,baseAmountSAR:calculation.settlementAmount,...commercialTotals(calculation.settlementAmount,pricingSnapshot)};
     }
@@ -960,7 +963,9 @@ export class TripService {
     }
 
     // 5. Server-Authoritative Identity & Numbering
-    const tripId = `TRP-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const importedFinal = mappedStatus==='COMPLETED' && pricingSnapshot.pricingType!=='LEGACY_UNRESOLVED' && pricingSnapshot.isPending!==true;
+    financials={...financials,demurrageAmountSAR:0,deductionsAmountSAR:0,...commercialTotals(financials.baseAmountSAR,pricingSnapshot),isFinalized:importedFinal,...(importedFinal?{finalizedAt:new Date()}: {})};
+    const tripId = `TRP-${crypto.randomUUID()}`;
     const tripNumber = await this.persistence.tripNumberGenerator.getNextTripNumber(cleanProjectId, project?.projectNumber);
 
     // 6. Build Server-Authoritative Canonical Entity Snapshots
@@ -978,7 +983,7 @@ export class TripService {
     const driverSnapshot = driverGlobal?{
       driverId: driverGlobal.driverId,
       fullNameAr: driverGlobal.fullNameAr || driverGlobal.name || '',
-      nationalOrIqamaId: driverGlobal.idNumber || (driverGlobal as any).nationalOrIqamaId || '',
+      nationalOrIqamaId: driverGlobal.nationalId ?? driverGlobal.idNumber ?? (driverGlobal as any).nationalOrIqamaId ?? '',
       phone: driverGlobal.phone || '',
     }:null;
     const materialSnapshot = {
@@ -1036,13 +1041,16 @@ export class TripService {
         originNetKg: originNet,
         originTicketNo: opData.ticketId,
         destinationNetKg: opData.destinationNetWeightKg,
-        billableWeightKg: opData.destinationNetWeightKg || originNet || 0,
+        ...((opData.destinationNetWeightKg??originNet)===undefined?{}:{billableWeightKg:opData.destinationNetWeightKg??originNet}),
       },
+      syncStatus: 'SYNCED',
+      hasExceptions: false,
+      activeExceptionCount: 0,
       financials,
       createdBy: context.userId,
       updatedBy: context.userId,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     if(newTrip.operationalSnapshot){
@@ -1054,9 +1062,9 @@ export class TripService {
 
     await this.persistence.tripRepository.create(newTrip);
 
-    try {
       await this.persistence.tripEventService.recordEvent(
         {
+          eventId:`EVT-${newTrip.tripId}-${crypto.randomUUID()}-IMPORT`,
           tripId: newTrip.tripId,
           projectId: newTrip.projectId,
           eventType: 'DISPATCHED_IMPORTED',
@@ -1071,15 +1079,11 @@ export class TripService {
         },
         context
       );
-    } catch (err) {
-      console.warn('TripEvent creation warning for imported trip:', err);
-    }
-
-    try {
       await this.persistence.auditLogService.recordLog(
         {
           projectId: newTrip.projectId,
           action: 'DISPATCH_IMPORTED_TRIP',
+          entityType:'TRIP',entityId:newTrip.tripId,after:newTrip,
           resourceType: 'TRIP',
           resourceId: newTrip.tripId,
           details: {
@@ -1095,9 +1099,6 @@ export class TripService {
         },
         context
       );
-    } catch (err) {
-      console.warn('AuditLog creation warning for imported trip:', err);
-    }
 
     return newTrip;
   }

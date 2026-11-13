@@ -24,7 +24,7 @@ vi.mock('../services/workspace.service', () => ({
 vi.mock('../repositories/trip.repository', () => ({
   tripRepository: {
     subscribeByProject: f.subscribe,
-    listByProject: vi.fn(async () => []),
+    listCompleteByProject: vi.fn(async () => []),
   },
 }));
 

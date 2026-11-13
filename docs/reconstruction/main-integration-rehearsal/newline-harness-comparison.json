@@ -1,0 +1,26 @@
+{
+  "completeRunBeforeFix": {
+    "passed": 3447,
+    "failed": 2,
+    "pending": 0,
+    "nativeExit": 1
+  },
+  "rootCause": "Fresh Windows checkout uses repository core.autocrlf=true. Two existing static source assertions assume literal LF; their production source already satisfies both assertions after line-ending decoding.",
+  "change": "Normalize CRLF only in the two source-read assertion inputs; every assertion, identity and business/security condition unchanged. No production source newline rewrite.",
+  "proof": [
+    {
+      "source": "src/services/projectWorkspaceProjectionState.server.ts",
+      "workingSha256": "031ac0bfa4fa61ebbe1767e5f4b97bfd9dc4e12f604e8b78dd1798ff726dc620",
+      "crlfCount": 302,
+      "literalFailsOnlyBeforeEolNormalization": true,
+      "sourceNotModified": true
+    },
+    {
+      "source": "server/security.middleware.ts",
+      "workingSha256": "1d22e08894caba38c9495c6afb97749889bd59f6fecbfa5b03eaf0e529617084",
+      "crlfCount": 650,
+      "literalFailsOnlyBeforeEolNormalization": true,
+      "sourceNotModified": true
+    }
+  ]
+}

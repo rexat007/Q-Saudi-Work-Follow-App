@@ -9,6 +9,7 @@ import { createRoot } from 'react-dom/client';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PROJECT_SETUP_LAYERS, canEnterProjectSetupLayer, ProjectSetupLayer } from '../services/projectSetupWorkflow.service';
 import { ProjectSetupWizard } from '../components/wizard/ProjectSetupWizard';
+import type {ProjectGoogleStatus} from '../types/projectGoogleWorkspace';
 import { ProjectEntity, MaterialEntity, CarrierEntity, PricingRuleEntity } from '../types/entities';
 import { AuthUserContext } from '../types/common';
 import { projectService } from '../services/project.service';
@@ -114,6 +115,8 @@ vi.mock('../services/workspace.service', () => ({
       projectFolderId: 'folder-123',
     }),
     syncInitialProjectWorkspace: vi.fn().mockResolvedValue(undefined),
+    getGoogleWorkspaceStatus: vi.fn(),
+    connectBackgroundAuthorization: vi.fn().mockRejectedValue(new Error('UNEXPECTED_CONSENT_REQUEST')),
   }
 }));
 
@@ -293,8 +296,14 @@ describe('P4-B2 rendered Wizard races', () => {
 describe('P4-B2 Workspace completion ownership', () => {
   it.each(['resolve', 'reject'] as const)('discards stale Workspace %s notice/finally without clearing B busy state', async outcome => {
     const life = new ProjectContextLifetime(); life.enter('A', 'owner'); const captured = life.capture(); const done = deferred(); let busy = false; let notice: any = null;
-    const running = executeProjectWorkspaceSyncOrchestration({ project: mockProject, isSyncingGoogle: false, setIsSyncingGoogle: value => { busy = value; }, setSyncNotice: value => { notice = value; }, isCurrent: () => life.isCurrent(captured, 'A'), workspaceService: { requestGoogleScopes: async () => {}, syncInitialProjectWorkspace: () => done.promise } as any });
-    await Promise.resolve(); life.enter('B', 'owner'); busy = true; notice = { text: 'B pending' };
+    const status:ProjectGoogleStatus={state:'READY',binding:{projectId:mockProject.projectId,provider:'GOOGLE',spreadsheetId:'bound-A',driveFileId:'bound-A',spreadsheetUrl:'https://fixture.invalid',googleSubject:'subject-A',googleAccountLabel:'Fixture',provisionedAt:'2026-01-01T00:00:00Z',provisionedBy:'owner',revision:1},lastSuccessfulSyncAt:null,lastSyncError:null,pendingSyncCount:0,backgroundAuthorization:'CONNECTED',authorizationDiagnostic:{result:'CONNECTED_VALID',metadataOnly:true},workbookHealth:'HEALTHY'};
+    vi.mocked(clientWorkspaceService.getGoogleWorkspaceStatus).mockResolvedValue(status);
+    const sync=vi.mocked(clientWorkspaceService.syncInitialProjectWorkspace).mockImplementationOnce(()=>done.promise);
+    const running = executeProjectWorkspaceSyncOrchestration({ project: mockProject, isSyncingGoogle: false, setIsSyncingGoogle: value => { busy = value; }, setSyncNotice: value => { notice = value; }, isCurrent: () => life.isCurrent(captured, 'A'), workspaceService:clientWorkspaceService });
+    // Reject only after the real orchestration owns the promise; an unused deferred
+    // rejection is not evidence of an in-flight completion after a scope switch.
+    await vi.waitFor(()=>expect(sync).toHaveBeenCalledWith(mockProject.projectId,'bound-A'));
+    life.enter('B', 'owner'); busy = true; notice = { text: 'B pending' };
     if (outcome === 'resolve') done.resolve({}); else done.reject(new Error('A failure')); await running;
     expect(busy).toBe(true); expect(notice).toEqual({ text: 'B pending' });
   });

@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 /**
  * FINAL PRODUCT AUDIT — RELEASE READINESS TEST SUITE
  * 
@@ -10,12 +11,12 @@
  * 6. Pricing & Financial Immutability (Snapshots, Pending Settlement)
  * 7. Field Reports Engine & Central Executive Dashboard (7 Layers)
  * 8. Offline & Outbox Synchronization Authority
- * 9. I18N Freeze Gate (Exact 1,128 keys across AR, EN, UR)
+ * 9. I18N Freeze Gate (Exact 4,755 keys across AR, EN, UR)
  * 10. Responsive UI & Directionality (RTL/LTR)
  * 11. Regression Proof for BLOCKS 77–81
  */
 
-import { navigationService, NavTabId } from '../services/navigation.service';
+import { navigationService, NavTabId, NAV_ITEMS_REGISTRY } from '../services/navigation.service';
 import { UserRole } from '../types/common';
 import { arTranslations } from '../locales/ar';
 import { enTranslations } from '../locales/en';
@@ -88,33 +89,8 @@ export function runFinalReleaseReadinessTests(): {
     'All enterprise business capabilities have exactly one authoritative service instance.'
   );
 
-  const registeredTabs: NavTabId[] = [
-    'OPERATIONS_DASHBOARD',
-    'FIELD_OPERATIONS',
-    'REPORTS_ENGINE',
-    'MASTER_DATA',
-    'WIZARD',
-    'SECURITY_AUDIT',
-    'LEGACY_MIGRATION',
-    'ADMIN_CONSOLE',
-    'TRIP_ENGINE',
-    'WORKSPACE_INTEGRATION',
-    'EXCEPTION_ENGINE',
-    'IMPORT_CENTER',
-    'DATA_QUALITY',
-    'PRICING_ENGINE',
-    'FIRESTORE_ARCH',
-    'RELATIONS',
-    'PRINCIPLES',
-    'DOCS'
-  ];
-
-  const hasExpectedPrimaryTabs =
-    registeredTabs.includes('OPERATIONS_DASHBOARD') &&
-    registeredTabs.includes('FIELD_OPERATIONS') &&
-    registeredTabs.includes('REPORTS_ENGINE') &&
-    registeredTabs.includes('MASTER_DATA') &&
-    registeredTabs.includes('WIZARD');
+  const registeredTabs: NavTabId[] = ['WIZARD','FIELD_OPERATIONS','REPORTS_ENGINE','OPERATIONS_DASHBOARD','ADMIN_CONSOLE','SECURITY_AUDIT'];
+  const hasExpectedPrimaryTabs = registeredTabs.length===NAV_ITEMS_REGISTRY.length && registeredTabs.every(id=>NAV_ITEMS_REGISTRY.some(tab=>tab.id===id)) && NAV_ITEMS_REGISTRY.filter(tab=>tab.isPrimary).length===4 && ['MASTER_DATA','IMPORT_CENTER','TRIP_ENGINE','WORKSPACE_INTEGRATION','EXCEPTION_ENGINE','DATA_QUALITY'].every(id=>!navigationService.isTabAuthorizedForRole(id,'SUPER_ADMIN'));
 
   record(
     'AUDIT-ARCH-02',
@@ -208,7 +184,8 @@ export function runFinalReleaseReadinessTests(): {
     navigationService.isTabAuthorizedForRole('REPORTS_ENGINE', 'FINANCE_AUDITOR') &&
     navigationService.isTabAuthorizedForRole('OPERATIONS_DASHBOARD', 'FINANCE_AUDITOR') &&
     !navigationService.isTabAuthorizedForRole('FIELD_OPERATIONS', 'FINANCE_AUDITOR') &&
-    !navigationService.isTabAuthorizedForRole('WIZARD', 'FINANCE_AUDITOR');
+    navigationService.isTabAuthorizedForRole('WIZARD', 'FINANCE_AUDITOR') &&
+    ['LOADING_STATION','UNLOADING_STATION','SUPERVISION','DRIVER_VIEW'].every(station=>!navigationService.isFieldStationAuthorized(station,'FINANCE_AUDITOR'));
 
   record(
     'AUDIT-SEC-05',
@@ -544,7 +521,7 @@ export function runFinalReleaseReadinessTests(): {
   );
 
   // =========================================================================
-  // 9. I18N FREEZE AUDIT (AR, EN, UR = 1,128 KEYS)
+  // 9. I18N FREEZE AUDIT (AR, EN, UR = 4,755 KEYS)
   // =========================================================================
   const arCount = Object.keys(arTranslations).length;
   const enCount = Object.keys(enTranslations).length;
@@ -558,16 +535,16 @@ export function runFinalReleaseReadinessTests(): {
     arKeys.join(',') === enKeys.join(',') &&
     arKeys.join(',') === urKeys.join(',');
 
-  const i18nCountsMatch = arCount === 1128 && enCount === 1128 && urCount === 1128 && exactParity;
+  const i18nCountsMatch = arCount === 4755 && enCount === 4755 && urCount === 4755 && exactParity;
 
   record(
     'AUDIT-I18N-01',
     'I18N Freeze Gate',
-    'Verify Arabic, English, and Urdu dictionaries contain exactly 1,128 frozen keys with 100% parity',
+    'Verify Arabic, English, and Urdu dictionaries contain exactly 4,755 frozen keys with 100% parity',
     i18nCountsMatch,
-    { ar: 1128, en: 1128, ur: 1128, parity: true },
+    { ar: 4755, en: 4755, ur: 4755, parity: true },
     { ar: arCount, en: enCount, ur: urCount, parity: exactParity },
-    'All three language catalogs strictly match the frozen 1,128 key specification with zero drift.'
+    'All three language catalogs strictly match the frozen 4,755 key specification with zero drift.'
   );
 
   // =========================================================================
@@ -643,3 +620,7 @@ if (typeof process !== 'undefined' && process.argv && process.argv[1]?.includes(
     process.exit(0);
   }
 }
+
+let registeredResult: Awaited<ReturnType<typeof runFinalReleaseReadinessTests>>;
+beforeAll(async()=>{registeredResult=await runFinalReleaseReadinessTests();},60000);
+it.each(["AUDIT-ARCH-01", "AUDIT-ARCH-02", "AUDIT-SEC-01", "AUDIT-SEC-02", "AUDIT-SEC-03", "AUDIT-SEC-04", "AUDIT-SEC-05", "AUDIT-ISO-01", "AUDIT-OPS-01", "AUDIT-IMP-01", "AUDIT-PRC-01", "AUDIT-REP-01", "AUDIT-OFF-01", "AUDIT-I18N-01", "AUDIT-UX-01", "AUDIT-REG-01"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

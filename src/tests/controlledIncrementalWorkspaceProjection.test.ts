@@ -12,7 +12,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
       const fetchSpy = vi.fn();
       vi.stubGlobal('fetch', fetchSpy);
       
-      const context: AuthUserContext = { userId: 'admin-1', role: 'SUPER_ADMIN' };
+      const context: AuthUserContext = {email: '',displayName: '', userId: 'admin-1', role: 'SUPER_ADMIN' };
       useUserActiveWorkspaceSync(context);
       
       expect(fetchSpy).not.toHaveBeenCalled();
@@ -24,7 +24,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
       const fetchSpy = vi.fn();
       vi.stubGlobal('fetch', fetchSpy);
       
-      useUserActiveWorkspaceSync({ userId: 'admin-1', role: 'SUPER_ADMIN' });
+      useUserActiveWorkspaceSync({email: '',displayName: '', userId: 'admin-1', role: 'SUPER_ADMIN' });
       window.dispatchEvent(new Event('focus'));
       window.dispatchEvent(new Event('online'));
       document.dispatchEvent(new Event('visibilitychange'));
@@ -201,7 +201,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
       };
 
       const server = new ProjectGoogleWorkspaceServer(mockDb);
-      const mockWho: AuthUserContext = { userId: 'user-1', role: 'SUPER_ADMIN' };
+      const mockWho: AuthUserContext = {email: '',displayName: '', userId: 'user-1', role: 'SUPER_ADMIN' };
       const mockGooglePort: any = {
         subject: async () => 'admin@q-saudi.sa',
         verifyBinding: async () => {},
@@ -458,7 +458,7 @@ describe('Controlled Incremental Workspace Projection Architecture Suite', () =>
       };
 
       const server = new ProjectGoogleWorkspaceServer(mockDb);
-      const mockWho: AuthUserContext = { userId: 'user-1', role: 'SUPER_ADMIN' };
+      const mockWho: AuthUserContext = {email: '',displayName: '', userId: 'user-1', role: 'SUPER_ADMIN' };
       const mockGooglePort: any = {
         subject: async () => 'admin@q-saudi.sa',
         verifyBinding: async () => {},

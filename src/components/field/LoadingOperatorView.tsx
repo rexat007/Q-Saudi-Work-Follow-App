@@ -412,25 +412,19 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
 
   // Simulated Live Scale Read
   const handleReadScaleIn = () => {
-    // Standard Tare scale read
-    const simulated = 14200;
-    setTareWeight(simulated);
     if (onNotification) {
       onNotification({
-        type: 'SUCCESS',
-        message: translate("operations.entry_scale_read_successfully_value_kg", { p0: simulated.toLocaleString() })
+        type: 'ERROR',
+        message: translate('operations.scale.read_unavailable')
       });
     }
   };
 
   const handleReadScaleOut = () => {
-    // Standard Gross scale read
-    const simulated = 45800;
-    setGrossWeight(simulated);
     if (onNotification) {
       onNotification({
-        type: 'SUCCESS',
-        message: translate("operations.exit_scale_read_successfully_value_kg", { p0: simulated.toLocaleString() })
+        type: 'ERROR',
+        message: translate('operations.scale.read_unavailable')
       });
     }
   };
@@ -450,6 +444,15 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
     setIsSubmitting(true);
 
     try {
+      // Reconcile an uncertain ticket for this Truck before allocating another
+      // logical creation. Its original operation/measurements remain frozen.
+      const unresolved=(await outboxService.getOperations()).find(op=>op.projectId===projectId&&op.userId===authContext.userId&&op.operationType==='CREATE_TRIP_LOADING'&&op.payload.truckId===truckId&&['SENDING','AWAITING_RECEIPT'].includes(op.status));
+      if(unresolved){
+        await outboxService.syncAll(false);
+        const recovered=await outboxService.acknowledgedTrip(unresolved.operationId,projectId);
+        setCreatedTrip(recovered);onTripCreated?.(recovered);
+        onNotification?.({type:'SUCCESS',message:translate('operations.weighbridge_ticket_value_created_and_synchronized_successfully_operational_status',{p0:recovered.tripSerial})});return;
+      }
       const nowIso = new Date().toISOString();
       const shiftDate = nowIso.split('T')[0];
 
@@ -469,7 +472,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
         ? parseFloat((localNetTons * rate).toFixed(2))
         : rate;
 
-      const clientTripId = `TRP-CLIENT-${Date.now()}`;
+      const clientTripId = `TRP-CLIENT-${crypto.randomUUID()}`;
       const clientSerial = `TRP-LOCAL-${Math.floor(1000 + Math.random() * 9000)}`;
       const clientTicket = `WB-TKT-LOCAL-${Math.floor(100000 + Math.random() * 900000)}`;
 
@@ -521,7 +524,7 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       };
 
       // Store in IndexedDB and enqueue in Outbox
-      await indexedDBService.put('trips', clientRecord);
+      await indexedDBService.put('trips', {...clientRecord,syncStatus:'PENDING'},authContext.userId);
       const queuedOp = await outboxService.queueOperation({
         operationType: 'CREATE_TRIP_LOADING',
         projectId: clientRecord.projectId,
@@ -530,16 +533,8 @@ export const LoadingOperatorView: React.FC<LoadingOperatorViewProps> = ({
       });
 
       if (isOnline && !isSimulatedOffline) {
-        const syncResult = await outboxService.syncAll(false);
-        const syncedRecord = await indexedDBService.getById<any>('trips', clientRecord.tripId);
-        
-        if (syncResult.failedCount > 0) {
-          const ops = await outboxService.getOperations();
-          const opAfterSync = ops.find(o => o.operationId === queuedOp.operationId);
-          throw new Error(opAfterSync?.errorReason || translate("operations.failed_to_synchronize_the_weighbridge_ticket_with_the_server"));
-        }
-
-        const finalTrip = syncedRecord || clientRecord;
+        await outboxService.syncAll(false);
+        const finalTrip = await outboxService.acknowledgedTrip(queuedOp.operationId,clientRecord.projectId);
         setCreatedTrip(finalTrip);
         if (onTripCreated) onTripCreated(finalTrip);
         if (onNotification) {

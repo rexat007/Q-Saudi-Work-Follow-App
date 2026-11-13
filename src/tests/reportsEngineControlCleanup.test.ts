@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { 
@@ -17,10 +18,12 @@ import {
 function runControlCleanupTests() {
   console.log('🚀 Running Reports Engine Production Control Cleanup Test Suite...\n');
 
+  const results: Array<{id:string;passed:boolean;description:string}>=[];
   let passed = 0;
   let failed = 0;
 
   function assert(condition: boolean, testId: string, description: string) {
+    results.push({id:testId,passed:condition,description});
     if (condition) {
       console.log(`✅ [${testId}] ${description}`);
       passed++;
@@ -117,15 +120,15 @@ function runControlCleanupTests() {
 
   // 4. Preservation of canonical data subscriptions & authorization
   assert(
-    viewCode.includes('tripRepository.subscribeByProject'),
+    viewCode.includes('tripRepository.listCompleteByProject'),
     'REP-CLEAN-12',
-    'Canonical trip subscription (tripRepository.subscribeByProject) is preserved'
+    'Canonical complete one-shot Trip reader is preserved'
   );
 
   assert(
-    viewCode.includes('exceptionRepository.subscribeByProject'),
+    viewCode.includes('exceptionRepository.listByProject'),
     'REP-CLEAN-13',
-    'Canonical exception subscription (exceptionRepository.subscribeByProject) is preserved'
+    'Canonical scoped one-shot exception reader is preserved'
   );
 
   assert(
@@ -138,9 +141,9 @@ function runControlCleanupTests() {
   console.log(`📊 Reports Engine Control Cleanup Test Results: ${passed}/${passed + failed} PASSED`);
   console.log('======================================================\n');
 
-  if (failed > 0) {
-    process.exit(1);
-  }
+  return results;
 }
 
-runControlCleanupTests();
+let registeredResults: ReturnType<typeof runControlCleanupTests>;
+beforeAll(()=>{registeredResults=runControlCleanupTests();});
+it.each(["REP-CLEAN-01", "REP-CLEAN-02", "REP-CLEAN-03", "REP-CLEAN-04", "REP-CLEAN-05", "REP-CLEAN-06", "REP-CLEAN-07", "REP-CLEAN-08", "REP-CLEAN-09", "REP-CLEAN-10", "REP-CLEAN-11", "REP-CLEAN-12", "REP-CLEAN-13", "REP-CLEAN-14"])('%s',id=>{const result=registeredResults.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

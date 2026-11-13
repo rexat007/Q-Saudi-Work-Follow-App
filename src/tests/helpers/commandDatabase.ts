@@ -5,6 +5,8 @@ export function commandDatabase(initial: Record<string, any>) {
   const reference = (path: string, filters: [string, any][] = [], limit = Infinity, ordered=false, after?:string): any => ({
     path, max: limit, ordered, after, id: path.split('/').at(-1), filters,
     collection: (name: string) => reference(`${path}/${name}`), doc: (id: string) => reference(`${path}/${id}`),
+    // Direct Admin writes still use the same staged, serialized transaction owner.
+    set: (data: any, options?: any) => db.runTransaction((tx:any)=>tx.set(reference(path),data,options)),
     where: (field: string, _op: string, value: any) => reference(path, [...filters, [field, value]], limit,ordered,after),
     limit: (count: number) => reference(path, filters, count,ordered,after),
     orderBy: (_field:any) => reference(path,filters,limit,true,after),

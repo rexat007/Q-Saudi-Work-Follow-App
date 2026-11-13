@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const urTranslations: TranslationDictionary = {
+  "operations.scale.read_unavailable": "ترازو کا رابطہ ترتیب نہیں دیا گیا۔ ناپی گئی مقدار دستی طور پر درج کریں۔",
+  "operations.unloading.local_preparation": "اترائی کی تیاری مقامی طور پر درج ہوئی۔ تکمیل کے لیے سرور کی تصدیق درکار ہے۔",
+  "operations.exception.review_note": "جائزے کا نوٹ",
+  "operations.exception.read_unavailable": "استثنا کی تصدیق دستیاب نہیں۔ منصوبہ منتخب کریں اور دوبارہ رابطہ کریں۔",
+  "operations.exception.decision_confirmed": "سرور نے استثنا کے فیصلے کی تصدیق کر دی۔",
+  "operations.exception.decision_unconfirmed": "فیصلہ غیر مصدقہ ہے۔ دوبارہ کوشش سے پہلے رابطہ اور تصدیق کریں۔",
+  "offline.recovery.awaiting_receipt": "نتیجہ غیر مصدقہ — سرور کی رسید کا انتظار ہے",
   "auth.continuity.title": "اکاؤنٹ کی تصدیق دوبارہ منسلک ہو رہی ہے",
   "auth.continuity.message": "تصدیق عارضی طور پر دستیاب نہیں۔ آپ کی شناخت اور کام محفوظ ہیں؛ تصدیق بحال ہونے تک کارروائیاں رکی ہوئی ہیں۔",
   "import.bulk.title": "اجتماعی شناخت کا جائزہ",
@@ -19,7 +26,7 @@ export const urTranslations: TranslationDictionary = {
   "import.assurance.search": "نام، شناخت کنندہ یا قدرتی شناخت سے تلاش کریں",
   "import.assurance.previous": "پچھلا",
   "import.assurance.next": "اگلا",
-  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.page": "اندراجات {from}–{to} / {total}",
   "import.assurance.options": "دوسری شناخت کے لیے تلاش محدود کریں ({count} دکھائی گئی ہیں)",
   "gws.host_unavailable": "ایپ کی خدمت عارضی طور پر دستیاب نہیں۔ دستیاب ہونے پر دوبارہ کوشش کریں۔",
   "gws.google_service_unavailable": "Google کی خدمت عارضی طور پر دستیاب نہیں۔ ربط اور زیر التوا کام محفوظ ہیں۔",

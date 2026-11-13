@@ -1,0 +1,13 @@
+{
+  "mainPassed": 3449,
+  "acceptedConvergencePassed": 3449,
+  "files": 164,
+  "registeredUnique": 3446,
+  "missingAcceptedIdentities": [],
+  "extraIdentities": [],
+  "changedStatuses": [],
+  "nativeExit": 0,
+  "pending": 0,
+  "finalUnhandledErrors": [],
+  "scope": "Exact assertion identity/status parity for the full accepted historical selection, not proof of unexecuted production or SQL behavior."
+}

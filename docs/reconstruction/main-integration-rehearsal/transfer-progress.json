@@ -1,0 +1,329 @@
+[
+  {
+    "path": "server/app.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted Firestore routes only, excluding U09 runtime-boundary import context",
+    "acceptedPatchSha256": "301e1bde6f200c9e66b66b0a2ca287bf3cea19f0329090f69f546b637b4f30b4"
+  },
+  {
+    "path": "server/tripCommandHandler.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "56c613774b45b0685cfbb3d9aafdac73b05f9a280ce26f0230b68640b28f69f6"
+  },
+  {
+    "path": "src/App.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "6e6dbf59d090825f8d2be49d99eec9b74748569637e24dfe0e445bfff80e0245"
+  },
+  {
+    "path": "src/components/field/AdaptiveOperationsView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted durable Firestore consumer plus explicitly reviewed provider-neutral U09 control presentation dependency",
+    "acceptedPatchSha256": "f510fce487dd1751eb4c153d38d50ee6eb64b0030d1f90218838a39fa06c0f36"
+  },
+  {
+    "path": "src/components/field/DriverView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "1a294614354fb6a245ca7e6b442f63f8e0df28d18806fa409b7c837bcf553ccf"
+  },
+  {
+    "path": "src/components/field/FieldSupervisionView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "badd13409ab01db7d6b6c692a37e3209b884a0aae6f0a0f6fd038e77912d8e8e"
+  },
+  {
+    "path": "src/components/field/LoadingOperatorView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "8925dbc6fe600d06ae9733254fb9cac6fee32d61dc9e422fed076a83c4a43736"
+  },
+  {
+    "path": "src/components/field/SqlTripWorkstation.tsx",
+    "status": "EXCLUDED_SQL_ONLY"
+  },
+  {
+    "path": "src/components/field/UnloadingOperatorView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "1c9b64f9ffb8a1e8b6455dec59784622c99386703deb7b93bbb5b1d98b523ccc"
+  },
+  {
+    "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "d4875ccdc5557f27d44bc913cae5fc3b0d9710729ac33d854eb810dea8e4e3ba"
+  },
+  {
+    "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "c243029bcb28802b1c5a381265ab22eb7c3fd42590ffa2dfb02f3e0daae7cab6"
+  },
+  {
+    "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "f64c08bdb70851e17a6fea1214aabfe95ecfc4062a7b21aec43136c01def7c34"
+  },
+  {
+    "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "e473c67075641862a006cc851c1006c75a810cf46d133308e7255fe4183e61a2"
+  },
+  {
+    "path": "src/components/offline/OutboxDrawer.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "2a5777db83b843d9b718f681f998ca41cab9e8c72ae4d6216da1084dbcbe01c4"
+  },
+  {
+    "path": "src/components/pricing/PricingEngineView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "260b24ef19fbbf18053a92191f2f9e1a55b7fdb46f2fe9184b3d52013eb61634"
+  },
+  {
+    "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "051b8168014fe7668606297a3d8172867d7baeaeec4b10256711cdfcc049b0be"
+  },
+  {
+    "path": "src/components/reports/ReportsEngineView.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "84387e19f21cffdeca56293cc0149f02312903100389cac134971ca735e71186"
+  },
+  {
+    "path": "src/components/wizard/ProjectSetupWizard.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "f7eaf09cada4a93996da38dbb8322aaf22e4ca2f8a9feda6480be1a4b281c15f"
+  },
+  {
+    "path": "src/firebase/authContext.tsx",
+    "status": "TRANSFERRED",
+    "mode": "Only server-confirmed Firestore watcher; retain original main AuthProvider and Firebase session authority, omit U09 SQL branch"
+  },
+  {
+    "path": "src/i18n/codemod/codemod.reporter.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "4e28f422641f31f5c7a8108582296f09bb4d96db419e9c043b55fe041e84fc5e"
+  },
+  {
+    "path": "src/locales/ar/index.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "50b62472251c41a2c120c39627af0d59ad657531abeb52afa6072d876a101422"
+  },
+  {
+    "path": "src/locales/en/index.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "130abb271e07740568f73b53417801181f27bd5705993fa1a40724d77e646690"
+  },
+  {
+    "path": "src/locales/ur/index.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "962216a4292461b27339c0c2f39007f6fdc292487a4b82eeeff0cab1b54b02b0"
+  },
+  {
+    "path": "src/repositories/exception.repository.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "220da777359618d5a7a59c5e926be025034ef2f97a92819616b6301d3d5b963e"
+  },
+  {
+    "path": "src/repositories/trip.repository.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "26815985fa2574f2f57470c35568e7666e73f8d4709b4be7edc915f97274ac67"
+  },
+  {
+    "path": "src/services/canonicalTripPersistence.server.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "c01f64d697e4933a21f2c2159588138df9b421b2eac95c229f530226b0a047da"
+  },
+  {
+    "path": "src/services/durableTripCommandClient.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "916157fca9ab1f162a1c11dcea4d53ae778bc9af41a0ca865150a55a9d8832df"
+  },
+  {
+    "path": "src/services/exceptionCommandClient.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted Firestore client/queue, U09-only runtime import and dispatch/guard omitted; existing main sole Firestore authority retained",
+    "acceptedSourceSha256": "606d4edb33832748d4b0ceb9b4805676fdf820399ba699203933947b4417214f"
+  },
+  {
+    "path": "src/services/exceptionCommands.server.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "7f5037c5e128f87fe4d4b62ceeb098418a98e7c9f64dcaf2547a1fd7eb4eff42"
+  },
+  {
+    "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "c2268638f630045432a9503b52864b584d7a4b940ae709d397dfc0f851ad395a"
+  },
+  {
+    "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "223b085b055509187b39f28849b47cf5e23b634a7db38be3168a1c4e94620917"
+  },
+  {
+    "path": "src/services/import/driverTruckImport.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "ef78bceee5fd23362e4294d26067703f4d8624fd9f00542533465eee260ad32f"
+  },
+  {
+    "path": "src/services/import/googleDrivePipeline.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "98508dc1f467782c4fca1a6f74ab22ec1b99a7d2892d91ac480ba3544ace5f04"
+  },
+  {
+    "path": "src/services/import/rosterBatchReview.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "55e9527f1c38cf0da389a36bb120b291516103baae5b403e7e50fdf75de0a494"
+  },
+  {
+    "path": "src/services/import/rosterMaterialBinding.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "a984eecc224826185f23fc29681c5d082af644d6f05854c8d4c36f938faa5a01"
+  },
+  {
+    "path": "src/services/import/tripImportCommitter.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "162ce397740e3160b3df6e1db89661d1ffb0fdd7dbbc4ba232f3a687287d14a2"
+  },
+  {
+    "path": "src/services/import/unifiedImportPipeline.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "2851d4149e9056e3bd1df0201172f077785f50b19c40ed07c9b2b228b89f71ad"
+  },
+  {
+    "path": "src/services/offline/conflictResolution.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "af86fe9ce2290dd3b45d2ac494ecae2f4460a9c362c7d0229249eeea65c09475"
+  },
+  {
+    "path": "src/services/offline/indexedDB.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "88e1b45e7880bba83bc6fb0a1bf4c6063c99d9d0578ddbd8ea3b6cffbc383c45"
+  },
+  {
+    "path": "src/services/offline/outbox.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted Firestore client/queue, U09-only runtime import and dispatch/guard omitted; existing main sole Firestore authority retained",
+    "acceptedSourceSha256": "96bd7ae05c6cd0ab5f7f39de272c7f200e094251a3c4cd917e9dfa1de6060a61"
+  },
+  {
+    "path": "src/services/offline/tripCommandIdentity.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "897ff66e0ddb138def6844a44e6cbb29cd228dbb7fabf4110ea5b766b27c0159"
+  },
+  {
+    "path": "src/services/pricing.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "6c5ef3feb1c76ec592f5a77764bc94c9eb4526be0d9ed7eb808270f3ee4ade03"
+  },
+  {
+    "path": "src/services/projectAuditRead.server.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "6be9e6dc7b17d5ba0a2ed5df52b739627c89dbd179f93666c0db26dbbad10913"
+  },
+  {
+    "path": "src/services/reportsEngine.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "fcd114e87e0c7823a6877dda5aa3dc8d287ef50ad1d467fa6b32ee19d80344dc"
+  },
+  {
+    "path": "src/services/trip.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "a6d03ffb3fd31c364a489aab11dd868aa676545deab2d63aef65206a46b21864"
+  },
+  {
+    "path": "src/services/tripCommandClient.service.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted Firestore client/queue, U09-only runtime import and dispatch/guard omitted; existing main sole Firestore authority retained",
+    "acceptedSourceSha256": "03f03b7fc50edc77502685292e8c769e5e95265d63a40364e140ca6810c627d7"
+  },
+  {
+    "path": "src/services/tripCommands.server.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "67e46a4a6b137fd29a1244729576d930e1c491a1b60e594b67e638cb866438e8"
+  },
+  {
+    "path": "src/tests/googleDriveImport.cases.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "4c8d977410d95184bcde7e7ad9e8575a3e109f5269cb81c379be04204dbdb41b"
+  },
+  {
+    "path": "src/tests/googleSheetsImport.cases.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "d2bbebdd6ce8b86ac557a93414933f3d1c30a42ee0062344487ef661ddd7cfdd"
+  },
+  {
+    "path": "src/tests/pricingEngine.cases.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "cdcc9ecf206c948e8362a5e87ca9f549d7578a70892b3739898d6cb73980cc7a"
+  },
+  {
+    "path": "src/types/entities.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "6b21e945fbc5043af0a3b2c110c51c5bae995e0c96286c2deffe9cd50912b08f"
+  },
+  {
+    "path": "src/types/googleDriveImport.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "f44b4c53706c0d6a9270a382d970a496e10b605a58b77f713d50e23aee51ff6a"
+  },
+  {
+    "path": "src/types/offline.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "a6b59fb09e417a165aa36fe21ce98b33168c8d276f122e0caa6a965c57ed4598"
+  },
+  {
+    "path": "src/types/tripEngine.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "84b0271eabc63ace2c91b5b6bfe1707b381a4b3aeb279b31175bf47e9e950515"
+  },
+  {
+    "path": "src/types/unifiedImport.ts",
+    "status": "TRANSFERRED",
+    "mode": "Accepted U09..convergence correction hunks only; preserve main content outside those hunks",
+    "acceptedPatchSha256": "761de2fb85bfa37f968123c1d5186c857f744707e6b7aef31386bcdb719a15ca"
+  }
+]

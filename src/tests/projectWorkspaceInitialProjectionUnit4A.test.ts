@@ -160,7 +160,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       };
     });
 
-    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot(testProjectId);
+    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjection(testProjectId);
 
     // Active drivers count must be 2 (DRV-STANDALONE and DRV-ASSIGNED; DRV-SUSPENDED is excluded)
     expect(snapshot.drivers.length).toBe(2);
@@ -260,7 +260,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       };
     });
 
-    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot(testProjectId);
+    const snapshot = await projectWorkspaceInitialProjectionServer.buildInitialProjection(testProjectId);
 
     expect(snapshot.carriers.length).toBe(1);
     expect(snapshot.carriers[0].companyNameAr).toBe('شركة المجدوعي اللوجستية');
@@ -283,7 +283,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       insertedCount: 0,
       updatedCount: 0,
       deletedCount: 0,
-      unchangedCount: 0,
+      unchangedCount: 0, columnsCount: 0, durationMs: 0,
     });
 
     const emptyFleetRows: any[] = [];
@@ -319,7 +319,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
       insertedCount: 1,
       updatedCount: 0,
       deletedCount: 0,
-      unchangedCount: 0,
+      unchangedCount: 0, columnsCount: 0, durationMs: 0,
     });
 
     await serverWorkspaceService.reconcileTabSnapshot(
@@ -372,7 +372,7 @@ describe('Project Google Workspace Initial Projection (Unit 4A) Tests', () => {
 
     // Also verify server-side reader validation
     await expect(
-      projectWorkspaceInitialProjectionServer.buildInitialProjectionSnapshot('')
+      projectWorkspaceInitialProjectionServer.buildInitialProjection('')
     ).rejects.toThrow('معرف المشروع projectId مطلوب لبناء لقطة الإسقاط الأولية');
   });
 

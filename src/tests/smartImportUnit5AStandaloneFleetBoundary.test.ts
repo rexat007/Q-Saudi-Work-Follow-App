@@ -105,24 +105,24 @@ vi.mock('../firebase/admin', () => ({
 }));
 
 describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () => {
-  const adminContext: AuthUserContext = {
+  const adminContext: AuthUserContext = {displayName: '',
     userId: 'user-admin-1',
     email: 'admin@q-saudi.com',
     role: 'PROJECT_ADMIN',
     assignedProjectIds: ['PRJ-5A'],
   };
 
-  const nonAdminContext: AuthUserContext = {
+  const nonAdminContext: AuthUserContext = {displayName: '',
     userId: 'user-field-1',
     email: 'field@q-saudi.com',
-    role: 'FIELD_SUPERVISOR',
+    role: 'SITE_SUPERVISOR',
     assignedProjectIds: ['PRJ-5A'],
   };
 
   beforeEach(() => {
     fakeStore.clear();
-    for (const actor of [adminContext, { ...nonAdminContext, role: 'SITE_SUPERVISOR' }, { userId: 'user-admin-2', role: 'PROJECT_ADMIN', assignedProjectIds: ['PRJ-OTHER'] }]) fakeStore.setDoc(`users/${actor.userId}`, { ...actor, status: 'ACTIVE' });
-    fakeStore.setDoc('projects/PRJ-5A', { projectId: 'PRJ-5A' });
+    for (const actor of [adminContext, { ...nonAdminContext, role: 'SITE_SUPERVISOR' }, {email: '',displayName: '', userId: 'user-admin-2', role: 'PROJECT_ADMIN', assignedProjectIds: ['PRJ-OTHER'] }]) fakeStore.setDoc(`users/${actor.userId}`, { ...actor, status: 'ACTIVE' });
+    fakeStore.setDoc('projects/PRJ-5A', { projectId: 'PRJ-5A',status:'SETUP' });
     for (const carrierId of ['CAR-1', 'CAR-2', 'CAR-INACTIVE-99']) fakeStore.setDoc(`carriers/${carrierId}`, { carrierId, commercialRegistrationNo: '1010111111', status: 'ACTIVE' });
     vi.restoreAllMocks();
 
@@ -475,7 +475,7 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
   });
 
   it('21. project isolation enforced', async () => {
-    const userOtherProject: AuthUserContext = {
+    const userOtherProject: AuthUserContext = {displayName: '',
       userId: 'user-admin-2',
       email: 'admin2@q-saudi.com',
       role: 'PROJECT_ADMIN',
@@ -510,7 +510,7 @@ describe('Smart Import Unit 5A-Server Standalone Fleet Boundary Test Suite', () 
   });
 
   it('23. unauthenticated/missing actor rejected', async () => {
-    const unauthContext: AuthUserContext = {
+    const unauthContext: AuthUserContext = {displayName: '',
       userId: '',
       email: '',
       role: 'PROJECT_ADMIN',

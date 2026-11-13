@@ -52,7 +52,7 @@ import {
   UNIFIED_IMPORT_PIPELINE_STAGES,
   ImportSource,
 } from '../../types/unifiedImport';
-import { runGoogleSheetsImportTests, GoogleSheetsTestReport } from '../../tests/googleSheetsImport.test';
+import { runGoogleSheetsImportTests, GoogleSheetsTestReport } from '../../tests/googleSheetsImport.cases';
 import { RelationshipContext } from '../../types/dataQuality';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { AuthUserContext } from '../../types/common';

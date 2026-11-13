@@ -27,7 +27,7 @@ describe('Trip mutation authority boundary (structural rules, not emulator proof
     const source = read('src/components/field/DriverView.tsx'); expect(source).toContain('t.driverId === authContext.linkedDriverId'); expect(source).not.toContain('assignedDriverId'); expect(source).not.toContain('driverId === authContext.userId');
   });
   it('every persistent operational HTTP handler delegates to the current-principal command service', () => {
-    const source = read('server/app.ts'); expect(source).toContain("'/api/projects/:projectId/trips/commands'"); expect(source).toContain('new TripCommandsServerService().execute'); expect(source).toContain("code: 'TRIP_COMMAND_REQUIRED'");
+    const source = read('server/app.ts'); expect(source).toContain("'/api/projects/:projectId/trips/commands'"); expect(source).toContain('const executeTripCommand = tripCommandHandler()'); const handler=read('server/tripCommandHandler.ts'); expect(handler).toContain('new TripCommandsServerService()'); expect(handler).toContain('authority.execute(req.params.projectId, input, req.user)'); expect(source).toContain("code: 'TRIP_COMMAND_REQUIRED'");
     expect(source).not.toContain('serverTripService.transitionTripStatus('); expect(source).not.toContain('serverTripService.dispatchTrip('); expect(source).not.toContain('serverTripService.dispatchImportedTrip(');
   });
   it('outbox cannot accept cached processed ledger as server authorization', () => {

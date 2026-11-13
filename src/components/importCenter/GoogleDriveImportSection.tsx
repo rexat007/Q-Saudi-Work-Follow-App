@@ -41,7 +41,7 @@ import { GoogleDriveFileItem } from '../../types/googleDriveImport';
 import {
   runGoogleDriveImportTests,
   GoogleDriveTestCaseResult,
-} from '../../tests/googleDriveImport.test';
+} from '../../tests/googleDriveImport.cases';
 import { RelationshipContext } from '../../types/dataQuality';
 import { ImportProjectContextAdapter } from '../../services/import/importProjectContext.adapter';
 import { AuthUserContext } from '../../types/common';

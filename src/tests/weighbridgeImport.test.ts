@@ -1,3 +1,5 @@
+import {reviewedTripCommandFixture} from './helpers/reviewedTripCommandFixture';
+import {beforeAll,it,expect} from 'vitest';
 /**
  * Weighbridge Import Pipeline Automated Test Suite
  * BLOCK 34: 33 Standard Test Cases (WB-01 to WB-33)
@@ -1382,12 +1384,10 @@ export async function runWeighbridgeImportTests(): Promise<WeighbridgeTestReport
       context: { ...baseContext, operationId: `OP-WB-COMMIT-${Date.now()}` },
     });
 
-    // Commit through Weighbridge Service
-    const commitResult = await WeighbridgeImportService.commitBatch(batch, {
-      ...baseContext,
-      operationId: `OP-WB-COMMIT-${Date.now()}`,
-      allowWarningsCommit: true,
-    });
+    const fixture=reviewedTripCommandFixture({...baseContext,operationId:batch.operationId,allowWarningsCommit:true});
+    let commitResult;
+    try {commitResult=await WeighbridgeImportService.commitBatch(fixture.review(batch),fixture.context);}
+    finally {fixture.close();}
 
     const passed =
       commitResult.success &&
@@ -1399,7 +1399,7 @@ export async function runWeighbridgeImportTests(): Promise<WeighbridgeTestReport
       name: 'Commit Phase: Creates Trip with sourceType=WEIGHBRIDGE and audit log',
       passed,
       expected: 'commitResult.success=true, committedRows=1, sourceType=WEIGHBRIDGE',
-      actual: `Success: ${commitResult.success}, Committed: ${commitResult.committedRows}, SourceType: ${commitResult.sourceType}`,
+      actual: `Success: ${commitResult.success}, Committed: ${commitResult.committedRows}, SourceType: ${commitResult.sourceType}, issues=${JSON.stringify(commitResult.issues)}`,
       notes: 'Finalizes Weighbridge import into repository safely',
     });
   } catch (err: any) {
@@ -1452,3 +1452,7 @@ if (
     }
   });
 }
+
+let registeredResult: Awaited<ReturnType<typeof runWeighbridgeImportTests>>;
+beforeAll(async()=>{registeredResult=await runWeighbridgeImportTests();},60000);
+it.each(["WB-01", "WB-02", "WB-03", "WB-04", "WB-05", "WB-06", "WB-07", "WB-08", "WB-09", "WB-10", "WB-11", "WB-12", "WB-13", "WB-14", "WB-15", "WB-16", "WB-17", "WB-18", "WB-19", "WB-20", "WB-21", "WB-22", "WB-23", "WB-24", "WB-25", "WB-26", "WB-27", "WB-28", "WB-29", "WB-30", "WB-31", "WB-32", "WB-33"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

@@ -1,8 +1,10 @@
+import {it} from 'vitest';
 import { mapTripToWorkspaceProjection, clientWorkspaceService } from '../services/workspace.service';
 import { projectRepository } from '../repositories/project.repository';
 import { TripEntity } from '../types/entities';
 import { WorkspaceProjectionInput } from '../types/workspace';
 
+it('existing canonical projection absence, snapshots and bounded chunk contracts',async()=>{
 console.log('--- Workspace Canonical Data Authority Convergence Test Suite Starting ---');
 
 // 1. Verify mapTripToWorkspaceProjection Truthful Absence Preservation
@@ -76,23 +78,23 @@ const mappedMinimal = mapTripToWorkspaceProjection(minimalTrip);
 // Strict check: Absence MUST remain undefined/null, NOT fabricated 0
 if (mappedMinimal.originGrossKg !== undefined) {
   console.error('FAILED: originGrossKg converted absent value to', mappedMinimal.originGrossKg);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedMinimal.originTareKg !== undefined) {
   console.error('FAILED: originTareKg converted absent value to', mappedMinimal.originTareKg);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedMinimal.originNetKg !== undefined) {
   console.error('FAILED: originNetKg converted absent value to', mappedMinimal.originNetKg);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedMinimal.agreedRate !== undefined) {
   console.error('FAILED: agreedRate converted absent value to', mappedMinimal.agreedRate);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedMinimal.settlementAmount !== undefined) {
   console.error('FAILED: settlementAmount converted absent value to', mappedMinimal.settlementAmount);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 
 console.log('✓ Truthful absence numeric contract test passed.');
@@ -173,19 +175,19 @@ const mappedComplete = mapTripToWorkspaceProjection(completeTrip);
 
 if (mappedComplete.originNetKg !== 28000) {
   console.error('FAILED: originNetKg mapping mismatch', mappedComplete.originNetKg);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedComplete.agreedRate !== 45.5) {
   console.error('FAILED: agreedRate mapping mismatch', mappedComplete.agreedRate);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedComplete.settlementAmount !== 1274) {
   console.error('FAILED: settlementAmount mapping mismatch', mappedComplete.settlementAmount);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (mappedComplete.carrierNameAr !== 'شركة الناقل الوطنية') {
   console.error('FAILED: carrierNameAr mapping mismatch', mappedComplete.carrierNameAr);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 
 console.log('✓ Trip projection mapping contract test passed.');
@@ -203,7 +205,7 @@ const sampleInput: WorkspaceProjectionInput = {
 
 if (sampleInput.trips.length !== 1 || sampleInput.projectId !== 'PRJ-001') {
   console.error('FAILED: WorkspaceProjectionInput structure mismatch');
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 
 console.log('✓ WorkspaceProjectionInput contract test passed.');
@@ -217,13 +219,14 @@ for (let i = 0; i < projectIds35.length; i += 30) {
 
 if (chunks.length !== 2) {
   console.error('FAILED: Expected 2 chunks for 35 project IDs, got', chunks.length);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 if (chunks[0].length !== 30 || chunks[1].length !== 5) {
   console.error('FAILED: Chunk sizing incorrect', chunks[0].length, chunks[1].length);
-  process.exit(1);
+  throw Error('WORKSPACE_CONVERGENCE_ASSERTION_FAILED');
 }
 
 console.log('✓ Project Chunking (>30 authorized projects) test passed.');
 
 console.log('--- ALL WORKSPACE CONVERGENCE TESTS PASSED SUCCESSFULLY ---');
+});

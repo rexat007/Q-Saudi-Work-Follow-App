@@ -99,6 +99,7 @@ describe('Block 89B Secure Trip Numbering & Offline Creation Test Suite', () => 
       shiftDate: '2026-05-15',
       netWeight: 10000,
       pricingSnapshot: {
+          pricingRuleId: 'PRC-NEOM-HAUL-TON-8.5',
         agreedRate: 8.5,
         settlementAmount: 85,
         currency: 'SAR'
@@ -107,6 +108,8 @@ describe('Block 89B Secure Trip Numbering & Offline Creation Test Suite', () => 
     const ctx: any = { actorRole: 'SCALE_OPERATOR', projectId: 'PRJ-NEOM-001' };
     const res = tripStateMachine.checkTransition(trip, 'IN_TRANSIT', ctx);
     expect(res.canTransition).toBe(true);
+    const unbound={...trip,pricingSnapshot:{...trip.pricingSnapshot,pricingRuleId:'OTHER-RULE'}};
+    expect(tripStateMachine.checkTransition(unbound,'IN_TRANSIT',ctx)).toMatchObject({canTransition:false,errors:expect.arrayContaining([expect.stringContaining('PRICING_SNAPSHOT_BINDING_MISMATCH')])});
   });
 
   it('[89B-REQ-09]: Verify state machine transition from LOADED to PENDING_NUMBER_ALLOCATION is rejected', () => {

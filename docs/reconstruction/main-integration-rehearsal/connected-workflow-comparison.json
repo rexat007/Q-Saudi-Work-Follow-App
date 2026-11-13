@@ -1,0 +1,75 @@
+{
+  "fullEmulatorBrowserGate": {
+    "files": 7,
+    "passed": 31,
+    "failed": 0,
+    "pending": 0,
+    "nativeExit": 0,
+    "finalUnhandledErrors": [],
+    "cleanupErrors": []
+  },
+  "journeys": [
+    {
+      "format": "CSV",
+      "acceptedConvergence": {
+        "result": "PASS",
+        "reportTrips": 1002,
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9
+      },
+      "mainCandidate": {
+        "result": "PASS",
+        "reportTrips": 1002,
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9
+      },
+      "sameBusinessOutcomes": true,
+      "acceptedReceiptLookups": 3,
+      "candidateReceiptLookups": 3,
+      "volatileIdentifiersNotCompared": [
+        "projectId",
+        "tripId",
+        "actor UID",
+        "timestamps"
+      ],
+      "scope": "Same actual UI journey, frozen canonical command/settlement/report outcomes and positive receipt lookup; not a claim of identical incidental request timing."
+    },
+    {
+      "format": "EXCEL",
+      "acceptedConvergence": {
+        "result": "PASS",
+        "reportTrips": 1,
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9
+      },
+      "mainCandidate": {
+        "result": "PASS",
+        "reportTrips": 1,
+        "import": "COMMITTED",
+        "status": "COMPLETED",
+        "totalAmountSAR": 273.13,
+        "eventsBefore": 9,
+        "postsBefore": 9
+      },
+      "sameBusinessOutcomes": true,
+      "acceptedReceiptLookups": 3,
+      "candidateReceiptLookups": 2,
+      "volatileIdentifiersNotCompared": [
+        "projectId",
+        "tripId",
+        "actor UID",
+        "timestamps"
+      ],
+      "scope": "Same actual UI journey, frozen canonical command/settlement/report outcomes and positive receipt lookup; not a claim of identical incidental request timing."
+    }
+  ]
+}

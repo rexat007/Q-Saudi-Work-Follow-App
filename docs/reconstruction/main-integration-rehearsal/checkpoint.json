@@ -1,0 +1,68 @@
+{
+  "phase": "Completed isolated rehearsal; GO for selected Firestore patch independent review only",
+  "branch": "rehearsal/firestore-main-20261113",
+  "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+  "acceptedConvergence": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+  "productionTransferred": 54,
+  "sqlOnlyRootsExcluded": 1,
+  "acceptedTestHunkFilesTransferred": 103,
+  "sourceRootMapReconciled": 55,
+  "typeScriptBaseline": 446,
+  "typeScriptCandidate": 0,
+  "runningCommand": null,
+  "next": [],
+  "restrictions": [
+    "no push/PR/merge/deploy",
+    "no production or live Google operations",
+    "no PostgreSQL activation",
+    "do not modify convergence or RB4"
+  ],
+  "notes": "Managed-worktree API did not return; isolated local worktree created within authorized workspace. Analysis output briefly generated in convergence docs by wrong cwd, then moved only that owned generated file to rehearsal and removed its empty owned directory; accepted source was not changed. Two CRLF-only inherited source-read assertions normalized without changing assertions; first complete3447/3449 failure retained and entire164-file run repeated to3449/3449.",
+  "completedHistorical": {
+    "mainPassed": 3449,
+    "acceptedConvergencePassed": 3449,
+    "files": 164,
+    "registeredUnique": 3446,
+    "missingAcceptedIdentities": [],
+    "extraIdentities": [],
+    "changedStatuses": [],
+    "nativeExit": 0,
+    "pending": 0,
+    "finalUnhandledErrors": [],
+    "scope": "Exact assertion identity/status parity for the full accepted historical selection, not proof of unexecuted production or SQL behavior."
+  },
+  "baselineMainTypeScript": 446,
+  "candidateFullTypeScript": 0,
+  "sourceReviewFindings": {
+    "acceptedOriginalMapRoots": 54,
+    "reconciledFinalRoots": 55,
+    "additionalRoot": "src/tests/pricingEngine.cases.ts",
+    "transferredProductionRoots": 54,
+    "excludedSqlOnlyRoot": "src/components/field/SqlTripWorkstation.tsx",
+    "extraU09Dependency": "Provider-neutral OperationalTripControls presentation extraction only, not a SQL runtime/provider",
+    "nativeFixtures": "Use existing main raw Firestore Admin database; no fake backend selector or guard installed",
+    "protectedMainMigrations": "Unchanged inventory and bytes; no production SQL activation"
+  },
+  "completedNpm": {
+    "commands": 48,
+    "passed": 546,
+    "nativeExit": 0
+  },
+  "completedRelease": {
+    "nativeExit": 0,
+    "typescript": 0,
+    "reports": 19,
+    "releaseSuite": 443,
+    "frontendPwaServerBuilds": "PASS"
+  },
+  "completedEmulatorBrowser": {
+    "total": 31,
+    "passed": 31,
+    "nativeExit": 0,
+    "cleanupErrors": 0,
+    "businessOutcomesMatchAcceptedConvergence": true
+  },
+  "finalReleaseNativeExit": 0,
+  "decision": "GO_SELECTED_FIRESTORE_PATCH_ONLY",
+  "localCommit": null
+}

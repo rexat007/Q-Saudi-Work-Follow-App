@@ -1,4 +1,8 @@
+import {commandDatabase} from './helpers/commandDatabase';
+import {ServerTripPersistenceAdapter} from '../services/canonicalTripPersistence.server';
+import {TripNumberGenerator} from '../services/tripNumberGenerator';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+vi.mock('../firebase/config',()=>({db:{},auth:{currentUser:null}}));
 import { TripService } from '../services/trip.service';
 import {
   globalCarrierRepository,
@@ -44,8 +48,10 @@ describe('LU-P6-02B2 Material Identity & Authority Enforcement', () => {
   };
 
   beforeEach(() => {
-    tripService = new TripService();
     vi.restoreAllMocks();
+    const serverPersistence=new ServerTripPersistenceAdapter(commandDatabase({}).db);
+    tripService=new TripService({tripNumberGenerator:serverPersistence.tripNumberGenerator,tripEventService:serverPersistence.tripEventService,auditLogService:serverPersistence.auditLogService});
+    vi.spyOn(TripNumberGenerator,'getNextTripNumber').mockImplementation(async()=>{throw Error('CLIENT_NUMBERING_FORBIDDEN_IN_SERVER_FIXTURE');});
 
     // Mock Project
     vi.spyOn(projectRepository, 'findById').mockImplementation(async (pId: string) => ({

@@ -23,6 +23,8 @@ import { indexedDBService } from './indexedDB.service';
 import { OutboxOperation, OutboxStatus, OutboxStats } from '../../types/offline';
 import { conflictResolutionService } from './conflictResolution.service';
 import { auth } from '../../firebase/config';
+// Provider-neutral IndexedDB stays independent of Firebase and SQL composition.
+indexedDBService.setPrincipalProvider(()=>auth.currentUser?.uid||null);
 
 const DEVICE_ID_KEY = 'q_saudi_device_id';
 
@@ -48,16 +50,20 @@ export class OutboxService {
    */
   public async queueOperation(params: {
     operationId?: string;
+    dependsOnOperationId?: string;
     projectId: string;
     userId: string;
     operationType: OutboxOperation['operationType'];
     payload: Record<string, any>;
   }): Promise<OutboxOperation> {
-    const operationId = params.operationId || `OP-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    if(auth.currentUser?.uid!==params.userId)throw Error('AUTH_CONTEXT_CHANGED');
+    const operationId = params.operationId || `OP-${crypto.randomUUID()}`;
+    if(params.dependsOnOperationId){const parent=(await this.getOperations()).find(o=>o.operationId===params.dependsOnOperationId);if(!parent||parent.projectId!==params.projectId||parent.userId!==params.userId)throw Error('INVALID_OUTBOX_DEPENDENCY');}
     const now = new Date().toISOString();
 
     const op: OutboxOperation = {
       operationId,
+      ...(params.dependsOnOperationId?{dependsOnOperationId:params.dependsOnOperationId}:{}),
       projectId: params.projectId,
       userId: params.userId,
       deviceId: this.getDeviceId(),
@@ -68,9 +74,9 @@ export class OutboxService {
       status: 'PENDING',
     };
 
-    await indexedDBService.saveOutboxOperation(op);
+    const reserved=await indexedDBService.insertOutboxOperation(op);
     this.notifyListeners();
-    return op;
+    return reserved;
   }
 
   /**
@@ -90,6 +96,7 @@ export class OutboxService {
       total: ops.length,
       pending: ops.filter(o => o.status === 'PENDING').length,
       sending: ops.filter(o => o.status === 'SENDING').length,
+      awaiting_receipt: ops.filter(o => o.status === 'AWAITING_RECEIPT').length,
       synced: ops.filter(o => o.status === 'SYNCED').length,
       failed: ops.filter(o => o.status === 'FAILED').length,
       conflict: ops.filter(o => o.status === 'CONFLICT').length,
@@ -105,7 +112,7 @@ export class OutboxService {
    * 4. Commit: Save to authoritative server store
    * 5. ACK: Mark operation as SYNCED with server details
    */
-  public async syncAll(isSimulatedOffline = false): Promise<{
+  public async syncAll(isSimulatedOffline = false, projectScope?: string): Promise<{
     processedCount: number;
     syncedCount: number;
     failedCount: number;
@@ -128,12 +135,20 @@ export class OutboxService {
     let conflictCount = 0;
 
     try {
-      const ops = await this.getOperations();
-      const pendingOps = ops.filter(o => o.status === 'PENDING' || (o.status === 'FAILED' && o.retryCount < 5));
+      const ops = (await this.getOperations()).filter(op=>!projectScope||op.projectId===projectScope);
+      const eligible = ops.filter(o => o.status === 'PENDING' || (['FAILED','SENDING','AWAITING_RECEIPT'].includes(o.status) && o.retryCount < 5));
+      const phase=(o:OutboxOperation)=>o.operationType==='RECORD_RECEIPT'?2:o.operationType==='UPDATE_TRIP_STATUS'?({AT_DESTINATION:1,OFFLOADED:3,COMPLETED:4} as Record<string,number>)[o.payload.status]??0:0;
+      eligible.sort((a,b)=>a.createdAt.localeCompare(b.createdAt)||phase(a)-phase(b)||a.operationId.localeCompare(b.operationId));
+      const pendingOps:OutboxOperation[]=[],pendingById=new Map(eligible.map(o=>[o.operationId,o])),seen=new Set<string>(),visiting=new Set<string>();
+      const visit=(o:OutboxOperation)=>{if(seen.has(o.operationId))return;if(visiting.has(o.operationId))throw Error('OUTBOX_DEPENDENCY_CONFLICT');visiting.add(o.operationId);const parent=o.dependsOnOperationId&&pendingById.get(o.dependsOnOperationId);if(parent)visit(parent);visiting.delete(o.operationId);seen.add(o.operationId);pendingOps.push(o);};eligible.forEach(visit);
+      const states=new Map(ops.map(o=>[o.operationId,o])),blocked=new Set<string>();
 
       for (const op of pendingOps) {
         if(auth.currentUser?.uid!==replayPrincipal)break;
         if(op.userId!==replayPrincipal)continue;
+        const resource=JSON.stringify([op.projectId,op.payload.tripId||op.operationId]);
+        if(blocked.has(resource))continue;
+        if(op.dependsOnOperationId){const parent=states.get(op.dependsOnOperationId);if(!parent||parent.projectId!==op.projectId||parent.userId!==op.userId||parent.status!=='SYNCED')continue;}
         processedCount++;
 
         // Step 1: Set to SENDING
@@ -149,44 +164,36 @@ export class OutboxService {
               errorReason: validationError,
             });
             failedCount++;
+            blocked.add(resource);
             continue;
           }
 
           // Idempotency is checked only after current-principal authorization on the server.
-          // Step 3.5: Conflict Detection Engine (No Last-Write-Wins)
-          // Preserves local command, preserves server state, records conflict, and blocks sync until explicit resolution
-          // An optimistic cache record is not a server conflict witness. The
-          // authoritative command still checks the current persisted FSM in its transaction.
-          const cached = op.payload.tripId ? indexedDBService.getSync<any>('trips', op.payload.tripId) : null;
-          const conflict = cached?.syncStatus === 'PENDING' ? null : conflictResolutionService.detectConflict(op);
-          if (conflict) {
-            await indexedDBService.updateOutboxStatus(op.operationId, 'CONFLICT', {
-              conflictDetails: {
-                conflictId: conflict.conflictId,
-                conflictType: conflict.conflictType,
-                clientVersion: conflict.localCommand.version,
-                serverVersion: conflict.serverState.serverVersion,
-                conflictField: conflict.diffFields[0]?.field,
-                messageAr: conflict.descriptionAr,
-              },
-            });
-            conflictCount++;
-            continue;
-          }
+          // Only the authorized server transaction can witness a conflict.
+          // Cached/demo state must never block receipt recovery or command execution.
+          const recoveryRequired=op.status==='SENDING'||op.status==='AWAITING_RECEIPT'||op.retryCount>0;
 
           // Step 4: Commit to authoritative stores via canonical replay path
           let commitResult: { tripId: string; tripSerial: string; version: number } = { tripId: '', tripSerial: '', version: 1 };
 
           const intent = queuedTripCommand(op);
-          const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId, replayPrincipal);
+          const resData = await sendTripCommand(op.projectId, intent.command, intent.payload, op.operationId, intent.tripId, replayPrincipal, op.payload.expectedRevision, recoveryRequired);
 
           if(auth.currentUser?.uid!==replayPrincipal)break;
-          if (op.operationType === 'CREATE_TRIP_LOADING') {
+          if(op.operationType==='TRIP_COMMAND'){
+            const serverTrip=resData.trip;
+            if(!serverTrip||serverTrip.projectId!==op.projectId)throw Error('INVALID_TRIP_ACK');
+            await indexedDBService.put('trips',operationalTripProjection(serverTrip),replayPrincipal);
+            await indexedDBService.updateOutboxStatus(op.operationId,'SYNCED',{
+              syncedAt:new Date().toISOString(),serverAck:{tripId:serverTrip.tripId,tripSerial:serverTrip.tripNumber,serverVersion:serverTrip.version,canonicalTrip:serverTrip,committedAt:new Date().toISOString()}
+            });
+            syncedCount++;
+          } else if (op.operationType === 'CREATE_TRIP_LOADING') {
             const serverTrip = resData.trip;
             if (op.payload.tripId) {
-              await indexedDBService.delete('trips', op.payload.tripId);
+              await indexedDBService.delete('trips', op.payload.tripId,op.projectId,replayPrincipal);
             }
-            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip),replayPrincipal);
 
             commitResult = {
               tripId: serverTrip.tripId,
@@ -207,7 +214,7 @@ export class OutboxService {
             syncedCount++;
           } else if (op.operationType === 'UPDATE_TRIP_STATUS') {
             const serverTrip = resData.trip;
-            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip),replayPrincipal);
 
             commitResult = {
               tripId: serverTrip.tripId,
@@ -228,7 +235,7 @@ export class OutboxService {
             syncedCount++;
           } else if (op.operationType === 'RECORD_RECEIPT') {
             const serverTrip = resData.trip;
-            await indexedDBService.put('trips', operationalTripProjection(serverTrip));
+            await indexedDBService.put('trips', operationalTripProjection(serverTrip),replayPrincipal);
 
             commitResult = {
               tripId: serverTrip.tripId,
@@ -253,10 +260,10 @@ export class OutboxService {
             try {
               const tripId = op.payload.tripId;
               if (tripId) {
-                const localTrip = await indexedDBService.getById<any>('trips', tripId);
+                const localTrip = await indexedDBService.getById<any>('trips', tripId,op.projectId);
                 if (localTrip) {
                   localTrip.hasExceptions = true;
-                  await indexedDBService.put('trips', localTrip);
+                  await indexedDBService.put('trips', localTrip,replayPrincipal);
                 }
               }
             } catch (err) {
@@ -272,13 +279,16 @@ export class OutboxService {
             });
             syncedCount++;
           }
+          states.set(op.operationId,{...op,status:'SYNCED'});
         } catch (err: any) {
           if(auth.currentUser?.uid!==replayPrincipal)break;
-          await indexedDBService.updateOutboxStatus(op.operationId, 'FAILED', {
+          const uncertain=!err.status||err.status>=500||err.status===429;
+          await indexedDBService.updateOutboxStatus(op.operationId, uncertain?'AWAITING_RECEIPT':err.status===409?'CONFLICT':'FAILED', {
             retryCount: op.retryCount + 1,
-            errorReason: err.message || 'خطأ غير متوقع أثناء معالجة المزامنة',
+            errorReason: uncertain?'RECEIPT_REQUIRED':err.message || 'خطأ غير متوقع أثناء معالجة المزامنة',
           });
-          failedCount++;
+          if(!uncertain&&err.status===409)conflictCount++;else failedCount++;
+          blocked.add(resource);
         }
       }
     } finally {
@@ -333,12 +343,22 @@ export class OutboxService {
     return null;
   }
 
+  /** Presentation readback only: an optimistic cache entry is never an ACK. */
+  public async acknowledgedTrip(operationId:string,projectId:string):Promise<any>{
+    const principal=auth.currentUser?.uid;
+    const op=(await this.getOperations()).find(o=>o.operationId===operationId&&o.projectId===projectId);
+    if(!principal||!op||op.status!=='SYNCED'||!op.serverAck?.tripId)throw Error('RECEIPT_REQUIRED');
+    const trip=await indexedDBService.getById<any>('trips',op.serverAck.tripId,projectId);
+    if(auth.currentUser?.uid!==principal||!trip||trip.projectId!==projectId)throw Error('RECEIPT_REQUIRED');
+    return trip;
+  }
+
   /**
    * Detects conflict with existing server state.
    */
   private detectStateConflict(op: OutboxOperation): OutboxOperation['conflictDetails'] | null {
     if (op.operationType === 'CREATE_TRIP_LOADING') {
-      const existingTrip = indexedDBService.getSync<any>('trips', op.payload.tripId);
+      const existingTrip = indexedDBService.getSync<any>('trips', op.payload.tripId,op.projectId);
       if (existingTrip && existingTrip.status === 'COMPLETED') {
         return {
           clientVersion: op.payload.version || 1,
@@ -365,9 +385,11 @@ export class OutboxService {
    * Retries a specific failed or conflicted operation.
    */
   public async retryOperation(operationId: string): Promise<void> {
-    if(!(await this.getOperations()).some(op=>op.operationId===operationId))return;
-    await indexedDBService.updateOutboxStatus(operationId, 'PENDING', {
-      errorReason: undefined,
+    const op=(await this.getOperations()).find(op=>op.operationId===operationId);if(!op)return;
+    const uncertain=op.status==='SENDING'||op.status==='AWAITING_RECEIPT';
+    await indexedDBService.updateOutboxStatus(operationId, uncertain?'AWAITING_RECEIPT':'PENDING', {
+      ...(uncertain?{retryCount:0}:{}),
+      errorReason: uncertain?'RECEIPT_REQUIRED':undefined,
     });
     this.notifyListeners();
   }

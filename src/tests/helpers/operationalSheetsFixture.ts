@@ -1,11 +1,24 @@
 import {vi} from 'vitest';
 import type {sheets_v4} from 'googleapis';
+import {projectionRequest} from '../../../server/workspaceProjectionDelivery';
 export function operationalSheetsFixture(initial:sheets_v4.Schema$Spreadsheet={sheets:[]}) {
  const book=structuredClone(initial),requests:sheets_v4.Schema$Request[][]=[];
+ const control:{beforeBatch?:()=>void|Promise<void>;afterBatch?:()=>void|Promise<void>}={};
  const find=(id:number)=>{const sheet=book.sheets!.find(s=>s.properties?.sheetId===id);if(!sheet)throw Error('unknown numeric sheet ID');return sheet;};
  const apply=(request:sheets_v4.Schema$Request)=>{
   if(request.addSheet){const properties=request.addSheet.properties!;if(book.sheets!.some(s=>s.properties?.sheetId===properties.sheetId||s.properties?.title===properties.title))throw Error('duplicate sheet');book.sheets!.push({properties:structuredClone(properties),data:[{rowData:[]}]});}
-  else if(request.createDeveloperMetadata){const metadata=request.createDeveloperMetadata.developerMetadata!,sheet=find(metadata.location!.sheetId!);(sheet.developerMetadata||=[]).push(structuredClone(metadata));}
+  else if(request.createDeveloperMetadata){
+   const metadata=request.createDeveloperMetadata.developerMetadata!;
+   if(metadata.metadataId!=null&&[...(book.developerMetadata||[]),...(book.sheets||[]).flatMap(sheet=>sheet.developerMetadata||[])].some(old=>old.metadataId===metadata.metadataId))throw Object.assign(Error('duplicate metadata ID'),{response:{status:400}});
+   if(metadata.location?.spreadsheet){(book.developerMetadata||=[]).push(structuredClone(metadata));}
+   else{const sheet=find(metadata.location!.sheetId!);(sheet.developerMetadata||=[]).push(structuredClone(metadata));}
+  }
+  else if(request.updateDeveloperMetadata){
+   const update=request.updateDeveloperMetadata,id=update.dataFilters?.[0].developerMetadataLookup?.metadataId;
+   const metadata=[...(book.developerMetadata||[]),...(book.sheets||[]).flatMap(sheet=>sheet.developerMetadata||[])].find(item=>item.metadataId===id);
+   if(!metadata)throw Object.assign(Error('metadata missing'),{response:{status:404}});
+   for(const field of (update.fields||'').split(','))metadata[field]=structuredClone(update.developerMetadata?.[field]);
+  }
   else if(request.updateCells){const update=request.updateCells,id=update.start?.sheetId??update.range?.sheetId!,sheet=find(id);sheet.data||=[{rowData:[]}];const grid=sheet.data[0];grid.rowData||=[];const startRow=update.start?.rowIndex??update.range?.startRowIndex??0,startCol=update.start?.columnIndex??update.range?.startColumnIndex??0;
    for(const [r,row] of (update.rows||[]).entries())for(const [c,value] of (row.values||[]).entries()){const at=startRow+r;grid.rowData[at]||={values:[]};grid.rowData[at].values||=[];const target=grid.rowData[at].values![startCol+c]||={};for(const field of (update.fields||'').split(',')){if(value[field]===undefined)delete target[field];else target[field]=structuredClone(value[field]);}}
   }else if(request.updateSheetProperties){const p=request.updateSheetProperties.properties!,sheet=find(p.sheetId!);if(request.updateSheetProperties.fields?.includes('title'))throw Error('unexpected tab rename');sheet.properties!.gridProperties={...sheet.properties!.gridProperties,...p.gridProperties};}
@@ -17,8 +30,18 @@ export function operationalSheetsFixture(initial:sheets_v4.Schema$Spreadsheet={s
   const ranges=(args.ranges||[]).map((text:string)=>{const m=text.match(/^'((?:[^']|'')*)'!([A-Z]+)(\d+):([A-Z]+)(\d+)$/);if(!m)throw Error('fixture requires bounded A1 ranges');const col=(s:string)=>[...s].reduce((n,c)=>n*26+c.charCodeAt(0)-64,0)-1;return {title:m[1].replace(/''/g,"'"),r:Number(m[3])-1,c:col(m[2]),er:Number(m[5]),ec:col(m[4])+1};});
   for(const sheet of book.sheets||[]){const selected=ranges.filter((r:any)=>r.title===sheet.properties?.title);if(ranges.length&&!selected.length)continue;const {data,...metadata}=sheet;const out:any=structuredClone(metadata);if(args.includeGridData){if(!ranges.length)throw Error('unbounded workbook grid fetch');out.data=selected.map((range:any)=>({startRow:range.r,startColumn:range.c,rowData:Array.from({length:range.er-range.r},(_,r)=>({values:Array.from({length:range.ec-range.c},(_,c)=>{for(const g of data||[]){const value=g.rowData?.[range.r+r-(g.startRow||0)]?.values?.[range.c+c-(g.startColumn||0)];if(value)return structuredClone(value);}return {};})}))}));}result.sheets.push(out);}
   return {data:result};
- }),batchUpdate:vi.fn(async({requestBody}:any)=>{const before=structuredClone(book);try{for(const request of requestBody.requests)apply(request);}catch(error){Object.assign(book,before);throw error;}requests.push(structuredClone(requestBody.requests));return {data:{replies:[]}};})}};
- return {book,requests,api};
+ }),batchUpdate:vi.fn(async({spreadsheetId,requestBody}:any)=>projectionRequest({url:`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`,method:'POST',data:requestBody},async(options:any)=>{
+  if(options.method==='GET'){
+   const id=Number(new URL(options.url).pathname.split('/').pop()),metadata=book.developerMetadata?.find(item=>item.metadataId===id);
+   if(!metadata)throw Object.assign(Error('marker missing'),{response:{status:404}});
+   return {data:structuredClone(metadata)};
+  }
+  await control.beforeBatch?.();
+  const before=structuredClone(book),body=typeof options.data==='string'?JSON.parse(options.data):options.data;
+  try{for(const request of body.requests)apply(request);}catch(error){for(const key of Object.keys(book))delete book[key];Object.assign(book,before);throw error;}
+  requests.push(structuredClone(body.requests));await control.afterBatch?.();return {data:{replies:[]}};
+ }))}};
+ return {book,requests,api,control};
 }
 export function fixtureSheet(id:number,title:string,values:unknown[][],extras:Partial<sheets_v4.Schema$Sheet>={}):sheets_v4.Schema$Sheet {
  return {properties:{sheetId:id,title,gridProperties:{rowCount:200,columnCount:60}},data:[{rowData:values.map(row=>({values:row.map(value=>({userEnteredValue:typeof value==='number'?{numberValue:value}:{stringValue:String(value)}}))}))}],...extras};

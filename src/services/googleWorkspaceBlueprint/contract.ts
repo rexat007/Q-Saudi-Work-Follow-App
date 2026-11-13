@@ -52,15 +52,30 @@ export function assertBlueprint(blueprint:WorkspaceBlueprint,requireAutomation=t
       if(cells.some(c=>c.row>0&&inputs.includes(c.column)&&c.cell.userEnteredValue)) return invalid('BLUEPRINT_OPERATIONAL_DATA_FOUND');
     }
   }
-  const scan=(value:unknown):void=>{if(typeof value==='string'&&/https?:\/\/|IMPORTRANGE\s*\(/i.test(value))return invalid('BLUEPRINT_EXTERNAL_REFERENCE');if(Array.isArray(value))value.forEach(scan);else if(value&&typeof value==='object')Object.values(value).forEach(scan);};
-  scan(blueprint.sheets);
-  const checkRanges=(value:unknown):void=>{
-    if(Array.isArray(value)) {value.forEach(checkRanges);return;}
+  // Compiled styles are shared across many cells. Validate each object once
+  // within this assertion, with a separate active-path guard for invalid cycles.
+  // Every later assertion starts fresh, including a changed source revision.
+  const scanned=new WeakSet<object>(),scanning=new WeakSet<object>();
+  const scan=(value:unknown):void=>{
+    if(typeof value==='string'&&/https?:\/\/|IMPORTRANGE\s*\(/i.test(value))return invalid('BLUEPRINT_EXTERNAL_REFERENCE');
     if(!value||typeof value!=='object')return;
-    for(const [key,item] of Object.entries(value)) {
+    if(scanning.has(value))return invalid();if(scanned.has(value))return;
+    scanning.add(value);
+    if(Array.isArray(value))value.forEach(scan);else Object.values(value).forEach(scan);
+    scanning.delete(value);scanned.add(value);
+  };
+  scan(blueprint.sheets);
+  const checkedRanges=new WeakSet<object>(),checkingRanges=new WeakSet<object>();
+  const checkRanges=(value:unknown):void=>{
+    if(!value||typeof value!=='object')return;
+    if(checkingRanges.has(value))return invalid();if(checkedRanges.has(value))return;
+    checkingRanges.add(value);
+    if(Array.isArray(value))value.forEach(checkRanges);
+    else for(const [key,item] of Object.entries(value)) {
       if((key==='sheetId'||key==='sourceSheetId')&&!ids.includes(item as number)) return invalid('BLUEPRINT_RANGE_TARGET_INVALID');
       checkRanges(item);
     }
+    checkingRanges.delete(value);checkedRanges.add(value);
   };
   checkRanges([blueprint.sheets,blueprint.namedRanges]);
   if(!requireAutomation)return;

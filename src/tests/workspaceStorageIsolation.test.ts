@@ -300,7 +300,7 @@ describe('Provider-only source exemptions', () => {
     expect(helper).toContain("collection('workspace_migration_jobs').doc(target)");
     expect(helper).toContain('this.db.runTransaction(');
     expect(helper).toContain('transaction.set(ref,');
-    const legacy = readFileSync('server/security.middleware.ts', 'utf8');
+    const legacy = readFileSync('server/security.middleware.ts', 'utf8').replace(/\r\n/g, '\n');
     expect(legacy).toContain('if (!requestedProjectId) {\n    return next();');
   });
 });

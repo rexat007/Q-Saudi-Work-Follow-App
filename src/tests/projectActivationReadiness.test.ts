@@ -1,3 +1,4 @@
+import {ProjectCommandsServerService} from '../services/projectCommands.server';
 import { evaluateSetupReadiness } from '../utils/setupReadiness';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ProjectReadinessService, ReadinessResult } from '../services/projectReadiness.service';
@@ -454,7 +455,17 @@ describe('ProjectLifecycleService Governance & Audit Tests', () => {
       status: 'SETUP'
     };
 
-    await expect(projectService.updateProject('test-proj', { status: 'APPROVED' as any }, userContext))
-      .rejects.toThrow('لا يمكن تعديل حالة دورة حياة المشروع عبر التحديث العام');
+    const original = globalThis.fetch;
+    const authority = new ProjectCommandsServerService();
+    globalThis.fetch = vi.fn(async (url, init) => {
+      expect(url).toBe('/api/projects/test-proj/foundation');
+      const command = JSON.parse(String(init?.body));
+      try { return Response.json({data:await authority.updateFoundation('test-proj',command.updates,userContext)}); }
+      catch (error: unknown) { const failure=error as {code:string;status:number;message:string};return Response.json({code:failure.code,error:failure.message},{status:failure.status}); }
+    });
+    try {
+      await expect(projectService.updateProject('test-proj', { status: 'APPROVED' }, userContext)).rejects.toMatchObject({code:'INVALID_PROJECT_COMMAND',status:400});
+      expect(mockDatabase['projects/test-proj'].status).toBe('SETUP');
+    } finally {globalThis.fetch=original;}
   });
 });

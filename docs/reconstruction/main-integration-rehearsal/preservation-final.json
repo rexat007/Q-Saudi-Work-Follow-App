@@ -1,0 +1,12 @@
+{
+  "convergenceHead": true,
+  "convergenceClean": true,
+  "rb4Head": true,
+  "rb4Status": true,
+  "rb4Files": true,
+  "rb4Diff": true,
+  "mainMigrations": true,
+  "migrationInventoryUnchanged": true,
+  "noU09RuntimeCompositionModule": true,
+  "noU09ClientCompositionModule": true
+}

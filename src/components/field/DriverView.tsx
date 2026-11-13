@@ -32,7 +32,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         for (const pId of authContext.assignedProjectIds) {
           const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
           if (remoteTrips && remoteTrips.length > 0) {
-            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection)).catch(() => {});
+            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection),authContext.userId).catch(() => {});
           }
         }
       }
@@ -64,7 +64,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         const unsub = tripRepository.subscribeByProject(pId, (data) => {
           if (!isMounted) return;
           const projected = data.map(operationalTripProjection);
-          void indexedDBService.putMany('trips', projected).catch(() => {});
+          void indexedDBService.putMany('trips', projected,authContext.userId).catch(() => {});
           
           const driverActive = projected.find(t => 
             (Boolean(authContext.linkedDriverId) && t.driverId === authContext.linkedDriverId) &&
@@ -109,9 +109,9 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
         updatedBy: authContext.userId,
       };
 
-      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' },authContext.userId);
 
-      await outboxService.queueOperation({
+      const arrival=await outboxService.queueOperation({
         projectId: activeTrip.projectId,
         userId: authContext.userId,
         operationType: 'UPDATE_TRIP_STATUS',
@@ -127,11 +127,11 @@ export const DriverView: React.FC<DriverViewProps> = ({ authContext }) => {
       });
 
       if (isOnline && !isSimulatedOffline) {
-        const sync = await outboxService.syncAll(false);
-        if (sync.failedCount > 0) throw new Error('TRIP_COMMAND_FAILED');
+        await outboxService.syncAll(false);
+        setActiveTrip(await outboxService.acknowledgedTrip(arrival.operationId,activeTrip.projectId));
+      }else{
+        setActiveTrip(updatedTrip);
       }
-
-      setActiveTrip(updatedTrip);
     } catch (e: any) {
       setActionError(tripCommandErrorKey(e.message || '') || 'trip_commands.errors.failed');
       console.warn('Failed to record arrival:', e);

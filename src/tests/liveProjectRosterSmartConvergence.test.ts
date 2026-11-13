@@ -11,14 +11,14 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
     userId: 'USER-01',
     userName: 'Test User',
     role: 'PROJECT_ADMIN',
-    assignedProjectIds: ['PRJ-1'],
     projectId: 'PRJ-1',
     operationId: 'OP-LIVETEST',
-    knownEntities: {
-      carriers: [{ carrierId: 'CAR-1', name: 'شركة النقل المتميزة', projectId: 'PRJ-1' }],
-      trucks: [{ truckId: 'TRK-1', plate: 'ABC-1234', carrierId: 'CAR-1', projectId: 'PRJ-1' }],
-      drivers: [{ driverId: 'DRV-1', name: 'أحمد علي', carrierId: 'CAR-1', projectId: 'PRJ-1' }],
-      materials: [{ materialId: 'MAT-1', name: 'رمل', code: 'SAND', projectId: 'PRJ-1' }],
+    relContext: {
+      projectId:'PRJ-1',authorizedCarrierIds:['CAR-1'],authorizedMaterialIds:['MAT-1'],
+      knownCarriers: [{ carrierId: 'CAR-1', name: 'شركة النقل المتميزة', status: 'ACTIVE' }],
+      knownTrucks: [{ truckId: 'TRK-1', plate: 'ABC-1234', carrierId: 'CAR-1', status: 'ACTIVE' }],
+      knownDrivers: [{ driverId: 'DRV-1', name: 'أحمد علي', carrierId: 'CAR-1', status: 'ACTIVE' }],
+      knownMaterials: [{ materialId: 'MAT-1', name: 'رمل', code: 'SAND', status: 'ACTIVE' }],
     },
   };
 
@@ -35,43 +35,38 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
         mapped: { driverName: `سائق ${i}`, plate: `XYZ-${i}` },
         canonical: { driverName: `سائق ${i}`, plate: `XYZ-${i}` },
         entityResolutions: {
-          carrier: {
+          carrier: {originalValue:'شركة Alpha',confidence:0,isExact:false,
             entityType: 'CARRIER',
             sourceValue: 'شركة Alpha',
             matchedId: undefined,
             recommendation: 'REVIEW',
             candidates: [{ candidateEntityId: 'CAR-1', candidateDisplayName: 'شركة النقل المتميزة' }],
           },
-          truck: { entityType: 'TRUCK', sourceValue: `XYZ-${i}`, matchedId: `TRK-${i}`, recommendation: 'ACCEPT', entityId: `TRK-${i}` },
-          driver: { entityType: 'DRIVER', sourceValue: `سائق ${i}`, matchedId: `DRV-${i}`, recommendation: 'ACCEPT', entityId: `DRV-${i}` },
-          material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', recommendation: 'ACCEPT', entityId: 'MAT-1' },
+          truck: {originalValue:`XYZ-${i}`,confidence:0,isExact:false, entityType: 'TRUCK', sourceValue: `XYZ-${i}`, matchedId: `TRK-${i}`, recommendation: 'ACCEPT', entityId: `TRK-${i}` },
+          driver: {originalValue:`سائق ${i}`,confidence:0,isExact:false, entityType: 'DRIVER', sourceValue: `سائق ${i}`, matchedId: `DRV-${i}`, recommendation: 'ACCEPT', entityId: `DRV-${i}` },
+          material: {originalValue:'رمل',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', recommendation: 'ACCEPT', entityId: 'MAT-1' },
         },
         resolvedValues: {},
         validationIssues: [],
         ...overrides,
-      });
+      } satisfies ImportRow);
     }
 
     return {
       importBatchId: 'BAT-TEST-001',
       projectId: 'PRJ-1',
-      batchType: 'DRIVER_TRUCK_ROSTER',
       totalRows: count,
       committedRows: 0,
-      skippedRows: 0,
-      failedRows: 0,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: count,
-      status: 'PENDING',
-      source: { sourceType: 'EXCEL', sourceFileId: 'F-1', sourceFileName: 'test.xlsx' },
+      validationStatus:'PENDING',commitStatus:'AWAITING_REVIEW',currentStage:'REVIEW',operationId:'OP-LIVETEST',validRows:0,
+      source: { sourceType: 'EXCEL',importBatchId:'BAT-TEST-001', sourceFileId: 'F-1', sourceFileName: 'test.xlsx' },
       rows,
       issues: [],
       auditTrail: [],
       createdAt: '2026-01-01',
       createdBy: 'USER-1',
-      updatedAt: '2026-01-01',
-      updatedBy: 'USER-1',
     };
   };
 
@@ -162,8 +157,8 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('5. non-resolution duplicate/conflict issue survives roster revalidation', () => {
     const batch = createBatchWithRows(1, () => ({
       validationIssues: [
-        { issueId: 'I-DUP-1', code: 'SAME_ENTITY_DUPLICATE', field: 'driverName', message: 'مكرر', severity: 'WARNING', blocking: false },
-        { issueId: 'I-UNRES-1', code: 'UNRESOLVED_CARRIER', field: 'carrierName', message: 'غير معرّف', severity: 'BLOCKING', blocking: true },
+        { row:1,resolvable:true,issueId: 'I-DUP-1', code: 'SAME_ENTITY_DUPLICATE', field: 'driverName', message: 'مكرر', severity: 'WARNING', blocking: false },
+        { row:1,resolvable:true,issueId: 'I-UNRES-1', code: 'UNRESOLVED_CARRIER', field: 'carrierName', message: 'غير معرّف', severity: 'BLOCKING', blocking: true },
       ],
     }));
 
@@ -186,7 +181,7 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('6. stale entity-resolution issue disappears after valid resolution', () => {
     const batch = createBatchWithRows(1, () => ({
       validationIssues: [
-        { issueId: 'I-UNRES-1', code: 'UNRESOLVED_CARRIER', field: 'carrierName', message: 'غير معرّف', severity: 'BLOCKING', blocking: true },
+        { row:1,resolvable:true,issueId: 'I-UNRES-1', code: 'UNRESOLVED_CARRIER', field: 'carrierName', message: 'غير معرّف', severity: 'BLOCKING', blocking: true },
       ],
     }));
 
@@ -212,13 +207,13 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('7. warning-only row increments warningRows', () => {
     const batch = createBatchWithRows(1, () => ({
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        truck: { entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        driver: { entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        carrier: {originalValue:'شركة Alpha',confidence:0,isExact:false, entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        truck: {originalValue:'XYZ-1',confidence:0,isExact:false, entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        driver: {originalValue:'سائق 1',confidence:0,isExact:false, entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        material: {originalValue:'رمل',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
       },
       validationIssues: [
-        { issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
+        { row:1,resolvable:true,issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
       ],
     }));
 
@@ -230,13 +225,13 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('8. warning-only row is not errorRows/requiresReviewRows', () => {
     const batch = createBatchWithRows(1, () => ({
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        truck: { entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        driver: { entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        carrier: {originalValue:'شركة Alpha',confidence:0,isExact:false, entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        truck: {originalValue:'XYZ-1',confidence:0,isExact:false, entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        driver: {originalValue:'سائق 1',confidence:0,isExact:false, entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        material: {originalValue:'رمل',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
       },
       validationIssues: [
-        { issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
+        { row:1,resolvable:true,issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
       ],
     }));
 
@@ -248,10 +243,10 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('9. clean row increments validRows', () => {
     const batch = createBatchWithRows(1, () => ({
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        truck: { entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        driver: { entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        carrier: {originalValue:'شركة Alpha',confidence:0,isExact:false, entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        truck: {originalValue:'XYZ-1',confidence:0,isExact:false, entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        driver: {originalValue:'سائق 1',confidence:0,isExact:false, entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        material: {originalValue:'رمل',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
       },
       validationIssues: [],
     }));
@@ -265,65 +260,58 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
   it('10. blocking row increments errorRows', () => {
     const batch = createBatchWithRows(1, () => ({
       validationIssues: [
-        { issueId: 'I-ERR-1', code: 'IDENTITY_CONFLICT', field: 'driverName', message: 'خطأ', severity: 'BLOCKING', blocking: true },
+        { row:1,resolvable:true,issueId: 'I-ERR-1', code: 'IDENTITY_CONFLICT', field: 'driverName', message: 'خطأ', severity: 'BLOCKING', blocking: true },
       ],
     }));
 
     const updated = DriverTruckPipelineService.revalidateRosterBatch(batch, sampleContext);
     expect(updated.errorRows).toBe(1);
-    expect(updated.status).toBe('FAILED');
+    expect(updated.validationStatus).toBe('FAILED');
   });
 
   it('11. unresolved row increments requiresReviewRows', () => {
     const batch = createBatchWithRows(1);
     const updated = DriverTruckPipelineService.revalidateRosterBatch(batch, sampleContext);
     expect(updated.requiresReviewRows).toBe(1);
-    expect(updated.status).toBe('PENDING');
+    expect(updated.validationStatus).toBe('PENDING');
   });
 
   it('12. batch WARNING status computed correctly', () => {
     const batch = createBatchWithRows(1, () => ({
       entityResolutions: {
-        carrier: { entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        truck: { entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        driver: { entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-        material: { entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        carrier: {originalValue:'شركة Alpha',confidence:0,isExact:false, entityType: 'CARRIER', sourceValue: 'شركة Alpha', matchedId: 'CAR-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        truck: {originalValue:'XYZ-1',confidence:0,isExact:false, entityType: 'TRUCK', sourceValue: 'XYZ-1', matchedId: 'TRK-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        driver: {originalValue:'سائق 1',confidence:0,isExact:false, entityType: 'DRIVER', sourceValue: 'سائق 1', matchedId: 'DRV-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+        material: {originalValue:'رمل',confidence:0,isExact:false, entityType: 'MATERIAL', sourceValue: 'رمل', matchedId: 'MAT-1', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
       },
       validationIssues: [
-        { issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
+        { row:1,resolvable:true,issueId: 'I-WARN-1', code: 'CUSTOM_WARNING', field: 'driverName', message: 'تنبيه', severity: 'WARNING', blocking: false },
       ],
     }));
 
     const updated = DriverTruckPipelineService.revalidateRosterBatch(batch, sampleContext);
-    expect(updated.status).toBe('WARNING');
+    expect(updated.validationStatus).toBe('WARNING');
   });
 
   // =========================================================================
   // DEFECT 4: CONTEXT BEFORE CREATE & ATOMICITY (13 - 16)
   // =========================================================================
 
-  it('13. context load failure causes ZERO create service calls', async () => {
-    const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier');
-    vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockResolvedValue(null as any);
-
-    const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext('PRJ-1');
-    if (!relContext || !relContext.knownEntities) {
-      // Failed closed before create
-    }
-
-    expect(spyCreate).toHaveBeenCalledTimes(0);
+  it('13. context load failure causes ZERO create service calls',async()=>{
+    const spyCreate=vi.spyOn(entityResolutionCommandService,'createCarrier');vi.spyOn(canonicalRelationshipContextService,'getProjectRelationshipContext').mockRejectedValue(new Error('CONTEXT_UNAVAILABLE'));
+    await expect(canonicalRelationshipContextService.getProjectRelationshipContext('PRJ-1')).rejects.toThrow('CONTEXT_UNAVAILABLE');expect(spyCreate).not.toHaveBeenCalled();
   });
 
   it('14. context validation occurs BEFORE create', async () => {
     let contextLoadedFirst = false;
     vi.spyOn(canonicalRelationshipContextService, 'getProjectRelationshipContext').mockImplementation(async () => {
       contextLoadedFirst = true;
-      return sampleContext.knownEntities as any;
+      return sampleContext.relContext!;
     });
 
     const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockImplementation(async () => {
       expect(contextLoadedFirst).toBe(true);
-      return { success: true, matchedId: 'CAR-NEW-1', matchedName: 'شركة جديدة' };
+      return {entityType:'CARRIER' as const,sourceValue:'شركة جديدة', matchedId:'CAR-NEW-1',matchedName:'شركة جديدة',matchMethod:'EXACT',confidence:1,isExact:true,isAuthorized:true,riskLevel:'LOW' as const,relationshipStatus:'VALID'};
     });
 
     const relContext = await canonicalRelationshipContextService.getProjectRelationshipContext('PRJ-1');
@@ -332,7 +320,7 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
     await entityResolutionCommandService.createCarrier({
       projectId: 'PRJ-1',
       sourceValue: 'شركة جديدة',
-      carrierData: { nameAr: 'شركة جديدة' },
+      carrierData: { nameAr:'شركة جديدة',commercialRegistrationNo:'1000000001' },
     });
 
     expect(spyCreate).toHaveBeenCalledTimes(1);
@@ -340,7 +328,7 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
 
   it('15. successful grouped create calls canonical create exactly once', async () => {
     const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValue({
-      success: true,
+      entityType:'CARRIER',sourceValue:'شركة النجم',matchMethod:'EXACT',confidence:1,isExact:true,isAuthorized:true,riskLevel:'LOW',relationshipStatus:'VALID',
       matchedId: 'CAR-NEW-88',
       matchedName: 'شركة النجم',
     });
@@ -348,7 +336,7 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
     const result = await entityResolutionCommandService.createCarrier({
       projectId: 'PRJ-1',
       sourceValue: 'شركة النجم',
-      carrierData: { nameAr: 'شركة النجم' },
+      carrierData: { nameAr:'شركة النجم',commercialRegistrationNo:'1000000002' },
     });
 
     expect(spyCreate).toHaveBeenCalledTimes(1);
@@ -360,7 +348,7 @@ describe('Live Project Roster Smart Convergence & Final Atomic Integrity Closeou
       if (i === 3) {
         return {
           entityResolutions: {
-            carrier: { entityType: 'CARRIER', sourceValue: 'شركة Beta', recommendation: 'REVIEW' },
+            carrier: {originalValue:'شركة Beta',confidence:0,isExact:false, entityType: 'CARRIER', sourceValue: 'شركة Beta', recommendation: 'REVIEW' },
           },
         };
       }

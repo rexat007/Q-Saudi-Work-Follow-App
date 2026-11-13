@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ExcelCsvTripCommitter } from '../services/import/tripImportCommitter';
 import { unifiedImportPipelineService } from '../services/import/unifiedImportPipeline.service';
@@ -35,7 +36,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     requiresReviewRows: 0,
     committedRows: 0,
     rows: [
-      {
+      {validationIssues: [],
         rowNumber: 1,
         status: 'VALID',
         reviewStatus: 'accepted',
@@ -53,12 +54,12 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
           materialId: 'MAT-400',
         },
         entityResolutions: {
-          carrier: { entityType: 'CARRIER', sourceValue: 'A', matchedId: 'CAR-100', matchedName: 'Carrier A', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
-          truck: { entityType: 'TRUCK', sourceValue: 'B', matchedId: 'TRK-200', matchedName: 'Truck B', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
-          driver: { entityType: 'DRIVER', sourceValue: 'C', matchedId: 'DRV-300', matchedName: 'Driver C', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
-          material: { entityType: 'MATERIAL', sourceValue: 'D', matchedId: 'MAT-400', matchedName: 'Material D', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
+          carrier: {originalValue:'A', entityType: 'CARRIER', sourceValue: 'A', matchedId: 'CAR-100', matchedName: 'Carrier A', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
+          truck: {originalValue:'B', entityType: 'TRUCK', sourceValue: 'B', matchedId: 'TRK-200', matchedName: 'Truck B', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
+          driver: {originalValue:'C', entityType: 'DRIVER', sourceValue: 'C', matchedId: 'DRV-300', matchedName: 'Driver C', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
+          material: {originalValue:'D', entityType: 'MATERIAL', sourceValue: 'D', matchedId: 'MAT-400', matchedName: 'Material D', confidence: 1.0, isExact: true, isAuthorized: true, riskLevel: 'LOW', relationshipStatus: 'VALID', recommendation: 'ACCEPT' },
         },
-      },
+      } satisfies ImportRow,
     ],
     issues: [],
     auditTrail: [],
@@ -308,7 +309,7 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
     batch.commitStatus = 'AWAITING_REVIEW';
 
     const updated = unifiedImportPipelineService.confirmWarnings(batch, dummyContext);
-    expect(updated.commitStatus).toBe('REVIEW_REQUIRED');
+    expect(updated.commitStatus).toBe('AWAITING_REVIEW');
   });
 
   it('19. executeCommit fails closed with unresolved review state', async () => {
@@ -479,7 +480,10 @@ describe('Smart Import Commit Integrity Convergence Test Suite', () => {
 
   it('39. report states server canonical snapshot authority holds true', () => {
     const appCode = fs.readFileSync(path.resolve(__dirname, '../../server/app.ts'), 'utf-8');
-    expect(appCode).toContain("serverTripService.dispatchImportedTrip");
+    const route=appCode.slice(appCode.indexOf("'/api/projects/:projectId/import-sessions/:importSessionId/commit-reviewed-intent'"));
+    expect(route).toContain('enforceProjectIsolation');expect(route).toContain('enforceDispatcherOrAbove');
+    expect(route).toContain('new RosterExecutionServer().requestCommit');
+    expect(appCode).not.toContain('serverTripService.dispatchImportedTrip');
   });
 
   it('40. no Unit 5B behavior is modified', () => {

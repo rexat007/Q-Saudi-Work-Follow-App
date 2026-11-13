@@ -1,5 +1,5 @@
 import { filterProjectScope } from '../../utils/projectScope';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { 
   ShieldAlert, 
   Activity, 
@@ -20,7 +20,9 @@ import { ExcelCsvImportSection } from '../importCenter/ExcelCsvImportSection';
 import { GoogleSheetsImportSection } from '../importCenter/GoogleSheetsImportSection';
 import { indexedDBService } from '../../services/offline/indexedDB.service';
 import { tripRepository } from '../../repositories/trip.repository';
-import { exceptionEngine } from '../../services/exceptionEngine.service';
+import {exceptionRepository} from '../../repositories/exception.repository';
+import {sendExceptionDecision} from '../../services/exceptionCommandClient.service';
+import type {TripExceptionEntity} from '../../types/entities';
 
 export interface FieldSupervisionViewProps {
   authContext: AuthUserContext;
@@ -87,7 +89,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
         const unsub = tripRepository.subscribeByProject(targetProjectId, (data) => {
           if (isMounted) setTrips(data);
           // Background cache hydration
-          void indexedDBService.putMany('trips', data).catch(() => {});
+          void indexedDBService.putMany('trips', data,authContext.userId).catch(() => {});
         });
         unsubs.push(unsub);
 
@@ -105,12 +107,26 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
 
   const trips = filterProjectScope(storedTrips, authContext);
 
-  const exceptions = useMemo(() => {
-    return exceptionEngine.getAllExceptions().filter(e => 
-      (targetProjectId ? e.projectId === targetProjectId : authContext.role === 'SUPER_ADMIN' && filterProjectScope([e], authContext).length > 0) &&
-      (e.status === 'OPEN' || e.status === 'UNDER_REVIEW')
-    );
-  }, [targetProjectId, authContext]);
+  const exceptionScope=JSON.stringify([authContext.userId,targetProjectId,authContext.role,authContext.assignedProjectIds]);
+  const currentScope=useRef(exceptionScope);currentScope.current=exceptionScope;
+  const [exceptionSnapshot,setExceptionSnapshot]=useState<{scope:string;rows:TripExceptionEntity[];error:boolean;loading:boolean}>({scope:'',rows:[],error:false,loading:true});
+  const [decisionNotes,setDecisionNotes]=useState<Record<string,string>>({});
+  const [decisionBusy,setDecisionBusy]=useState<string|null>(null);
+  const decisionOperations=useRef(new Map<string,string>());
+  useEffect(()=>{
+    let active=true;
+    setDecisionNotes({});setDecisionBusy(null);decisionOperations.current.clear();
+    setExceptionSnapshot({scope:exceptionScope,rows:[],error:false,loading:true});
+    if(!targetProjectId||!isOnline||isSimulatedOffline||!['SUPERVISOR','SITE_SUPERVISOR','PROJECT_ADMIN','SUPER_ADMIN'].includes(authContext.role)){
+      setExceptionSnapshot({scope:exceptionScope,rows:[],error:true,loading:false});return;
+    }
+    const unsubscribe=exceptionRepository.subscribeByProject(targetProjectId,rows=>{
+      if(active)setExceptionSnapshot({scope:exceptionScope,rows:rows.filter(e=>e.projectId===targetProjectId),error:false,loading:false});
+    },()=>{if(active)setExceptionSnapshot({scope:exceptionScope,rows:[],error:true,loading:false});});
+    return ()=>{active=false;unsubscribe();};
+  },[exceptionScope,targetProjectId,isOnline,isSimulatedOffline]);
+  const exceptionReady=exceptionSnapshot.scope===exceptionScope&&!exceptionSnapshot.loading&&!exceptionSnapshot.error;
+  const exceptions=exceptionReady?exceptionSnapshot.rows.filter(e=>e.status==='OPEN'||e.status==='UNDER_REVIEW'):[];
 
   const loadingQueueCount = useMemo(() => trips.filter(t => t.status === 'LOADED').length, [trips]);
   const inTransitCount = useMemo(() => trips.filter(t => t.status === 'LOADED' || t.status === 'IN_TRANSIT').length, [trips]);
@@ -130,10 +146,17 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
     );
   }
 
-  const handleDecision = (tripId: string, action: string) => {
-    if (onNotification) {
-      onNotification({ type: 'SUCCESS', message: t("operations.decision_applied_value_for_trip_value", { p0: action, p1: tripId }) });
-    }
+  const handleDecision = async (exception:TripExceptionEntity, action:'RESOLVE'|'REJECT') => {
+    if(decisionBusy||authContext.role!=='PROJECT_ADMIN'||!exception.tripId||exception.projectId!==targetProjectId)return;
+    const key=JSON.stringify([exceptionScope,exception.tripId,exception.exceptionId,action,decisionNotes[JSON.stringify([exception.tripId,exception.exceptionId])]?.trim()]);
+    const notes=decisionNotes[JSON.stringify([exception.tripId,exception.exceptionId])]?.trim();if(!notes)return;
+    let operationId=decisionOperations.current.get(key);if(!operationId){operationId=crypto.randomUUID();decisionOperations.current.set(key,operationId);}
+    const scope=exceptionScope;setDecisionBusy(exception.exceptionId);
+    try{
+      await sendExceptionDecision(exception.projectId,exception.tripId,exception.exceptionId,action,notes,operationId);
+      if(currentScope.current===scope)onNotification?.({type:'SUCCESS',message:t('operations.exception.decision_confirmed')});
+    }catch{if(currentScope.current===scope)onNotification?.({type:'ERROR',message:t('operations.exception.decision_unconfirmed')});}
+    finally{if(currentScope.current===scope)setDecisionBusy(null);}
   };
 
   return (
@@ -286,7 +309,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
 
       {activeTab === 'EXCEPTIONS' && (
         <div className="space-y-4">
-          {exceptions.length === 0 ? (
+          {!exceptionReady?<p role="alert">{t(exceptionSnapshot.loading&&exceptionSnapshot.scope===exceptionScope?'shared.status.loading':'operations.exception.read_unavailable')}</p>:exceptions.length === 0 ? (
             <div className="bg-white p-8 rounded-xl border border-stone-200 shadow-sm text-center">
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
               <h3 className="font-bold text-stone-900 text-sm mb-1">{t("field_supervision.no_exceptions")}</h3>
@@ -294,7 +317,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
             </div>
           ) : (
             exceptions.map(exc => (
-              <div key={exc.exceptionId} className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-6">
+              <div key={JSON.stringify([exc.projectId,exc.tripId,exc.exceptionId])} className="bg-white p-5 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-6">
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -302,7 +325,7 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                       <h3 className="font-bold text-stone-900">{exc.type} ({exc.exceptionId})</h3>
                     </div>
                     <span className={`text-[10px] font-bold px-2 py-1 rounded ${
-                      exc.severity === 'BLOCKING' || exc.severity === 'HIGH' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      ['BLOCKING','CRITICAL','HIGH'].includes(exc.severity) ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
                     }`}>
                       {exc.severity}
                     </span>
@@ -312,14 +335,17 @@ export const FieldSupervisionView: React.FC<FieldSupervisionViewProps> = ({
                   {/* OPERATIONAL DECISION PANEL */}
                   <div className="bg-stone-50 p-4 rounded-xl border border-stone-200">
                     <h4 className="text-xs font-bold text-stone-900 mb-3">{t("field_supervision.decision_panel_title")}</h4>
+                    <textarea aria-label={t('operations.exception.review_note')} value={decisionNotes[JSON.stringify([exc.tripId,exc.exceptionId])]||''} maxLength={2000} disabled={Boolean(decisionBusy)||authContext.role!=='PROJECT_ADMIN'} onChange={e=>setDecisionNotes(old=>({...old,[JSON.stringify([exc.tripId,exc.exceptionId])]:e.target.value}))}/>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => handleDecision(exc.exceptionId, 'RESOLVE')}
+                        disabled={Boolean(decisionBusy)||authContext.role!=='PROJECT_ADMIN'||!decisionNotes[JSON.stringify([exc.tripId,exc.exceptionId])]?.trim()}
+                        onClick={() => void handleDecision(exc, 'RESOLVE')}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2 px-4 rounded-lg transition-colors"
                       >
                         {t("field_supervision.approve_exception_btn")}</button>
                       <button 
-                        onClick={() => handleDecision(exc.exceptionId, 'REJECT')}
+                        disabled={Boolean(decisionBusy)||authContext.role!=='PROJECT_ADMIN'||!decisionNotes[JSON.stringify([exc.tripId,exc.exceptionId])]?.trim()}
+                        onClick={() => void handleDecision(exc, 'REJECT')}
                         className="bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 text-xs font-bold py-2 px-4 rounded-lg transition-colors"
                       >
                         {t("field_supervision.reject_exception_btn")}</button>

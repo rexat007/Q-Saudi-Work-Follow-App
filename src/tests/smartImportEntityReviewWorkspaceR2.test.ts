@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
 const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
 const fleetEditor=fs.readFileSync(path.resolve(__dirname,'../components/masterData/CanonicalFleetIdentityEditor.tsx'),'utf8');
@@ -38,7 +39,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
     },
   };
 
-  const createSampleGroupedBatch = (): UnifiedImportBatch => ({
+  const createSampleGroupedBatch = (): UnifiedImportBatch => ({issues: [],operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
     importBatchId: 'BAT-R2-001',
     projectId: 'PRJ-R2-TEST',
     source: { sourceType: 'EXCEL', importBatchId: 'BAT-R2-001', sourceFileName: 'trips.xlsx' },
@@ -62,7 +63,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
         validationIssues: [],
         resolvedValues: {},
         entityResolutions: {
-          carrier: {
+          carrier: {originalValue:'شركة الناقل المجهول',confidence:0,isExact:false,
             entityType: 'CARRIER',
             sourceValue: 'شركة الناقل المجهول',
             recommendation: 'REVIEW',
@@ -72,32 +73,32 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
             matchedId: 'CAR-101',
             matchedName: 'شركة الناقل المعتمد',
           },
-          material: {
+          material: {originalValue:'ركام جديد',confidence:0,isExact:false,
             entityType: 'MATERIAL',
             sourceValue: 'ركام جديد',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
-          driver: {
+          driver: {originalValue:'سائق جديد',confidence:0,isExact:false,
             entityType: 'DRIVER',
             sourceValue: 'سائق جديد',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
-          truck: {
+          truck: {originalValue:'1111 XYZ',confidence:0,isExact:false,
             entityType: 'TRUCK',
             sourceValue: '1111 XYZ',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
         },
-      },
+      } satisfies ImportRow,
       {
         rowNumber: 2,
         status: 'WARNING',
@@ -107,7 +108,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
         validationIssues: [],
         resolvedValues: {},
         entityResolutions: {
-          carrier: {
+          carrier: {originalValue:'شركة الناقل المجهول',confidence:0,isExact:false,
             entityType: 'CARRIER',
             sourceValue: 'شركة الناقل المجهول',
             recommendation: 'REVIEW',
@@ -117,32 +118,32 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
             matchedId: 'CAR-101',
             matchedName: 'شركة الناقل المعتمد',
           },
-          material: {
+          material: {originalValue:'ركام جديد',confidence:0,isExact:false,
             entityType: 'MATERIAL',
             sourceValue: 'ركام جديد',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
-          driver: {
+          driver: {originalValue:'سائق جديد',confidence:0,isExact:false,
             entityType: 'DRIVER',
             sourceValue: 'سائق جديد',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
-          truck: {
+          truck: {originalValue:'1111 XYZ',confidence:0,isExact:false,
             entityType: 'TRUCK',
             sourceValue: '1111 XYZ',
-            recommendation: 'CREATE',
+            recommendation: 'REVIEW',
             riskLevel: 'HIGH',
             relationshipStatus: 'VALID',
             candidates: [],
           },
         },
-      },
+      } satisfies ImportRow,
       {
         rowNumber: 3,
         status: 'VALID',
@@ -152,7 +153,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
         validationIssues: [],
         resolvedValues: { carrierId: 'CAR-101' },
         entityResolutions: {
-          carrier: {
+          carrier: {originalValue:'شركة الناقل المعتمد',confidence:0,isExact:false,
             entityType: 'CARRIER',
             sourceValue: 'شركة الناقل المعتمد',
             recommendation: 'ACCEPT',
@@ -164,7 +165,7 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
             matchedName: 'شركة الناقل المعتمد',
           },
         },
-      },
+      } satisfies ImportRow,
     ],
   });
 
@@ -403,7 +404,8 @@ describe('Smart Import R2 — Entity Review Workspace Wiring Test Suite', () => 
       mockContext,
       'USR-ADMIN'
     );
-    expect(updated.validRows + updated.warningRows + updated.errorRows).toBe(batch.totalRows);
+    expect(updated.validRows + updated.warningRows + updated.errorRows + updated.requiresReviewRows).toBe(batch.totalRows);
+    expect(updated.requiresReviewRows).toBeGreaterThan(0);
   });
 
   // 22. Review checkpoint is persisted

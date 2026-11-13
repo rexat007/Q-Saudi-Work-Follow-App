@@ -1,0 +1,50 @@
+{
+  "main": "030e9027685033c674cf2021499db7bfb675cbfd",
+  "convergence": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+  "method": "Only accepted convergence delta U09..final applied onto verified main; no whole convergence commit, U09 ancestor, migration, runtime selector or SQL UI copied. Direct source-base equality established for 45/54 roots. Remaining roots require explicit Firestore hunk adaptation.",
+  "families": [
+    {
+      "name": "Reviewed Carrier/Material readiness and typed import boundary",
+      "scope": "row evidence producers, pure acceptance gate, resumed readiness consumers, canonical parser types and validation tests"
+    },
+    {
+      "name": "Canonical Trip, imported commercial evidence, receipt recovery and durable offline identity",
+      "scope": "existing server transaction + numbering/event/audit producers, private receipt route, versioned client, principal/project cache, outbox, UI consumers and types together"
+    },
+    {
+      "name": "Canonical exceptions, audit and complete financial reporting",
+      "scope": "existing domain authority composed transactionally, current principal and scoped bounded queries, persisted financial projection, full report pages and consumers"
+    },
+    {
+      "name": "Firestore App/Auth/Foundation continuity and responsive UI",
+      "scope": "server-confirmed profile watcher, inventory generation guards, canonical Project receipt publication, guarded roster recovery and authorized global editors; no SQL wrappers"
+    },
+    {
+      "name": "Blueprint deterministic capture/validation and diagnostic browser boundaries",
+      "scope": "per-call shared-node traversal, security checks, approved assets unchanged, real frozen marker fixtures; browser case modules separated from native Vitest wrappers"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "src/components/field/SqlTripWorkstation.tsx",
+      "reason": "SQL-only runtime UI; main has no such operational composition. Preserve existing main Firestore consumers instead."
+    },
+    {
+      "scope": "All main..U09 predecessor changes including runtimeComposition/runtimeClient selectors, RB1-RB3 SQL/governance/source routes, DB migration012, unfinished RB4 and migration013",
+      "reason": "Not part of accepted Firestore correction delta; not introduced as substitute compatibility or hidden SQL authority."
+    }
+  ],
+  "adaptationsRequired": [
+    "server/app.ts: insert Firestore handlers at main imports, omit U09 runtime-boundary context",
+    "tripCommandClient: existing Firebase HTTP boundary plus accepted receipt/version logic only; omit currentRuntimeClient/submitRuntimeTrip",
+    "outbox: omit U09 assertLegacyClient import/calls, retain all current-principal checks and server authority",
+    "exceptionCommandClient: omit U09-only assertLegacyClient dependency; existing Firebase auth and server transaction remain authoritative",
+    "App/Auth/Wizard/OutboxDrawer: retain main exports and sole Firestore lifecycle; no SQL wrapper or runtime provider"
+  ],
+  "newlyRecognizedProductionRoot": "src/tests/pricingEngine.cases.ts (runtime-imported by PricingEngineView; previous root filter omitted it)",
+  "additionalReviewedDependency": {
+    "path": "src/components/field/AdaptiveOperationsView.tsx",
+    "source": "U09 extraction of OperationalTripControls, a provider-neutral presentation function; no SQL imports, reads, writer or authorization bypass. Needed by accepted durable Firestore consumer.",
+    "method": "Reviewed main-to-final hunks for this file only, not the U09 commit."
+  }
+}

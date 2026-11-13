@@ -1,0 +1,414 @@
+[
+  {
+    "path": "src/tests/ar2U07OfflineContinuity.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/canonicalTripDispatchAuthority.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/conflictEngine.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/conflictResolution.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/controlledIncrementalWorkspaceProjection.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence2Browser.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence2CacheBrowser.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence2Operational.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence3DurableCommand.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence3ImportIdentity.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence3JournalBrowser.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/convergence3Journey.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/dashboardReportsI18n.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/driverViewConvergenceP603.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/endToEndOperationalValidationBlock94.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/exceptionEngineRetirement.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/fieldSupervisionDriverBlock78.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/finalReleaseReadiness.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/finalUiArchitectureBlock76.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/googleDriveImport.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/googleSheetsImport.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/commandDatabase.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/convergence2BrowserEntry.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/convergence2Firestore.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/convergence3BrowserEntry.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/operationalSheetsFixture.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/reviewedTripCommandFixture.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/rosterReadinessBrowserEntry.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/helpers/workspaceEnsureFixture.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/i18nTranslationCatalog.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/i18nTranslationGeneration.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/importCenterConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/materialAuthorityP602B2.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/operationalProfileAssessment.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/operationalProfileUi.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/operationalReportTabIsolation.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/operationalWorkspaceTemplates.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/pricingEngine.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectActivationReadiness.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectCentricOperationsBlock87.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectContextLifetime.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectDriverTruckAssignmentFoundation.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectFormDateUx86F.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectGoogleWorkspaceTemplateSync.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectRouteConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectWorkflowNavigation86E.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/releaseBlockerPricingAliases.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/releaseBlockerTripIdentity.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/reportsEngine.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/reportsEngineControlCleanup.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/reportsEngineConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterReadinessBrowserConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterResolutionReadinessConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/runtimeGenerationConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/secureTripNumberingOffline89B.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/setupReadinessBoundary.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/setupWizardContinuity.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportSharedContrast.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportUnit4AServerSessionPersistence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportUnit4B2UiSessionResume.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/smartTripImportOperationalConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/systemToolsRationalization90A.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripEngineRetirement.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripIdentityAdjustmentBlock89.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripIntakeConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripMutationBoundary.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripOperationalCommands.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/tripOperationalOutbox.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/weighbridgeImport.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceConvergence.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceIntegration.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceLocalBlueprint.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceOneClickProvisioning.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceProviderResilience.test.ts",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  },
+  {
+    "path": "src/tests/workspaceQuiescenceUi.test.tsx",
+    "status": "TRANSFERRED_ACCEPTED_TEST_HUNKS"
+  }
+]

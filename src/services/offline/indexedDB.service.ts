@@ -5,14 +5,35 @@
 
 import { OutboxOperation, CacheStoreName, CacheStoreMetadata } from '../../types/offline';
 import { ConflictRecord } from '../../types/conflict';
+import {frozenOutboxIdentity,outboxIntentConflict} from './tripCommandIdentity';
 
 const DB_NAME = 'q_saudi_logistics_offline_db';
-export const OFFLINE_DB_VERSION = 3;
+export const OFFLINE_DB_VERSION = 4;
 const DB_VERSION = OFFLINE_DB_VERSION;
 
 export class IndexedDBService {
   private dbPromise: Promise<IDBDatabase> | null = null;
   private memoryStore = new Map<string, Map<string, any>>();
+  private principalProvider:()=>string|null=()=>null;
+  public setPrincipalProvider(provider:()=>string|null){this.principalProvider=provider;}
+  public isCurrentPrincipal(principal:string){const p=this.principalProvider();return p?p===principal:!this.isSupported();}
+  private cachePrincipal(){const p=this.principalProvider();if(p)return p;if(!this.isSupported())return '@memory';throw Error('CACHE_SCOPE_REQUIRED');}
+  private tripEnvelope(value:any,principal:string){if(!value?.projectId||!value?.tripId)throw Error('CACHE_SCOPE_REQUIRED');return {key:JSON.stringify([principal,value.projectId,value.tripId]),principal,projectId:value.projectId,tripId:value.tripId,value};}
+  private async scopedTrips():Promise<any[]>{
+    const principal=this.cachePrincipal();let rows:any[];
+    if(!this.isSupported())rows=[...this.getMemoryStore('legacyScopedTrips').values()].filter(r=>r.principal===principal);
+    else{const db=await this.getDB();rows=await new Promise<any[]>((resolve,reject)=>{const tx=db.transaction('legacyScopedTrips','readonly'),request=tx.objectStore('legacyScopedTrips').index('principal').getAll(principal);let result:any[]=[];request.onsuccess=()=>{result=request.result;};tx.oncomplete=()=>resolve(result);tx.onabort=()=>reject(tx.error);tx.onerror=()=>reject(tx.error);});}
+    if(this.cachePrincipal()!==principal)throw Error('CACHE_SCOPE_CHANGED');
+    for(const row of rows){if(row.principal!==principal||row.value?.projectId!==row.projectId||row.value?.tripId!==row.tripId)throw Error('CACHE_SCOPE_MISMATCH');this.getMemoryStore('legacyScopedTrips').set(row.key,row);}
+    return rows;
+  }
+  private async putScopedTrips(items:any[],expectedPrincipal?:string){
+    const principal=this.cachePrincipal(),rows=items.map(value=>this.tripEnvelope(value,principal));
+    if(expectedPrincipal&&principal!==expectedPrincipal)throw Error('CACHE_SCOPE_CHANGED');
+    if(this.isSupported()){const db=await this.getDB();if(this.cachePrincipal()!==principal)throw Error('CACHE_SCOPE_CHANGED');await new Promise<void>((resolve,reject)=>{const tx=db.transaction('legacyScopedTrips','readwrite');for(const row of rows)tx.objectStore('legacyScopedTrips').put(row);tx.oncomplete=()=>resolve();tx.onabort=()=>reject(tx.error);tx.onerror=()=>reject(tx.error);});}
+    for(const row of rows)this.getMemoryStore('legacyScopedTrips').set(row.key,row);
+    if(this.cachePrincipal()!==principal)throw Error('CACHE_SCOPE_CHANGED');
+  }
 
   private isSupported(): boolean {
     return typeof window !== 'undefined' && typeof window.indexedDB !== 'undefined';
@@ -59,6 +80,7 @@ export class IndexedDBService {
 
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
+        if(!db.objectStoreNames.contains('legacyScopedTrips')){const store=db.createObjectStore('legacyScopedTrips',{keyPath:'key'});store.createIndex('principal','principal',{unique:false});}
 
         // Additive U07 stores. Never reinterpret or delete legacy records.
         for (const name of ['sqlCommands','sqlCache','sqlControl']) {
@@ -157,6 +179,7 @@ export class IndexedDBService {
   // ---------------- Generic CRUD Operations ---------------- //
 
   public async getAll<T>(storeName: string): Promise<T[]> {
+    if(storeName==='trips')return (await this.scopedTrips()).map(r=>r.value) as T[];
     if (!this.isSupported()) {
       return Array.from(this.getMemoryStore(storeName).values()) as T[];
     }
@@ -171,7 +194,8 @@ export class IndexedDBService {
     });
   }
 
-  public async getById<T>(storeName: string, key: string): Promise<T | undefined> {
+  public async getById<T>(storeName: string, key: string, projectId?:string): Promise<T | undefined> {
+    if(storeName==='trips'){const rows=(await this.scopedTrips()).filter(r=>r.tripId===key&&(!projectId||r.projectId===projectId));if(rows.length>1)throw Error('CACHE_PROJECT_REQUIRED');return rows[0]?.value;}
     const memVal = this.getMemoryStore(storeName).get(key) as T | undefined;
     if (!this.isSupported()) {
       return memVal;
@@ -188,25 +212,29 @@ export class IndexedDBService {
           const k = this.getItemKey(storeName, result);
           this.getMemoryStore(storeName).set(k, result);
         }
-        resolve(result !== undefined ? result : memVal);
+        if(['outbox','legacyScopedTrips'].includes(storeName)&&result===undefined)this.getMemoryStore(storeName).delete(key);
+        resolve(['outbox','legacyScopedTrips'].includes(storeName)?result:result !== undefined ? result : memVal);
       };
       request.onerror = () => reject(request.error);
     });
   }
 
-  public getSync<T>(storeName: string, key: string): T | undefined {
+  public getSync<T>(storeName: string, key: string, projectId?:string): T | undefined {
+    if(storeName==='trips'){const principal=this.cachePrincipal(),rows=[...this.getMemoryStore('legacyScopedTrips').values()].filter(r=>r.principal===principal&&r.tripId===key&&(!projectId||r.projectId===projectId));if(rows.length>1)throw Error('CACHE_PROJECT_REQUIRED');return rows[0]?.value;}
     return this.getMemoryStore(storeName).get(key) as T | undefined;
   }
 
   public getAllSync<T>(storeName: string): T[] {
+    if(storeName==='trips'){const principal=this.cachePrincipal();return [...this.getMemoryStore('legacyScopedTrips').values()].filter(r=>r.principal===principal).map(r=>r.value);}
     return Array.from(this.getMemoryStore(storeName).values()) as T[];
   }
 
-  public async put<T>(storeName: string, value: T): Promise<void> {
+  public async put<T>(storeName: string, value: T,expectedPrincipal?:string): Promise<void> {
+    if(storeName==='trips')return this.putScopedTrips([value],expectedPrincipal);
     const k = this.getItemKey(storeName, value);
-    this.getMemoryStore(storeName).set(k, value);
 
     if (!this.isSupported()) {
+      this.getMemoryStore(storeName).set(k,value);
       return;
     }
     const db = await this.getDB();
@@ -215,16 +243,18 @@ export class IndexedDBService {
       const store = transaction.objectStore(storeName);
       const request = store.put(value);
 
-      request.onsuccess = () => resolve();
+      transaction.oncomplete = () => {this.getMemoryStore(storeName).set(k,value);resolve();};
+      transaction.onabort=()=>reject(transaction.error||new Error('INDEXEDDB_WRITE_ABORTED'));
       request.onerror = () => reject(request.error);
     });
   }
 
-  public async putMany<T>(storeName: string, items: T[]): Promise<void> {
+  public async putMany<T>(storeName: string, items: T[],expectedPrincipal?:string): Promise<void> {
+    if(storeName==='trips')return this.putScopedTrips(items,expectedPrincipal);
     const s = this.getMemoryStore(storeName);
-    items.forEach(item => s.set(this.getItemKey(storeName, item), item));
 
     if (!this.isSupported()) {
+      items.forEach(item=>s.set(this.getItemKey(storeName,item),item));
       return;
     }
     const db = await this.getDB();
@@ -234,15 +264,17 @@ export class IndexedDBService {
 
       items.forEach((item) => store.put(item));
 
-      transaction.oncomplete = () => resolve();
+      transaction.oncomplete = () => {items.forEach(item=>s.set(this.getItemKey(storeName,item),item));resolve();};
+      transaction.onabort=()=>reject(transaction.error||new Error('INDEXEDDB_WRITE_ABORTED'));
       transaction.onerror = () => reject(transaction.error);
     });
   }
 
-  public async delete(storeName: string, key: string): Promise<void> {
-    this.getMemoryStore(storeName).delete(key);
+  public async delete(storeName: string, key: string, projectId?:string,expectedPrincipal?:string): Promise<void> {
+    if(storeName==='trips'){const principal=this.cachePrincipal();if(expectedPrincipal&&principal!==expectedPrincipal)throw Error('CACHE_SCOPE_CHANGED');const rows=(await this.scopedTrips()).filter(r=>r.tripId===key&&(!projectId||r.projectId===projectId));if(rows.length>1)throw Error('CACHE_PROJECT_REQUIRED');if(!rows.length)return;await this.delete('legacyScopedTrips',rows[0].key);if(this.cachePrincipal()!==principal)throw Error('CACHE_SCOPE_CHANGED');return;}
 
     if (!this.isSupported()) {
+      this.getMemoryStore(storeName).delete(key);
       return;
     }
     const db = await this.getDB();
@@ -251,12 +283,14 @@ export class IndexedDBService {
       const store = transaction.objectStore(storeName);
       const request = store.delete(key);
 
-      request.onsuccess = () => resolve();
+      transaction.oncomplete = () => {this.getMemoryStore(storeName).delete(key);resolve();};
+      transaction.onabort=()=>reject(transaction.error||new Error('INDEXEDDB_WRITE_ABORTED'));
       request.onerror = () => reject(request.error);
     });
   }
 
   public async clear(storeName: string): Promise<void> {
+    if(storeName==='trips'){const rows=await this.scopedTrips();for(const row of rows)await this.delete('legacyScopedTrips',row.key);return;}
     this.getMemoryStore(storeName).clear();
 
     if (!this.isSupported()) {
@@ -274,6 +308,7 @@ export class IndexedDBService {
   }
 
   public async count(storeName: string): Promise<number> {
+    if(storeName==='trips')return (await this.scopedTrips()).length;
     if (!this.isSupported()) {
       return this.getMemoryStore(storeName).size;
     }
@@ -311,7 +346,30 @@ export class IndexedDBService {
   }
 
   public async saveOutboxOperation(op: OutboxOperation): Promise<void> {
+    if(op.operationType==='TRIP_COMMAND'){await this.insertOutboxOperation(op);return;}
     return this.put<OutboxOperation>('outbox', op);
+  }
+  /** Atomic logical-identity reservation; retries cannot overwrite an ACK or
+   * another tab's frozen intent. No store/schema conversion is involved. */
+  public async insertOutboxOperation(op:OutboxOperation):Promise<OutboxOperation>{
+    const identity=frozenOutboxIdentity;
+    const check=(old:OutboxOperation|undefined)=>{if(old&&identity(old)!==identity(op))throw outboxIntentConflict(old,'OUTBOX_OPERATION_CONFLICT');return old||structuredClone(op);};
+    const reserve=(records:OutboxOperation[])=>{
+      if(!this.isCurrentPrincipal(op.userId))throw Error('AUTH_CONTEXT_CHANGED');
+      const sameId=records.find(old=>old.operationId===op.operationId);if(sameId)return check(sameId);
+      // Serial read/write reservation also fences simultaneous tabs. A new UI
+      // payload cannot replace an unresolved canonical operation for this resource.
+      const unresolved=records.filter(old=>old.operationType==='TRIP_COMMAND'&&old.projectId===op.projectId&&old.userId===op.userId&&(old.payload.tripId||null)===(op.payload.tripId||null)&&['PENDING','SENDING','AWAITING_RECEIPT'].includes(old.status)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt))[0];
+      if(unresolved&&identity(unresolved)!==identity(op))throw outboxIntentConflict(unresolved);
+      return unresolved||structuredClone(op);
+    };
+    if(!this.isSupported()){const records=[...this.getMemoryStore('outbox').values()];const result=op.operationType==='TRIP_COMMAND'?reserve(records):check(this.getMemoryStore('outbox').get(op.operationId));this.getMemoryStore('outbox').set(result.operationId,result);return structuredClone(result);}
+    const db=await this.getDB();return new Promise((resolve,reject)=>{
+      const tx=db.transaction('outbox','readwrite'),store=tx.objectStore('outbox'),request=op.operationType==='TRIP_COMMAND'?store.getAll():store.get(op.operationId);let result:OutboxOperation,error:unknown;
+      request.onsuccess=()=>{try{result=op.operationType==='TRIP_COMMAND'?reserve(request.result):check(request.result);if(op.operationType==='TRIP_COMMAND'?!request.result.some((old:OutboxOperation)=>old.operationId===result.operationId):!request.result)store.add(result);}catch(e){error=e;tx.abort();}};
+      tx.oncomplete=()=>{this.getMemoryStore('outbox').set(result.operationId,result);resolve(structuredClone(result));};
+      tx.onabort=()=>reject(error||tx.error||Error('INDEXEDDB_WRITE_ABORTED'));tx.onerror=()=>reject(error||tx.error);
+    });
   }
 
   public async updateOutboxStatus(
@@ -319,15 +377,26 @@ export class IndexedDBService {
     status: OutboxOperation['status'], 
     extra?: Partial<OutboxOperation>
   ): Promise<void> {
-    const existing = await this.getById<OutboxOperation>('outbox', operationId);
-    if (!existing) return;
-
-    const updated: OutboxOperation = {
-      ...existing,
-      status,
-      ...extra,
+    const update=(existing:OutboxOperation|undefined)=>{
+      if(!existing)return undefined;
+      if(!this.isCurrentPrincipal(existing.userId))throw Error('AUTH_CONTEXT_CHANGED');
+      if(existing.operationType==='TRIP_COMMAND'&&frozenOutboxIdentity({...existing,...extra})!==frozenOutboxIdentity(existing))throw outboxIntentConflict(existing,'OUTBOX_OPERATION_CONFLICT');
+      // Another tab's confirmed receipt cannot be downgraded by a stale worker.
+      if(existing.status==='SYNCED')return existing;
+      return {...existing,...extra,status,operationId:existing.operationId,projectId:existing.projectId,userId:existing.userId,...(existing.operationType==='TRIP_COMMAND'?{payload:existing.payload,operationType:existing.operationType,deviceId:existing.deviceId,createdAt:existing.createdAt,dependsOnOperationId:existing.dependsOnOperationId}:{})};
     };
-    return this.put<OutboxOperation>('outbox', updated);
+    if(!this.isSupported()){
+      const next=update(this.getMemoryStore('outbox').get(operationId));
+      if(next)this.getMemoryStore('outbox').set(operationId,next);return;
+    }
+    const db=await this.getDB();
+    await new Promise<void>((resolve,reject)=>{
+      const tx=db.transaction('outbox','readwrite'),store=tx.objectStore('outbox'),request=store.get(operationId);
+      let result:OutboxOperation|undefined,error:unknown;
+      request.onsuccess=()=>{try{result=update(request.result);if(result)store.put(result);}catch(e){error=e;tx.abort();}};
+      tx.oncomplete=()=>{if(result)this.getMemoryStore('outbox').set(operationId,result);resolve();};
+      tx.onabort=()=>reject(error||tx.error||Error('INDEXEDDB_WRITE_ABORTED'));tx.onerror=()=>reject(error||tx.error);
+    });
   }
 
   // ---------------- Conflicts Storage Operations ---------------- //

@@ -8,7 +8,7 @@ import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { Layers, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
-import { RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
+import { acceptedRosterIdentity, RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 
 export interface ProjectMaterialOption {
   materialId: string;
@@ -54,7 +54,7 @@ export const checkMaterialResolutionReadiness = (batch: UnifiedImportBatch): boo
 
   const hasMissingOrUnresolvedRow = activeRows.some((r) => {
     const materialRes = r.entityResolutions?.material;
-    return !materialRes?.matchedId || materialRes.status === 'UNRESOLVED' || materialRes.status === 'CONFLICT';
+    return !acceptedRosterIdentity(materialRes, 'MATERIAL');
   });
   if (hasMissingOrUnresolvedRow) return false;
 

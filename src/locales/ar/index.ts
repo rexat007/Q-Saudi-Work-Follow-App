@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const arTranslations: TranslationDictionary = {
+  "operations.scale.read_unavailable": "لم يُضبط اتصال بالميزان. أدخل القراءة المقاسة يدوياً.",
+  "operations.unloading.local_preparation": "سُجّل تجهيز التفريغ محلياً. يتطلب الإكمال تأكيد الخادم.",
+  "operations.exception.review_note": "ملاحظة المراجعة",
+  "operations.exception.read_unavailable": "تعذر التحقق من الاستثناءات. اختر مشروعاً وأعد الاتصال.",
+  "operations.exception.decision_confirmed": "أكد الخادم تسجيل قرار الاستثناء.",
+  "operations.exception.decision_unconfirmed": "القرار غير مؤكد. أعد الاتصال وتحقق قبل إعادة المحاولة.",
+  "offline.recovery.awaiting_receipt": "النتيجة غير مؤكدة — بانتظار إيصال الخادم",
   "auth.continuity.title": "جارٍ التحقق من اتصال الحساب",
   "auth.continuity.message": "تعذر التحقق مؤقتًا. هويتك وعملك محفوظان، والإجراءات متوقفة حتى استعادة التحقق.",
   "import.bulk.title": "مراجعة الهويات المجمعة",
@@ -19,7 +26,7 @@ export const arTranslations: TranslationDictionary = {
   "import.assurance.search": "ابحث بالاسم أو المعرّف أو الهوية",
   "import.assurance.previous": "السابق",
   "import.assurance.next": "التالي",
-  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.page": "العناصر {from}–{to} / {total}",
   "import.assurance.options": "ضيّق البحث للعثور على هوية أخرى ({count} معروضة)",
   "gws.host_unavailable": "خدمة التطبيق غير متاحة مؤقتًا. أعد المحاولة عند عودتها.",
   "gws.google_service_unavailable": "خدمة Google غير متاحة مؤقتًا. الربط والعمل المعلق محفوظان.",

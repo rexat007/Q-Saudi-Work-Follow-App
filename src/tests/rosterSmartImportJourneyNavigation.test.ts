@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { expectCanonicalBatch4Source } from './batch4I18nTestSupport';
 import { dictionaries } from '../locales';
 import { resolveTranslation } from '../i18n';
@@ -88,7 +89,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('15. Reset clears import batch and session data completely', () => {
     const fnIdx = wizardContent.indexOf('const handleResetRosterImport = () => {');
-    const fnBlock = wizardContent.slice(fnIdx, fnIdx + 1200);
+    const fnBlock = wizardContent.slice(fnIdx, wizardContent.indexOf('const ', fnIdx + 40));
     expect(fnBlock).toContain('setImportBatch(null)');
     expect(fnBlock).toContain('setRosterSelectedFile(null)');
     expect(fnBlock).toContain('setRosterBuffer(null)');
@@ -100,7 +101,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   // C. GATES & FAIL-CLOSED CHECKS
   it('16. Zero Carrier groups cannot enter Material layer', () => {
-    expect(wizardContent).toContain('if (carrierGroups.length === 0)');
+    expect(wizardContent).toContain('if (carrierGroups.length === 0 && !projectRelationshipContext?.importResolution)' );
     expectCanonicalBatch4Source(wizardContent, 'projects.batch4.carrier_groups_missing');
   });
 
@@ -109,7 +110,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   });
 
   it('18. Zero Material groups block progression to Driver/Truck', () => {
-    expect(wizardContent).toContain('if (materialGroups.length === 0)');
+    expect(wizardContent).toContain('if (materialGroups.length === 0 && !projectRelationshipContext?.importResolution)' );
   });
 
   it('19. Unresolved Material groups block progression to Driver/Truck', () => {
@@ -117,7 +118,7 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   });
 
   it('20. Zero Driver/Truck groups block progression to Final Review', () => {
-    expect(wizardContent).toContain('if (driverTruckGroups.length === 0)');
+    expect(wizardContent).toContain('if (driverTruckGroups.length === 0 && !projectRelationshipContext?.importResolution)' );
     expectCanonicalBatch4Source(wizardContent, 'projects.batch4.final_review_groups_missing');
   });
 
@@ -128,28 +129,28 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   // D. REAL reviewGroups CONTRACT (NO BATCH.REVIEWGROUPS ASSUMPTION)
   it('22. RosterBatchReviewService derives groups dynamically when batch has NO reviewGroups property', () => {
-    const batchWithoutProperty: UnifiedImportBatch = {
+    const batchWithoutProperty: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'BATCH-NO-PROP',
       projectId: 'PRJ-1',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'BATCH-NO-PROP', sourceType: 'EXCEL' },
       totalRows: 1,
       validRows: 1,
       errorRows: 0,
       warningRows: 0,
       requiresReviewRows: 0,
       rows: [
-        {
+        {validationIssues: [],
           rowNumber: 1,
           raw: { carrier: 'Carrier A', driverName: 'Driver X', truckPlate: '1234' },
           canonical: { carrierName: 'Carrier A', driverName: 'Driver X', truckPlate: '1234' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-1', matchedName: 'Carrier A', resolutionType: 'AUTO' },
-            driver: { matchedId: 'DRV-1', matchedName: 'Driver X', resolutionType: 'AUTO' },
-            truck: { matchedId: 'TRK-1', matchedName: '1234', resolutionType: 'AUTO' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'Carrier A',  },
+            driver: {entityType:'DRIVER',originalValue:'',confidence:0,isExact:false, matchedId: 'DRV-1', matchedName: 'Driver X',  },
+            truck: {entityType:'TRUCK',originalValue:'',confidence:0,isExact:false, matchedId: 'TRK-1', matchedName: '1234',  },
           },
           status: 'VALID',
           reviewStatus: 'accepted',
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -170,7 +171,8 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
 
   it('23-24. C5 Orchestration derives review groups via RosterBatchReviewService in wizard', () => {
     expect(wizardContent).toContain('const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch)');
-    expect(wizardContent).toContain('const revalidatedGroups = RosterBatchReviewService.getBatchReviewGroups(revalidated)');
+    expect(wizardContent).toContain('const intent = buildRosterCanonicalIntent(revalidated, pipelineCtx)');
+    expect(wizardContent).toContain("reconcileRosterResumeStage('FINAL_REVIEW', revalidated, intent)");
     expect(finalReviewLayerContent).toContain('const batchGroups = RosterBatchReviewService.getBatchReviewGroups(importBatch)');
   });
 
@@ -269,8 +271,9 @@ describe('C1–C5 Smart Import — Deep Workflow Navigation & UX Integrity Conve
   // H. RESET & NEW SESSION CLEANLINESS
   it('37-41. Selecting new file clears prior session state completely before start', () => {
     const procIdx = wizardContent.indexOf('const processRosterFile = async');
-    const procBlock = wizardContent.slice(procIdx, procIdx + 400);
-    expect(procBlock).toContain('handleResetRosterImport()');
+    const procBlock = wizardContent.slice(procIdx, wizardContent.indexOf('const handleApproveRoster', procIdx));
+    expect(procBlock).toContain('if (durableSessionRef.current && !await handleCancelRosterImport()) return;');
+    expect(procBlock).toContain('if(durableSessionRef.current)');
     expect(procBlock).toContain('setRosterSelectedFile(file)');
   });
 });
@@ -352,78 +355,78 @@ describe('Runtime Behavioral Race & Navigation Safety Suite', () => {
   });
 
   it('D. Final Review with UNRESOLVED_CARRIER classifies as CARRIER blocker', () => {
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'B1',
       projectId: 'P1',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'B1', sourceType: 'EXCEL' },
       totalRows: 1, validRows: 0, errorRows: 1, warningRows: 0, requiresReviewRows: 1,
       rows: [
-        {
+        {validationIssues: [],
           rowNumber: 1,
           raw: { carrier: 'Unknown Carrier' },
           canonical: { carrierName: 'Unknown Carrier' },
           entityResolutions: {
-            carrier: { matchedId: '', matchedName: '', resolutionType: 'AUTO', status: 'UNRESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: '', matchedName: '',   },
           },
           status: 'ERROR',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
-      issues: [{ code: 'UNRESOLVED_CARRIER', message: 'Carrier unresolved', severity: 'BLOCKING', blocking: true, field: 'carrierId' }],
-      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'BLOCKED',
+      issues: [{ issueId: 'unresolved-fixture', row: 1, resolvable: true, code: 'UNRESOLVED_CARRIER', message: 'Carrier unresolved', severity: 'BLOCKING', blocking: true, field: 'carrierId' }],
+      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'AWAITING_REVIEW',
     };
 
     expect(classifyFinalReviewBlocker(batch)).toBe('CARRIER');
   });
 
   it('E. Final Review with UNRESOLVED_MATERIAL classifies as MATERIAL blocker', () => {
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'B2',
       projectId: 'P1',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'B2', sourceType: 'EXCEL' },
       totalRows: 1, validRows: 0, errorRows: 1, warningRows: 0, requiresReviewRows: 1,
       rows: [
-        {
+        {validationIssues: [],
           rowNumber: 1,
           raw: { carrier: 'Car A', material: 'Unk Material' },
           canonical: { carrierName: 'Car A', materialName: 'Unk Material' },
           entityResolutions: {
-            carrier: { matchedId: 'C1', matchedName: 'Car A', resolutionType: 'AUTO', recommendation: 'ACCEPT', matchMethod: 'EXACT', status: 'RESOLVED' },
-            material: { matchedId: '', matchedName: '', resolutionType: 'AUTO', status: 'UNRESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'C1', matchedName: 'Car A',  recommendation: 'ACCEPT', matchMethod: 'EXACT',  },
+            material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: '', matchedName: '',   },
           },
           status: 'ERROR',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
-      issues: [{ code: 'UNRESOLVED_MATERIAL', message: 'Material unresolved', severity: 'BLOCKING', blocking: true, field: 'materialId' }],
-      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'BLOCKED',
+      issues: [{ issueId: 'unresolved-fixture', row: 1, resolvable: true, code: 'UNRESOLVED_MATERIAL', message: 'Material unresolved', severity: 'BLOCKING', blocking: true, field: 'materialId' }],
+      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'AWAITING_REVIEW',
     };
 
     expect(classifyFinalReviewBlocker(batch)).toBe('MATERIAL');
   });
 
   it('F. Final Review with DRIVER_CARRIER_CONFLICT classifies as DRIVER_TRUCK blocker', () => {
-    const batch: UnifiedImportBatch = {
+    const batch: UnifiedImportBatch = {validationStatus: 'PENDING', committedRows: 0, operationId: 'OP-TYPED-FIXTURE', createdAt: '2026-01-01T00:00:00.000Z', createdBy: 'fixture-reviewer',
       importBatchId: 'B3',
       projectId: 'P1',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: { importBatchId: 'B3', sourceType: 'EXCEL' },
       totalRows: 1, validRows: 0, errorRows: 1, warningRows: 0, requiresReviewRows: 1,
       rows: [
-        {
+        {validationIssues: [],
           rowNumber: 1,
           raw: { carrier: 'Car A', material: 'Mat A', driverName: 'Drv X' },
           canonical: { carrierName: 'Car A', materialName: 'Mat A', driverName: 'Drv X' },
           entityResolutions: {
-            carrier: { matchedId: 'C1', matchedName: 'Car A', resolutionType: 'AUTO', recommendation: 'ACCEPT', matchMethod: 'EXACT', status: 'RESOLVED' },
-            material: { matchedId: 'M1', matchedName: 'Mat A', resolutionType: 'AUTO', recommendation: 'ACCEPT', matchMethod: 'EXACT', status: 'RESOLVED' },
-            driver: { matchedId: '', matchedName: '', resolutionType: 'AUTO', status: 'UNRESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'C1', matchedName: 'Car A',  recommendation: 'ACCEPT', matchMethod: 'EXACT',  },
+            material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'M1', matchedName: 'Mat A',  recommendation: 'ACCEPT', matchMethod: 'EXACT',  },
+            driver: {entityType:'DRIVER',originalValue:'',confidence:0,isExact:false, matchedId: '', matchedName: '',   },
           },
           status: 'ERROR',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
-      issues: [{ code: 'DRIVER_CARRIER_CONFLICT', message: 'Driver conflict', severity: 'BLOCKING', blocking: true, field: 'driverName' }],
-      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'BLOCKED',
+      issues: [{ issueId:'driver-carrier-conflict',row:1,resolvable:true,code: 'DRIVER_CARRIER_CONFLICT', message: 'Driver conflict', severity: 'BLOCKING', blocking: true, field: 'driverName' }],
+      auditTrail: [], currentStage: 'REVIEW', commitStatus: 'AWAITING_REVIEW',
     };
 
     expect(classifyFinalReviewBlocker(batch)).toBe('DRIVER_TRUCK');

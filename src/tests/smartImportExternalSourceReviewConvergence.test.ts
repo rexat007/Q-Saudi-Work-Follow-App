@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GoogleSheetsPipelineService } from '../services/import/googleSheetsPipeline.service';
 import { GoogleDrivePipelineService } from '../services/import/googleDrivePipeline.service';
@@ -75,7 +76,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
           tareWeight: 10000,
         },
         validationIssues: [
-          {
+          {row: 1,blocking: false,
             issueId: 'ISSUE-UNKNOWN-CARRIER',
             code: 'UNKNOWN_CARRIER',
             field: 'carrier',
@@ -160,7 +161,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
             ],
           },
         },
-      },
+      } satisfies ImportRow,
     ],
     issues: [],
     operationId: 'OP-6A-TEST',
@@ -207,7 +208,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
           tareWeight: 10000,
         },
         validationIssues: [
-          {
+          {row: 1,blocking: false,
             issueId: 'ISSUE-UNKNOWN-CARRIER',
             code: 'UNKNOWN_CARRIER',
             field: 'carrier',
@@ -292,7 +293,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
             ],
           },
         },
-      },
+      } satisfies ImportRow,
     ],
     issues: [],
     operationId: 'OP-6A-TEST',
@@ -998,7 +999,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
   // =========================================================================
   describe('Explicit Canonical Entity Creation Coverage', () => {
     it('43. Google Sheets carrier create uses entityResolutionCommandService', async () => {
-      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({
+      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({entityType:'CARRIER',matchMethod:'EXACT',isAuthorized:true,riskLevel:'LOW',relationshipStatus:'VALID',
         matchedId: 'CAR-CREATED-01',
         matchedName: 'ناقل مجدول جديد',
         sourceValue: 'ناقل مجدول',
@@ -1017,7 +1018,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
     });
 
     it('44. Google Sheets material create uses entityResolutionCommandService', async () => {
-      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createMaterial').mockResolvedValueOnce({
+      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createMaterial').mockResolvedValueOnce({entityType:'MATERIAL',matchMethod:'EXACT',isAuthorized:true,riskLevel:'LOW',relationshipStatus:'VALID',
         matchedId: 'MAT-CREATED-01',
         matchedName: 'مادة جديدة',
         sourceValue: 'مادة مجدولة',
@@ -1048,7 +1049,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
     });
 
     it('47. Google Drive carrier create uses entityResolutionCommandService', async () => {
-      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({
+      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createCarrier').mockResolvedValueOnce({entityType:'CARRIER',matchMethod:'EXACT',isAuthorized:true,riskLevel:'LOW',relationshipStatus:'VALID',
         matchedId: 'CAR-GDRV-01',
         matchedName: 'ناقل درايف منشأ',
         sourceValue: 'ناقل درايف',
@@ -1067,7 +1068,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
     });
 
     it('48. Google Drive material create uses entityResolutionCommandService', async () => {
-      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createMaterial').mockResolvedValueOnce({
+      const spyCreate = vi.spyOn(entityResolutionCommandService, 'createMaterial').mockResolvedValueOnce({entityType:'MATERIAL',matchMethod:'EXACT',isAuthorized:true,riskLevel:'LOW',relationshipStatus:'VALID',
         matchedId: 'MAT-GDRV-01',
         matchedName: 'مادة درايف',
         sourceValue: 'مادة درايف',
@@ -1097,7 +1098,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
 
     it('51. returned server carrier ID reaches resolvedValues', () => {
       const batch = createGoogleSheetsBatch();
-      const created = {
+      const created = {originalValue: 'ناقل محلي',
         matchedId: 'CAR-SRV-777',
         matchedName: 'ناقل خادم معتمد',
         sourceValue: 'ناقل محلي',
@@ -1116,7 +1117,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
 
     it('52. returned server truck ID reaches resolvedValues', () => {
       const batch = createGoogleSheetsBatch();
-      const created = {
+      const created = {originalValue: '1111 T R K',
         matchedId: 'TRK-SRV-888',
         matchedName: '1111 T R K',
         sourceValue: '1111 T R K',
@@ -1135,7 +1136,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
 
     it('53. returned server driver ID reaches resolvedValues', () => {
       const batch = createGoogleSheetsBatch();
-      const created = {
+      const created = {originalValue: 'سائق محلي',
         matchedId: 'DRV-SRV-999',
         matchedName: 'سائق خادم',
         sourceValue: 'سائق محلي',
@@ -1154,7 +1155,7 @@ describe('Unit 6A — External Source Review Convergence Test Suite (Expanded 64
 
     it('54. returned server material ID reaches resolvedValues', () => {
       const batch = createGoogleSheetsBatch();
-      const created = {
+      const created = {originalValue: 'مادة محلية',
         matchedId: 'MAT-SRV-555',
         matchedName: 'مادة خادم',
         sourceValue: 'مادة محلية',

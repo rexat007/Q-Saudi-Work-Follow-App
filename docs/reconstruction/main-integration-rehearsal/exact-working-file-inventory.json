@@ -1,0 +1,1134 @@
+{
+  "note": "All changed files including evidence; self hash omitted. Final high-confidence scan found no token/private-key patterns including decompressed evidence.",
+  "totalFiles": 282,
+  "files": [
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/README.md",
+      "sha256": "adcc25d854260f1ec0a1df38c9fc875e4f6a6edada6a700ee16e2a13ab906869"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/checkpoint.json",
+      "sha256": "3a7a259946ee91f58d5867d7efccb3dc355fe69dc9e2c007451bb6f5704b9b03"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/connected-workflow-comparison.json",
+      "sha256": "dfb143a8b037927e3ad14e73108b1912795936a18694baaf4f72ea8ef755f985"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/credential-artifact-scan.json",
+      "sha256": "3bbd9451d60d1afeba9ef3bd9263c40f065741b47643ea53bb9b73cf8569e06e"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/emulator-files.json",
+      "sha256": "6e9069c1e0d9c41cbfb610409f2c886445c4cf8adbb1ded72c0cc5734f65fb1a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/exact-source-file-inventory.json",
+      "sha256": "868e8ee31250e540c1e6794db52552de44392b8ad2567abbd416e63efe424a77"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/exact-working-file-inventory.json",
+      "sha256": null
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/final-verification.json",
+      "sha256": "45e614d7c52d348f2e37977cadb630ede1ff614120dae956887b6c6caa548499"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/historical-behavior-comparison.json",
+      "sha256": "82171312bbb00b126ecdc4ebfa36f05a75702e378f8eb3b02135cc2e28f2092a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/historical-files.json",
+      "sha256": "06b05650bebef968c163f30edb379e04dccb9b1a81fbe1bfabd999c85af353c4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/isolated-main-source.patch",
+      "sha256": "45ba2d6303009ba42fe512ee5e42de030cd0129a224175a4ecc592fae73d9944"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-baseline-typescript.log.gz",
+      "sha256": "607125e10e3e1287f66644ef03bd15624ccf99ad18fe0778a1f7dac2cd625de3"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-candidate-typescript-1.log.gz",
+      "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-diagnostics.json.gz",
+      "sha256": "89c1c28467b64d9750a76496373b52872de793eda3ff23e434e6e9bf5c4d9f1a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-exit.json.gz",
+      "sha256": "b9d1a74ecaae6815cce0025a264d47c0dd6fce2f2d38b7d7b94e5c6e56776f33"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-reporter.mjs.txt",
+      "sha256": "c01f1b634b02691b795881792806722b2c2c929b995bf3436cd6f77e2d617426"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-reviewed-exit.json.gz",
+      "sha256": "0d855c73992efe17744983530ce0f806a52c40ada7c971a4e1561452da0228f5"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-reviewed-reporter.mjs.txt",
+      "sha256": "ddd89dfc6cf19e137561af383a61d1d87f0134a03eb71b08c11a68183c46a1bd"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-reviewed-run.mjs.txt",
+      "sha256": "af56df8d0d137f5128e576a5eb29312e4da103f4cfffac602bb9f533f927eec2"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser-run.mjs.txt",
+      "sha256": "a1eadda413a644c988937e726f5053768142c0c48b79f29042e99b5657963ed4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser.json.gz",
+      "sha256": "d6de941f7a199dc72e57ce05aaba5472a88bc202060cc1bae75929282712c697"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-connected-browser.log.gz",
+      "sha256": "95110a74aef540aac20cb525a43d564da14b5a1bf7d42ca26c5c163fb81ef9c4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-emulator-ownership.json.gz",
+      "sha256": "055b6ce607857f287b96351a7e5a03a53c773bba6ade6c70ce25c48499889313"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-auth-emulator.log.gz",
+      "sha256": "f079b2d40039e493ca4e748d135441bf6269f386bf9f383b12539d7829dc55b0"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser-diagnostics.json.gz",
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser-exit.json.gz",
+      "sha256": "790d48dcff7c07788592c861d9e4e07e8e0c1cd53ec04732c472b7a86127cc15"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser-reporter.mjs.txt",
+      "sha256": "ed376e125e03492d1c94096f945570e71f85a9c08dede4facea3d6221d1d70f6"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser-run.mjs.txt",
+      "sha256": "55b9152dbbab28dfd317cc033b1ea7676db0e7c01cd3869ee33fb232b519f95d"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser.json.gz",
+      "sha256": "8d524907b5b1a1cc98daa7d94470bb45fff7c68a7f3ae75a8bb38b0089c4b7c5"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-connected-browser.log.gz",
+      "sha256": "78ad6c1f6a8713152874449ae8663a401f7f31881abb69c7f1a74f90f7d94701"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-emulator-ownership.json.gz",
+      "sha256": "e04a0ef459a474929eeada61376039f357271c06c201e1dbea8461fc041b5cec"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-firestore-emulator.log.gz",
+      "sha256": "1a992dfa50217ff6231652d1c029df7f5363f6526310520e7064dd1262c34b33"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-final-release-run.mjs.txt",
+      "sha256": "fbbc33d898bda13872406e5671b87bfa6e4bf83600a9a1b483e86de75e86d415"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-diagnostics.json.gz",
+      "sha256": "89c1c28467b64d9750a76496373b52872de793eda3ff23e434e6e9bf5c4d9f1a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-exit.json.gz",
+      "sha256": "abf6a88f1322199f9c03b7c7fd45c17cab66decdd1067c419688a6b4892ec875"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reporter.mjs.txt",
+      "sha256": "72a1a398216534122e20fc49360e7c90453f5c5c22c0e4f76445706b6bfa95c5"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed-diagnostics.json.gz",
+      "sha256": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed-exit.json.gz",
+      "sha256": "16e4df2486513303eea85c1b9ad05e4af0ac576a867faf7dc3e2ad843716e8be"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed-reporter.mjs.txt",
+      "sha256": "8467d9230717f3da2bcf0605744046fbf55b2364679956c5f34a046a8a4de675"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed-run.mjs.txt",
+      "sha256": "36663a52c30a700ff856d4c9c0e44ecd1c64e0a4c21f21d71b1b73076e575f80"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed.json.gz",
+      "sha256": "b2c991d803307cc06e860c5218a88e263ffff3ca32e8f7dfcbf2cc7ab72dce5d"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-reviewed.log.gz",
+      "sha256": "803da986ae2c95eb75d4dbabefc2c97ce553bd3712cddc5da3fc1d1c55de8828"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical-run.mjs.txt",
+      "sha256": "475a0889a1a408b877e07f18da31782965e23d3513d40baaaec4f18b9d447bfd"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical.json.gz",
+      "sha256": "21645d8989eaaaa31e2490c6993234011e8ba7442a9bc00c36ee8ea3dbb4fe72"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-historical.log.gz",
+      "sha256": "96e3180ad930cac126cfdd50e3f7e32956250d89ccc69d859e38ff61f07934b9"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-map.mjs.txt",
+      "sha256": "abffbe58941a670cfffe186abb1c39cb1d923d67a3b25c8b0385827fa33df38e"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-npm-run.mjs.txt",
+      "sha256": "dc84197854f974755e3781712eb2571bc37fd5298e87bc69d952dc6a011c93ca"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-npm-test-exit.json.gz",
+      "sha256": "ca28f117d5afbc5493252b8bde1675b1c7c114b8d5e868ac899b717269e95a09"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-npm-test.log.gz",
+      "sha256": "71928e0de3eec3da78149632ffc301eb63f4e11e1febb83dd97ea33484006cda"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-release-beta2-exit.json.gz",
+      "sha256": "3317fe2399fa1e59afad841a10a6b918da8f5e83a3750e275905fe43390ccf0d"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-release-beta2-final-exit.json.gz",
+      "sha256": "c4837d9aece948fb7a0b5372465911f14dbe827b339a235d0ee2d64ce79153f0"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-release-beta2-final.log.gz",
+      "sha256": "6a7977875abe97835bf9c970fcd51cf2775b6c15e16472fc6216672aa9c4b880"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-release-beta2.log.gz",
+      "sha256": "e94875b8ff8f4914bff746ad06994388ee621bfe8a1d7ba78a85772b9b6c78c1"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/main-rehearsal-transfer.py.txt",
+      "sha256": "42da99677c119a0ac0257b24a1435e5ca573fd9ddf23477cad9cccd73f58e417"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/newline-harness-comparison.json",
+      "sha256": "5ffb1ee955fcfd536827faad5171867c8031543ce44d84a4fcdec4feafeae313"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/operational-form-dependency-review.json",
+      "sha256": "5a25845b8a6398a841a81655513dbe2835f24701c49fc6100bfe89df4c5569e4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/owned-service-ports-final.json",
+      "sha256": "d7e8241774ad13ba0c46f7afa6312de18558ab455af607cbf0f3e41f6703f5dc"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/preflight.json",
+      "sha256": "f26f1fff709e9e988f41c1b9818bae3e53fb7fe4617c1c5ab1d4d2fb752820e5"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/preservation-current.json",
+      "sha256": "ba568d6bf39d4e881c8c5a9a3d877bc3348dfbc734cb99b660c987cbbffb1033"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/preservation-final.json",
+      "sha256": "0d61b28366d07c2f4677041e039febf254c80e85e9b924389008a842eaf313ce"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/recomputed-runtime-dependencies.json",
+      "sha256": "b4b37f9ed09d98644cb45fcf82353e3bc4a1b57de1ba212a12255c4c6f463392"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reconciled-dependencies.json",
+      "sha256": "f61d5ee3a04d879e1e2c0b25550a1435cdb22c034706c4de765d85dedc05da5f"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/00-server__app.ts.patch",
+      "sha256": "e9227c1ab269ab52acd4e5101449666434e82cb7359030ed11dd9d0c6d0bb449"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/01-server__tripCommandHandler.ts.patch",
+      "sha256": "56c613774b45b0685cfbb3d9aafdac73b05f9a280ce26f0230b68640b28f69f6"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/02-src__App.tsx.patch",
+      "sha256": "6e6dbf59d090825f8d2be49d99eec9b74748569637e24dfe0e445bfff80e0245"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/03-src__components__field__AdaptiveOperationsView.tsx.patch",
+      "sha256": "97bab909af3d8f1c7850afb6f3bdb60677f7234354a819c7c14da093653fb8fa"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/04-src__components__field__DriverView.tsx.patch",
+      "sha256": "1a294614354fb6a245ca7e6b442f63f8e0df28d18806fa409b7c837bcf553ccf"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/05-src__components__field__FieldSupervisionView.tsx.patch",
+      "sha256": "badd13409ab01db7d6b6c692a37e3209b884a0aae6f0a0f6fd038e77912d8e8e"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/06-src__components__field__LoadingOperatorView.tsx.patch",
+      "sha256": "8925dbc6fe600d06ae9733254fb9cac6fee32d61dc9e422fed076a83c4a43736"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/07-src__components__field__SqlTripWorkstation.tsx.patch",
+      "sha256": "464fb1c1b253eee8b81de605d2e8057f742deaf71cbd4edc9f074b8188e7fce2"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/08-src__components__field__UnloadingOperatorView.tsx.patch",
+      "sha256": "1c9b64f9ffb8a1e8b6455dec59784622c99386703deb7b93bbb5b1d98b523ccc"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/09-src__components__import__RosterCarrierResolutionLayer.tsx.patch",
+      "sha256": "d4875ccdc5557f27d44bc913cae5fc3b0d9710729ac33d854eb810dea8e4e3ba"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/10-src__components__import__RosterMaterialResolutionLayer.tsx.patch",
+      "sha256": "c243029bcb28802b1c5a381265ab22eb7c3fd42590ffa2dfb02f3e0daae7cab6"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/11-src__components__importCenter__GoogleDriveImportSection.tsx.patch",
+      "sha256": "f64c08bdb70851e17a6fea1214aabfe95ecfc4062a7b21aec43136c01def7c34"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/12-src__components__importCenter__GoogleSheetsImportSection.tsx.patch",
+      "sha256": "e473c67075641862a006cc851c1006c75a810cf46d133308e7255fe4183e61a2"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/13-src__components__offline__OutboxDrawer.tsx.patch",
+      "sha256": "2a5777db83b843d9b718f681f998ca41cab9e8c72ae4d6216da1084dbcbe01c4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/14-src__components__pricing__PricingEngineView.tsx.patch",
+      "sha256": "260b24ef19fbbf18053a92191f2f9e1a55b7fdb46f2fe9184b3d52013eb61634"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/15-src__components__reports__AdaptiveOperationalReports.tsx.patch",
+      "sha256": "051b8168014fe7668606297a3d8172867d7baeaeec4b10256711cdfcc049b0be"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/16-src__components__reports__ReportsEngineView.tsx.patch",
+      "sha256": "84387e19f21cffdeca56293cc0149f02312903100389cac134971ca735e71186"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/17-src__components__wizard__ProjectSetupWizard.tsx.patch",
+      "sha256": "f7eaf09cada4a93996da38dbb8322aaf22e4ca2f8a9feda6480be1a4b281c15f"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/18-src__firebase__authContext.tsx.patch",
+      "sha256": "9928fe1288ebb07259bb6ef3df19a928d40e4fdff6239c632f934f5857aa8f63"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/19-src__i18n__codemod__codemod.reporter.ts.patch",
+      "sha256": "4e28f422641f31f5c7a8108582296f09bb4d96db419e9c043b55fe041e84fc5e"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/20-src__locales__ar__index.ts.patch",
+      "sha256": "50b62472251c41a2c120c39627af0d59ad657531abeb52afa6072d876a101422"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/21-src__locales__en__index.ts.patch",
+      "sha256": "130abb271e07740568f73b53417801181f27bd5705993fa1a40724d77e646690"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/22-src__locales__ur__index.ts.patch",
+      "sha256": "962216a4292461b27339c0c2f39007f6fdc292487a4b82eeeff0cab1b54b02b0"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/23-src__repositories__exception.repository.ts.patch",
+      "sha256": "220da777359618d5a7a59c5e926be025034ef2f97a92819616b6301d3d5b963e"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/24-src__repositories__trip.repository.ts.patch",
+      "sha256": "26815985fa2574f2f57470c35568e7666e73f8d4709b4be7edc915f97274ac67"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/25-src__services__canonicalTripPersistence.server.ts.patch",
+      "sha256": "c01f64d697e4933a21f2c2159588138df9b421b2eac95c229f530226b0a047da"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/26-src__services__durableTripCommandClient.service.ts.patch",
+      "sha256": "916157fca9ab1f162a1c11dcea4d53ae778bc9af41a0ca865150a55a9d8832df"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/27-src__services__exceptionCommandClient.service.ts.patch",
+      "sha256": "21a7a86b85e799a13676632278ad8159ce62af59015423948939c7da40d5269a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/28-src__services__exceptionCommands.server.ts.patch",
+      "sha256": "7f5037c5e128f87fe4d4b62ceeb098418a98e7c9f64dcaf2547a1fd7eb4eff42"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/29-src__services__googleWorkspaceBlueprint__capture.ts.patch",
+      "sha256": "c2268638f630045432a9503b52864b584d7a4b940ae709d397dfc0f851ad395a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/30-src__services__googleWorkspaceBlueprint__contract.ts.patch",
+      "sha256": "223b085b055509187b39f28849b47cf5e23b634a7db38be3168a1c4e94620917"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/31-src__services__import__driverTruckImport.ts.patch",
+      "sha256": "ef78bceee5fd23362e4294d26067703f4d8624fd9f00542533465eee260ad32f"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/32-src__services__import__googleDrivePipeline.service.ts.patch",
+      "sha256": "98508dc1f467782c4fca1a6f74ab22ec1b99a7d2892d91ac480ba3544ace5f04"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/33-src__services__import__rosterBatchReview.service.ts.patch",
+      "sha256": "55e9527f1c38cf0da389a36bb120b291516103baae5b403e7e50fdf75de0a494"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/34-src__services__import__rosterMaterialBinding.ts.patch",
+      "sha256": "a984eecc224826185f23fc29681c5d082af644d6f05854c8d4c36f938faa5a01"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/35-src__services__import__tripImportCommitter.ts.patch",
+      "sha256": "162ce397740e3160b3df6e1db89661d1ffb0fdd7dbbc4ba232f3a687287d14a2"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/36-src__services__import__unifiedImportPipeline.service.ts.patch",
+      "sha256": "2851d4149e9056e3bd1df0201172f077785f50b19c40ed07c9b2b228b89f71ad"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/37-src__services__offline__conflictResolution.service.ts.patch",
+      "sha256": "af86fe9ce2290dd3b45d2ac494ecae2f4460a9c362c7d0229249eeea65c09475"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/38-src__services__offline__indexedDB.service.ts.patch",
+      "sha256": "88e1b45e7880bba83bc6fb0a1bf4c6063c99d9d0578ddbd8ea3b6cffbc383c45"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/39-src__services__offline__outbox.service.ts.patch",
+      "sha256": "d9999ea5254d8bf442765912d77acd20fac62b8aba8e3b55ad1964ef84e0da8f"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/40-src__services__offline__tripCommandIdentity.ts.patch",
+      "sha256": "897ff66e0ddb138def6844a44e6cbb29cd228dbb7fabf4110ea5b766b27c0159"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/41-src__services__pricing.service.ts.patch",
+      "sha256": "6c5ef3feb1c76ec592f5a77764bc94c9eb4526be0d9ed7eb808270f3ee4ade03"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/42-src__services__projectAuditRead.server.ts.patch",
+      "sha256": "6be9e6dc7b17d5ba0a2ed5df52b739627c89dbd179f93666c0db26dbbad10913"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/43-src__services__reportsEngine.service.ts.patch",
+      "sha256": "fcd114e87e0c7823a6877dda5aa3dc8d287ef50ad1d467fa6b32ee19d80344dc"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/44-src__services__trip.service.ts.patch",
+      "sha256": "a6d03ffb3fd31c364a489aab11dd868aa676545deab2d63aef65206a46b21864"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/45-src__services__tripCommandClient.service.ts.patch",
+      "sha256": "3ebc5bfc0948f613e8327691992af1edc13e47facbc26f5d38e52242cbe9cec4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/46-src__services__tripCommands.server.ts.patch",
+      "sha256": "67e46a4a6b137fd29a1244729576d930e1c491a1b60e594b67e638cb866438e8"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/47-src__tests__googleDriveImport.cases.ts.patch",
+      "sha256": "4c8d977410d95184bcde7e7ad9e8575a3e109f5269cb81c379be04204dbdb41b"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/48-src__tests__googleSheetsImport.cases.ts.patch",
+      "sha256": "d2bbebdd6ce8b86ac557a93414933f3d1c30a42ee0062344487ef661ddd7cfdd"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/49-src__types__entities.ts.patch",
+      "sha256": "6b21e945fbc5043af0a3b2c110c51c5bae995e0c96286c2deffe9cd50912b08f"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/50-src__types__googleDriveImport.ts.patch",
+      "sha256": "f44b4c53706c0d6a9270a382d970a496e10b605a58b77f713d50e23aee51ff6a"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/51-src__types__offline.ts.patch",
+      "sha256": "a6b59fb09e417a165aa36fe21ce98b33168c8d276f122e0caa6a965c57ed4598"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/52-src__types__tripEngine.ts.patch",
+      "sha256": "84b0271eabc63ace2c91b5b6bfe1707b381a4b3aeb279b31175bf47e9e950515"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/53-src__types__unifiedImport.ts.patch",
+      "sha256": "761de2fb85bfa37f968123c1d5186c857f744707e6b7aef31386bcdb719a15ca"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/source-difference-comparison.json",
+      "sha256": "1ada41677850d5407bf14318351bbde95efdd49ef76cc193d90b0d67e9acc7b4"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/test-fixture-adaptations.json",
+      "sha256": "3e53e612cc538708bfde330348553be589a3159095a7b69b2b0460e35914c424"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/test-transfer-progress.json",
+      "sha256": "bc87b900f01d177874295a34a26449cc2c0ead98ea54f9ff706485f183b6eabf"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/transfer-plan.json",
+      "sha256": "98c20a8022eefeeaf4ed8b19ffb96e26a4f7e00da6dd06133d15b8b3481033f6"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/transfer-progress.json",
+      "sha256": "6e5979c68a997f00c243065b7ee8277bcee1cface099f1b40deee5d5578c9598"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/trip-identity-adjustment-block89.json.generated.gz",
+      "sha256": "6c0734b5b03f9051fb4e918306672ea9e4a4a42996ed3b1204a8dc1855bc33e7"
+    },
+    {
+      "path": "docs/reconstruction/main-integration-rehearsal/trip-identity-adjustment-block89.md.generated.gz",
+      "sha256": "f759e6cf62dfef6da1111925101db8956c7af170f735e7f607adf55c8b17120c"
+    },
+    {
+      "path": "server/app.ts",
+      "sha256": "b7b8010f15a4cbc2cbde4a03346e7042f2fba5f4f914528a029be5f459b13d2f"
+    },
+    {
+      "path": "server/tripCommandHandler.ts",
+      "sha256": "5a66146f545d3cba6e651bb5d88c0285b57a7206a0b5616da1d5bdfbcc30286f"
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256": "e36b0be248db95360b29a360b8ffa3040b2face0e005c6c55ce795bc1e5eb784"
+    },
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "sha256": "66d65ccd800f4264f3aa76bf2f7dd0342031efde10502dd2851ae5a28d7a5c72"
+    },
+    {
+      "path": "src/components/field/DriverView.tsx",
+      "sha256": "479355afa6bf7507f55351acaac57f7ba5d6013b73eb1f23cab327ff4701fb0f"
+    },
+    {
+      "path": "src/components/field/FieldSupervisionView.tsx",
+      "sha256": "4fa6805ba4a2737d43068c670209f837e694b9a24bd17362e17f424def84842e"
+    },
+    {
+      "path": "src/components/field/LoadingOperatorView.tsx",
+      "sha256": "090e3e07887bfbf7ed88e1d488eb86ff21b6de3a615d36a30f63d475506450b3"
+    },
+    {
+      "path": "src/components/field/UnloadingOperatorView.tsx",
+      "sha256": "77a44c91178b58489ddd5b396cc37fe2c0eda7a5b5a6becd527555059ee386d0"
+    },
+    {
+      "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+      "sha256": "858d972f85c4acb90dffb81d28bd41a6f647127dc385c8c9e770c140319501a1"
+    },
+    {
+      "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+      "sha256": "a782b0a9b77d57a568fb2f14fe28668191a37c6e08f72e8da8407339f2935b53"
+    },
+    {
+      "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+      "sha256": "d779b0580854850f06522e66b91472dd3cd7b796726cefaacbb86ee77b68551e"
+    },
+    {
+      "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+      "sha256": "80974b6b9116cc8e73dec97180f6d3a882d852daa51b575d2c6a57b59d4b4b39"
+    },
+    {
+      "path": "src/components/offline/OutboxDrawer.tsx",
+      "sha256": "474475ac63d9429aebcd1e1e8a05e8eb615330e6c1978ad8a131d35569f8c031"
+    },
+    {
+      "path": "src/components/pricing/PricingEngineView.tsx",
+      "sha256": "e6404c883f04fde35667f58434cdb15c448f3577c91640924914b93ddf6dc836"
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "sha256": "11c7720a817482c934da2c245e437a75961c084030e6aafdd843de7abafb3d85"
+    },
+    {
+      "path": "src/components/reports/ReportsEngineView.tsx",
+      "sha256": "13deed4e059c7d484a0e2713923e4536ca47f8bc399746ad86fa9e32f30ce2ec"
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "sha256": "865f29095b076812bc224a804bb5ad3b6fb2694889e6deb0f656f547258181fa"
+    },
+    {
+      "path": "src/firebase/authContext.tsx",
+      "sha256": "30da6bb3bac16b593d43c670820b0ed94e3a58df63f0752574c96cb4697e9644"
+    },
+    {
+      "path": "src/i18n/codemod/codemod.reporter.ts",
+      "sha256": "26e50b99d7554cda24329c6777afbbb0516b5e32bdd940e1c2c7d2ea7f45bbe4"
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "sha256": "25d3e6ecc5401151d5a0fbb28f8a47f0f30385807be906c0d464461b5726456f"
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "sha256": "86bd20d75a1312ce65fe6b10c023e88455fac93a911d54e4cd1069f3ab515b16"
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "sha256": "9cc75084ef0ded684b47224917b5ffb94fd958c1d62566d1172df1ecde49f668"
+    },
+    {
+      "path": "src/repositories/exception.repository.ts",
+      "sha256": "faef9526e6ab79866d7e02f92780caf8c45b3382b6f930e668e42d4f7983a3f7"
+    },
+    {
+      "path": "src/repositories/trip.repository.ts",
+      "sha256": "bc590622d32482c943315961853174293825b5efd2963bad35341769299ac77d"
+    },
+    {
+      "path": "src/services/canonicalTripPersistence.server.ts",
+      "sha256": "e71ba49b38cad099a96c1dc4bc022f33e3d106606373df8cca6e4c23128e5fd4"
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "sha256": "2b83d409e40e54c79be56add61c64f531c11e9d0aeb41eb892e4067f808d11a1"
+    },
+    {
+      "path": "src/services/exceptionCommandClient.service.ts",
+      "sha256": "f02fe05151e5c0acfa7a4dd7f41730b8db3a9c00f02d8964dc8f01f2fa7c41b5"
+    },
+    {
+      "path": "src/services/exceptionCommands.server.ts",
+      "sha256": "a4da30b493e17fdc0534978e8b77efb8eb6192cbb0e199f6f0847f0c81edf0ef"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+      "sha256": "f0d534cba9cf247266529090088d0a39abf0fa3c88ba0ec4334ca9a0e7b2b65f"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+      "sha256": "8f210342f675461317cd7efe30f789735db5b701d3f71db43f66379a5a91e5de"
+    },
+    {
+      "path": "src/services/import/driverTruckImport.ts",
+      "sha256": "5a990d35b215d2caced8d03a91bb77d1689a0e182c323946a76132c17e0ea46f"
+    },
+    {
+      "path": "src/services/import/googleDrivePipeline.service.ts",
+      "sha256": "f9bb8234c3614f1b3eb83d046056c884e848fb8c25c4d90bcb33a0efd67d9f9d"
+    },
+    {
+      "path": "src/services/import/rosterBatchReview.service.ts",
+      "sha256": "1402b84bb39bd40e3d670f755ffe78535bac3ca361a20e980efd2b00a92a94f5"
+    },
+    {
+      "path": "src/services/import/rosterMaterialBinding.ts",
+      "sha256": "2ff9322da431b9c9dfef93e6abd0301861a2017b75f16cc026500ace729a8d3e"
+    },
+    {
+      "path": "src/services/import/tripImportCommitter.ts",
+      "sha256": "71687a83180401e5e88d03a32c565345c8c21e41b6a87219254ae649fabc9e7a"
+    },
+    {
+      "path": "src/services/import/unifiedImportPipeline.service.ts",
+      "sha256": "c71eae302016642af7a2a407092c7b81237a0f26198d640f5f88744ebed4fa39"
+    },
+    {
+      "path": "src/services/offline/conflictResolution.service.ts",
+      "sha256": "43c947fd75b7b8ce1965913145b550feeb04c59377aa799a55f0df735855196f"
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "sha256": "cb528a8e32e9eb8b713beb5d270d7921c66e185bafc769f4bf64e8af2892de85"
+    },
+    {
+      "path": "src/services/offline/outbox.service.ts",
+      "sha256": "14414e7828087524ae97988e13a16aaf2fc756fccdf7b0c42bcb97c4c00ae097"
+    },
+    {
+      "path": "src/services/offline/tripCommandIdentity.ts",
+      "sha256": "fb18cfb3b63eaa61b7e41ccb5054f07698117698fbbe675ffab362754606207b"
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "sha256": "180a3650abca9830e1a2b32b648b726516fe02b58b0a8c6fdb33c2f5ba2f9cbb"
+    },
+    {
+      "path": "src/services/projectAuditRead.server.ts",
+      "sha256": "b425b161a716904288217e0d70151699337d998c0ac4200e02db5367a1851d63"
+    },
+    {
+      "path": "src/services/reportsEngine.service.ts",
+      "sha256": "75f6a820803cb6b42f9bfa5a63da2a85b1a8939e1450ff9c23b0063e43449420"
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "sha256": "8177be4657591596230ecc0e5cfff460d39c7ea7690767d32cded59d05ffb90b"
+    },
+    {
+      "path": "src/services/tripCommandClient.service.ts",
+      "sha256": "f0c8cfb74172bbb534286b39f5aeb52449ebd7dfa686dfd000abfc52638b2cb3"
+    },
+    {
+      "path": "src/services/tripCommands.server.ts",
+      "sha256": "f79a5747d01e1d5b3c2a68f8121633f300d6d9508e58313fce604c507da419f8"
+    },
+    {
+      "path": "src/tests/ar2U07OfflineContinuity.test.ts",
+      "sha256": "9626c7ae6ecd04ea51bc8ec70aeb03f8526c465ede788461727317faa4e10ec5"
+    },
+    {
+      "path": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+      "sha256": "c73c22f850a4389a65c8318f6558d8992e39bf2ac4d2be8a8d444872ff0e7c15"
+    },
+    {
+      "path": "src/tests/canonicalTripDispatchAuthority.test.ts",
+      "sha256": "afe74a5d3175ece6cd063d85d9baf48b96703c917968db8bf97271eecdc5167d"
+    },
+    {
+      "path": "src/tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+      "sha256": "defb313a4809991f7b4d648f11258a4fc91b8cb9ee0caaf0bfa083d95837058e"
+    },
+    {
+      "path": "src/tests/conflictEngine.test.ts",
+      "sha256": "e0c37baa545c5d78f2200662dd333c12803b4254015894eb0b44665eae5ae195"
+    },
+    {
+      "path": "src/tests/conflictResolution.test.ts",
+      "sha256": "8480998535cdf0819ba0201e3f8af3a9413655261e5ecfa16704aeeaf281b6cb"
+    },
+    {
+      "path": "src/tests/controlledIncrementalWorkspaceProjection.test.ts",
+      "sha256": "c4e8b8dc9b6bf69bfdbca2390ef55b614872e10c8a189e6dd4ebf98c9d79d46c"
+    },
+    {
+      "path": "src/tests/convergence2Browser.test.ts",
+      "sha256": "bef2151263290a7e672a89c2b4189a62581f52a3eaf2f3414b30ce7c65a7e7d8"
+    },
+    {
+      "path": "src/tests/convergence2CacheBrowser.test.ts",
+      "sha256": "68ecd9bf92cc5d2aaaa92778370fe5e13388a9a147ffd68cbe81f322eec8e909"
+    },
+    {
+      "path": "src/tests/convergence2Operational.test.ts",
+      "sha256": "d6914f38bf32efbdc1f42f39abc8052e0532c082c47f82b71490a2ebf3a31a6b"
+    },
+    {
+      "path": "src/tests/convergence3DurableCommand.test.ts",
+      "sha256": "7b69ba42cc5e8534e413387d4f40a64247347ffa93c00b5b8204fce67cfedf64"
+    },
+    {
+      "path": "src/tests/convergence3ImportIdentity.test.ts",
+      "sha256": "1815aa3b0f1f5bd4c4a602b1a01764bb28680e61be100992b9d4ff5339001683"
+    },
+    {
+      "path": "src/tests/convergence3JournalBrowser.test.ts",
+      "sha256": "aead6bed6916f4ba551da1ea8557a7fe930a8438f961d57cd9db55cad0e80e69"
+    },
+    {
+      "path": "src/tests/convergence3Journey.test.ts",
+      "sha256": "694bff474851ac9fc8e7339b600dc527fe46484bd962f5b82ecdd473c6fe0478"
+    },
+    {
+      "path": "src/tests/dashboardReportsI18n.test.ts",
+      "sha256": "1f6b61ff0f78033572e8cc68c8ca5c9b147b6fa576681d9c9120250b68cd559f"
+    },
+    {
+      "path": "src/tests/driverViewConvergenceP603.test.ts",
+      "sha256": "6b9a00f1308d90bc9c6578352cdf6bda9ec2259af3e8df773e1d6d4b3be494f4"
+    },
+    {
+      "path": "src/tests/endToEndOperationalValidationBlock94.test.ts",
+      "sha256": "bbae855781c454a542f2f7633117b8eb1806976c328a3a83c1635028fdc45da8"
+    },
+    {
+      "path": "src/tests/exceptionEngineRetirement.test.ts",
+      "sha256": "e64edeebc37207500484e41a6b66918187d111c73f55709bf92ebecd69a25e90"
+    },
+    {
+      "path": "src/tests/fieldSupervisionDriverBlock78.test.ts",
+      "sha256": "ce6a8c9a98573945197a8b177c5b797345d17d8ee33590fa1e786dfa4413c7df"
+    },
+    {
+      "path": "src/tests/finalReleaseReadiness.test.ts",
+      "sha256": "264ba3db1eb933e898bfd1c277008198296f6a2401b541f9061edca8736efbbb"
+    },
+    {
+      "path": "src/tests/finalUiArchitectureBlock76.test.ts",
+      "sha256": "7fc6057525e671beb9c6b6f09f4ca65ec99b330167cebd9fb2d6e373ac1acd46"
+    },
+    {
+      "path": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "sha256": "78aed3fc7efe2832f9f0130cb5e801b5532bd598551058888fabaa22cfaa878b"
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "sha256": "6b4fe494fd1958ce9c6f37df51064d34dd2117c106d71e54d743f48546172830"
+    },
+    {
+      "path": "src/tests/googleDriveImport.test.ts",
+      "sha256": "17a4d2b7225f425dbf4250d9db3dfe57112301670429c714e083319212eb4869"
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "sha256": "1acb8aba6c7a42e26c39a9ceadbe063b921ea999e842075293dbd456db7958b1"
+    },
+    {
+      "path": "src/tests/googleSheetsImport.test.ts",
+      "sha256": "8404307fd643f61d74eae28c2c9d884ee0155fe20f2329b0f5629d5b06192040"
+    },
+    {
+      "path": "src/tests/helpers/commandDatabase.ts",
+      "sha256": "a2150f120ba17e2e28fd120e3803b0a9270c08165b9cfb21d9da48b815743f23"
+    },
+    {
+      "path": "src/tests/helpers/convergence2BrowserEntry.tsx",
+      "sha256": "5aa77a59321683e493647c715de8947166b6df992e1da598cd22b1583695c5b0"
+    },
+    {
+      "path": "src/tests/helpers/convergence2Firestore.ts",
+      "sha256": "520fedb8ed6c32a88084910a879d03926fd8ef1ecea890f83c6efdaad44c9f04"
+    },
+    {
+      "path": "src/tests/helpers/convergence3BrowserEntry.tsx",
+      "sha256": "4aca40f0fc1fa76dadb197fce6f138b76bfd03b4249b91ca0371c015a6edda38"
+    },
+    {
+      "path": "src/tests/helpers/operationalSheetsFixture.ts",
+      "sha256": "d76dd656abff7944aa1b649c30aa73762171ea78b95e3a060dadd58cee776ede"
+    },
+    {
+      "path": "src/tests/helpers/reviewedTripCommandFixture.ts",
+      "sha256": "d11584fabb29ace58504da9c4e754c085baf7a7b0ba8fe7f5b4896459520d4bb"
+    },
+    {
+      "path": "src/tests/helpers/rosterReadinessBrowserEntry.tsx",
+      "sha256": "3212059c4617727a58d8b6493752e68a84ec4bb8bc826c1d3b8b27abd540b64a"
+    },
+    {
+      "path": "src/tests/helpers/workspaceEnsureFixture.ts",
+      "sha256": "7774c9870cf651dc8373764605bd85d57576cbe854d4a7c217a5def8670d3260"
+    },
+    {
+      "path": "src/tests/i18nTranslationCatalog.test.ts",
+      "sha256": "77499f2343e03894fc0aae8c97848709b0e9fa0fd3dd9fb6de27374b00c1619f"
+    },
+    {
+      "path": "src/tests/i18nTranslationGeneration.test.ts",
+      "sha256": "238b1a997ea52fa2479156b33a31bc74b149ea34fc9026b20524d4b04b77c590"
+    },
+    {
+      "path": "src/tests/importCenterConvergence.test.ts",
+      "sha256": "c99b551c9a10e4e9b6745028faabc0282fa114f3948485f1bac5e7a9b2464849"
+    },
+    {
+      "path": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "sha256": "5ea3521b48a5d2602a393947e3ba0c09501178fc97af23683d41a34914d645d6"
+    },
+    {
+      "path": "src/tests/materialAuthorityP602B2.test.ts",
+      "sha256": "bc12bc98a2d6924282ffd5d655cbf9262da2eb3ed3a886d653eb4fbc196896bc"
+    },
+    {
+      "path": "src/tests/operationalProfileAssessment.test.ts",
+      "sha256": "ea9bd01dfdbadae12befbea8768747abf409f9847e4f689d0fc1043009276e3f"
+    },
+    {
+      "path": "src/tests/operationalProfileUi.test.tsx",
+      "sha256": "bb36675bc099c11b31f07c83d44f500d6670c333800b8656edeb2004a1713fe7"
+    },
+    {
+      "path": "src/tests/operationalReportTabIsolation.test.ts",
+      "sha256": "885fc587cf81cc35e853895a11f4555cd4c245e059df17839d858632ffc59eba"
+    },
+    {
+      "path": "src/tests/operationalWorkspaceTemplates.test.ts",
+      "sha256": "9fb08f363aaa9d5515bcdd17d265b2f9e321290d36b518dfb16ae273d6b1d796"
+    },
+    {
+      "path": "src/tests/pricingEngine.cases.ts",
+      "sha256": "978ae67c67558b289aeed70433254864ba950c6e5ae53102485fef95d6c630f0"
+    },
+    {
+      "path": "src/tests/pricingEngine.test.ts",
+      "sha256": "1c8bc92bfb8603a2d76e741f36df99741bc36d2b99c68b08650fa794b74289a2"
+    },
+    {
+      "path": "src/tests/projectActivationReadiness.test.ts",
+      "sha256": "c2f9053463bc14ec5619a4bda7197d96f17b20100b86bb0f1a3de1bf73767a13"
+    },
+    {
+      "path": "src/tests/projectCentricOperationsBlock87.test.ts",
+      "sha256": "71c0e8d59b30293bbe7433b7b9fad932b1400f0b1c254fce59c520f6dc0562ca"
+    },
+    {
+      "path": "src/tests/projectContextLifetime.test.tsx",
+      "sha256": "9c899b3ccd3d06153f6db098507840146017355cc91300c0ca36350b9014ca54"
+    },
+    {
+      "path": "src/tests/projectDriverTruckAssignmentFoundation.test.ts",
+      "sha256": "6d8576033e529c7e3af7560eaaf1cc6aa3bce046e64045eea06d818370ecf2b9"
+    },
+    {
+      "path": "src/tests/projectFormDateUx86F.test.ts",
+      "sha256": "e4e38fd3f86f33eec41e3a563df79b6ca06b5ac0ec155426a7af96ef84e8a651"
+    },
+    {
+      "path": "src/tests/projectGoogleWorkspaceTemplateSync.test.ts",
+      "sha256": "9b7dffe96875088f887a63e80fa3adf17329eb1acec3e919f28bcc3858cf1869"
+    },
+    {
+      "path": "src/tests/projectRouteConvergence.test.ts",
+      "sha256": "0346a2e2ff3dde8af092df213748a22de0d95a827758d5a31afc14214c506b7a"
+    },
+    {
+      "path": "src/tests/projectWorkflowNavigation86E.test.ts",
+      "sha256": "07c06fbf9f697873ca0388c58a5567493cddcc081cd7f87c9c9c93f260ac395c"
+    },
+    {
+      "path": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "sha256": "19fbf5f32020897a3c0f01f0b53b05f2e5d10911a8ad51e00036d8c2508193c9"
+    },
+    {
+      "path": "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+      "sha256": "357a4fea6f7f39c8f18ca161770b31de16c2bbeaec26999ff7db260cf0e31da5"
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+      "sha256": "a9ed9aa302bd82470d36bbb8fe1552ef134752060005f5fe3fa36d7100d9fc43"
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+      "sha256": "9e586d24989ca90df8f35bd22e877945d4a53d4150fcf031dc55af433e50e79e"
+    },
+    {
+      "path": "src/tests/releaseBlockerPricingAliases.test.ts",
+      "sha256": "fe11aee94eea2fe7ad976a0f35445fe4f04295cd7bc170b0df537195226ee773"
+    },
+    {
+      "path": "src/tests/releaseBlockerTripIdentity.test.ts",
+      "sha256": "84926eca79fdfae4054332a7e85b61ef602d04ae87ac7c4b6ec6d2a1dd5399af"
+    },
+    {
+      "path": "src/tests/reportsEngine.test.ts",
+      "sha256": "ffbf61bc5af1cd75f29f5593180aff89c2f95c1c68638fd9a08b6e6679ae1aa5"
+    },
+    {
+      "path": "src/tests/reportsEngineControlCleanup.test.ts",
+      "sha256": "0b320f96c678d2170869be7f3be51343b82e71ca2a9ad2af79e815fd09847b1b"
+    },
+    {
+      "path": "src/tests/reportsEngineConvergence.test.ts",
+      "sha256": "7cf8cebd9d67e4edd386ed3b9add1fed7d34220eb3dd58675618880627df80a1"
+    },
+    {
+      "path": "src/tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+      "sha256": "3d749978e5fc1f1571fb6d59fecbf54fba691a6d0162c447501230a58ac238f3"
+    },
+    {
+      "path": "src/tests/rosterReadinessBrowserConvergence.test.ts",
+      "sha256": "9c295e862d2e729aa942656cb5e1ec9aad9dd0d38505c1e9743e43a3ec8a284f"
+    },
+    {
+      "path": "src/tests/rosterResolutionReadinessConvergence.test.ts",
+      "sha256": "72c0f5f95571b799dbf92df50f94066bdfe1ea1d7cdb7038b58f964130a397a3"
+    },
+    {
+      "path": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "sha256": "34c8b4e67b0528f534232935dcfcfca51da941a2b8ff9796f971d7173d0fb950"
+    },
+    {
+      "path": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "sha256": "40084e0b78ee6f1afa7a4e6d1fe2959bc78ab8daf9c66cb6212d22b8958efcd7"
+    },
+    {
+      "path": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "sha256": "4260dce595d945cf8a736ccd45d897f6c7334fffc67361255b4393360199f71e"
+    },
+    {
+      "path": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "sha256": "03f91c4c470d0b3922d119e8b8add1b20813ca7a88398278b890c27579be2a8e"
+    },
+    {
+      "path": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "sha256": "d8b720b5bcca4ddb9c0ef8f71f7f353b9c62bdf4a658ff34a7bdc7b5e1f44ba4"
+    },
+    {
+      "path": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "sha256": "ca93d4e46370f39eb6b5df69a30c43aea93fba787124fb466a0c1d5b5ddcf8e6"
+    },
+    {
+      "path": "src/tests/runtimeGenerationConvergence.test.ts",
+      "sha256": "e04bbcf883dabb82a3bdda39840c82a46e10f5df880dd8045fdcae5446008369"
+    },
+    {
+      "path": "src/tests/secureTripNumberingOffline89B.test.ts",
+      "sha256": "268055320c0d78c2f8c1e547cf1c17392979b21f87b5e699b0195f3917baafa5"
+    },
+    {
+      "path": "src/tests/setupReadinessBoundary.test.ts",
+      "sha256": "19223495c9fca0e553616a2e734de82d2797787fb9c75ff10ce14b890d9ff818"
+    },
+    {
+      "path": "src/tests/setupWizardContinuity.test.tsx",
+      "sha256": "65427894d0eac021ddd0aff2f65d162ef678cdd335f0e25bda31e6f27c195eb4"
+    },
+    {
+      "path": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+      "sha256": "19f5a4b91b5ce96a1a39da4537063b5e40300fcfe1b2c96052202809931117df"
+    },
+    {
+      "path": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "sha256": "aef373b3e647bf036f3df365d9327686cd083ee67d1798f521b8b4ac1263c396"
+    },
+    {
+      "path": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "sha256": "f222e220528781ba34c10eb2723cf100246b01f3c6f2ca778756ea41bb01814c"
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "sha256": "06ad9fd31d269740f52a797ba738534f0bd8f965f9afb3f84f6129daf44e844a"
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "sha256": "9f5dfc643836afd433c97ddd4aad682f1a32b5348b8b0619b92d7a25c194909d"
+    },
+    {
+      "path": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "sha256": "68ce8dd2c4475e3c6b07a9962b1672a3ae095bf3b0b23737e1728f8cb5c57027"
+    },
+    {
+      "path": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "sha256": "6bd9ca11121777a941666d2110657630276a260e6d377041419c72811dbf8800"
+    },
+    {
+      "path": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "sha256": "37e8dd527b3a5b9b3637ad5b53eab2aa36a0a9a533242c830e92fa139c19dd9f"
+    },
+    {
+      "path": "src/tests/smartImportSharedContrast.test.tsx",
+      "sha256": "2035c133da39a5142f673970ae204939266eaa3c610a11922e3b10f301a19e44"
+    },
+    {
+      "path": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "sha256": "dc6d3b01186ea723651ee37fa7f61995f53a1d589a58d93388869eb5b0bc6311"
+    },
+    {
+      "path": "src/tests/smartImportUnit4AServerSessionPersistence.test.ts",
+      "sha256": "b69fa2c5326ddac307014ab0f2928c1d7e2204d3b99a0545922e5059e2ffe9a1"
+    },
+    {
+      "path": "src/tests/smartImportUnit4B2UiSessionResume.test.ts",
+      "sha256": "4ce5712bcbe29067768817694d8fc77b7ac0d3c76cf42b0a24610994e7ee8631"
+    },
+    {
+      "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "sha256": "c93a3ee5600200a233648410a5d3ec4c9731d6f480812bc87373eb5cd271fc31"
+    },
+    {
+      "path": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "sha256": "54d83bdd71c723adba81a16b5a3a36de4a90568e3fa5ade0b387fab7031fdce0"
+    },
+    {
+      "path": "src/tests/smartTripImportOperationalConvergence.test.ts",
+      "sha256": "f6184871d4395fdcdd393dc3072ca6b9fb8987e23ffbe8b93626547e475cc869"
+    },
+    {
+      "path": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "sha256": "4917911fbebcc6bf2ed33229a41e8dde97ac7edb0740b9a26bdc4e32ed471432"
+    },
+    {
+      "path": "src/tests/systemToolsRationalization90A.test.ts",
+      "sha256": "ce1d10f99220efe784fcd867adcb09d8f2522daa77988b87ca8c1f5befa03f9b"
+    },
+    {
+      "path": "src/tests/tripEngineRetirement.test.ts",
+      "sha256": "81a1ab2473033eb2beb61710821637a4553935e98548eb83dac25396273c1781"
+    },
+    {
+      "path": "src/tests/tripIdentityAdjustmentBlock89.test.ts",
+      "sha256": "c2cc52aff51dbda417d743d47a8b05c7a6eaa2e45eabc274f84a02d63988d57f"
+    },
+    {
+      "path": "src/tests/tripIntakeConvergence.test.ts",
+      "sha256": "1c834961f260c1ea655ad9624f404ecafe552c8ca3e89588d4de6d43fb5fcedd"
+    },
+    {
+      "path": "src/tests/tripMutationBoundary.test.ts",
+      "sha256": "0121fec7733f572222cd8c78add007d368ba84af67d6bde721aac11df46645af"
+    },
+    {
+      "path": "src/tests/tripOperationalCommands.test.ts",
+      "sha256": "b531ea41b333b9dcd6524c0222e14b572ff29c62ca9318c2802b5ace63a8e986"
+    },
+    {
+      "path": "src/tests/tripOperationalOutbox.test.ts",
+      "sha256": "56522935f61423074d2e60cfeccc78b2f3405a1649319aa820ecfd8a80d3932a"
+    },
+    {
+      "path": "src/tests/weighbridgeImport.test.ts",
+      "sha256": "1491fa1e8661e71bf5ff214c17911b355ba0155be81b316a75e46486b4233a57"
+    },
+    {
+      "path": "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+      "sha256": "ba3376dce55d6f9d23a3b096b26466c744646b60ce7561e30f4b901062782a61"
+    },
+    {
+      "path": "src/tests/workspaceConvergence.test.ts",
+      "sha256": "1ba74cc2ac90bcd92ade8e9b97731c3266bdaa9b91a7ad1eae1219eef33422e1"
+    },
+    {
+      "path": "src/tests/workspaceIntegration.test.ts",
+      "sha256": "6b58a58f104853ad95908c58c13eab13de85b83434ab80bf96eb3e31ae6bb1ce"
+    },
+    {
+      "path": "src/tests/workspaceLocalBlueprint.test.ts",
+      "sha256": "a108f49ba76efb9cbc619620747fdad5866a3b72190413384d4c65b455b77f20"
+    },
+    {
+      "path": "src/tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+      "sha256": "707627cdfac114bf404e3f10aa6babbba4aadcb9a72d305879b0c22132450866"
+    },
+    {
+      "path": "src/tests/workspaceOneClickProvisioning.test.ts",
+      "sha256": "e81639b3512aa8d1f30480adf26b0372ee7c8e196fa7cc8d025045e5db564abb"
+    },
+    {
+      "path": "src/tests/workspaceProviderResilience.test.ts",
+      "sha256": "4913a09c46c35cb8a708ede758d95b211f1b72d5b701e62c8a97d863f07afb8a"
+    },
+    {
+      "path": "src/tests/workspaceQuiescenceUi.test.tsx",
+      "sha256": "1ee9679c6811bb822bef45b04251e1501ccc437eb974ff4e62969ed208ab24e5"
+    },
+    {
+      "path": "src/tests/workspaceStorageIsolation.test.ts",
+      "sha256": "fd577ef05719ebb69ed69d439efe456ea5b94d853d58721d20f74754fcca4707"
+    },
+    {
+      "path": "src/types/entities.ts",
+      "sha256": "8c9c081b7f2b9a85060dbb5ad09fe39d1d13b4e01cdec1869f46a40b2c4d5c7e"
+    },
+    {
+      "path": "src/types/googleDriveImport.ts",
+      "sha256": "e1887377c6d0efc4fd9953e9dc5445681d2c6fdc13e2accd1e20de25ec2ca670"
+    },
+    {
+      "path": "src/types/offline.ts",
+      "sha256": "c123b10bbdbe9fe88fa83b11df34771e4df60eddfab70778d14da1be70389406"
+    },
+    {
+      "path": "src/types/tripEngine.ts",
+      "sha256": "6b7a30b0761d7f775bddb468d768981dd9bad753d424b97c8fca022a319439ae"
+    },
+    {
+      "path": "src/types/unifiedImport.ts",
+      "sha256": "36813bc4695ad9c3565371aaa526eb1b698b5e6543b32727491cade5429d2322"
+    }
+  ]
+}

@@ -90,8 +90,15 @@ describe('BLOCK 102 — Operational Access & Smart Roster Import Suite', () => {
     const resolutions = await resolver.resolveEntities(normalizedRow, 1, mockContext);
 
     expect(resolutions.driver).toBeDefined();
-    expect(resolutions.driver.confidence).toBe(100);
+    // Canonical resolution uses normalized confidence [0, 1], not percentage points.
+    expect(resolutions.driver.confidence).toBe(1);
+    expect(resolutions.driver.isExact).toBe(true);
+    expect(resolutions.driver.matchMethod).toBe('EXACT');
     expect(resolutions.driver.matchedId).toBe('DRV-100001');
+    const unresolved = await resolver.resolveEntities({...normalizedRow, driverIdentity: '1999999999'}, 2, mockContext);
+    expect(unresolved.driver.matchedId).toBeUndefined();
+    expect(unresolved.driver.confidence).toBe(0);
+    expect(unresolved.driver.isAuthorized).toBe(false);
   });
 
   it('4. Carrier conflict detection when driver belongs to another carrier', async () => {

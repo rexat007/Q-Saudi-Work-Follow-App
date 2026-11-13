@@ -1,0 +1,14 @@
+{
+  "failedCombinedGate": {
+    "passed": 29,
+    "failed": 2,
+    "total": 31,
+    "cleanupErrors": 0
+  },
+  "actualCause": "Main already renders OperationalConfigurationForm and calls the existing authoritative projectService. U09 adds a data-testid plus SQL injection callbacks. The accepted browser test used that U09-only selector, not a missing main business capability.",
+  "change": "Locate the same existing visible main configuration section by its translated heading; preserve every configuration, persistence, permission and workflow assertion. Do not copy SQL callbacks, substitute an authority or add a production-only test hook.",
+  "u09DependencyExcluded": "OperationalConfigurationForm onAssess/onConfigure SQL adapter API and SQL presentation wrappers",
+  "failedSnapshotArchive": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\main-rehearsal-initial-journey-failure.zip",
+  "archiveSha256": "3eb2c0fdb47f3786842a6942c4acaf8e12b1545ffdd210c89d5fe75888b76363",
+  "snapshotPrivacy": "Raw DOM/synthetic password snapshots remain outside Git; only archive provenance retained."
+}
