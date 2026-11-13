@@ -1,3 +1,4 @@
+import {navigationService} from '../../services/navigation.service';
 import {AdaptiveOperationsView} from './AdaptiveOperationsView';
 import React, { useState } from 'react';
 import { 
@@ -29,6 +30,7 @@ export interface FieldOperationsViewProps {
   selectedProjectId?: string;
   setSelectedProjectId?: (id: string) => void;
   onNavigateToWizard?: () => void;
+  onManageFleet?: (projectId:string)=>void;
   authContext?: AuthUserContext;
 }
 
@@ -39,6 +41,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
   selectedProjectId = '',
   setSelectedProjectId = () => {},
   onNavigateToWizard,
+  onManageFleet,
   authContext
 }) => {
   const { t, isRTL } = useI18n();
@@ -104,6 +107,9 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
 
   const isDriverRole = activeRole === 'DRIVER';
   const effectiveTab = isDriverRole ? 'DRIVER_VIEW' : activeTab;
+  const configuredProject=projects.find(p=>p.projectId===selectedProjectId);
+  const configured=Boolean(configuredProject?.operationalConfiguration);
+  const canSupervise=navigationService.isFieldStationAuthorized('SUPERVISION',activeRole);
 
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -130,7 +136,11 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Field Station Tabs — Hidden for DRIVER role */}
             {!isDriverRole && (
-              <div className="flex bg-stone-800 p-1 rounded-xl border border-stone-700/60">
+              <div className="flex flex-wrap bg-stone-800 p-1 rounded-xl border border-stone-700/60">
+                {configured ? <>
+                  <button type="button" aria-pressed={effectiveTab!=='SUPERVISION'} onClick={()=>setActiveTab('LOADING_STATION')} className="min-h-11 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-emerald-400">{t('ui1.title')}</button>
+                  {canSupervise&&<button type="button" aria-pressed={effectiveTab==='SUPERVISION'} onClick={()=>setActiveTab('SUPERVISION')} className="min-h-11 rounded-lg px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-emerald-400">{t('field_operations.supervision')}</button>}
+                </> : <>
                 <button
                   type="button"
                   onClick={() => setActiveTab('LOADING_STATION')}
@@ -179,6 +189,7 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>{t("field_operations.driver")}</span>
                 </button>
+                </>}
               </div>
             )}
 
@@ -244,8 +255,8 @@ export const FieldOperationsView: React.FC<FieldOperationsViewProps> = ({
       )}
 
       {/* Active Station View */}
-      {projects.find(p=>p.projectId===selectedProjectId)?.operationalConfiguration && effectiveTab!=='DRIVER_VIEW' ? (
-        <AdaptiveOperationsView key={selectedProjectId} project={projects.find(p=>p.projectId===selectedProjectId)!} authContext={currentAuthContext} onManageRoster={onNavigateToWizard}/>
+      {configured && effectiveTab!=='DRIVER_VIEW' && (effectiveTab!=='SUPERVISION'||!canSupervise) ? (
+        <AdaptiveOperationsView key={selectedProjectId} project={configuredProject!} authContext={currentAuthContext} onManageRoster={onManageFleet?()=>onManageFleet(selectedProjectId):undefined}/>
       ) : effectiveTab === 'LOADING_STATION' ? (
         <LoadingOperatorView
           authContext={currentAuthContext}

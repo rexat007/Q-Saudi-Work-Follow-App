@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "convergenceHead": true,
+    "convergenceClean": true,
+    "rehearsalHead": true,
+    "rehearsalClean": true,
+    "rb4Head": true,
+    "rb4Status": true,
+    "rb4FileHashes": true,
+    "rb4Diff": true,
+    "mainMigrationBytes": true,
+    "mainMigrationInventory": true,
+    "convergenceMigrations001To012": true,
+    "rb4Migrations001To012": true
+  },
+  "refsBeforeCommit": {
+    "refs/heads/main": "5f82f43ee1a6002729f0d300fa7cf27f177bacfa",
+    "refs/remotes/origin/main": "653655d1e332559055d6928721026896320ab0ae",
+    "refs/heads/engineering/convergence-1-20261110": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+    "refs/heads/reconstruction/ar2-u09-sql-runtime-cutover-readiness": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "refs/heads/rehearsal/firestore-main-20261113": "00c9c87f09d9df1aae8fe3fdac50751169eaca37"
+  },
+  "listeningPorts": {
+    "8085": false,
+    "9099": false,
+    "4400": false,
+    "4500": false,
+    "9150": false,
+    "55439": false
+  },
+  "protectedSourceDiff": "EMPTY",
+  "generatedDateOnlyReportOutputsArchived": [],
+  "externalServiceLogs": [
+    {
+      "name": "ui1-connected-auth-emulator.log",
+      "sha256": "2627e333e898e07fbad761c14b115ef1a76e2beaf6a45463ec329cb89741c5da",
+      "keptOutsideGit": true
+    },
+    {
+      "name": "ui1-connected-firestore-emulator.log",
+      "sha256": "b9a976abf746e293a79df1731c6919b273ac30d1464a5f0a56de6c9eb1fdf420",
+      "keptOutsideGit": true
+    }
+  ],
+  "sqlActivation": "NOT_PERFORMED",
+  "productionFirebaseGoogle": "NOT_PERFORMED",
+  "note": "Local main remains its untouched older clone-time ref; verified main baseline is origin/main653655d. Main contains001–010; convergence/U09 existing001–012 and original RB4 unfinished013 are preserved, not added to this branch."
+}

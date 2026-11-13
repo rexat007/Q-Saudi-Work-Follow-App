@@ -1,0 +1,64 @@
+{
+  "main": "653655d1e332559055d6928721026896320ab0ae",
+  "branch": "ui/ui1-trip-entry-20261113",
+  "convergence": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+  "rehearsal": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+  "rb4": {
+    "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "status": [
+      " M server/workspaceProjectionDelivery.ts",
+      "?? docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md",
+      "?? server/sqlWorkspaceDelivery.ts",
+      "?? server/workspaceDeliveryJournal.ts",
+      "?? src/db/migrations/013_workspace_delivery_journal.sql",
+      "?? src/db/workspaceBindingAuthority.ts",
+      "?? src/db/workspaceDeliveryJournal.ts",
+      "?? src/db/workspaceGrantAuthority.ts",
+      "?? src/tests/ar2U09Rb4Workspace.test.ts"
+    ],
+    "files": {
+      "server/workspaceProjectionDelivery.ts": "6e2de083d64939792463e8c35b9958687a677c1e2d7ac4ddcdfa6d72a046d917",
+      "docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md": "4214dd0fa88d7f381cdf511a9f70b791532f61976e311fe2d2ff512e5708a7f2",
+      "server/sqlWorkspaceDelivery.ts": "abd6bdaf7cba2a96b3ff7ecd521740243a48d559c61bb6c0a0b554b2f9d518ac",
+      "server/workspaceDeliveryJournal.ts": "4937ce73ae7e7b7626d4578134efa26801b3579fedaec02c9d9facd2408ca1b0",
+      "src/db/migrations/013_workspace_delivery_journal.sql": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+      "src/db/workspaceBindingAuthority.ts": "adee0db02f2ad1e878670ad3d75247620c70cb281350ca40368fb059bcf634de",
+      "src/db/workspaceDeliveryJournal.ts": "c2031e414589f15712cff4429c38f46e364b403b09d135f05853711c81ef6d3d",
+      "src/db/workspaceGrantAuthority.ts": "22db6d8b8baf7064d5a2c556cdc9394c24745b4c4b2eed23a45e46612f6afaf2",
+      "src/tests/ar2U09Rb4Workspace.test.ts": "451be2507a1fb02d28e17553c6b73891bd083e2947ddf5932f24e561663f972d"
+    },
+    "diffSha256": "723843220e18b96cf8ad33182ae5f4b5f5453fef1fb294c771d5df50aad4795a"
+  },
+  "mainMigrationHashes": {
+    "src/db/migrations/001_canonical_schema.sql": "d0efb9449e02c68554be021b10b54f92ac026680900394af4b8f22359f6044d0",
+    "src/db/migrations/002_roles_and_rls.sql": "d292b547ddb68e4cc5723a4c9581d2d423c32f2d163d0e469a58a0846339941e",
+    "src/db/migrations/003_runtime_authority_hardening.sql": "61f0f312104d36eafea3fb98e212212c0464e9927057df227e3bb936d45f6c4b",
+    "src/db/migrations/004_canonical_identity_membership_authority.sql": "628ed6e98f4e4eac64df0c00095f37c58295bfc071495f5dce07bffed756428c",
+    "src/db/migrations/005_temporal_relationship_authority.sql": "e45eb9099f6bc9326b6821e33de466b3c1b8019d10ad47e25c4fc9b9665c686a",
+    "src/db/migrations/006_foundation_bounded_reads.sql": "1d9590f4edfffbcbe868f823b0023ce9a38bf313dfe24fee9d35d872188b32de",
+    "src/db/migrations/007_durable_import_execution.sql": "f17c85a1f10715ff15293af455a184a6a25dd8342386e8bc5f9d31f0bd4014ff",
+    "src/db/migrations/008_trips_weighbridge_pricing_authority.sql": "461e1b40972b0500adf2d796acafdc5606f0538cb845ca423e8c73db75d4cce0",
+    "src/db/migrations/009_u06_event_read_security_gate.sql": "a0a7a45fe238ad7966887c142a89c41ee5b791c921a8cf3c0e5994f2cc6d62e3",
+    "src/db/migrations/010_inactive_offline_epoch_fence.sql": "06bcd19c88421dd614b40b1f2b7c79cd6f1c61a3f633ea50fe74e95a14055f8f"
+  },
+  "authorizedScope": "UI1 only; local commit; no push/PR/merge/deploy/production operations",
+  "sourceAllowlist": [
+    "src/App.tsx",
+    "src/components/field/FieldOperationsView.tsx",
+    "src/components/field/AdaptiveOperationsView.tsx",
+    "src/components/field/TripEntryNotice.tsx",
+    "src/components/wizard/ProjectSetupWizard.tsx",
+    "src/components/wizard/OpenProjectOperations.tsx",
+    "src/utils/tripEntryPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts"
+  ],
+  "testAllowlist": [
+    "src/tests/ui1TripEntry.test.tsx",
+    "src/tests/ui1TripEntryBrowser.test.ts",
+    "src/tests/helpers/ui1BrowserEntry.tsx",
+    "src/tests/convergence3Journey.test.ts",
+    "src/tests/operationalProfileUi.test.tsx"
+  ]
+}

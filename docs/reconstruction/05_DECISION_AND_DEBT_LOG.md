@@ -1209,3 +1209,14 @@ Baseline `303469ef29b7cf906964316691e491c0df6d5e45` merges P9-U1 through PR #62.
 - ROUTED_TO_LATER_PHASE: Trip FSM, offline and audit subsystem reconstruction retain their existing phase owners. No Phase 10 work is started.
 
 Historical records and original design bodies are retained. Phase 9 source closure readiness is conditional on the ledger's completed verification matrix and owner merge, not live deployment or release certification.
+
+
+## UI1 — bounded presentation/navigation closure (2026-11-13)
+
+Decision: reuse current canonical project publication, navigation/role policy, fleet projection, PricingService, durableTripCommand and receipt recovery. UI prerequisites explain existing authority; they do not replace it. Use the existing error-reporting pricing list API because the old subscription folds read failure into an empty array. No domain service, SQL source, financial calculation, schema or provider authority change.
+
+UI1-H1 OPEN / BASELINE_REPRODUCED: projectSetupLayeredWorkflow O. Unit2 expects the prior updateProject argument shape; current includes expectedVersion. UI1-H2 OPEN / BASELINE_REPRODUCED: operationalMessages current-source registry grounding expects pricing_unregistered literal. Both untouched failures reproduced on main; affected candidate474/476, new failures0. No assertion weakening, test deletion or skipping; no global historical PASS claimed.
+
+UI1 browser-discovered select-label accessibility defect corrected with explicit sibling label/for/id; all9 final locale/viewport cases pass. Main npm546, beta2 release443 +reports19, native UI1 29 and real connected31 pass; all final source hashes recorded. Real mobile/tablet and assistive-technology acceptance remain operational gates.
+
+UI2 timeline/station/driver-association UX and UI3–UI6 remain separate, NOT_STARTED. Local UI1 source review only; publishing, PR, merge and deployment need separate authorization. SQL/RB4 cutover remains excluded. Details: [UI1 record](UI1_TRIP_ENTRY_DISPATCH_CLARITY.md).

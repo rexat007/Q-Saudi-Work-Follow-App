@@ -1,0 +1,15 @@
+{
+  "beforeFinalBuild": [
+    {
+      "file": "index-D6jqq2mQ.css",
+      "sha256": "c688b687dc1ecb15ff2f9c624475e95769bb604b04e59c207b4e0017563cca93"
+    }
+  ],
+  "afterFinalBuild": [
+    {
+      "file": "index-D6jqq2mQ.css",
+      "sha256": "c688b687dc1ecb15ff2f9c624475e95769bb604b04e59c207b4e0017563cca93"
+    }
+  ],
+  "sameCssBytes": true
+}

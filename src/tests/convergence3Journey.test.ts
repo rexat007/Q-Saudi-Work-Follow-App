@@ -18,7 +18,7 @@ it.each(['CSV','EXCEL'] as const)('connected actual UI %s: registration, approva
  const id=randomUUID().replaceAll('-',''),admin=initializeApp({projectId:'demo-convergence2'},'c3-'+id),raw=getFirestore(admin),auth=getAuth(admin);
  const email='journey-'+id+'@example.invalid',ownerEmail='owner-'+id+'@example.invalid';
  let server:any,browser:any,ownerUid:string|undefined,uid:string|undefined;let stage='BOOT';const calls:any[]=[],errors:string[]=[];
- const evidence=resolve('../main-rehearsal-journey-states',format);fs.mkdirSync(evidence,{recursive:true});
+ const evidence=resolve('../ui1-journey-states',format);fs.mkdirSync(evidence,{recursive:true});
  const snapshot=async(page:any,name:string)=>{stage=name;fs.writeFileSync(resolve(evidence,name+'.json'),JSON.stringify({text:await page.locator('body').innerText(),inputs:await page.locator('input,select,textarea').evaluateAll((es:any[])=>es.map(e=>({tag:e.tagName,name:e.name,type:e.type,placeholder:e.placeholder,aria:e.getAttribute('aria-label'),value:e.value}))),buttons:await page.getByRole('button').allTextContents(),calls},null,2));};
  try{
   setTestDbOverride(raw);setTestAuthOverride(auth);const {app}=await import('../../server/app');
@@ -116,8 +116,14 @@ it.each(['CSV','EXCEL'] as const)('connected actual UI %s: registration, approva
   await poll(async()=>(await projectDoc.ref.get()).data()?.status,{timeout:30000}).toBe('ACTIVE');
   await poll(async()=>await page.locator('#sidebar-project-quick-selector option[value="'+projectId+'"]').textContent()).toContain('ACTIVE');
   await snapshot(page,'project-active');
+  await page.getByRole('button',{name:label('ui1.open_operations'),exact:true}).click();
+  expect(await page.locator('#sidebar-project-quick-selector').inputValue()).toBe(projectId);
+  await page.getByRole('heading',{name:label('ui1.new_trip'),exact:true}).waitFor();
+  await page.getByRole('button',{name:label('op.manage_roster'),exact:true}).click();
+  await page.getByRole('button',{name:label('projects.batch4.manual_add'),exact:true}).waitFor();
+  expect(await page.locator('#sidebar-project-quick-selector').inputValue()).toBe(projectId);
   await page.locator('#sidebar-tab-field-operations').click();
-  await page.getByRole('heading',{name:label('op.operations'),exact:true}).waitFor();
+  await page.getByRole('heading',{name:label('ui1.title'),exact:true}).waitFor();
   const truckId=(await projectDoc.ref.collection('truck_memberships').get()).docs[0].id;
   await page.getByLabel(label('op.truck'),{exact:false}).selectOption(truckId);
   let lostDispatch=false,lostCompletion=false;

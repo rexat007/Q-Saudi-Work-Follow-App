@@ -1,3 +1,4 @@
+import {OpenProjectOperations} from './OpenProjectOperations';
 import {GlobalRegistryEnrollment} from '../import/GlobalRegistryEnrollment';
 import {RosterBulkApproval} from '../import/RosterBulkApproval';
 import {ImportMaterialSelection} from '../import/ImportMaterialSelection';
@@ -182,6 +183,8 @@ export interface ProjectSetupWizardProps {
   selectedProjectId?: string;
   onSelectProject?: (projectId: string | null) => void;
   onProjectChanged?: (project: ProjectEntity) => void;
+  onOpenProjectOperations?: (projectId:string)=>void;
+  entryIntent?: {projectId:string;actorId:string;layer:'ROSTER'};
 }
 
 export interface ProjectWorkspaceSyncParams {
@@ -295,7 +298,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   authContext,
   selectedProjectId,
   onSelectProject,
-  onProjectChanged
+  onProjectChanged,
+  onOpenProjectOperations,
+  entryIntent
 }) => {
   const { t, isRTL, locale } = useI18n();
   // Keep presentation current without changing canonical-read callback identities or effects.
@@ -331,6 +336,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
   // Active Project Sub-collection States
   const [activeSetupLayer, setActiveSetupLayer] = useState<ProjectSetupLayer>('FOUNDATION');
   const [navigationError, setNavigationError] = useState<string | null>(null);
+  useEffect(()=>{
+    if(entryIntent?.projectId===editingProjectId && entryIntent.actorId===authContext.userId && canPresentProjectAction(authContext,editingProjectId||'')) setActiveSetupLayer(entryIntent.layer);
+  },[entryIntent,editingProjectId,projectScopeKey]);
   const [materials, setMaterials] = useState<MaterialEntity[]>([]);
   const [carriers, setCarriers] = useState<CarrierEntity[]>([]);
   const [pricingRules, setPricingRules] = useState<PricingRuleSummary[]>([]);
@@ -4205,6 +4213,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               </span>
             </div>
 
+            {project&&<OpenProjectOperations project={project} actor={authContext} ready={!isLoadingReadiness&&!readinessError&&!projectDataLoadError&&loadedProjectId===project.projectId} onOpen={id=>{if(projectContext.isCurrent(renderedContext,id))onOpenProjectOperations?.(id);}}/>}
             {project&&<ProjectMaintenancePanel key={`${project.projectId}:${renderedContext.generation}`} project={project} readiness={serverReadiness} canManage={canPresentProjectAction(authContext,project.projectId)} isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} apply={snapshot=>applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation)}/>}
             {/* Locked setup alert */}
             {isCoreSetupLocked && (
@@ -5164,6 +5173,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           <div className="space-y-1">
                             <span className="text-xs block">{t('projects.batch4.project_operational_active')}</span>
                             <span className="text-[10px] text-stone-500 font-mono block">{t('projects.batch4.setup_locked_success')}</span>
+
                           </div>
                         </div>
                       )}

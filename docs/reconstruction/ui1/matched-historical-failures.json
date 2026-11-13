@@ -1,0 +1,18 @@
+{
+  "candidateTotal": 476,
+  "candidatePassed": 474,
+  "candidateFailed": 2,
+  "newFailures": [],
+  "baselineReproducedIdentities": [
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode"
+    },
+    {
+      "file": "operationalMessages.test.ts",
+      "identity": "Batch-2 operational message presentation adapter keeps the registry unique and grounded in current service literals/templates"
+    }
+  ],
+  "baselineTreeIdenticalToMain": true,
+  "note": "Historical tests retained unchanged; no assertions altered or excluded."
+}

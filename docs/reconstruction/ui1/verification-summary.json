@@ -1,0 +1,71 @@
+{
+  "startingMain": "653655d1e332559055d6928721026896320ab0ae",
+  "branch": "ui/ui1-trip-entry-20261113",
+  "sourceFiles": 10,
+  "testFiles": 5,
+  "productionContractChanges": 0,
+  "newFocusedTests": {
+    "passed": 29,
+    "failed": 0
+  },
+  "affectedFamily": {
+    "passed": 474,
+    "total": 476,
+    "failed": 2,
+    "newFailures": 0,
+    "pending": 0,
+    "baselineFailures": [
+      {
+        "file": "operationalMessages.test.ts",
+        "identity": "Batch-2 operational message presentation adapter keeps the registry unique and grounded in current service literals/templates"
+      },
+      {
+        "file": "projectSetupLayeredWorkflow.test.tsx",
+        "identity": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode"
+      }
+    ]
+  },
+  "npm": {
+    "commands": 48,
+    "passed": 546,
+    "exit": 0
+  },
+  "release": {
+    "typescriptDiagnostics": 0,
+    "lintExit": 0,
+    "frontendPwaServerBuild": "PASS",
+    "reportTests": 19,
+    "releaseSuite": 443,
+    "exit": 0
+  },
+  "connectedGate": {
+    "files": 7,
+    "passed": 31,
+    "failed": 0,
+    "nativeExit": 0,
+    "cleanupErrors": []
+  },
+  "localeViewportGate": {
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "passed": 9,
+    "pending": 0,
+    "nativeExit": 0,
+    "keyboard": "PASS",
+    "horizontalOverflow": "NONE",
+    "fixture": "Synthetic presentation boundaries; real canonical command/receipt behavior independently exercised by connected gate",
+    "physicalDevices": "NOT_PERFORMED",
+    "screenReaderCertification": "NOT_PERFORMED"
+  },
+  "sourceIdentity": "All15 production/test file hashes exactly match final focused/release/npm/browser run metadata; no changes after final runs.",
+  "ui2": "NOT_STARTED",
+  "publication": "NOT_AUTHORIZED_NOT_PERFORMED"
+}

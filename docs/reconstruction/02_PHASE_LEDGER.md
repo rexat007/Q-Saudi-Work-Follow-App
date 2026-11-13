@@ -1643,3 +1643,12 @@ BLOCKING = 0 for the approved Phase 9 source contract. New accounting/invoicing,
 Exact merged baseline: 523/531 across the same relevant regression + i18n selection. Final: 550/558, including 27/27 new P9-U2 tests; P9-U1 remains 31/31. NEW_FAILURES = 0; REMOVED_TESTS = 0; SKIPPED_TESTS = 0. No existing test file was modified. The eight reproduced failures are canonical dispatch cases A/U, activation-readiness M, three Trip-command legacy allocation fixture cases, the persistence import-session ISO/metadata case, and TBC-B4's historical Smart Import checkpoint-key expectation. These suites are NOT represented as wholly passing and are not repaired outside scope.
 
 Build PASS. Diagnostics 440→440, added 0 / removed 0; lint EXIT 2 / NOT PASS. Browser/runtime 8/8 with actual Wizard and pricing/Trip services, transactional IN_MEMORY persistence and controlled authentication transport. No emulator/live Firebase acceptance. AR/EN/UR each 4384 keys (nine lifecycle/hint keys added); duplicate keys/parity gaps/empty values 0. `git diff --check` PASS. Historical specification bodies, old handoffs and Studio snapshots are preserved. Dependencies/config/workflows/rules, offline/Trip FSM and report/dashboard architecture are unchanged.
+
+
+## UI1 — Trip Entry & Dispatch Clarity (2026-11-13)
+
+Main653655d1e332559055d6928721026896320ab0ae; isolated branch ui/ui1-trip-entry-20261113. SOURCE_IMPLEMENTED_VERIFIED / GO_FOR_INDEPENDENT_REVIEW, local commit only. Ten UI/locale files and five test files; no command, authorization, pricing/financial, Outbox identity/recovery, SQL or migration authority changed. Canonical activation-to-operations and scoped ROSTER navigation, truthful configured Trip/supervision entry, explicit blockers and acknowledged dispatch/recovery presentation complete.
+
+Verification: new native29/29; affected474/476 with exactly2 reproduced baseline failures and0new; main npm546/546; beta2 reports19/19 +release443/443; TypeScript0, lint/build PASS; connected emulator/browser/PWA31/31; AR/EN/UR viewport/keyboard9/9. Physical devices/screen-reader certification NOT_PERFORMED. This is not full historical/deployment certification.
+
+Authoritative UI1 record: [UI1_TRIP_ENTRY_DISPATCH_CLARITY.md](UI1_TRIP_ENTRY_DISPATCH_CLARITY.md); exact files, hashes, inherited failures and raw evidence: [ui1/verification-summary.json](ui1/verification-summary.json). Original RB4 nine dirty files/013 and approved migration states preserved. UI2–UI6 NOT_STARTED; no push/PR/merge/deploy/production operation.
