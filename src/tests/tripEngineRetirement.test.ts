@@ -41,10 +41,10 @@ describe('Phase 6 — TripEngine Production Surface Retirement Verification', ()
 
   // 3. navigation.service has no TRIP_ENGINE Developer Tools entry
   it('3. navigation.service has no TRIP_ENGINE Developer Tools entry', () => {
-    const devItem = DEVELOPER_TOOLS_REGISTRY.find(item => item.id === 'TRIP_ENGINE');
+    const devItem = DEVELOPER_TOOLS_REGISTRY.find(item => String(item.id) === 'TRIP_ENGINE');
     expect(devItem).toBeUndefined();
 
-    const navItem = NAV_ITEMS_REGISTRY.find(item => item.id === 'TRIP_ENGINE');
+    const navItem = NAV_ITEMS_REGISTRY.find(item => String(item.id) === 'TRIP_ENGINE');
     expect(navItem).toBeUndefined();
   });
 
@@ -54,10 +54,10 @@ describe('Phase 6 — TripEngine Production Surface Retirement Verification', ()
     expect(isAuthorized).toBe(false);
 
     const devTools = navigationService.getAuthorizedDeveloperTools('SUPER_ADMIN');
-    expect(devTools.some(t => t.id === 'TRIP_ENGINE')).toBe(false);
+    expect(devTools.some(t => String(t.id) === 'TRIP_ENGINE')).toBe(false);
 
     const allTabs = navigationService.getAuthorizedTabs('SUPER_ADMIN');
-    expect(allTabs.some(t => t.id === 'TRIP_ENGINE')).toBe(false);
+    expect(allTabs.some(t => String(t.id) === 'TRIP_ENGINE')).toBe(false);
   });
 
   // 5. navigation authorization denies TRIP_ENGINE for all other roles

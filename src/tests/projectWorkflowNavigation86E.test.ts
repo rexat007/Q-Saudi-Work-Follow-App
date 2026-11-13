@@ -190,7 +190,7 @@ export async function runBlock86ETests() {
   test('[NAV-03]', 'Project Management and Master Data remain conceptually distinct navigation keys', () => {
     const navItems = navigationService.getAuthorizedPrimaryTabs('SUPER_ADMIN');
     const hasWizard = navItems.some(item => item.id === 'WIZARD');
-    const hasMasterData = navItems.some(item => item.id === 'MASTER_DATA');
+    const hasMasterData = navItems.some(item => String(item.id) === 'MASTER_DATA');
     expect(hasWizard).toBeTrue();
     expect(hasMasterData).toBeTrue();
   });

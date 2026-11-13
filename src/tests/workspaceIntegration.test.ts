@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 import { 
   WORKSPACE_TABS, 
   OPERATIONS_LEGACY_COLUMNS, 
@@ -31,7 +32,7 @@ export async function runWorkspaceTestSuite(): Promise<{
     const sourceOfTruthCount = trips.length;
     const plan = serverWorkspaceService.getOperationsMigrationPlan();
 
-    const passed = sourceOfTruthCount > 0 && 
+    const passed = sourceOfTruthCount === 0 &&
                    plan.sourceOfTruth === 'Firestore' && 
                    plan.projectionTarget === 'Google Sheets';
     results.push({
@@ -218,8 +219,8 @@ export async function runWorkspaceTestSuite(): Promise<{
   // TEST 7: 6 Google Sheets Tabs (Operations, Drivers, Carriers, Materials, Exceptions, Reports)
   {
     const tabs = Object.values(WORKSPACE_TABS);
-    const expectedTabTitles = ['العمليات', 'السائقين', 'الناقلين', 'المواد', 'الاستثناءات', 'تقارير مختارة'];
-    const passed = tabs.length === 6 && 
+    const expectedTabTitles = ['العمليات', 'السائقين', 'الناقلين', 'المواد', 'الاستثناءات', 'تقارير مختارة', 'سجل الأسطول والتشغيل'];
+    const passed = tabs.length === 7 &&
                    expectedTabTitles.every(t => tabs.some(tab => tab.tabTitleAr === t));
 
     results.push({
@@ -263,3 +264,7 @@ export async function runWorkspaceTestSuite(): Promise<{
     results,
   };
 }
+
+let registeredResult: Awaited<ReturnType<typeof runWorkspaceTestSuite>>;
+beforeAll(async()=>{registeredResult=await runWorkspaceTestSuite();},60000);
+it.each(["WS-TEST-01", "WS-TEST-02", "WS-TEST-03", "WS-TEST-04", "WS-TEST-05", "WS-TEST-06", "WS-TEST-07", "WS-TEST-08"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

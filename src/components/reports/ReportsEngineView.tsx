@@ -61,8 +61,9 @@ export function computeMergedTripsFromProjects(tripsByProject: Record<string, Tr
   const seen = new Set<string>();
   const deduplicated: TripRecord[] = [];
   for (const t of list) {
-    if (!seen.has(t.tripId)) {
-      seen.add(t.tripId);
+    const key = JSON.stringify([t.projectId, t.tripId]);
+    if (!seen.has(key)) {
+      seen.add(key);
       deduplicated.push(t);
     }
   }
@@ -80,7 +81,7 @@ export function computeMergedExceptionsFromProjects(exceptionsByProject: Record<
   const seen = new Set<string>();
   const deduplicated: TripExceptionEntity[] = [];
   for (const e of list) {
-    const key = `${e.projectId}:${e.exceptionId}`;
+    const key = JSON.stringify([e.projectId, e.tripId, e.exceptionId]);
     if (!seen.has(key)) {
       seen.add(key);
       deduplicated.push(e);
@@ -134,9 +135,16 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
   // Real-time exception database mapping: projectId -> TripExceptionEntity[]
   const [exceptionsByProject, setExceptionsByProject] = useState<Record<string, TripExceptionEntity[]>>({});
 
+  const dataScope=JSON.stringify([userProfile?.userId,userProfile?.role,userProfile?.status,[...(userProfile?.assignedProjectIds||[])].sort(),filters.projectId,selectedReportType]);
+  const [loadedScope,setLoadedScope]=useState<string|null>(null);
+
   // Combined data loading effect (Retire to one-shot for Idle Quiescence)
   useEffect(() => {
-    if (!isAuthReady || !userProfile) return;
+    setTripsByProject({});
+    setExceptionsByProject({});
+    setAuthorizedProjects([]);
+    setAuthorizedProjectIds([]);
+    if (!isAuthReady || !userProfile) { setIsDataLoading(false); return; }
 
     let active = true;
     const isSuperAdmin = userProfile.role === 'SUPER_ADMIN';
@@ -169,13 +177,12 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
           return;
         }
 
-        const tripResults = await Promise.all(targetIds.map(pId => tripRepository.listByProject(pId, 1000)));
+        const tripResults = await Promise.all(targetIds.map(pId => tripRepository.listCompleteByProject(pId)));
         if (!active) return;
         const tripsMap: Record<string, TripRecord[]> = {};
         tripResults.forEach((trips, idx) => {
           tripsMap[targetIds[idx]] = trips.map(t => reportsEngineService.adaptTripEntityToRecord(t));
         });
-        setTripsByProject(tripsMap);
 
         // 3. Exceptions
         if (selectedReportType === 'EXCEPTION_REPORT') {
@@ -188,10 +195,16 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
           setExceptionsByProject(exceptionsMap);
         }
 
+        // Publish a complete successful generation only after all required reads.
+        if (!active) return;
+        setTripsByProject(tripsMap);
+        setLoadedScope(dataScope);
         setIsDataLoading(false);
       } catch (err) {
         console.error('Failed to load report data:', err);
         if (active) {
+          setTripsByProject({});
+          setExceptionsByProject({});
           setDataError("analytics.ui.data_loading_failed");
           setIsDataLoading(false);
         }
@@ -204,12 +217,12 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
 
   // Merged & Deduplicated canonical datasets
   const allTrips = useMemo(() => {
-    return filterProjectScope(computeMergedTripsFromProjects(tripsByProject), userProfile || undefined);
-  }, [tripsByProject, userProfile]);
+    return loadedScope!==dataScope?[]:filterProjectScope(computeMergedTripsFromProjects(tripsByProject), userProfile || undefined);
+  }, [tripsByProject, userProfile,loadedScope,dataScope]);
 
   const allExceptions = useMemo(() => {
-    return filterProjectScope(computeMergedExceptionsFromProjects(exceptionsByProject), userProfile || undefined);
-  }, [exceptionsByProject, userProfile]);
+    return loadedScope!==dataScope?[]:filterProjectScope(computeMergedExceptionsFromProjects(exceptionsByProject), userProfile || undefined);
+  }, [exceptionsByProject, userProfile,loadedScope,dataScope]);
 
   // Distinct master data options extracted dynamically from live trips & snapshots (RP-27, RP-28, RP-34)
   const availableProjects = useMemo(() => {

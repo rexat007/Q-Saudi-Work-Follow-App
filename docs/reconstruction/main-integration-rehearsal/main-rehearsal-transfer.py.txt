@@ -1,0 +1,38 @@
+import json,subprocess,re,hashlib
+from pathlib import Path
+root=Path.cwd();conv=Path('../convergence-1').resolve();ev=root/'docs/reconstruction/main-integration-rehearsal';g=['git','-c','safe.directory='+root.as_posix(),'-c','core.autocrlf=true'];source=['git','-C',str(conv),'-c','safe.directory='+conv.as_posix()];u09='11326e277939fe3a1d839d723085797d3d6a691f';head='0057dbed509f15f107bd17345de9e0a98bd8de75';main='030e9027685033c674cf2021499db7bfb675cbfd'
+assert subprocess.check_output(g+['rev-parse','HEAD']).decode().strip()==main
+old=json.loads((ev/'reconciled-dependencies.json').read_text(encoding='utf-8'));fresh=json.loads((ev/'recomputed-runtime-dependencies.json').read_text(encoding='utf-8'));assert len(fresh['records'])==55
+fresh['acceptedMapRecordedRoots']=54;fresh['acceptedMapRecordedHead']='3edaa8799954145e438daa48cc6f80b4fe288f10';fresh['newlyRecognizedProductionRoot']='src/tests/pricingEngine.cases.ts (runtime-imported by PricingEngineView; previous root filter omitted it)';(ev/'reconciled-dependencies.json').write_text(json.dumps(fresh,indent=2),encoding='utf-8',newline='\n')
+plan=json.loads((ev/'transfer-plan.json').read_text(encoding='utf-8'));plan['newlyRecognizedProductionRoot']=fresh['newlyRecognizedProductionRoot'];plan['additionalReviewedDependency']={'path':'src/components/field/AdaptiveOperationsView.tsx','source':'U09 extraction of OperationalTripControls, a provider-neutral presentation function; no SQL imports, reads, writer or authorization bypass. Needed by accepted durable Firestore consumer.','method':'Reviewed main-to-final hunks for this file only, not the U09 commit.'};(ev/'transfer-plan.json').write_text(json.dumps(plan,indent=2),encoding='utf-8',newline='\n')
+records=[]
+def apply(p,patch,mode):
+ check=subprocess.run(g+['apply','--check','-'],input=patch,capture_output=True)
+ if check.returncode:records.append({'path':p,'status':'PENDING_HUNK_ADAPTATION','mode':mode,'detail':check.stderr.decode()});return False
+ subprocess.run(g+['apply','-'],input=patch,check=True,capture_output=True);records.append({'path':p,'status':'TRANSFERRED','mode':mode,'acceptedPatchSha256':hashlib.sha256(patch).hexdigest()});return True
+for rec in fresh['records']:
+ p=rec['path']
+ if p.endswith('/SqlTripWorkstation.tsx'):records.append({'path':p,'status':'EXCLUDED_SQL_ONLY'});continue
+ cs=(conv/p).read_text(encoding='utf-8')
+ if p in ['src/services/tripCommandClient.service.ts','src/services/offline/outbox.service.ts','src/services/exceptionCommandClient.service.ts']:
+  s=cs
+  if p.endswith('tripCommandClient.service.ts'):
+   for line in ["import {currentRuntimeClient,submitRuntimeTrip} from './runtimeClient.service';\n","  if(currentRuntimeClient()?.principal()&&currentRuntimeClient()!.principal()!==actor.uid)throw Error('AUTH_CONTEXT_CHANGED');\n","  if(currentRuntimeClient())return submitRuntimeTrip(projectId,command,payload,operationId,expectedRevision,tripId);\n"]:assert line in s;s=s.replace(line,'',1)
+  else:
+   s=re.sub(r"^import \{assertLegacyClient\} from '[^']+';\n",'',s,count=1,flags=re.M);s=s.replace('    assertLegacyClient();\n','').replace('assertLegacyClient();','')
+  assert 'runtimeClient.service' not in s and 'assertLegacyClient' not in s
+  Path(p).write_text(s,encoding='utf-8',newline='\n');records.append({'path':p,'status':'TRANSFERRED','mode':'Accepted Firestore client/queue, U09-only runtime import and dispatch/guard omitted; existing main sole Firestore authority retained','acceptedSourceSha256':hashlib.sha256(cs.encode()).hexdigest()});continue
+ if p=='src/firebase/authContext.tsx':
+  start=cs.index('watch: (current, receive, fail) => {');end=cs.index('terminate:',start);watch=cs[start:end];watch='\n'.join(line for line in watch.split('\n') if not any(v in line for v in ['// SQL composition','// Firestore listener.','if(runtime)return']))
+  oldText=Path(p).read_text(encoding='utf-8');needle='watch: () => () => {},\n      ';assert oldText.count(needle)==1;Path(p).write_text(oldText.replace(needle,watch),encoding='utf-8',newline='\n');records.append({'path':p,'status':'TRANSFERRED','mode':'Only server-confirmed Firestore watcher; retain original main AuthProvider and Firebase session authority, omit U09 SQL branch'});continue
+ patch=subprocess.check_output(source+['diff',u09,head,'--',p])
+ if p=='server/app.ts':
+  matches=list(re.finditer(rb'^@@.*$',patch,re.M));assert len(matches)>1;patch=patch[:matches[0].start()]+patch[matches[1].start():]
+  if apply(p,patch,'Accepted Firestore routes only, excluding U09 runtime-boundary import context'):
+   s=Path(p).read_text(encoding='utf-8');imports="import {tripCommandHandler} from './tripCommandHandler';\nimport {ExceptionCommandsServerService} from '../src/services/exceptionCommands.server';\nimport {readProjectAudit} from '../src/services/projectAuditRead.server';\n";Path(p).write_text(imports+s,encoding='utf-8',newline='\n')
+  continue
+ if p=='src/components/field/AdaptiveOperationsView.tsx':
+  assert not any(t in cs for t in ['runtimeClient','useRuntimeComposition','SqlTrip','submitRuntimeTrip']);patch=subprocess.check_output(source+['diff',main,head,'--',p]);apply(p,patch,'Accepted durable Firestore consumer plus explicitly reviewed provider-neutral U09 control presentation dependency');continue
+ apply(p,patch,'Accepted U09..convergence correction hunks only; preserve main content outside those hunks')
+(ev/'transfer-progress.json').write_text(json.dumps(records,indent=2),encoding='utf-8',newline='\n')
+print(json.dumps({'transferred':sum(x['status']=='TRANSFERRED' for x in records),'excluded':sum(x['status'].startswith('EXCLUDED') for x in records),'pending':[x for x in records if x['status']=='PENDING_HUNK_ADAPTATION']},indent=2))

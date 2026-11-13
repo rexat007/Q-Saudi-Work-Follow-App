@@ -209,6 +209,8 @@ export type TripStatus =
   | 'CANCELLED';
 
 export interface TripEntity extends BaseAuditedEntity {
+  /** Assigned by the canonical command transaction; legacy absence means zero. */
+  version?: number;
   operationalSnapshot?:TripOperationalSnapshot;
   operationalTimeline?:OperationalTimeline;
   operationalWeights?:OperationalWeights;

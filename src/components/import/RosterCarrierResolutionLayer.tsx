@@ -7,7 +7,7 @@ import { useI18n } from '../../i18n';
 import React, { useMemo, useState } from 'react';
 import { Truck, Check, AlertCircle, AlertTriangle, Plus, X, UserCheck, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { UnifiedImportBatch } from '../../types/unifiedImport';
-import { canonicalCarrierRowsReady, RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
+import { acceptedRosterIdentity, canonicalCarrierRowsReady, RosterBatchReviewService, RosterEntityReviewGroup } from '../../services/import/rosterBatchReview.service';
 
 export interface ProjectCarrierOption {
   carrierId: string;
@@ -51,7 +51,7 @@ export const checkCarrierResolutionReadiness = (batch: UnifiedImportBatch): bool
 
   const hasMissingOrUnresolvedRow = activeRows.some((r) => {
     const carrierRes = r.entityResolutions?.carrier;
-    return !carrierRes?.matchedId || carrierRes.status === 'UNRESOLVED' || carrierRes.status === 'CONFLICT';
+    return !acceptedRosterIdentity(carrierRes, 'CARRIER');
   });
   if (hasMissingOrUnresolvedRow) return false;
 

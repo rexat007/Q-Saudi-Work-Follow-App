@@ -1,6 +1,13 @@
 import { TranslationDictionary } from '../../i18n/types';
 
 export const enTranslations: TranslationDictionary = {
+  "operations.scale.read_unavailable": "No scale connection is configured. Enter the measured reading manually.",
+  "operations.unloading.local_preparation": "Local unloading preparation recorded. Server confirmation is required for completion.",
+  "operations.exception.review_note": "Review note",
+  "operations.exception.read_unavailable": "Exception verification is unavailable. Select a Project and reconnect.",
+  "operations.exception.decision_confirmed": "The server confirmed the exception decision.",
+  "operations.exception.decision_unconfirmed": "The decision is unconfirmed. Reconnect and verify before retrying.",
+  "offline.recovery.awaiting_receipt": "Outcome unconfirmed — awaiting server receipt",
   "auth.continuity.title": "Reconnecting account verification",
   "auth.continuity.message": "Verification is temporarily unavailable. Your identity and work are retained; actions are paused until verification returns.",
   "import.bulk.title": "Bulk identity review",
@@ -19,7 +26,7 @@ export const enTranslations: TranslationDictionary = {
   "import.assurance.search": "Search by name, ID or natural identity",
   "import.assurance.previous": "Previous",
   "import.assurance.next": "Next",
-  "import.assurance.page": "{from}–{to} / {total}",
+  "import.assurance.page": "Items {from}–{to} / {total}",
   "import.assurance.options": "Refine the search to find another identity ({count} shown)",
   "gws.host_unavailable": "The application service is temporarily unavailable. Retry when it is reachable.",
   "gws.google_service_unavailable": "Google is temporarily unavailable. Your binding and pending work are preserved.",

@@ -47,7 +47,7 @@ describe('Step 4A-RECOVERY — Smart Trip Import Operational Convergence', () =>
   it('2. Unauthorized field roles remain blocked by the existing role guard', () => {
     const fileContent = fs.readFileSync(supervisionFilePath, 'utf-8');
     expect(fileContent).toContain("if (!allowedRoles.includes(authContext.role))");
-    expect(fileContent).toContain("غير مصرح بالدخول (Unauthorized)");
+    expect(fileContent).toContain("driver.unauthorized_title");
   });
 
   it('3. FieldSupervisionView receives and uses selectedProjectId prop', () => {
@@ -177,7 +177,7 @@ describe('Step 4A-RECOVERY — Smart Trip Import Operational Convergence', () =>
     
     // Verify that the code conditionally guards rendering based on targetProjectId
     expect(supervisionContent).toContain('!targetProjectId');
-    expect(supervisionContent).toContain('تحديد نطاق المشروع مطلوب');
+    expect(supervisionContent).toContain('field_supervision.project_required_title');
   });
 
   it('24. Excel and Google Sheets receive identical resolved targetProjectId', () => {

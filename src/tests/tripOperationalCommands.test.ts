@@ -66,11 +66,11 @@ function dispatchGraph(x: ReturnType<typeof fixture>) {
     'trucks/TRK': { truckId: 'TRK', plate: 'ABC', status: 'ACTIVE', tareWeightKg: 10000 },
     'drivers/DRV-A': { driverId: 'DRV-A', fullNameAr: 'Driver', nationalId: '1234567890', status: 'ACTIVE' },
     'materials/MAT': { materialId: 'MAT', nameAr: 'Material', unitOfMeasure: 'TON', status: 'ACTIVE' },
-    'projects/P1/pricing_rules/PRICE': { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'CAR', materialId: 'MAT', status: 'ACTIVE', pricingModel: 'PER_TON', baseRateSAR: 10 },
+    'projects/P1/pricing_rules/PRICE': { pricingRuleId: 'PRICE', projectId: 'P1', carrierId: 'CAR', materialId: 'MAT', status: 'ACTIVE', pricingModel: 'PER_TON', baseRateSAR: 10, effectiveFrom: '2020-01-01', currency: 'SAR' },
     'projects/P1/driver_active_assignments/DRV-A': { assignmentId: 'ASG' },
     'projects/P1/truck_active_assignments/TRK': { assignmentId: 'ASG' },
     'projects/P1/driver_truck_assignments/ASG': { assignmentId: 'ASG', projectId: 'P1', driverId: 'DRV-A', truckId: 'TRK', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00Z', effectiveTo: null },
-    'projects/P1/truck_active_allocations/TRK': { allocationId: 'ALC' },
+    'projects/P1/truck_active_material_allocations/TRK': { allocationId: 'ALC', truckId: 'TRK', projectId: 'P1' },
     'projects/P1/truck_material_allocations/ALC': { allocationId: 'ALC', projectId: 'P1', truckId: 'TRK', materialId: 'MAT', status: 'ACTIVE', effectiveFrom: '2020-01-01T00:00:00Z', effectiveTo: null },
   });
   for (const [kind, id] of [['carrier', 'CAR'], ['truck', 'TRK'], ['driver', 'DRV-A'], ['material', 'MAT']])

@@ -1,0 +1,393 @@
+{
+  "reason": "Raw unified-diff context has mandatory trailing spaces; lossless archival avoids editing evidence bytes and avoids altering whitespace gates. All original patch content preserved exactly under GZIP. Old inventories/README describe original names; use this explicit mapping to recover them.",
+  "initialCachedCheckExit": 2,
+  "initialWhitespaceIssues": 785,
+  "sourceOrTestIssues": 0,
+  "patches": [
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/isolated-main-source.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/isolated-main-source.patch.gz",
+      "originalBytesSha256": "45ba2d6303009ba42fe512ee5e42de030cd0129a224175a4ecc592fae73d9944",
+      "compressedBytesSha256": "48ec0c3f45c717f27b6bbde5df7d78965e0df2e690581f9366e132644a9fff8f",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/00-server__app.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/00-server__app.ts.patch.gz",
+      "originalBytesSha256": "e9227c1ab269ab52acd4e5101449666434e82cb7359030ed11dd9d0c6d0bb449",
+      "compressedBytesSha256": "e435f0fdd6bf68dff8777c8eed1bf8e8c8bc66c4bab6208ef77f2247d8b17cab",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/01-server__tripCommandHandler.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/01-server__tripCommandHandler.ts.patch.gz",
+      "originalBytesSha256": "56c613774b45b0685cfbb3d9aafdac73b05f9a280ce26f0230b68640b28f69f6",
+      "compressedBytesSha256": "3fd2432e116a593add233783f1d907c24e62a620985b75a72bec8ee05303a560",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/02-src__App.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/02-src__App.tsx.patch.gz",
+      "originalBytesSha256": "6e6dbf59d090825f8d2be49d99eec9b74748569637e24dfe0e445bfff80e0245",
+      "compressedBytesSha256": "6fe10b1525a86a4030a5bf62ae65e6dc38be699976e6f38dec366d83527eccf9",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/03-src__components__field__AdaptiveOperationsView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/03-src__components__field__AdaptiveOperationsView.tsx.patch.gz",
+      "originalBytesSha256": "97bab909af3d8f1c7850afb6f3bdb60677f7234354a819c7c14da093653fb8fa",
+      "compressedBytesSha256": "33f227b86667776a098c067c5887c0f4ca125d63a282bd77ebc57c9d2ea1c701",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/04-src__components__field__DriverView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/04-src__components__field__DriverView.tsx.patch.gz",
+      "originalBytesSha256": "1a294614354fb6a245ca7e6b442f63f8e0df28d18806fa409b7c837bcf553ccf",
+      "compressedBytesSha256": "14835a9e82652719dd8836d06e0c55ed0b1ab076cb0edb5ce8c552efc670960f",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/05-src__components__field__FieldSupervisionView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/05-src__components__field__FieldSupervisionView.tsx.patch.gz",
+      "originalBytesSha256": "badd13409ab01db7d6b6c692a37e3209b884a0aae6f0a0f6fd038e77912d8e8e",
+      "compressedBytesSha256": "b2619979fe20dd3f49eb83c438c24989890d8a95c72a82e77687911968e6509c",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/06-src__components__field__LoadingOperatorView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/06-src__components__field__LoadingOperatorView.tsx.patch.gz",
+      "originalBytesSha256": "8925dbc6fe600d06ae9733254fb9cac6fee32d61dc9e422fed076a83c4a43736",
+      "compressedBytesSha256": "a8f283d9a1f8fe0092f81fd8badb3a2d8884795ae0c3fe2b7a808eb8bdcfd2a0",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/07-src__components__field__SqlTripWorkstation.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/07-src__components__field__SqlTripWorkstation.tsx.patch.gz",
+      "originalBytesSha256": "464fb1c1b253eee8b81de605d2e8057f742deaf71cbd4edc9f074b8188e7fce2",
+      "compressedBytesSha256": "39cac36491b8aaf2830d7310dc78d64239e4820a58e6651b8502fece3a42693e",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/08-src__components__field__UnloadingOperatorView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/08-src__components__field__UnloadingOperatorView.tsx.patch.gz",
+      "originalBytesSha256": "1c9b64f9ffb8a1e8b6455dec59784622c99386703deb7b93bbb5b1d98b523ccc",
+      "compressedBytesSha256": "52f738000a380e3ffaae9107282f984d556aec9266544b2232036bf8c4e91632",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/09-src__components__import__RosterCarrierResolutionLayer.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/09-src__components__import__RosterCarrierResolutionLayer.tsx.patch.gz",
+      "originalBytesSha256": "d4875ccdc5557f27d44bc913cae5fc3b0d9710729ac33d854eb810dea8e4e3ba",
+      "compressedBytesSha256": "47850ea7534084d2a9268889e26d03e352704d496a9f08fce988cd0e0edda1c7",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/10-src__components__import__RosterMaterialResolutionLayer.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/10-src__components__import__RosterMaterialResolutionLayer.tsx.patch.gz",
+      "originalBytesSha256": "c243029bcb28802b1c5a381265ab22eb7c3fd42590ffa2dfb02f3e0daae7cab6",
+      "compressedBytesSha256": "1b0785a1455c2ebb8e984b061306b385f57d737e42f30375f74222cfb9600e74",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/11-src__components__importCenter__GoogleDriveImportSection.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/11-src__components__importCenter__GoogleDriveImportSection.tsx.patch.gz",
+      "originalBytesSha256": "f64c08bdb70851e17a6fea1214aabfe95ecfc4062a7b21aec43136c01def7c34",
+      "compressedBytesSha256": "dc1fda9531912617c4addb622b94f9163c7f1e31b6135d5926046479545b5ddc",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/12-src__components__importCenter__GoogleSheetsImportSection.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/12-src__components__importCenter__GoogleSheetsImportSection.tsx.patch.gz",
+      "originalBytesSha256": "e473c67075641862a006cc851c1006c75a810cf46d133308e7255fe4183e61a2",
+      "compressedBytesSha256": "64a0e49443bd28abe4574433f00382f39bb7b9f0486b0fdbe31c5f51abbb5beb",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/13-src__components__offline__OutboxDrawer.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/13-src__components__offline__OutboxDrawer.tsx.patch.gz",
+      "originalBytesSha256": "2a5777db83b843d9b718f681f998ca41cab9e8c72ae4d6216da1084dbcbe01c4",
+      "compressedBytesSha256": "9643a010e7a3a67a6f6f09daa1f3d1f651c94bcfca5060f0b199a24271dcbaa9",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/14-src__components__pricing__PricingEngineView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/14-src__components__pricing__PricingEngineView.tsx.patch.gz",
+      "originalBytesSha256": "260b24ef19fbbf18053a92191f2f9e1a55b7fdb46f2fe9184b3d52013eb61634",
+      "compressedBytesSha256": "0b9d8caef0cb23fa1824808cb35991f252dbe0f45d4866a1f03d7911cf87dd4a",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/15-src__components__reports__AdaptiveOperationalReports.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/15-src__components__reports__AdaptiveOperationalReports.tsx.patch.gz",
+      "originalBytesSha256": "051b8168014fe7668606297a3d8172867d7baeaeec4b10256711cdfcc049b0be",
+      "compressedBytesSha256": "a4e6e79201bfaa142daf370055c25e85769ec06d50332bfcebac875f68153079",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/16-src__components__reports__ReportsEngineView.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/16-src__components__reports__ReportsEngineView.tsx.patch.gz",
+      "originalBytesSha256": "84387e19f21cffdeca56293cc0149f02312903100389cac134971ca735e71186",
+      "compressedBytesSha256": "2a871c305b345b75884d3a1da94f8f5b7a89a77a4f6094332d998af01665fa9d",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/17-src__components__wizard__ProjectSetupWizard.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/17-src__components__wizard__ProjectSetupWizard.tsx.patch.gz",
+      "originalBytesSha256": "f7eaf09cada4a93996da38dbb8322aaf22e4ca2f8a9feda6480be1a4b281c15f",
+      "compressedBytesSha256": "5393ff97ac24255405a181f6276d4ec58a3b4c3d94c3d87de3a4cdcf9b412f1f",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/18-src__firebase__authContext.tsx.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/18-src__firebase__authContext.tsx.patch.gz",
+      "originalBytesSha256": "9928fe1288ebb07259bb6ef3df19a928d40e4fdff6239c632f934f5857aa8f63",
+      "compressedBytesSha256": "c53301b16934192b0dcea656df9328398e153e90560c64da47ebf3bf10f65db3",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/19-src__i18n__codemod__codemod.reporter.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/19-src__i18n__codemod__codemod.reporter.ts.patch.gz",
+      "originalBytesSha256": "4e28f422641f31f5c7a8108582296f09bb4d96db419e9c043b55fe041e84fc5e",
+      "compressedBytesSha256": "7ec9482bffc86144682809fcefca60cb88930d12ead4d9488dccb627918249ea",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/20-src__locales__ar__index.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/20-src__locales__ar__index.ts.patch.gz",
+      "originalBytesSha256": "50b62472251c41a2c120c39627af0d59ad657531abeb52afa6072d876a101422",
+      "compressedBytesSha256": "2fd3330aba3438bced099faa9a5cb4920902206e17fa0ad1f7c28614455f75c8",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/21-src__locales__en__index.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/21-src__locales__en__index.ts.patch.gz",
+      "originalBytesSha256": "130abb271e07740568f73b53417801181f27bd5705993fa1a40724d77e646690",
+      "compressedBytesSha256": "130eba5bca10a0b464dbc94d1a7b95b119493f06f2f7a381be6145e253610962",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/22-src__locales__ur__index.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/22-src__locales__ur__index.ts.patch.gz",
+      "originalBytesSha256": "962216a4292461b27339c0c2f39007f6fdc292487a4b82eeeff0cab1b54b02b0",
+      "compressedBytesSha256": "fb03e7967c5e6fe4c2888833820cac99a5860702ed75ed8dc4c6a86248b430db",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/23-src__repositories__exception.repository.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/23-src__repositories__exception.repository.ts.patch.gz",
+      "originalBytesSha256": "220da777359618d5a7a59c5e926be025034ef2f97a92819616b6301d3d5b963e",
+      "compressedBytesSha256": "922b8d69bd63c2b01d333a1c9a34c4f428059727e51c7e32cc4e92c887d122fa",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/24-src__repositories__trip.repository.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/24-src__repositories__trip.repository.ts.patch.gz",
+      "originalBytesSha256": "26815985fa2574f2f57470c35568e7666e73f8d4709b4be7edc915f97274ac67",
+      "compressedBytesSha256": "588152e6bda1b10fa3fd69c5fe52977856eeed8512a3798539ffb282c23aedd5",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/25-src__services__canonicalTripPersistence.server.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/25-src__services__canonicalTripPersistence.server.ts.patch.gz",
+      "originalBytesSha256": "c01f64d697e4933a21f2c2159588138df9b421b2eac95c229f530226b0a047da",
+      "compressedBytesSha256": "dd082733912d15fa373d16a891689c013ba766851835d6ebab44057e0db6b27d",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/26-src__services__durableTripCommandClient.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/26-src__services__durableTripCommandClient.service.ts.patch.gz",
+      "originalBytesSha256": "916157fca9ab1f162a1c11dcea4d53ae778bc9af41a0ca865150a55a9d8832df",
+      "compressedBytesSha256": "d7f416105d0d524f7b1084eee67b30681efcd85583e0ddb4ebc64ffee6321d51",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/27-src__services__exceptionCommandClient.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/27-src__services__exceptionCommandClient.service.ts.patch.gz",
+      "originalBytesSha256": "21a7a86b85e799a13676632278ad8159ce62af59015423948939c7da40d5269a",
+      "compressedBytesSha256": "b6da123aeae3f9999d37851fdf89583a46966fdaf95c28886ae4361a11356513",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/28-src__services__exceptionCommands.server.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/28-src__services__exceptionCommands.server.ts.patch.gz",
+      "originalBytesSha256": "7f5037c5e128f87fe4d4b62ceeb098418a98e7c9f64dcaf2547a1fd7eb4eff42",
+      "compressedBytesSha256": "112a84e2a809a236bf05f21cab198fd6df9222e9e989d08212806fc65da8142d",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/29-src__services__googleWorkspaceBlueprint__capture.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/29-src__services__googleWorkspaceBlueprint__capture.ts.patch.gz",
+      "originalBytesSha256": "c2268638f630045432a9503b52864b584d7a4b940ae709d397dfc0f851ad395a",
+      "compressedBytesSha256": "1e9ef384861f416ef39ca3d8458ce723d23bfb97fa4102b61022cc4fadf4b9ae",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/30-src__services__googleWorkspaceBlueprint__contract.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/30-src__services__googleWorkspaceBlueprint__contract.ts.patch.gz",
+      "originalBytesSha256": "223b085b055509187b39f28849b47cf5e23b634a7db38be3168a1c4e94620917",
+      "compressedBytesSha256": "ee5503ebf84339654046694f73830ad0f71827738cc70e1609aa0842446658e1",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/31-src__services__import__driverTruckImport.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/31-src__services__import__driverTruckImport.ts.patch.gz",
+      "originalBytesSha256": "ef78bceee5fd23362e4294d26067703f4d8624fd9f00542533465eee260ad32f",
+      "compressedBytesSha256": "f552ad934cedbbd78f3e46b3dee781314e8be0c3b2e327f1a50b820cd45c9976",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/32-src__services__import__googleDrivePipeline.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/32-src__services__import__googleDrivePipeline.service.ts.patch.gz",
+      "originalBytesSha256": "98508dc1f467782c4fca1a6f74ab22ec1b99a7d2892d91ac480ba3544ace5f04",
+      "compressedBytesSha256": "a6374b00bbab0ef31a3466f823128acffabecfc299d74f0a2096c08881bff717",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/33-src__services__import__rosterBatchReview.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/33-src__services__import__rosterBatchReview.service.ts.patch.gz",
+      "originalBytesSha256": "55e9527f1c38cf0da389a36bb120b291516103baae5b403e7e50fdf75de0a494",
+      "compressedBytesSha256": "ce1b564f85342a32959dc9a2c14b8df5eaa003047195923fab6243921e36f7e1",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/34-src__services__import__rosterMaterialBinding.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/34-src__services__import__rosterMaterialBinding.ts.patch.gz",
+      "originalBytesSha256": "a984eecc224826185f23fc29681c5d082af644d6f05854c8d4c36f938faa5a01",
+      "compressedBytesSha256": "783b64a650d2340b3f5b14c43eced3535291837b261e6455b984769e21b35e49",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/35-src__services__import__tripImportCommitter.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/35-src__services__import__tripImportCommitter.ts.patch.gz",
+      "originalBytesSha256": "162ce397740e3160b3df6e1db89661d1ffb0fdd7dbbc4ba232f3a687287d14a2",
+      "compressedBytesSha256": "314c0e3af3cdef5bd7a2916e3bfef62c950d61cc46b00a049378c4d0ba592361",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/36-src__services__import__unifiedImportPipeline.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/36-src__services__import__unifiedImportPipeline.service.ts.patch.gz",
+      "originalBytesSha256": "2851d4149e9056e3bd1df0201172f077785f50b19c40ed07c9b2b228b89f71ad",
+      "compressedBytesSha256": "c870f347f685e9b58342c227b58b0705b9daa3a1208ed4af9187136652c6b597",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/37-src__services__offline__conflictResolution.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/37-src__services__offline__conflictResolution.service.ts.patch.gz",
+      "originalBytesSha256": "af86fe9ce2290dd3b45d2ac494ecae2f4460a9c362c7d0229249eeea65c09475",
+      "compressedBytesSha256": "ac38a28179e0d5685158d794866bf642d00235bb70869ed7ea28f31d2c5193ae",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/38-src__services__offline__indexedDB.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/38-src__services__offline__indexedDB.service.ts.patch.gz",
+      "originalBytesSha256": "88e1b45e7880bba83bc6fb0a1bf4c6063c99d9d0578ddbd8ea3b6cffbc383c45",
+      "compressedBytesSha256": "659667cf08d5c2ee256a5227e7af0d7ed2f210efc5b4d85a68823ceaa27588f5",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/39-src__services__offline__outbox.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/39-src__services__offline__outbox.service.ts.patch.gz",
+      "originalBytesSha256": "d9999ea5254d8bf442765912d77acd20fac62b8aba8e3b55ad1964ef84e0da8f",
+      "compressedBytesSha256": "77fd93c4d3238ab43881b741ab5f9dde7c329b0c23b9ae0d2e4a985a771f851d",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/40-src__services__offline__tripCommandIdentity.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/40-src__services__offline__tripCommandIdentity.ts.patch.gz",
+      "originalBytesSha256": "897ff66e0ddb138def6844a44e6cbb29cd228dbb7fabf4110ea5b766b27c0159",
+      "compressedBytesSha256": "2280185c34de8c46b0f72fd455390773c6984b9306b38d3914bf763fc1785297",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/41-src__services__pricing.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/41-src__services__pricing.service.ts.patch.gz",
+      "originalBytesSha256": "6c5ef3feb1c76ec592f5a77764bc94c9eb4526be0d9ed7eb808270f3ee4ade03",
+      "compressedBytesSha256": "899447b2480b82c8a740dbf45ddef0a94d75354b3e95e3a64f7f6c1e536193f5",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/42-src__services__projectAuditRead.server.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/42-src__services__projectAuditRead.server.ts.patch.gz",
+      "originalBytesSha256": "6be9e6dc7b17d5ba0a2ed5df52b739627c89dbd179f93666c0db26dbbad10913",
+      "compressedBytesSha256": "7b5db0b6d38b9df3c66f48f6ec475fb6722ea8e24a441d024cb61b88a693b5a1",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/43-src__services__reportsEngine.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/43-src__services__reportsEngine.service.ts.patch.gz",
+      "originalBytesSha256": "fcd114e87e0c7823a6877dda5aa3dc8d287ef50ad1d467fa6b32ee19d80344dc",
+      "compressedBytesSha256": "607b23dd2f61b23ce9aa90c3e2a53d7e5c6376718b4e7ad02f637b6bc2641a1c",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/44-src__services__trip.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/44-src__services__trip.service.ts.patch.gz",
+      "originalBytesSha256": "a6d03ffb3fd31c364a489aab11dd868aa676545deab2d63aef65206a46b21864",
+      "compressedBytesSha256": "ed8034ad4147e4085b139b64079a2f41511488e8a5ebd7c7e083654bb15ba67a",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/45-src__services__tripCommandClient.service.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/45-src__services__tripCommandClient.service.ts.patch.gz",
+      "originalBytesSha256": "3ebc5bfc0948f613e8327691992af1edc13e47facbc26f5d38e52242cbe9cec4",
+      "compressedBytesSha256": "7062f6dde2ffd3e635bbd499abe94027991759aef9b7a1f4eadb756462e8de84",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/46-src__services__tripCommands.server.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/46-src__services__tripCommands.server.ts.patch.gz",
+      "originalBytesSha256": "67e46a4a6b137fd29a1244729576d930e1c491a1b60e594b67e638cb866438e8",
+      "compressedBytesSha256": "1a21bfc0771bc454f5d121a91b0ec8f26ed81d06919a018cd795f297956990db",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/47-src__tests__googleDriveImport.cases.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/47-src__tests__googleDriveImport.cases.ts.patch.gz",
+      "originalBytesSha256": "4c8d977410d95184bcde7e7ad9e8575a3e109f5269cb81c379be04204dbdb41b",
+      "compressedBytesSha256": "aba1cbb934b3af7a52a6066efc39aa61c07f7c4f0ccaeadc33d64195161712f0",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/48-src__tests__googleSheetsImport.cases.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/48-src__tests__googleSheetsImport.cases.ts.patch.gz",
+      "originalBytesSha256": "d2bbebdd6ce8b86ac557a93414933f3d1c30a42ee0062344487ef661ddd7cfdd",
+      "compressedBytesSha256": "2c069cf8b3c69efc8847abd8138f5b32ed1a8d9bd1b9740062d7cc5efc1da516",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/49-src__types__entities.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/49-src__types__entities.ts.patch.gz",
+      "originalBytesSha256": "6b21e945fbc5043af0a3b2c110c51c5bae995e0c96286c2deffe9cd50912b08f",
+      "compressedBytesSha256": "1f5a1d217b15f366097edcd95ec14e64aba762401859c110421be14391792af8",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/50-src__types__googleDriveImport.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/50-src__types__googleDriveImport.ts.patch.gz",
+      "originalBytesSha256": "f44b4c53706c0d6a9270a382d970a496e10b605a58b77f713d50e23aee51ff6a",
+      "compressedBytesSha256": "ef3f6cd739100afa6f6d1aa2f10862f705697814c35a366d21d39791a45cc8d2",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/51-src__types__offline.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/51-src__types__offline.ts.patch.gz",
+      "originalBytesSha256": "a6b59fb09e417a165aa36fe21ce98b33168c8d276f122e0caa6a965c57ed4598",
+      "compressedBytesSha256": "5b065434a91dbe2e14b711efffa3ea876205c5eb93f127e64edd63a25000c644",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/52-src__types__tripEngine.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/52-src__types__tripEngine.ts.patch.gz",
+      "originalBytesSha256": "84b0271eabc63ace2c91b5b6bfe1707b381a4b3aeb279b31175bf47e9e950515",
+      "compressedBytesSha256": "af0f7adb5796c75cbe7a65d0f6028ed930f0b285d7e729328235fc3ccf06cfd4",
+      "roundTripExact": true
+    },
+    {
+      "originalPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/53-src__types__unifiedImport.ts.patch",
+      "committedPath": "docs/reconstruction/main-integration-rehearsal/reviewed-production-hunks/53-src__types__unifiedImport.ts.patch.gz",
+      "originalBytesSha256": "761de2fb85bfa37f968123c1d5186c857f744707e6b7aef31386bcdb719a15ca",
+      "compressedBytesSha256": "0c79e6ba75ac749f9745de9ab00cddb6b1c0caec989b0d3204297358bfb08254",
+      "roundTripExact": true
+    }
+  ]
+}

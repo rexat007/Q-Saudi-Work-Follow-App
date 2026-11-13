@@ -35,7 +35,6 @@ import { ConflictResolutionModal } from './ConflictResolutionModal';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 import { OutboxOperation, OutboxStatus, CacheStoreMetadata, OutboxStats } from '../../types/offline';
 import { ConflictRecord, ConflictType } from '../../types/conflict';
-import { runConflictResolutionTestSuite, ConflictTestCaseResult } from '../../tests/conflictResolution.test';
 import { useI18n } from '../../i18n';
 
 
@@ -63,17 +62,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   const [isConflictModalOpen, setIsConflictModalOpen] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [isRefreshingCache, setIsRefreshingCache] = useState<boolean>(false);
-  const [isSimulatingConflict, setIsSimulatingConflict] = useState<boolean>(false);
   const [expandedOpId, setExpandedOpId] = useState<string | null>(null);
-  const [testSuiteResult, setTestSuiteResult] = useState<{
-    allPassed: boolean;
-    totalTests: number;
-    passedTests: number;
-    failedTests: number;
-    results: ConflictTestCaseResult[];
-  } | null>(null);
-  const [isRunningTests, setIsRunningTests] = useState<boolean>(false);
-
   const loadData = async () => {
     try {
       const [ops, st, meta, confs] = await Promise.all([
@@ -197,48 +186,6 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     setIsConflictModalOpen(true);
   };
 
-  const handleSimulateConflict = async (type: ConflictType) => {
-    setIsSimulatingConflict(true);
-    try {
-      const record = await conflictResolutionService.simulateConflict(type);
-      await loadData();
-      setActiveTab('CONFLICTS');
-      onNotification?.({
-        type: 'SECURITY',
-        message: `تمت محاكاة التعارض (${type}) بنجاح. تم تجميد العملية في Outbox وحفظ لقطة البيانات للتدقيق.`
-      });
-    } catch (err: any) {
-      onNotification?.({
-        type: 'ERROR',
-        message: err.message || 'فشلت محاكاة التعارض'
-      });
-    } finally {
-      setIsSimulatingConflict(false);
-    }
-  };
-
-  const handleRunTestSuite = async () => {
-    setIsRunningTests(true);
-    try {
-      const res = await runConflictResolutionTestSuite();
-      setTestSuiteResult(res);
-      await loadData();
-      onNotification?.({
-        type: res.allPassed ? 'SUCCESS' : 'ERROR',
-        message: res.allPassed
-          ? `اجتازت جميع اختبارات التعارضات (${res.passedTests}/${res.totalTests}) بنجاح تام وفق المحددات الإلزامية.`
-          : `يوجد (${res.failedTests}) اختبار لم يجتز الفحص.`,
-      });
-    } catch (err: any) {
-      onNotification?.({
-        type: 'ERROR',
-        message: err.message || 'فشل تشغيل فحص التحقق للتعارضات',
-      });
-    } finally {
-      setIsRunningTests(false);
-    }
-  };
-
   const filteredOps = operations.filter(op => {
     if (statusFilter === 'ALL') return true;
     return op.status === statusFilter;
@@ -254,10 +201,11 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           </span>
         );
       case 'SENDING':
+      case 'AWAITING_RECEIPT':
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-300 text-[11px] font-bold animate-pulse">
             <RotateCw className="w-3 h-3 animate-spin" />
-            <span>{t("offline.labels.txt_3bb240")}</span>
+            <span>{t(status==='AWAITING_RECEIPT'?'offline.recovery.awaiting_receipt':'offline.labels.txt_3bb240')}</span>
           </span>
         );
       case 'SYNCED':
@@ -410,7 +358,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-stone-200 shadow-2xs">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-bold text-stone-600">{t("offline.labels.filter")}</span>
-                  {(['ALL', 'PENDING', 'SENDING', 'SYNCED', 'FAILED', 'CONFLICT'] as const).map(st => (
+                  {(['ALL', 'PENDING', 'SENDING', 'AWAITING_RECEIPT', 'SYNCED', 'FAILED', 'CONFLICT'] as const).map(st => (
                     <button
                       key={st}
                       onClick={() => setStatusFilter(st)}
@@ -420,7 +368,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
                       }`}
                     >
-                      {st === 'ALL' ? `${t("admin_console.filter_all")} (${stats.total})` : `${st} (${stats[st.toLowerCase() as keyof OutboxStats] || 0})`}
+                      {st === 'ALL' ? `${t("admin_console.filter_all")} (${stats.total})` : `${st==='AWAITING_RECEIPT'?t('offline.recovery.awaiting_receipt'):st} (${stats[st.toLowerCase() as keyof OutboxStats] || 0})`}
                     </button>
                   ))}
                 </div>
@@ -539,7 +487,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                             <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{t("legacyMigration.status.failed_2")}</div>
-                              <div>{presentBatch4Message(op.errorReason, t)}</div>
+                              <div>{op.errorReason==='RECEIPT_REQUIRED'?t('offline.recovery.awaiting_receipt'):presentBatch4Message(op.errorReason, t)}</div>
                             </div>
                           </div>
                         )}
@@ -575,7 +523,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                               </button>
                             )}
 
-                            {(op.status === 'FAILED' || op.status === 'CONFLICT') && (
+                            {(op.status === 'FAILED' || op.status === 'CONFLICT' || op.status === 'AWAITING_RECEIPT') && (
                               <button
                                 onClick={() => handleRetryOp(op.operationId)}
                                 className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-stone-200 text-xs font-bold flex items-center gap-1 shadow-2xs transition-colors"
@@ -630,186 +578,6 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     <span><strong>{t("offline.labels.txt_6aae4c")}</strong> {t("residual.ui.future_rates_only")}</span>
                   </li>
                 </ul>
-              </div>
-
-              {/* Interactive Simulator: Quick Verification of 7 Conflict Scenarios */}
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                      <Play className="w-3.5 h-3.5 text-amber-600" />
-                      <span>{t("offline.labels.txt_55319d")}</span>
-                    </h3>
-                    <p className="text-[11px] text-stone-500">
-                      {t("offline.labels.pricing_2")}</p>
-                  </div>
-                  {isSimulatingConflict && (
-                    <span className="text-xs text-amber-600 flex items-center gap-1 font-bold animate-pulse">
-                      <RefreshCw className="w-3 h-3 animate-spin" />
-                      {t("offline.labels.txt_532950")}</span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button
-                    onClick={() => handleSimulateConflict('PRICING_CHANGED')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/70 hover:bg-amber-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-amber-900 font-bold text-xs">
-                      <Lock className="w-3.5 h-3.5 text-amber-700" />
-                      <span>{t("shared.labels.numbered_label", { number: 1, label: t("residual.ui.update_price") })}</span>
-                    </div>
-                    <span className="text-[10px] text-amber-800 block mt-0.5">{t("offline.labels.txt_2eef0a")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('VERSION_CONFLICT')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-indigo-900 font-bold text-xs">
-                      <Scale className="w-3.5 h-3.5 text-indigo-700" />
-                      <span>{t("offline.labels.txt_4e058d")}</span>
-                    </div>
-                    <span className="text-[10px] text-indigo-800 block mt-0.5">{t("offline.labels.edit_2")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('TRIP_ALREADY_COMPLETED')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-emerald-900 font-bold text-xs">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>{t("offline.status.trip")}</span>
-                    </div>
-                    <span className="text-[10px] text-emerald-800 block mt-0.5">{t("offline.labels.txt_2a087d")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('TRIP_ALREADY_RETURNED')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-rose-200 bg-rose-50/70 hover:bg-rose-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-rose-900 font-bold text-xs">
-                      <XCircle className="w-3.5 h-3.5 text-rose-700" />
-                      <span>{t("offline.labels.trip_2")}</span>
-                    </div>
-                    <span className="text-[10px] text-rose-800 block mt-0.5">{t("offline.labels.txt_5fc250")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('DUPLICATE_OPERATION')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-orange-200 bg-orange-50/70 hover:bg-orange-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-orange-900 font-bold text-xs">
-                      <Layers className="w-3.5 h-3.5 text-orange-700" />
-                      <span>{t("offline.labels.txt_32233e")}</span>
-                    </div>
-                    <span className="text-[10px] text-orange-800 block mt-0.5">{t("offline.labels.txt_15265b")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('TRUCK_CARRIER_CONFLICT')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-purple-200 bg-purple-50/70 hover:bg-purple-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50"
-                  >
-                    <div className="flex items-center gap-1 text-purple-900 font-bold text-xs">
-                      <HardDrive className="w-3.5 h-3.5 text-purple-700" />
-                      <span>{t("offline.labels.carrier")}</span>
-                    </div>
-                    <span className="text-[10px] text-purple-800 block mt-0.5">{t("offline.labels.txt_7eb4ca")}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleSimulateConflict('MASTER_DATA_CHANGED')}
-                    disabled={isSimulatingConflict}
-                    className="p-2.5 rounded-lg border border-cyan-200 bg-cyan-50/70 hover:bg-cyan-100/90 text-right rtl:text-right ltr:text-left transition-colors disabled:opacity-50 col-span-2 sm:col-span-2"
-                  >
-                    <div className="flex items-center gap-1 text-cyan-900 font-bold text-xs">
-                      <Database className="w-3.5 h-3.5 text-cyan-700" />
-                      <span>{t("offline.labels.txt_759c62")}</span>
-                    </div>
-                    <span className="text-[10px] text-cyan-800 block mt-0.5">{t("offline.labels.editMaterial")}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Automated Verification Test Suite Runner */}
-              <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h3 className="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-                      <FileCode className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>{t("offline.labels.txt_712649")}</span>
-                    </h3>
-                    <p className="text-[11px] text-stone-500">
-                      {t("offline.labels.save_3")}</p>
-                  </div>
-
-                  <button
-                    onClick={handleRunTestSuite}
-                    disabled={isRunningTests}
-                    className="px-3.5 py-1.5 rounded-lg bg-indigo-700 hover:bg-indigo-800 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
-                  >
-                    <RotateCw className={`w-3.5 h-3.5 ${isRunningTests ? 'animate-spin' : ''}`} />
-                    <span>{isRunningTests ? t("residual.ui.running_conflict_checks") : t("residual.ui.run_conflict_checks")}</span>
-                  </button>
-                </div>
-
-                {/* Test Results Display */}
-                {testSuiteResult && (
-                  <div className="space-y-3 pt-2 border-t border-stone-100">
-                    <div className={`p-3 rounded-lg border text-xs flex items-center justify-between gap-2 ${
-                      testSuiteResult.allPassed 
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-950' 
-                        : 'bg-rose-50 border-rose-200 text-rose-950'
-                    }`}>
-                      <div className="flex items-center gap-2">
-                        {testSuiteResult.allPassed ? (
-                          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                        ) : (
-                          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                        )}
-                        <span className="font-bold">
-                          {testSuiteResult.allPassed
-                            ? t("residual.ui.all_conflict_checks_passed", { passed: testSuiteResult.passedTests, total: testSuiteResult.totalTests })
-                            : t("offline.status.failed_2", { passed: testSuiteResult.passedTests, failed: testSuiteResult.failedTests })}
-                        </span>
-                      </div>
-                      <span className="font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-white border border-stone-200">
-                        {testSuiteResult.passedTests}/{testSuiteResult.totalTests} PASSED
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
-                      {testSuiteResult.results.map(testCase => (
-                        <div
-                          key={testCase.id}
-                          className="bg-stone-50 border border-stone-200 rounded-lg p-2.5 text-xs flex flex-col gap-1"
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className={`w-2 h-2 rounded-full ${testCase.passed ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                              <span className="font-bold text-stone-900">{presentBatch4Message(testCase.nameAr, t)}</span>
-                              <span className="text-[10px] font-mono text-stone-400">({testCase.id})</span>
-                            </div>
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              testCase.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                            }`}>
-                              {testCase.passed ? t("legacyMigration.labels.txt_327227") : t("legacyMigration.labels.txt_55a807")}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-stone-600 leading-relaxed">
-                            {presentBatch4Message(testCase.details, t)}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Conflicts List */}

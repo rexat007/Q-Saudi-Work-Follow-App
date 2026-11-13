@@ -1,4 +1,5 @@
 import type {TripOperationalSnapshot,OperationalTimeline,OperationalWeights,WeightBasis} from './operationalProfile';
+import type {TripEntity} from './entities';
 /**
  * Trip Engine Domain Types & Schemas
  * Strictly adhering to architectural requirements:
@@ -149,6 +150,9 @@ export interface TripEntitySnapshot {
 }
 
 export interface TripRecord {
+  /** Persisted canonical settlement evidence; never a report-engine assessment. */
+  financials?: TripEntity['financials'];
+  unloadDecision?: string;
   operationalSnapshot?:TripOperationalSnapshot;
   operationalTimeline?:OperationalTimeline;
   operationalWeights?:OperationalWeights;

@@ -287,10 +287,10 @@ describe('Unit 5C: Concurrency-Safe Successful Projection Acknowledgement Tests'
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
     expect(routeIndex).toBeGreaterThan(-1);
 
-    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
+    const routeSnippet = fs.readFileSync(path.resolve(__dirname, '../services/projectGoogleWorkspace.server.ts'), 'utf8');
 
-    const getStatePos = routeSnippet.indexOf('getWorkspaceProjectionState');
-    const buildSnapshotPos = routeSnippet.indexOf('buildInitialProjectionSnapshot');
+    const getStatePos = routeSnippet.indexOf('const freshness=await projectionState(projectId,this.db);let payload:any={event}');
+    const buildSnapshotPos = routeSnippet.indexOf('buildCanonicalProjection(projectId,this.boundedProjectionDb())');
 
     expect(getStatePos).toBeGreaterThan(-1);
     expect(buildSnapshotPos).toBeGreaterThan(-1);

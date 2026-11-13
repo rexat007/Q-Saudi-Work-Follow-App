@@ -46,8 +46,8 @@ class ConflictResolutionService {
   /**
    * Retrieves non-authoritative local cached trip for offline conflict inspection.
    */
-  public getCachedTripById(tripId: string): any {
-    return indexedDBService.getSync<any>('trips', tripId);
+  public getCachedTripById(tripId: string,projectId?:string): any {
+    return indexedDBService.getSync<any>('trips', tripId,projectId);
   }
 
   /**
@@ -81,7 +81,7 @@ class ConflictResolutionService {
 
     // 1. Check for TRIP_ALREADY_COMPLETED & TRIP_ALREADY_RETURNED & VERSION_CONFLICT on existing trip
     if (tripId) {
-      const serverTrip = this.getCachedTripById(tripId);
+      const serverTrip = this.getCachedTripById(tripId,op.projectId);
       if (serverTrip) {
         // 1a. TRIP_ALREADY_COMPLETED
         if (serverTrip.status === 'COMPLETED' && payload.status !== 'COMPLETED') {
@@ -453,7 +453,7 @@ class ConflictResolutionService {
     }
   ): Promise<{ success: boolean; messageAr: string; committedTrip?: TripRecord }> {
     const conflict = this.inMemoryConflicts.get(conflictId) || await indexedDBService.getConflictRecordById(conflictId);
-    if (!conflict) {
+    if (!conflict || !indexedDBService.isCurrentPrincipal(conflict.localCommand.userId)) {
       throw new Error(`سجل التعارض (${conflictId}) غير موجود`);
     }
 
@@ -504,7 +504,7 @@ class ConflictResolutionService {
           committedTrip = conflict.serverState.trip;
         }
         if (conflict.tripId) {
-          await indexedDBService.delete('trips', conflict.tripId);
+          await indexedDBService.delete('trips', conflict.tripId,conflict.projectId);
         }
         messageAr = 'تم اعتماد حالة الخادم بنجاح وإلغاء التعارض المحلي.';
         break;
@@ -521,7 +521,7 @@ class ConflictResolutionService {
       // 4. Discard Duplicate
       case 'DISCARD_DUPLICATE': {
         if (conflict.tripId) {
-          await indexedDBService.delete('trips', conflict.tripId);
+          await indexedDBService.delete('trips', conflict.tripId,conflict.projectId);
         }
         messageAr = 'تم استبعاد وتجاهل العملية المكررة بنجاح.';
         break;
@@ -549,7 +549,7 @@ class ConflictResolutionService {
       // 7. Cancel Local Operation
       case 'CANCEL_LOCAL_OPERATION': {
         if (conflict.tripId) {
-          await indexedDBService.delete('trips', conflict.tripId);
+          await indexedDBService.delete('trips', conflict.tripId,conflict.projectId);
         }
         messageAr = 'تم إلغاء العملية المحلية وحفظ سجل المراجعة التدقيقية.';
         break;
@@ -595,14 +595,10 @@ class ConflictResolutionService {
           outboxService.syncAll(false).catch(console.error);
         });
       } else {
-        await indexedDBService.updateOutboxStatus(conflict.operationId, 'SYNCED', {
-          syncedAt: nowIso,
-          serverAck: {
-            tripId: conflict.tripId,
-            tripSerial: conflict.tripSerial,
-            committedAt: nowIso,
-            messageAr: `تم حل التعارض محلياً: ${messageAr}`,
-          },
+        // A local discard/selection is not proof of a server commit.
+        await indexedDBService.updateOutboxStatus(conflict.operationId, 'FAILED', {
+          retryCount: 5,
+          errorReason: 'LOCAL_DECISION_NOT_SERVER_ACK',
         });
       }
     }
@@ -725,6 +721,7 @@ class ConflictResolutionService {
       records = await indexedDBService.getConflictRecords();
       records.forEach(r => this.inMemoryConflicts.set(r.conflictId, r));
     }
+    records = records.filter(r=>indexedDBService.isCurrentPrincipal(r.localCommand.userId));
     if (filter?.status) {
       records = records.filter(r => r.status === filter.status);
     }
@@ -732,7 +729,8 @@ class ConflictResolutionService {
   }
 
   public getConflictById(conflictId: string): ConflictRecord | undefined {
-    return this.inMemoryConflicts.get(conflictId);
+    const record=this.inMemoryConflicts.get(conflictId);
+    return record&&indexedDBService.isCurrentPrincipal(record.localCommand.userId)?record:undefined;
   }
 
   /**

@@ -113,7 +113,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         for (const pId of projectIds) {
           const remoteTrips = await tripRepository.listByProject(pId).catch(() => []);
           if (remoteTrips && remoteTrips.length > 0) {
-            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection)).catch(() => {});
+            await indexedDBService.putMany('trips', remoteTrips.map(operationalTripProjection),authContext.userId).catch(() => {});
           }
         }
       }
@@ -321,11 +321,12 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
         updatedBy: authContext.userId
       };
 
+      let confirmedTrip=updatedTrip;
       // Put in local IndexedDB cache optimistically
-      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' },authContext.userId);
 
       // Queue canonical outbox operation
-      await outboxService.queueOperation({
+      const arrivalOperation=await outboxService.queueOperation({
         projectId: activeTrip.projectId,
         userId: authContext.userId,
         operationType: 'UPDATE_TRIP_STATUS',
@@ -336,16 +337,16 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       });
 
       if (isOnline) {
-        const sync = await outboxService.syncAll(false);
-        if (sync.failedCount > 0) throw new Error('TRIP_COMMAND_FAILED');
-        const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId);
-        setActiveTrip(synced || updatedTrip);
+        await outboxService.syncAll(false);
+        const synced = await outboxService.acknowledgedTrip(arrivalOperation.operationId,activeTrip.projectId);
+        confirmedTrip=synced;
+        setActiveTrip(synced);
       } else {
         setActiveTrip(updatedTrip);
       }
 
       refreshInboundTrips();
-      if (onTripUpdated) onTripUpdated(updatedTrip);
+      if (onTripUpdated) onTripUpdated(confirmedTrip);
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
@@ -372,7 +373,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       };
 
       // Put in local IndexedDB cache optimistically
-      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' },authContext.userId);
 
       // Do NOT queue any outbox operation (like status OFFLOADED) prematurely here.
       // OFFLOADED is only valid in FSM after RECORD_RECEIPT (WEIGHED_DESTINATION).
@@ -381,7 +382,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       if (isOnline) {
         // Just sync existing queue, if any
         await outboxService.syncAll(false);
-        const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId);
+        const synced = await indexedDBService.getById<any>('trips', activeTrip.tripId,activeTrip.projectId);
         setActiveTrip(synced || updatedTrip);
       } else {
         setActiveTrip(updatedTrip);
@@ -392,7 +393,7 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       if (onNotification) {
         onNotification({
           type: 'SUCCESS',
-          message: t("operations.unloading_started_unloading_and_receiver_value_assigned", { p0: authContext.displayName })
+          message: t('operations.unloading.local_preparation')
         });
       }
     } catch (err: any) {
@@ -407,10 +408,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
     if (!activeTrip) return;
     setAcceptOriginNet(true);
     setDestNetWeightInput(activeTrip.netWeight);
-    if (activeTrip.tareWeight) {
-      setDestTareInput(activeTrip.tareWeight);
-      setDestGrossInput(activeTrip.tareWeight + activeTrip.netWeight);
-    }
+    // Acceptance is derived evidence, not a measured gross/tare pair.
+    setDestTareInput('');setDestGrossInput('');
     setNotesInput(prev => prev ? `${prev} | [اعتماد صريح لصافي وزن المصدر]` : '[اعتماد صريح لصافي وزن المصدر كوزن استلام]');
     if (onNotification) {
       onNotification({
@@ -441,9 +440,9 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
 
       const originNet = activeTrip.netWeight;
       const destNet = net;
-      const varianceWeight = Math.abs(originNet - destNet);
+      const varianceWeight = destNet - originNet;
       const limitPercent = (tolerancePercent / 100) * originNet;
-      const isOutOfTolerance = varianceWeight > limitPercent || varianceWeight > toleranceKg;
+      const isOutOfTolerance = Math.abs(varianceWeight) > Math.max(limitPercent,toleranceKg);
 
       const updatedTrip: TripRecord = {
         ...activeTrip,
@@ -458,10 +457,12 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       };
 
       // Store in IndexedDB cache optimistically
-      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' });
+      await indexedDBService.put('trips', { ...updatedTrip, syncStatus: 'PENDING' },authContext.userId);
 
-      // 1. Queue RECORD_RECEIPT operation (transitions AT_DESTINATION -> WEIGHED_DESTINATION)
-      await outboxService.queueOperation({
+      let completionOperation=(await outboxService.getOperations()).find(op=>op.projectId===activeTrip.projectId&&op.payload.tripId===activeTrip.tripId&&op.operationType==='UPDATE_TRIP_STATUS'&&op.payload.status==='COMPLETED');
+      if(!completionOperation){
+      // Explicit dependencies survive same-clock insertion, restart and tab races.
+      const receiptOperation=await outboxService.queueOperation({
         projectId: activeTrip.projectId,
         userId: authContext.userId,
         operationType: 'RECORD_RECEIPT',
@@ -476,7 +477,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       });
 
       // 2. Queue UPDATE_TRIP_STATUS OFFLOADED (transitions WEIGHED_DESTINATION -> OFFLOADED)
-      await outboxService.queueOperation({
+      const offloadOperation=await outboxService.queueOperation({
+        dependsOnOperationId:receiptOperation.operationId,
         projectId: activeTrip.projectId,
         userId: authContext.userId,
         operationType: 'UPDATE_TRIP_STATUS',
@@ -487,7 +489,8 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
       });
 
       // 3. Queue UPDATE_TRIP_STATUS COMPLETED (transitions OFFLOADED -> COMPLETED)
-      await outboxService.queueOperation({
+      completionOperation=await outboxService.queueOperation({
+        dependsOnOperationId:offloadOperation.operationId,
         projectId: activeTrip.projectId,
         userId: authContext.userId,
         operationType: 'UPDATE_TRIP_STATUS',
@@ -496,32 +499,28 @@ export const UnloadingOperatorView: React.FC<UnloadingOperatorViewProps> = ({
           status: 'COMPLETED'
         }
       });
+      }
 
+      let finalTrip=updatedTrip;
       if (isOnline) {
-        const syncRes = await outboxService.syncAll(false);
-        const syncedRecord = await indexedDBService.getById<any>('trips', activeTrip.tripId);
-        
-        if (syncRes.failedCount > 0) {
-          const ops = await outboxService.getOperations();
-          const lastOp = ops.filter(o => o.payload.tripId === activeTrip.tripId).pop();
-          throw new Error(lastOp?.errorReason || t("operations.failed_to_synchronize_receiving_with_the_server"));
-        }
-
-        const finalTrip = syncedRecord || updatedTrip;
+        await outboxService.syncAll(false);
+        finalTrip=await outboxService.acknowledgedTrip(completionOperation.operationId,activeTrip.projectId);
         setActiveTrip(finalTrip);
       } else {
         setActiveTrip(updatedTrip);
+        onNotification?.({type:'SECURITY',message:t('offline.recovery.awaiting_receipt')});
+        return;
       }
 
       setCompletionResult({
-        trip: updatedTrip,
+        trip: finalTrip,
         isOutOfTolerance,
         varianceWeight,
-        exceptionCreated: isOutOfTolerance ? { exceptionId: `EXC-LOCAL-${Date.now()}` } : null
+        exceptionCreated: null
       });
 
       refreshInboundTrips();
-      if (onTripUpdated) onTripUpdated(updatedTrip);
+      if (onTripUpdated) onTripUpdated(finalTrip);
 
       if (isOutOfTolerance) {
         if (onNotification) {

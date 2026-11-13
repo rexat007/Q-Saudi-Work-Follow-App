@@ -26,19 +26,18 @@ describe('Step 3B-0 — Project Selection Route Convergence', () => {
       nameEn: 'Active Project Riyadh',
       projectCode: 'PRJ-100',
       projectNumber: 100,
-      clientNameAr: 'العميل أ',
-      clientNameEn: 'Client A',
+      clientName: 'العميل أ',
       status: 'ACTIVE',
-      vatRate: 15,
-      zatcaId: 'Z-100',
-      startDate: '2026-09-01',
+      location:{lat:0,lng:0,geoFenceRadiusMeters:100,addressAr:'Synthetic address'},
+      createdAt:new Date('2026-01-01'),createdBy:'fixture',updatedAt:new Date('2026-01-01'),updatedBy:'fixture',
+      settings: { vatRatePercent:15, zatcaTaxNumber:'Z-100',
       allowDriverSelfDispatch: false,
       googleDriveProvisioning: {
         enabled: true,
         rootFolderName: 'Active Root',
         spreadsheetTitle: 'Active Sheet',
-        status: 'READY'
-      }
+        status: 'PROVISIONED'
+      }}
     },
     {
       projectId: 'PRJ-SETUP-200',
@@ -46,19 +45,18 @@ describe('Step 3B-0 — Project Selection Route Convergence', () => {
       nameEn: 'Setup Project Neom',
       projectCode: 'PRJ-200',
       projectNumber: 200,
-      clientNameAr: 'العميل ب',
-      clientNameEn: 'Client B',
+      clientName: 'العميل ب',
       status: 'SETUP',
-      vatRate: 15,
-      zatcaId: 'Z-200',
-      startDate: '2026-09-10',
+      location:{lat:0,lng:0,geoFenceRadiusMeters:100,addressAr:'Synthetic address'},
+      createdAt:new Date('2026-01-01'),createdBy:'fixture',updatedAt:new Date('2026-01-01'),updatedBy:'fixture',
+      settings: { vatRatePercent:15, zatcaTaxNumber:'Z-200',
       allowDriverSelfDispatch: false,
       googleDriveProvisioning: {
         enabled: true,
         rootFolderName: 'Setup Root',
         spreadsheetTitle: 'Setup Sheet',
         status: 'PENDING'
-      }
+      }}
     }
   ];
 

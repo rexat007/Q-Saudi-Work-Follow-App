@@ -1,0 +1,8 @@
+{
+  "reason": "Verified main has sole Firestore authority and no U09 runtime/backend switching module. Use its existing raw Firebase Admin emulator database, never install a mock backend selector or fake SQL fence. All canonical service authorization, transaction, receipt and actual browser assertions remain unchanged.",
+  "files": [
+    "src/tests/helpers/convergence2Firestore.ts",
+    "src/tests/convergence3Journey.test.ts"
+  ],
+  "removedDependency": "U09-only fenceFirestoreDatabase; no assertions removed or skipped"
+}

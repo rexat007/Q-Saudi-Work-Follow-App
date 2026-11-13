@@ -1,0 +1,39 @@
+import fs from 'node:fs';import path from 'node:path';import net from 'node:net';import http from 'node:http';import cp from 'node:child_process';
+const root=process.cwd(),base=path.resolve('..'),ports=[8085,9099],children=[],fds=[];let status=1,error,cleanupErrors=[];
+const env={...process.env,FIRESTORE_EMULATOR_HOST:'127.0.0.1:8085',FIREBASE_AUTH_EMULATOR_HOST:'127.0.0.1:9099',GCLOUD_PROJECT:'demo-convergence2',QSA_BROWSER_TOOL_ROOT:'C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-tools',CI:'1',FIREBASE_CLI_DISABLE_UPDATE_CHECK:'true'};
+const pathKey=Object.keys(env).find(k=>k.toLowerCase()==='path')||'Path';env[pathKey]=path.dirname(process.execPath)+';'+env[pathKey];
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+const open=port=>new Promise(resolve=>{const s=net.connect({host:'127.0.0.1',port});s.setTimeout(700);s.once('connect',()=>{s.destroy();resolve(true)});s.once('error',()=>resolve(false));s.once('timeout',()=>{s.destroy();resolve(false)});});
+const request=(port,url='/',timeout=1500)=>new Promise((resolve,reject)=>{const req=http.get({hostname:'127.0.0.1',port,path:url,agent:false,timeout},res=>{res.resume();res.once('end',()=>resolve(res.statusCode));});req.once('error',reject);req.once('timeout',()=>req.destroy(Error('READINESS_TIMEOUT')));});
+const launch=(name,exe,args,identity)=>{const file=path.join(base,'main-rehearsal-'+name+'.log');if(fs.existsSync(file))throw Error('PRESERVE_SERVICE_LOG');const fd=fs.openSync(file,'wx');fds.push(fd);const child=cp.spawn(exe,args,{cwd:root,env,windowsHide:true,stdio:['ignore',fd,fd]});children.push({name,child,identity,exe,args});child.once('error',e=>{child.launchError=e.message;});return child;};
+try {
+ if(!process.version.startsWith('v22.'))throw Error('NODE22_REQUIRED');
+ for(const port of ports)if(await open(port))throw Error('PREEXISTING_LISTENER_'+port);
+ const jar=path.join(base,'convergence2-tools','firestore.jar'),cli=path.join(base,'convergence2-tools','node_modules','firebase-tools','lib','bin','firebase.js');
+ launch('firestore-emulator','C:/Program Files/Common Files/Oracle/Java/javapath/java.exe',['-jar',jar,'--host','127.0.0.1','--port','8085','--project_id','demo-convergence2','--rules',path.join(root,'firestore.rules')],jar);
+ launch('auth-emulator',process.execPath,[cli,'emulators:start','--only','auth','--project','demo-convergence2','--config',path.join(base,'convergence2-tools','firebase.json')],cli);
+ fs.writeFileSync(path.join(base,'main-rehearsal-emulator-ownership.json'),JSON.stringify(children.map(({name,child,exe,args,identity})=>({name,pid:child.pid,exe,args,identity})),null,2));
+ const deadline=Date.now()+90000;
+ for(const port of ports){let ready=false;while(Date.now()<deadline){if(children.some(({child})=>child.launchError||child.exitCode!==null))throw Error('OWNED_EMULATOR_EXITED_BEFORE_READY');try{const code=await request(port);if(code<500){ready=true;break;}}catch{}await pause(300);}if(!ready)throw Error('EMULATOR_NOT_READY_'+port);}
+ const warmup=await request(8085,'/v1/projects/demo-convergence2/databases/(default)/documents/projects/closure_readiness_only',30000);if(warmup!==403)throw Error('UNAUTHENTICATED_RULES_PROBE_NOT_DENIED_'+warmup);
+ console.log('OWNED_EMULATORS_READY; unauthenticated read denied; no readiness writes');
+ const files=JSON.parse(fs.readFileSync('docs/reconstruction/main-integration-rehearsal/emulator-files.json','utf8'));
+ const log=fs.openSync(path.join(base,'main-rehearsal-connected-browser.log'),'wx');
+ const result=cp.spawnSync(process.execPath,['node_modules/vitest/vitest.mjs','run',...files,'--maxWorkers=1','--fileParallelism=false','--reporter=default','--reporter=json','--reporter=../main-rehearsal-connected-browser-reporter.mjs','--outputFile.json=../main-rehearsal-connected-browser.json'],{env,stdio:['ignore',log,log]});fs.closeSync(log);status=result.status??1;
+ console.log('CONNECTED_BROWSER_NATIVE_EXIT='+status);if(status!==0)throw Error('CONNECTED_BROWSER_SUITE_FAILED');
+ const r=JSON.parse(fs.readFileSync(path.join(base,'main-rehearsal-connected-browser.json'),'utf8')),d=JSON.parse(fs.readFileSync(path.join(base,'main-rehearsal-connected-browser-diagnostics.json'),'utf8'));
+ if(r.numTotalTests!==31||r.numPassedTests!==31||r.numPendingTests||r.numFailedTests||d.observedProcessExitCode!==0||d.finalUnhandledErrors?.length||d.unhandledErrors?.length||d.processTimeout)throw Error('CONNECTED_GATE_ACCOUNTING_FAILED');
+} catch(e){error=e.stack||String(e);status=1;} finally {
+ await pause(0);
+ for(const {name,child,identity} of children.reverse()){
+  if(child.exitCode!==null)continue;
+  const quoted=identity.replaceAll("'","''");
+  const script=`$p=Get-CimInstance Win32_Process -Filter 'ProcessId=${child.pid}';if($null -eq $p){exit 0};if(-not $p.CommandLine.Contains('${quoted}')){throw 'OWNED_PROCESS_IDENTITY_CHANGED'};taskkill.exe /PID ${child.pid} /T /F | Out-Null;if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}`;
+  const killed=cp.spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',script],{windowsHide:true,encoding:'utf8'});if(killed.status!==0)cleanupErrors.push({name,pid:child.pid,status:killed.status,message:killed.stderr});
+ }
+ const deadline=Date.now()+20000;let remaining=[];do{remaining=[];for(const port of ports)if(await open(port))remaining.push(port);if(!remaining.length)break;await pause(200);}while(Date.now()<deadline);
+ if(remaining.length)cleanupErrors.push({remainingListeners:remaining});if(cleanupErrors.length)status=1;
+ for(const fd of fds)fs.closeSync(fd);
+ fs.writeFileSync(path.join(base,'main-rehearsal-connected-browser-exit.json'),JSON.stringify({status,error,cleanupErrors,remainingListeners:remaining,node:process.version,emulatorProject:'demo-convergence2'},null,2));
+}
+console.log('CONNECTED_GATE_EXIT='+status+' CLEANUP_ERRORS='+cleanupErrors.length);process.exitCode=status;

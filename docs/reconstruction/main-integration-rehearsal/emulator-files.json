@@ -1,0 +1,9 @@
+[
+  "src/tests/convergence2Operational.test.ts",
+  "src/tests/convergence2Browser.test.ts",
+  "src/tests/convergence2CacheBrowser.test.ts",
+  "src/tests/convergence3Journey.test.ts",
+  "src/tests/convergence3JournalBrowser.test.ts",
+  "src/tests/rosterReadinessBrowserConvergence.test.ts",
+  "src/tests/pwaLegacyGeneration.test.ts"
+]

@@ -56,7 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const snapshot=await getDocFromServer(doc(db,'users',current.uid));
         return normalizeProfile(snapshot.exists() ? decodeUser<UserEntity>(snapshot.data(),current.uid) : null,current.uid);
       },
-      watch: () => () => {},
+      watch: (current, receive, fail) => {
+        return onSnapshot(doc(db, 'users', current.uid), {includeMetadataChanges:true}, snapshot => {
+          if(snapshot.metadata.fromCache || snapshot.metadata.hasPendingWrites){fail();return;}
+          try{receive(normalizeProfile(snapshot.exists()?decodeUser<UserEntity>(snapshot.data(),current.uid):null,current.uid));}
+          catch{fail();}
+        }, () => fail());
+      },
       terminate: () => signOut(auth),
     });
     session.current = controller;

@@ -87,6 +87,23 @@ describe('phase failure resume and strict READY proof', () => {
         const x = workspaceEnsureFixture();
         await x.prepare();
         const error = new GoogleWorkspaceCommandError('GOOGLE_SERVICE_UNAVAILABLE', 503);
+        if (phase === 'reports') {
+            // Reports are a separate explicit command after provisioning, not an automatic ensure phase.
+            expect((await x.run()).state).toBe('READY');
+            const grant=x.store[ensurePath].backgroundAuthorizationId;
+            const manual=x.manualPort();manual.projectProfileReports.mockRejectedValueOnce(error);
+            await expect(x.service().forExecutionAuthorization(grant).refreshOperationalReports('P1',operationActor,manual as any)).rejects.toMatchObject({code:'GOOGLE_SERVICE_UNAVAILABLE'});
+            expect(x.resources).toHaveLength(2);expect(x.scripts.size).toBe(1);
+            expect((await x.service().status('P1',operationActor)).projection?.reportsStale).toBe(true);
+            const retryAt=Math.max(x.store[ensurePath].projectionRetryAt,Date.parse(x.store[ensurePath].lastReportRefreshAttemptAt)+60000)+1;
+            vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(retryAt);
+            try {await x.service().forExecutionAuthorization(grant).refreshOperationalReports('P1',operationActor,manual as any);}
+            finally {vi.useRealTimers();}
+            expect((await x.service().status('P1',operationActor)).projection?.reportsStale).toBe(false);
+            expect(x.port.createProjectFolder).toHaveBeenCalledOnce();expect(x.port.createProjectSpreadsheet).toHaveBeenCalledOnce();expect(x.port.createBoundScript).toHaveBeenCalledOnce();
+            return;
+        }
+
         if (phase === 'destination')
             x.port.validateDestination.mockRejectedValueOnce(error);
         if (phase === 'binding')

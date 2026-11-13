@@ -219,7 +219,7 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
       insertedCount: 0,
       updatedCount: 0,
       deletedCount: 2,
-      unchangedCount: 0,
+      unchangedCount: 0, columnsCount: 0, durationMs: 0,
     });
 
     const result = await serverWorkspaceService.reconcileTabSnapshot(
@@ -499,10 +499,10 @@ describe('Project Workspace Master Snapshot Reconciliation (Unit 5D) Tests', () 
     const appTsContent = fs.readFileSync(appTsPath, 'utf-8');
 
     const routeIndex = appTsContent.indexOf("app.post('/api/workspace/sync/initial'");
-    const routeSnippet = appTsContent.slice(routeIndex, appTsContent.indexOf('\napp.', routeIndex + 1));
+    const routeSnippet = fs.readFileSync(path.resolve(__dirname, '../services/projectGoogleWorkspace.server.ts'), 'utf8');
 
-    const revisionReadPos = routeSnippet.indexOf('getWorkspaceProjectionState');
-    const snapshotBuildPos = routeSnippet.indexOf('buildInitialProjectionSnapshot');
+    const revisionReadPos = routeSnippet.indexOf('const freshness=await projectionState(projectId,this.db);let payload:any={event}');
+    const snapshotBuildPos = routeSnippet.indexOf('buildCanonicalProjection(projectId,this.boundedProjectionDb())');
 
     expect(revisionReadPos).toBeGreaterThan(-1);
     expect(snapshotBuildPos).toBeGreaterThan(-1);

@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 // @vitest-environment happy-dom
 import { I18nProvider } from '../i18n';
 import { canonicalBatch4Label } from './batch4I18nTestSupport';
@@ -13,7 +14,11 @@ import { RosterMaterialResolutionLayer, checkMaterialResolutionReadiness } from 
 import { RosterDriverTruckResolutionLayer } from '../components/import/RosterDriverTruckResolutionLayer';
 import { RosterFinalReviewLayer, classifyFinalReviewBlocker } from '../components/import/RosterFinalReviewLayer';
 import { RosterCommitResultLayer } from '../components/import/RosterCommitResultLayer';
+import type {RelationshipContext} from '../types/dataQuality';
 import { UnifiedImportBatch, ImportResult } from '../types/unifiedImport';
+
+// Current canonical read evidence required by the shared identity editor.
+const canonicalFleetContext:RelationshipContext={projectId:'PRJ-101',authorizedCarrierIds:['CAR-101'],authorizedMaterialIds:[],knownCarriers:[],knownTrucks:[],knownDrivers:[],knownMaterials:[],importResolution:{projectId:'PRJ-101',entities:[{kind:'CARRIER',id:'CAR-101',name:'Carrier fixture',globalStatus:'ACTIVE',membershipStatus:'ACTIVE',eligible:true,canReactivate:false,affiliation:null}]}};
 
 describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests', () => {
   let container: HTMLDivElement;
@@ -131,29 +136,29 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
   it('D06 & D21: RosterDriverTruckResolutionLayer renders driver creation modal in document.body portal on click', async () => {
     const root = createRoot(container);
 
-    const mockBatch: UnifiedImportBatch = {
+    const mockBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
       importBatchId: 'BATCH-DT-01',
       projectId: 'PRJ-101',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: {importBatchId:'BATCH-DT-01', sourceType: 'EXCEL' },
       totalRows: 1,
       validRows: 0,
       errorRows: 0,
       warningRows: 1,
       requiresReviewRows: 1,
       rows: [
-        {
+        {validationIssues:[],
           rowNumber: 1,
           raw: { carrier: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
           canonical: { carrierName: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
           entityResolutions: {
-            carrier: { matchedId: 'CAR-1', matchedName: 'الناقل الأول', status: 'RESOLVED' },
-            material: { matchedId: 'MAT-1', matchedName: 'رمل', status: 'RESOLVED' },
-            driver: { sourceValue: 'سالم القحطاني', status: 'UNRESOLVED' },
-            truck: { sourceValue: '1111', status: 'RESOLVED', matchedId: 'TRK-1' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'الناقل الأول',  },
+            material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-1', matchedName: 'رمل',  },
+            driver: {entityType:'DRIVER',originalValue:'سالم القحطاني',confidence:0,isExact:false, sourceValue: 'سالم القحطاني',  },
+            truck: {entityType:'TRUCK',originalValue:'1111',confidence:0,isExact:false, sourceValue: '1111',  matchedId: 'TRK-1' },
           },
           status: 'WARNING',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -163,18 +168,18 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     await act(async () => {
       root.render(
-        <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+        <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer onAcceptCandidate={()=>{}}
           importBatch={mockBatch}
-          projectCarriers={[{ carrierId: 'CAR-1', name: 'الناقل الأول' }]}
+
           projectDrivers={[]}
           projectTrucks={[]}
-          onAcceptDriverCandidate={() => {}}
-          onSelectAlternateDriver={() => {}}
+
+
           onCreateDriver={() => {}}
-          onAcceptTruckCandidate={() => {}}
-          onSelectAlternateTruck={() => {}}
+
+
           onCreateTruck={() => {}}
-          onOpenFinalReview={() => {}}
+
         /></I18nProvider>
       );
     });
@@ -191,8 +196,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     });
 
     // Driver creation modal is portaled into document.body
-    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.create_carrier_driver'));
-    expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.residency_identifier_label'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('setup.editor.DRIVER'));
+    expect(document.body.textContent).toContain(canonicalBatch4Label('setup.nationalId'));
 
     await act(async () => {
       root.unmount();
@@ -201,37 +206,37 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
   it('D10: RosterCarrierResolutionLayer blocks progression if row lacks valid Carrier (row-level gate)', () => {
     // Group is marked RESOLVED, but an active row is missing matchedId
-    const batchWithMissingRowCarrier: UnifiedImportBatch = {
+    const batchWithMissingRowCarrier: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
       importBatchId: 'BATCH-CARRIER-GATE',
       projectId: 'PRJ-101',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: {importBatchId:'BATCH-CARRIER-GATE', sourceType: 'EXCEL' },
       totalRows: 2,
       validRows: 1,
       errorRows: 0,
       warningRows: 1,
       requiresReviewRows: 0,
       rows: [
-        {
+        {validationIssues:[],
           rowNumber: 1,
           raw: {},
           canonical: {},
           entityResolutions: {
-            carrier: { matchedId: 'CAR-1', matchedName: 'Carrier 1', status: 'RESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'Carrier 1',  },
           },
           status: 'VALID',
           reviewStatus: 'accepted',
-        },
-        {
+        } satisfies ImportRow,
+        {validationIssues:[],
           rowNumber: 2,
           raw: {},
           canonical: {},
           entityResolutions: {
             // Row 2 is active but lacks matchedId
-            carrier: { sourceValue: 'Carrier Unknown', status: 'UNRESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'Carrier Unknown',confidence:0,isExact:false, sourceValue: 'Carrier Unknown',  },
           },
           status: 'WARNING',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -239,53 +244,43 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       commitStatus: 'AWAITING_REVIEW',
     };
 
-    const isReady = checkCarrierResolutionReadiness(batchWithMissingRowCarrier, [
-      {
-        entityType: 'carrier',
-        normalizedSourceKey: 'carrier 1',
-        sourceValue: 'Carrier 1',
-        occurrenceCount: 1,
-        rowNumbers: [1],
-        status: 'RESOLVED',
-        resolutionRecommendation: 'AUTO_MATCH',
-      },
-    ]);
+    const isReady = checkCarrierResolutionReadiness(batchWithMissingRowCarrier);
 
     // Must block because Row 2 lacks matchedId!
     expect(isReady).toBe(false);
   });
 
   it('D11: RosterMaterialResolutionLayer blocks progression if row lacks valid Material (row-level gate)', () => {
-    const batchWithMissingRowMaterial: UnifiedImportBatch = {
+    const batchWithMissingRowMaterial: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
       importBatchId: 'BATCH-MAT-GATE',
       projectId: 'PRJ-101',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: {importBatchId:'BATCH-MAT-GATE', sourceType: 'EXCEL' },
       totalRows: 2,
       validRows: 1,
       errorRows: 0,
       warningRows: 1,
       requiresReviewRows: 0,
       rows: [
-        {
+        {validationIssues:[],
           rowNumber: 1,
           raw: {},
           canonical: {},
           entityResolutions: {
-            material: { matchedId: 'MAT-1', matchedName: 'Sand', status: 'RESOLVED' },
+            material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-1', matchedName: 'Sand',  },
           },
           status: 'VALID',
           reviewStatus: 'accepted',
-        },
-        {
+        } satisfies ImportRow,
+        {validationIssues:[],
           rowNumber: 2,
           raw: {},
           canonical: {},
           entityResolutions: {
-            material: { sourceValue: 'Gravel', status: 'UNRESOLVED' },
+            material: {entityType:'MATERIAL',originalValue:'Gravel',confidence:0,isExact:false, sourceValue: 'Gravel',  },
           },
           status: 'WARNING',
           reviewStatus: 'requires_review',
-        },
+        } satisfies ImportRow,
       ],
       issues: [],
       auditTrail: [],
@@ -293,17 +288,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       commitStatus: 'AWAITING_REVIEW',
     };
 
-    const isReady = checkMaterialResolutionReadiness(batchWithMissingRowMaterial, [
-      {
-        entityType: 'material',
-        normalizedSourceKey: 'sand',
-        sourceValue: 'Sand',
-        occurrenceCount: 1,
-        rowNumbers: [1],
-        status: 'RESOLVED',
-        resolutionRecommendation: 'AUTO_MATCH',
-      },
-    ]);
+    const isReady = checkMaterialResolutionReadiness(batchWithMissingRowMaterial);
 
     expect(isReady).toBe(false);
   });
@@ -311,32 +296,32 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
   it('D13 & D17: RosterFinalReviewLayer pure classifier and warning confirmation gate', async () => {
     const root = createRoot(container);
 
-    const batchWithWarnings: UnifiedImportBatch = {
+    const batchWithWarnings: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
       importBatchId: 'BATCH-WARN-GATE',
       projectId: 'PRJ-101',
-      source: { sourceType: 'EXCEL_CSV' },
+      source: {importBatchId:'BATCH-WARN-GATE', sourceType: 'EXCEL' },
       totalRows: 1,
       validRows: 0,
       errorRows: 0,
       warningRows: 1,
       requiresReviewRows: 0,
       rows: [
-        {
+        {validationIssues:[],
           rowNumber: 1,
           raw: {},
           canonical: {},
           entityResolutions: {
-            carrier: { matchedId: 'CAR-1', matchedName: 'Carrier 1', status: 'RESOLVED' },
-            material: { matchedId: 'MAT-1', matchedName: 'Mat 1', status: 'RESOLVED' },
-            driver: { matchedId: 'DRV-1', matchedName: 'Driver 1', status: 'RESOLVED' },
-            truck: { matchedId: 'TRK-1', matchedName: 'Truck 1', status: 'RESOLVED' },
+            carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'Carrier 1',  },
+            material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-1', matchedName: 'Mat 1',  },
+            driver: {entityType:'DRIVER',originalValue:'',confidence:0,isExact:false, matchedId: 'DRV-1', matchedName: 'Driver 1',  },
+            truck: {entityType:'TRUCK',originalValue:'',confidence:0,isExact:false, matchedId: 'TRK-1', matchedName: 'Truck 1',  },
           },
           status: 'WARNING',
           reviewStatus: 'warning',
-        },
+        } satisfies ImportRow,
       ],
       issues: [
-        {
+        {row:1,field:'row',
           issueId: 'W1',
           code: 'DRIVER_PHONE_MISSING',
           message: 'رقم هاتف السائق غير مدخل',
@@ -388,26 +373,26 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
 
       // 1. Unresolved Carrier Stage
-      const unresolvedBatch: UnifiedImportBatch = {
+      const unresolvedBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C2-UNRESOLVED',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C2-UNRESOLVED', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 0,
         errorRows: 0,
         warningRows: 1,
         requiresReviewRows: 1,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: { carrier: 'ناقل مجهول' },
             canonical: { carrierName: 'ناقل مجهول' },
             entityResolutions: {
-              carrier: { sourceValue: 'ناقل مجهول', status: 'UNRESOLVED' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل مجهول',confidence:0,isExact:false, sourceValue: 'ناقل مجهول',  },
             },
             status: 'WARNING',
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -431,26 +416,26 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       expect(document.body.textContent).toContain('ناقل مجهول');
 
       // 2. Resolved Carrier Stage
-      const resolvedBatch: UnifiedImportBatch = {
+      const resolvedBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C2-RESOLVED',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C2-RESOLVED', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 1,
         errorRows: 0,
         warningRows: 0,
         requiresReviewRows: 0,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: { carrier: 'شركة الرمال للنقل' },
             canonical: { carrierName: 'شركة الرمال للنقل' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'شركة الرمال للنقل', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-101', matchedName: 'شركة الرمال للنقل',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
             },
             status: 'VALID',
             reviewStatus: 'accepted',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -491,26 +476,26 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
 
       // 1. Unresolved Material
-      const unresolvedBatch: UnifiedImportBatch = {
+      const unresolvedBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C3-UNRESOLVED',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C3-UNRESOLVED', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 0,
         errorRows: 0,
         warningRows: 1,
         requiresReviewRows: 1,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: { material: 'مادة غير معرّفة' },
             canonical: { materialName: 'مادة غير معرّفة' },
             entityResolutions: {
-              material: { sourceValue: 'مادة غير معرّفة', status: 'UNRESOLVED' },
+              material: {entityType:'MATERIAL',originalValue:'مادة غير معرّفة',confidence:0,isExact:false, sourceValue: 'مادة غير معرّفة',  },
             },
             status: 'WARNING',
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -533,26 +518,26 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.add_material'));
 
       // 2. Resolved Material
-      const resolvedBatch: UnifiedImportBatch = {
+      const resolvedBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C3-RESOLVED',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C3-RESOLVED', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 1,
         errorRows: 0,
         warningRows: 0,
         requiresReviewRows: 0,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: { material: 'دفان ناعم' },
             canonical: { materialName: 'دفان ناعم' },
             entityResolutions: {
-              material: { matchedId: 'MAT-101', matchedName: 'دفان ناعم', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-101', matchedName: 'دفان ناعم',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
             },
             status: 'VALID',
             reviewStatus: 'accepted',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -592,29 +577,29 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     it('Stage 5 (DRIVER_TRUCK_RESOLUTION): renders completed state with "متابعة إلى المراجعة النهائية" and verifies ArrowLeft does not throw', async () => {
       const root = createRoot(container);
 
-      const fullyResolvedBatch: UnifiedImportBatch = {
+      const fullyResolvedBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C4-RESOLVED',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C4-RESOLVED', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 1,
         errorRows: 0,
         warningRows: 0,
         requiresReviewRows: 0,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: { carrier: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
             canonical: { carrierName: 'الناقل الأول', driverName: 'سالم القحطاني', truckPlate: '1111' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-1', matchedName: 'الناقل الأول', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-              material: { matchedId: 'MAT-1', matchedName: 'رمل', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-              driver: { matchedId: 'DRV-1', matchedName: 'سالم القحطاني', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
-              truck: { matchedId: 'TRK-1', matchedName: '1111', status: 'RESOLVED', matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'الناقل الأول',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-1', matchedName: 'رمل',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              driver: {entityType:'DRIVER',originalValue:'',confidence:0,isExact:false, matchedId: 'DRV-1', matchedName: 'سالم القحطاني',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
+              truck: {entityType:'TRUCK',originalValue:'',confidence:0,isExact:false, matchedId: 'TRK-1', matchedName: '1111',  matchMethod: 'EXACT', recommendation: 'ACCEPT' },
             },
             status: 'VALID',
             reviewStatus: 'accepted',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -662,29 +647,29 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
 
       // Ready batch
-      const readyBatch: UnifiedImportBatch = {
+      const readyBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C5-READY',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C5-READY', sourceType: 'EXCEL' },
         totalRows: 1,
         validRows: 1,
         errorRows: 0,
         warningRows: 0,
         requiresReviewRows: 0,
         rows: [
-          {
+          {validationIssues:[],
             rowNumber: 1,
             raw: {},
             canonical: {},
             entityResolutions: {
-              carrier: { matchedId: 'CAR-1', matchedName: 'الناقل 1', status: 'RESOLVED' },
-              material: { matchedId: 'MAT-1', matchedName: 'مادة 1', status: 'RESOLVED' },
-              driver: { matchedId: 'DRV-1', matchedName: 'سائق 1', status: 'RESOLVED' },
-              truck: { matchedId: 'TRK-1', matchedName: 'شاحنة 1', status: 'RESOLVED' },
+              carrier: {entityType:'CARRIER',originalValue:'',confidence:0,isExact:false, matchedId: 'CAR-1', matchedName: 'الناقل 1',  },
+              material: {entityType:'MATERIAL',originalValue:'',confidence:0,isExact:false, matchedId: 'MAT-1', matchedName: 'مادة 1',  },
+              driver: {entityType:'DRIVER',originalValue:'',confidence:0,isExact:false, matchedId: 'DRV-1', matchedName: 'سائق 1',  },
+              truck: {entityType:'TRUCK',originalValue:'',confidence:0,isExact:false, matchedId: 'TRK-1', matchedName: 'شاحنة 1',  },
             },
             status: 'VALID',
             reviewStatus: 'accepted',
-          },
+          } satisfies ImportRow,
         ],
         issues: [],
         auditTrail: [],
@@ -725,10 +710,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     it('Stage 7 (COMMIT_RESULT): renders full success, partial, and failure outcomes truthfully', async () => {
       const root = createRoot(container);
 
-      const batch: UnifiedImportBatch = {
+      const batch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,
         importBatchId: 'BATCH-C7-RESULT',
         projectId: 'PRJ-101',
-        source: { sourceType: 'EXCEL_CSV' },
+        source: {importBatchId:'BATCH-C7-RESULT', sourceType: 'EXCEL' },
         totalRows: 2,
         validRows: 2,
         errorRows: 0,
@@ -746,7 +731,7 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         importBatchId: 'BATCH-C7-RESULT',
         projectId: 'PRJ-101',
         operationId: 'OP-1',
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: true,
         totalRows: 2,
         committedRows: 2,
@@ -776,13 +761,13 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         importBatchId: 'BATCH-C7-RESULT',
         projectId: 'PRJ-101',
         operationId: 'OP-2',
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: false,
         totalRows: 2,
         committedRows: 1,
         skippedRows: 0,
         failedRows: 1,
-        issues: [{ issueId: 'I-1', message: 'فشل حفظ السجل الثاني', severity: 'BLOCKING' }],
+        issues: [{row:1,field:'row',code:'MATERIAL_PROJECT_CONFLICT',resolvable:true,blocking:true, issueId: 'I-1', message: 'فشل حفظ السجل الثاني', severity: 'BLOCKING' }],
         committedEntityIds: ['E-1'],
         executedAt: new Date().toISOString(),
       };
@@ -805,13 +790,13 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         importBatchId: 'BATCH-C7-RESULT',
         projectId: 'PRJ-101',
         operationId: 'OP-3',
-        sourceType: 'EXCEL_CSV',
+        sourceType: 'EXCEL',
         success: false,
         totalRows: 2,
         committedRows: 0,
         skippedRows: 0,
         failedRows: 2,
-        issues: [{ issueId: 'I-2', message: 'خطأ اتصال بالخادم', severity: 'BLOCKING' }],
+        issues: [{row:1,field:'row',code:'MATERIAL_PROJECT_CONFLICT',resolvable:true,blocking:true, issueId: 'I-2', message: 'خطأ اتصال بالخادم', severity: 'BLOCKING' }],
         committedEntityIds: [],
         executedAt: new Date().toISOString(),
       };
@@ -877,27 +862,26 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     it('D & E & F: projectDrivers and projectTrucks supplied to C4 filter same-carrier alternates and exclude cross-carrier alternates', async () => {
       const root = createRoot(container);
-      const batch: UnifiedImportBatch = {
+      const batch: UnifiedImportBatch = {issues: [],validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-ALT-TEST'},
         importBatchId: 'BATCH-ALT-TEST',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 1,
         validRows: 0,
         warningRows: 1,
         errorRows: 0,
         requiresReviewRows: 1,
         rows: [
-          {
+          {reviewStatus: 'requires_review',validationIssues:[],
             rowNumber: 1,
             raw: { 'الناقل': 'شركة الرمال', 'اسم السائق': 'سالم علي', 'رقم الشاحنة': 'TRK-100' },
             status: 'WARNING',
             entityResolutions: {
-              carrier: { sourceValue: 'شركة الرمال', matchedId: 'CAR-SAME', matchedName: 'شركة الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-              driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
-              truck: { sourceValue: 'TRK-100', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'شركة الرمال',confidence:0,isExact:false, sourceValue: 'شركة الرمال', matchedId: 'CAR-SAME', matchedName: 'شركة الرمال', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+              driver: {entityType:'DRIVER',originalValue:'سالم علي',confidence:0,isExact:false, sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+              truck: {entityType:'TRUCK',originalValue:'TRK-100',confidence:0,isExact:false, sourceValue: 'TRK-100', recommendation: 'REVIEW' },
             },
-          },
+          } satisfies ImportRow,
         ],
       };
 
@@ -942,18 +926,17 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
       const handleClose = vi.fn();
 
-      const batchWithMaterialBlocker: UnifiedImportBatch = {
+      const batchWithMaterialBlocker: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-FINAL-BLOCKER'},
         importBatchId: 'BATCH-FINAL-BLOCKER',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 1,
         validRows: 0,
         warningRows: 1,
         errorRows: 1,
         requiresReviewRows: 1,
         issues: [
-          { issueId: 'ISS-MAT', message: 'مادة غير معتمدة للمشروع', severity: 'BLOCKING', entityType: 'material' },
+          {row:1,field:'material',code:'MATERIAL_PROJECT_CONFLICT',resolvable:true,blocking:true, issueId: 'ISS-MAT', message: 'مادة غير معتمدة للمشروع', severity: 'BLOCKING',  },
         ],
         rows: [],
       };
@@ -987,11 +970,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     it('C4 REAL COMPONENT A: Driver creation modal opens prefilled with driverName, residencyId/iqama, and phone from source rows', async () => {
       const root = createRoot(container);
-      const testBatch: UnifiedImportBatch = {
+      const testBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-COMP-A'},
         importBatchId: 'BATCH-COMP-A',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 1,
         validRows: 0,
         warningRows: 1,
@@ -1004,19 +986,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             raw: { 'اسم السائق': 'علي المنصور', 'رقم الهوية': '1098765432', 'الجوال': '0509876543' },
             canonical: { driverName: 'علي المنصور', driverIdentity: '1098765432', driverPhone: '0509876543' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'علي المنصور', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'علي المنصور' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER', sourceValue: 'علي المنصور', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'علي المنصور' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
       };
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1027,16 +1009,16 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       expect(createDriverBtn).toBeDefined();
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      const nameInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: 'سالم علي القحطاني' })}"]`) as HTMLInputElement;
-      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
-      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
+      const nameInput = document.body.querySelector('input[name="driverName"]') as HTMLInputElement;
+      const iqamaInput = document.body.querySelector('input[name="residencyId"]') as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[name="phone"]') as HTMLInputElement;
 
       expect(nameInput).not.toBeNull();
       expect(nameInput.value).toBe('علي المنصور');
@@ -1050,11 +1032,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
 
     it('C4 REAL COMPONENT B: Truck creation modal opens prefilled with plateNumber, truckType, tareWeight, and maxGrossWeight', async () => {
       const root = createRoot(container);
-      const testBatch: UnifiedImportBatch = {
+      const testBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-COMP-B'},
         importBatchId: 'BATCH-COMP-B',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 1,
         validRows: 0,
         warningRows: 1,
@@ -1067,19 +1048,19 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             raw: {},
             canonical: { truckPlate: 'ح ط ي 7777', truckType: 'سطحة هايدروليك', tareWeightKg: 15200, maxGrossWeightKg: 42000 },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              truck: { sourceValue: 'ح ط ي 7777', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'ح ط ي 7777' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: {entityType:'TRUCK', sourceValue: 'ح ط ي 7777', recommendation: 'REVIEW', confidence: 0, isExact: false, originalValue: 'ح ط ي 7777' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
       };
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={testBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1090,17 +1071,17 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       expect(createTruckBtn).toBeDefined();
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      const plateInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "أ ب ج 1234" })}"]`) as HTMLInputElement;
-      const typeInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('entityResolution.labels.truck_body_examples') })}"]`) as HTMLInputElement;
-      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
-      const grossInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "45000" })}"]`) as HTMLInputElement;
+      const plateInput = document.body.querySelector('input[name="plateNumber"]') as HTMLInputElement;
+      const typeInput = document.body.querySelector('input[name="truckType"]') as HTMLInputElement;
+      const tareInput = document.body.querySelector('input[name="tareWeightKg"]') as HTMLInputElement;
+      const grossInput = document.body.querySelector('input[name="maxGrossWeightKg"]') as HTMLInputElement;
 
       expect(plateInput.value).toBe('ح ط ي 7777');
       expect(typeInput.value).toBe('سطحة هايدروليك');
@@ -1116,11 +1097,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
       const handleCreateDriver = vi.fn();
 
-      const conflictBatch: UnifiedImportBatch = {
+      const conflictBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-COMP-C'},
         importBatchId: 'BATCH-COMP-C',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 2,
         validRows: 0,
         warningRows: 2,
@@ -1133,31 +1113,31 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             raw: {},
             canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111', driverPhone: '0501111111' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER',originalValue:'سعود فهد',confidence:0,isExact:false, sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
           {
             rowNumber: 2,
             raw: {},
             canonical: { driverName: 'سعود فهد', driverIdentity: '1011111111', driverPhone: '0502222222' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER',originalValue:'سعود فهد',confidence:0,isExact:false, sourceValue: 'سعود فهد', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
       };
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1168,23 +1148,24 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createDriverBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
 
       await act(async () => {
         createDriverBtn?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`0501111111 / 0502222222`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_driver')));
+      const submitBtn = document.body.querySelector('form button:not([type])') as HTMLButtonElement;
+      expect(submitBtn).not.toBeNull();
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateDriver).toHaveBeenCalledTimes(0);
 
-      const phoneInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "0501234567" })}"]`) as HTMLInputElement;
+      const phoneInput = document.body.querySelector('input[name="phone"]') as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1200,6 +1181,9 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         submitBtn?.click();
       });
 
+      expect(handleCreateDriver).toHaveBeenCalledTimes(0);
+      await act(async () => { (document.body.querySelector('input[type=checkbox]') as HTMLInputElement).click(); });
+      await act(async () => { submitBtn.click(); });
       expect(handleCreateDriver).toHaveBeenCalledTimes(1);
       expect(handleCreateDriver.mock.calls[0][1].phone).toBe('0501111111');
 
@@ -1212,11 +1196,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       const root = createRoot(container);
       const handleCreateTruck = vi.fn();
 
-      const conflictBatch: UnifiedImportBatch = {
+      const conflictBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-COMP-D'},
         importBatchId: 'BATCH-COMP-D',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 2,
         validRows: 0,
         warningRows: 2,
@@ -1229,31 +1212,31 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             raw: {},
             canonical: { truckPlate: 'ك ل م 8888', tareWeightKg: 14000 },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              truck: { sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: {entityType:'TRUCK',originalValue:'ك ل م 8888',confidence:0,isExact:false, sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
           {
             rowNumber: 2,
             raw: {},
             canonical: { truckPlate: 'ك ل م 8888', tareWeightKg: 16000 },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              truck: { sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              truck: {entityType:'TRUCK',originalValue:'ك ل م 8888',confidence:0,isExact:false, sourceValue: 'ك ل م 8888', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
       };
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={conflictBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1264,23 +1247,24 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
       });
 
       const buttons = Array.from(document.body.querySelectorAll('button'));
-      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_truck')));
+      const createTruckBtn = buttons.find((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
 
       await act(async () => {
         createTruckBtn?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`14000 ${canonicalBatch4Label('entityResolution.labels.versus')} 16000`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`14000 / 16000`);
 
-      const submitBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.save_create_truck')));
+      const submitBtn = document.body.querySelector('form button:not([type])') as HTMLButtonElement;
+      expect(submitBtn).not.toBeNull();
       await act(async () => {
         submitBtn?.click();
       });
 
       expect(handleCreateTruck).toHaveBeenCalledTimes(0);
 
-      const tareInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: "14000" })}"]`) as HTMLInputElement;
+      const tareInput = document.body.querySelector('input[name="tareWeightKg"]') as HTMLInputElement;
       await act(async () => {
         const valueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
         if (valueSetter) {
@@ -1296,6 +1280,9 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         submitBtn?.click();
       });
 
+      expect(handleCreateTruck).toHaveBeenCalledTimes(0);
+      await act(async () => { (document.body.querySelector('input[type=checkbox]') as HTMLInputElement).click(); });
+      await act(async () => { submitBtn.click(); });
       expect(handleCreateTruck).toHaveBeenCalledTimes(1);
       expect(handleCreateTruck.mock.calls[0][1].tareWeightKg).toBe(15000);
 
@@ -1307,11 +1294,10 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
     it('C4 REAL COMPONENT E: Conflict state resets completely when modal is cancelled or a clean group is opened', async () => {
       const root = createRoot(container);
 
-      const multiGroupBatch: UnifiedImportBatch = {
+      const multiGroupBatch: UnifiedImportBatch = {validationStatus:'PENDING',operationId:'OP-PORTAL',createdAt:'2026-01-01T00:00:00Z',createdBy:'SYNTHETIC',committedRows:0,auditTrail:[],currentStage:'REVIEW',commitStatus:'AWAITING_REVIEW',source:{sourceType:'EXCEL',importBatchId:'BATCH-COMP-E'},
         importBatchId: 'BATCH-COMP-E',
         projectId: 'PRJ-101',
-        sourceType: 'EXCEL_CSV',
-        status: 'DISCOVERED',
+
         totalRows: 3,
         validRows: 0,
         warningRows: 3,
@@ -1324,43 +1310,43 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
             raw: {},
             canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001', driverPhone: '0501111111' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER',originalValue:'سائق متعارض',confidence:0,isExact:false, sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
           {
             rowNumber: 2,
             raw: {},
             canonical: { driverName: 'سائق متعارض', driverIdentity: '1000000001', driverPhone: '0502222222' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER',originalValue:'سائق متعارض',confidence:0,isExact:false, sourceValue: 'سائق متعارض', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
           {
             rowNumber: 3,
             raw: {},
             canonical: { driverName: 'سائق سليم', driverIdentity: '1099887766', driverPhone: '0555555555' },
             entityResolutions: {
-              carrier: { matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
-              driver: { sourceValue: 'سائق سليم', recommendation: 'REVIEW' },
+              carrier: {entityType:'CARRIER',originalValue:'ناقل الرياض', matchedId: 'CAR-101', matchedName: 'ناقل الرياض', sourceValue: 'ناقل الرياض', recommendation: 'ACCEPT', matchMethod: 'EXACT', confidence: 1.0, isExact: true },
+              driver: {entityType:'DRIVER',originalValue:'سائق سليم',confidence:0,isExact:false, sourceValue: 'سائق سليم', recommendation: 'REVIEW' },
             },
             status: 'WARNING',
             validationIssues: [],
             reviewStatus: 'requires_review',
-          },
+          } satisfies ImportRow,
         ],
       };
 
       await act(async () => {
         root.render(
-          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer
+          <I18nProvider initialLocale="ar"><RosterDriverTruckResolutionLayer canonicalContext={canonicalFleetContext} onCanonicalVerified={()=>{}}
             importBatch={multiGroupBatch}
             onAcceptCandidate={() => {}}
             onSelectAlternate={() => {}}
@@ -1370,13 +1356,13 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         );
       });
 
-      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes(canonicalBatch4Label('entityResolution.labels.create_driver')));
+      const createButtons = Array.from(document.body.querySelectorAll('button')).filter((b) => b.textContent?.includes(canonicalBatch4Label('import.resolution.identify')));
       await act(async () => {
         createButtons[0]?.click();
       });
 
-      expect(document.body.textContent).toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      expect(document.body.textContent).toContain(`0501111111 ${canonicalBatch4Label('entityResolution.labels.versus')} 0502222222`);
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBeGreaterThan(0);
+      expect(document.body.textContent).toContain(`0501111111 / 0502222222`);
 
       const cancelBtn = Array.from(document.body.querySelectorAll('button')).find((b) => b.textContent === canonicalBatch4Label('shared.actions.cancel'));
       await act(async () => {
@@ -1387,8 +1373,8 @@ describe('D21 & FULL CONVERGENCE: Component Render & Portal Reachability Tests',
         createButtons[1]?.click();
       });
 
-      expect(document.body.textContent).not.toContain(canonicalBatch4Label('entityResolution.labels.resolve_source_conflicts'));
-      const iqamaInput = document.body.querySelector(`input[placeholder="${canonicalBatch4Label('shared.labels.example_value', { value: canonicalBatch4Label('shared.labels.alternative_values', { first: '1023456789', second: '2023456789' }) })}"]`) as HTMLInputElement;
+      expect(document.body.querySelectorAll('input[type=checkbox]').length).toBe(0);
+      const iqamaInput = document.body.querySelector('input[name="residencyId"]') as HTMLInputElement;
       expect(iqamaInput.value).toBe('1099887766');
 
       await act(async () => {

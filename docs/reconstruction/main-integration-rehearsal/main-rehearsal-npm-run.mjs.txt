@@ -1,0 +1,9 @@
+import fs from 'node:fs';import cp from 'node:child_process';import path from 'node:path';
+const selection=process.argv[2];if(!['test','verify:beta2'].includes(selection))throw Error('UNAPPROVED_COMMAND');if(!process.version.startsWith('v22.'))throw Error('NODE22_REQUIRED');
+const npm='C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js';
+const name=selection==='test'?'npm-test':'release-beta2',logPath='../main-rehearsal-'+name+'.log',exitPath='../main-rehearsal-'+name+'-exit.json';
+if(fs.existsSync(logPath)||fs.existsSync(exitPath))throw Error('PRESERVE_EXISTING_RUN');
+const env={...process.env};const pathKey=Object.keys(env).find(k=>k.toLowerCase()==='path')||'Path';env[pathKey]=path.dirname(process.execPath)+';'+env[pathKey];
+const args=[npm,...(selection==='test'?['test']:['run','verify:beta2'])],log=fs.openSync(logPath,'wx'),start=Date.now();
+const result=cp.spawnSync(process.execPath,args,{env,stdio:['ignore',log,log]});fs.closeSync(log);
+fs.writeFileSync(exitPath,JSON.stringify({selection,node:process.version,status:result.status,signal:result.signal,error:result.error?.message,durationMs:Date.now()-start,arguments:args},null,2));console.log(name+'_NATIVE_EXIT='+result.status);process.exitCode=result.status??1;

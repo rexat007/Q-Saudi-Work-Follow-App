@@ -71,7 +71,7 @@ describe('Operational Profile Impact Assessment & Reviewed Apply', () => {
   });
 
   it('3. same-profile route change + Trips → REVIEW_REQUIRED / snapshot safe', async () => {
-    const initialConfig = operationConfig('DUAL_WEIGHBRIDGE' as any ? 'WEIGHBRIDGE' : 'NONE', 'WEIGHBRIDGE');
+    const initialConfig = operationConfig('WEIGHBRIDGE', 'WEIGHBRIDGE');
     const x = operationGraph(initialConfig);
     x.store['projects/P1/trips/T1'] = {
       tripId: 'T1',

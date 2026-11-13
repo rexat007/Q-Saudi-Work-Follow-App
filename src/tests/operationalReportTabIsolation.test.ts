@@ -1,3 +1,6 @@
+// Bootstrap the real server projection module before measuring command execution.
+// This matches server startup; every original command timeout and assertion remains active.
+import '../services/projectWorkspaceInitialProjection.server';
 import {describe,it,expect,beforeEach,vi} from 'vitest';
 import vm from 'node:vm';
 import {operationalSheetsFixture,fixtureSheet} from './helpers/operationalSheetsFixture';
@@ -22,9 +25,14 @@ describe('owned operational namespace, real adapter/reconciliation transport',()
  it('centralizes all nine stable tab identities including separate register and append-only Audit',()=>{expect(operationalTabIds.map(id=>OperationalReportTabRegistry[id].title)).toEqual(['Ops Overview','Ops Trip Register','Ops Live Movement','Ops Daily Operations','Ops Carrier Performance','Ops Driver & Truck Performance','Ops Exceptions','Ops Dashboard','Ops Audit']);});
  it.each(profileCases)('%s/%s coexists with visual legacy Dashboard; retry uses the same owned IDs and RAW values',async(l,u)=>{
   expect(resolveWorkspaceTemplate(operationConfig(l,u)).operationalSheets).toEqual(operationalTabIds.map(id=>OperationalReportTabRegistry[id].title));
-  const legacy=fixtureSheet(1,'Dashboard',[['Legacy visual dashboard'],['DO NOT CHANGE']],{merges:[{sheetId:1,startRowIndex:0,endRowIndex:1,startColumnIndex:0,endColumnIndex:4}],charts:[{chartId:8,spec:{title:'Legacy chart'}}]});const x=operationalSheetsFixture({sheets:[legacy]});f.api=x.api;const r=report(l,u),port=projectGoogleBlueprintPort('fixture','P1');await port.projectProfileReports!('file',r.report);
+  const legacy=fixtureSheet(1,'Dashboard',[['Legacy visual dashboard'],['DO NOT CHANGE']],{merges:[{sheetId:1,startRowIndex:0,endRowIndex:1,startColumnIndex:0,endColumnIndex:4}],charts:[{chartId:8,spec:{title:'Legacy chart'}}]});const templateId=resolveWorkspaceTemplate(operationConfig(l,u)).templateId;
+  // Register delivery and append-only audit have separate owners; refresh must never replace their bytes.
+  const register=fixtureSheet(2,OperationalReportTabRegistry.TRIPS.title,[['tripId','status'],['EXISTING','COMPLETED']],{developerMetadata:[operationalTabMetadata({tabId:'TRIPS',templateId},2)]});
+  const audit=fixtureSheet(3,OperationalReportTabRegistry.AUDIT.title,[['Recorded At','Trip ID','Action','Value'],['2026-01-01','EXISTING','ACK','KEEP']],{developerMetadata:[operationalTabMetadata({tabId:'AUDIT',templateId},3)]});
+  const x=operationalSheetsFixture({sheets:[legacy,register,audit]});f.api=x.api;const r=report(l,u),port=projectGoogleBlueprintPort('fixture','P1');await port.projectProfileReports!('file',r.report);
+  expect(x.book.sheets!.find(s=>s.properties?.sheetId===2)).toEqual(register);expect(x.book.sheets!.find(s=>s.properties?.sheetId===3)).toEqual(audit);
   expect(x.book.sheets!.find(s=>s.properties?.sheetId===1)).toEqual(legacy);const owned=x.book.sheets!.filter(s=>operationalTabIds.some(id=>OperationalReportTabRegistry[id].title===s.properties?.title));expect(owned).toHaveLength(9);for(const sheet of owned)expect(sheet.developerMetadata?.[0].metadataValue).toContain('QSAUDI_OPERATIONAL_PROFILE');const ids=owned.map(s=>s.properties!.sheetId);
-  await port.projectProfileReports!('file',r.report);expect(x.book.sheets!.filter(s=>ids.includes(s.properties?.sheetId))).toHaveLength(9);expect(x.requests.flat().filter(r=>r.addSheet)).toHaveLength(9);expect(x.book.sheets!.find(s=>s.properties?.sheetId===1)).toEqual(legacy);expect(JSON.stringify(x.requests)).not.toContain('formulaValue');expect(JSON.stringify(x.requests)).not.toContain('deleteSheet');
+  await port.projectProfileReports!('file',r.report);expect(x.book.sheets!.filter(s=>ids.includes(s.properties?.sheetId))).toHaveLength(9);expect(x.requests.flat().filter(r=>r.addSheet)).toHaveLength(7);expect(x.book.sheets!.find(s=>s.properties?.sheetId===1)).toEqual(legacy);expect(JSON.stringify(x.requests)).not.toContain('formulaValue');expect(JSON.stringify(x.requests)).not.toContain('deleteSheet');
  });
  it.each(['absent','wrong-owner','wrong-version','wrong-profile','duplicate'] as const)('same-name %s ownership proof cannot be silently reused',async kind=>{
   const r=report(),ownership={tabId:'DASHBOARD' as const,templateId:'DUAL_WEIGHBRIDGE_V1'},metadata=operationalTabMetadata(ownership,7);if(kind==='wrong-owner')metadata.metadataValue=metadata.metadataValue!.replace('QSAUDI_OPERATIONAL_PROFILE','USER');if(kind==='wrong-version')metadata.metadataValue=metadata.metadataValue!.replace('"schema":1','"schema":2');if(kind==='wrong-profile')metadata.metadataValue=metadata.metadataValue!.replace('DUAL_WEIGHBRIDGE_V1','NO_WEIGHBRIDGE_V1');const foreign=fixtureSheet(7,OperationalReportTabRegistry.DASHBOARD.title,[['Private','Keep']],{developerMetadata:kind==='absent'?[]:kind==='duplicate'?[metadata,metadata]:[metadata]});const x=operationalSheetsFixture({sheets:[foreign]});f.api=x.api;
@@ -43,11 +51,61 @@ describe('owned operational namespace, real adapter/reconciliation transport',()
 describe('deployed Q-PRJ-007-shaped partial V1 recovery, without hardcoded Project IDs',()=>{
  it('preserves legacy and partial tabs, rehydrates delivered canonical Trips, upgrades the known Script once, and retains the binding',async()=>{
   const r=report(),legacy=['Loading Register','Offload Data','Offload Operations Audit','Daily Summary','Carrier Report Viewer','Carrier Daily Report','Dashboard'].map((title,i)=>fixtureSheet(i+1,title,[['Legacy '+title],['Keep history']]));const partial=['Project Overview','Daily Operations','Carrier Performance','Driver & Truck Performance','Trip Register'].map((title,i)=>fixtureSheet(20+i,title,[['Previous layout'],['Keep review/history']]));const original=structuredClone([...legacy,...partial]),x=operationalSheetsFixture({sheets:original});f.api=x.api;
-  const db=operationGraph(r.config,false);db.store['projects/P1'].status='SETUP';db.store['projects/P1/trips/T1']=r.trip;db.store['projects/P1/workspace_sync_outbox/T1']={projectId:'P1',tripId:'T1',kind:'PROFILE_TRIP',revision:1,status:'DELIVERED'};const binding={projectId:'P1',provider:'GOOGLE',spreadsheetId:'file',driveFileId:'file',spreadsheetUrl:'https://fixture.invalid',projectFolderId:'folder',destinationRootFolderId:'root',workspaceBlueprintVersion:'SABIL-HAIL-V1',appsScriptBlueprintVersion:'DUAL_WEIGHBRIDGE_SCRIPT_V1',scriptProjectId:'known-script',googleSubject:'subject',revision:1};db.store['projects/P1/workspace_continuity/current']={projectId:'P1',state:'READY',stage:'BOUND',scriptProjectId:'known-script',binding,automationState:'READY',workbookHealth:'HEALTHY',lastSuccessfulSyncAt:'2026-10-31T00:00:00Z'};setTestDbOverride(db.db);
+  const db=operationGraph(r.config,false);db.store['projects/P1'].status='SETUP';db.store['projects/P1/trips/T1']=r.trip;// Historical title retained for identity comparison. U08 supersedes the old
+  // history-repopulation expectation: deliver genuine pending work, never replay history.
+  db.store['projects/P1/workspace_sync_outbox/T1']={projectId:'P1',tripId:'T1',kind:'PROFILE_TRIP',revision:1,status:'PENDING',snapshot:structuredClone(r.trip)};
+  const delivered={projectId:'P1',tripId:'HISTORY',kind:'PROFILE_TRIP',revision:7,status:'DELIVERED',deliveryId:'prior-original-receipt',deliveredAt:'2026-10-01T00:00:00Z'};
+  db.store['projects/P1/workspace_sync_outbox/HISTORY']=structuredClone(delivered);
+  const priorReceipt={projectId:'P1',eventId:'HISTORY',status:'COMMITTED',deliveryRevision:7};
+  db.store['projects/P1/workspace_delivery_receipts/prior-original-receipt']=structuredClone(priorReceipt);
+  const binding={projectId:'P1',provider:'GOOGLE',spreadsheetId:'file',driveFileId:'file',spreadsheetUrl:'https://fixture.invalid',projectFolderId:'folder',destinationRootFolderId:'root',workspaceBlueprintVersion:'SABIL-HAIL-V1',appsScriptBlueprintVersion:'DUAL_WEIGHBRIDGE_SCRIPT_V1',scriptProjectId:'known-script',googleSubject:'subject',revision:1};db.store['projects/P1/workspace_continuity/current']={projectId:'P1',state:'READY',stage:'BOUND',scriptProjectId:'known-script',binding,automationState:'READY',workbookHealth:'HEALTHY',lastSuccessfulSyncAt:'2026-10-31T00:00:00Z'};setTestDbOverride(db.db);
   const port=projectGoogleBlueprintPort('fixture','P1');port.projectMasterTabs=vi.fn(async()=>{});await new ProjectGoogleWorkspaceServer(db.db).retrySync('P1',operationActor,port);
   for(const old of original)expect(x.book.sheets!.find(s=>s.properties?.sheetId===old.properties?.sheetId)).toEqual(old);expect(x.book.sheets!.filter(s=>operationalTabIds.some(id=>OperationalReportTabRegistry[id].title===s.properties?.title))).toHaveLength(9);const register=x.book.sheets!.find(s=>s.properties?.title===OperationalReportTabRegistry.TRIPS.title)!;expect(JSON.stringify(register.data)).toContain('T1');expect(f.create).not.toHaveBeenCalled();expect(f.scriptCreate).not.toHaveBeenCalled();expect(f.scriptInstall).toHaveBeenCalledOnce();expect(db.store['projects/P1/workspace_continuity/current'].binding).toMatchObject({...binding,appsScriptBlueprintVersion:'DUAL_WEIGHBRIDGE_SCRIPT_V2'});expect(db.store['projects/P1/workspace_continuity/current'].state).toBe('READY');
+  expect(db.store['projects/P1/workspace_sync_outbox/HISTORY']).toEqual(delivered);
+  expect(db.store['projects/P1/workspace_delivery_receipts/prior-original-receipt']).toEqual(priorReceipt);
+  expect(JSON.stringify(register.data)).not.toContain('HISTORY');
+  const event=db.store['projects/P1/workspace_sync_outbox/T1'];expect(event.status).toBe('DELIVERED');
+  expect(db.store['projects/P1/workspace_delivery_receipts/'+event.deliveryId]).toMatchObject({projectId:'P1',eventId:'T1',deliveryRevision:1,status:'COMMITTED'});
+  expect(x.book.developerMetadata?.some(marker=>marker.metadataKey==='q')).toBe(true);
+  const physicalWrites=x.requests.length;await new ProjectGoogleWorkspaceServer(db.db).retrySync('P1',operationActor,port,true);
+  expect(x.requests).toHaveLength(physicalWrites);expect(db.store['projects/P1/workspace_sync_outbox/HISTORY']).toEqual(delivered);
+
  });
 });
+describe('owned register journal recovery through the actual atomic transport',()=>{
+ function pendingRegister(){
+  const r=report(),template=resolveWorkspaceTemplate(r.config),x=operationalSheetsFixture({sheets:[fixtureSheet(101,OperationalReportTabRegistry.TRIPS.title,[[...template.headers]],{developerMetadata:[operationalTabMetadata({tabId:'TRIPS',templateId:template.templateId},101)]})]});f.api=x.api;
+  const db=operationGraph(r.config,false);db.store['projects/P1'].status='SETUP';db.store['projects/P1/trips/T1']=r.trip;
+  const binding={projectId:'P1',provider:'GOOGLE',spreadsheetId:'file',driveFileId:'file',projectFolderId:'folder',destinationRootFolderId:'root',workspaceBlueprintVersion:'SABIL-HAIL-V1',appsScriptBlueprintVersion:'DUAL_WEIGHBRIDGE_SCRIPT_V2',googleSubject:'subject',revision:1};
+  db.store['projects/P1/workspace_continuity/current']={projectId:'P1',binding,state:'READY',workbookHealth:'HEALTHY',automationState:'READY'};
+  const event={projectId:'P1',tripId:'T1',kind:'PROFILE_TRIP',revision:1,status:'PENDING',snapshot:structuredClone(r.trip)};
+  db.store['projects/P1/workspace_sync_outbox/T1']=structuredClone(event);setTestDbOverride(db.db);
+  const service=()=>new ProjectGoogleWorkspaceServer(db.db),run=()=>service().retrySync('P1',operationActor,projectGoogleBlueprintPort('fixture','P1'),true);
+  return {x,db,binding,event,service,run,state:()=>db.store['projects/P1/workspace_continuity/current']};
+ }
+ it('provider failure retains the frozen RPC and original pending identity; a new server reconciles its marker and receipt',async()=>{
+  const t=pendingRegister();t.x.control.beforeBatch=()=>{throw {response:{status:503}};};
+  await expect(t.run()).rejects.toHaveProperty('code','GOOGLE_SERVICE_UNAVAILABLE');
+  expect(t.db.store['projects/P1/workspace_sync_outbox/T1']).toEqual(t.event);expect(t.state().syncOwner).toBeNull();
+  const frozen=structuredClone(t.state().projectionRpc),delivery=t.state().activeProjectionDelivery.key;
+  expect(frozen.requests.some((request:any)=>request.updateCells)).toBe(true);expect(t.x.requests).toEqual([]);
+  t.x.control.beforeBatch=undefined;await t.service().reviewProjectionRetry('P1',operationActor,delivery);await t.run();
+  expect(t.x.requests).toHaveLength(1);expect(t.x.requests[0].slice(0,-1)).toEqual(frozen.requests);
+  expect(t.x.book.developerMetadata).toContainEqual(expect.objectContaining({metadataId:frozen.markerId,metadataValue:frozen.hash}));
+  expect(t.db.store['projects/P1/workspace_sync_outbox/T1']).toMatchObject({revision:1,status:'DELIVERED',deliveryId:delivery});
+  expect(t.db.store['projects/P1/workspace_delivery_receipts/'+delivery]).toMatchObject({eventId:'T1',status:'COMMITTED',destinationId:'file',bindingRevision:1});
+  expect(t.state().projectionRpc).toBeNull();expect(t.state().binding).toEqual(t.binding);
+  await t.run();expect(t.x.requests).toHaveLength(1);expect(f.create).not.toHaveBeenCalled();expect(f.scriptCreate).not.toHaveBeenCalled();
+ });
+ it('lost provider ACK reads the atomic destination marker and never manufactures a second register delivery',async()=>{
+  const t=pendingRegister();let lost=true;t.x.control.afterBatch=()=>{if(lost){lost=false;throw {response:{status:503}};}};
+  await t.run();expect(t.x.requests).toHaveLength(1);expect(t.x.book.developerMetadata?.filter(item=>item.metadataKey==='q')).toHaveLength(1);
+  const delivered=structuredClone(t.db.store['projects/P1/workspace_sync_outbox/T1']);expect(delivered.status).toBe('DELIVERED');
+  expect(t.db.store['projects/P1/workspace_delivery_receipts/'+delivered.deliveryId]).toHaveProperty('status','COMMITTED');
+  await t.run();expect(t.x.requests).toHaveLength(1);expect(t.db.store['projects/P1/workspace_sync_outbox/T1']).toEqual(delivered);expect(t.state().binding).toEqual(t.binding);
+ });
+});
+
 describe('workbook-local automation obeys the same ownership authority',()=>{
  it.each(profileCases)('%s/%s profile functions cannot target the legacy Dashboard or an unowned Ops tab', (l,u)=>{
   const blueprint=resolveWorkspaceTemplate(operationConfig(l,u)).blueprint,source=blueprint.script!.files.filter(f=>f.name==='QSaudiCommon'||f.name?.startsWith('QSaudi'+(l==='WEIGHBRIDGE'?(u==='WEIGHBRIDGE'?'DUALWEIGHBRIDGE':'LOADINGSCALEONLY'):(u==='WEIGHBRIDGE'?'UNLOADINGSCALEONLY':'NOWEIGHBRIDGE')))).map(f=>f.source).join('\n');expect(source).not.toMatch(/getSheetByName\(['"]Dashboard['"]\)/);
@@ -58,7 +116,7 @@ describe('workbook-local automation obeys the same ownership authority',()=>{
 
 it('fresh Dual provisioning still creates its legacy foundation while existing legacy sheets never enter that initialization path',()=>{const blueprint=resolveWorkspaceTemplate(operationConfig('WEIGHBRIDGE','WEIGHBRIDGE')).blueprint;const fresh=planWorkbookRepair(blueprint,{sheets:[fixtureSheet(0,'Sheet1',[])]});expect(fresh.requests.filter(r=>r.addSheet)).toHaveLength(16);expect(fresh.requests.some(r=>r.deleteSheet)).toBe(false);const existing=planWorkbookRepair(blueprint,{sheets:[fixtureSheet(1,'Dashboard',[['Legacy dashboard']])]});expect(existing.requests.filter(r=>r.addSheet)).toHaveLength(9);expect(existing.requests.some(r=>r.updateCells?.start?.sheetId===1)).toBe(false);});
 
-it('lost atomic tab-creation response is recoverable by ownership discovery without creating duplicate tabs or markers',async()=>{const x=operationalSheetsFixture();f.api=x.api;const original=x.api.spreadsheets.batchUpdate.getMockImplementation()!;let lost=true;x.api.spreadsheets.batchUpdate.mockImplementation(async(args:any)=>{const result=await original(args);if(lost&&args.requestBody.requests.some((r:any)=>r.addSheet?.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)){lost=false;throw {response:{status:503}};}return result;});const port=projectGoogleBlueprintPort('fixture','P1');await expect(port.projectProfileReports!('file',report().report)).rejects.toHaveProperty('code','GOOGLE_SERVICE_UNAVAILABLE');await port.projectProfileReports!('file',report().report);expect(x.book.sheets).toHaveLength(9);expect(x.requests.flat().filter(r=>r.addSheet?.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)).toHaveLength(1);expect(x.book.sheets!.find(s=>s.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)?.developerMetadata).toHaveLength(1);});
+it('lost atomic tab-creation response is recoverable by ownership discovery without creating duplicate tabs or markers',async()=>{const x=operationalSheetsFixture();f.api=x.api;const original=x.api.spreadsheets.batchUpdate.getMockImplementation()!;let lost=true;x.api.spreadsheets.batchUpdate.mockImplementation(async(args:any)=>{const result=await original(args);if(lost&&args.requestBody.requests.some((r:any)=>r.addSheet?.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)){lost=false;throw {response:{status:503}};}return result;});const port=projectGoogleBlueprintPort('fixture','P1');await expect(port.projectProfileReports!('file',report().report)).rejects.toHaveProperty('code','GOOGLE_SERVICE_UNAVAILABLE');await port.projectProfileReports!('file',report().report);expect(x.book.sheets).toHaveLength(7);expect(x.book.sheets!.some(s=>new Set<string>([OperationalReportTabRegistry.TRIPS.title,OperationalReportTabRegistry.AUDIT.title]).has(s.properties?.title||''))).toBe(false);expect(x.requests.flat().filter(r=>r.addSheet?.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)).toHaveLength(1);expect(x.book.sheets!.find(s=>s.properties?.title===OperationalReportTabRegistry.DASHBOARD.title)?.developerMetadata).toHaveLength(1);});
 
 it('a concurrent title replacement cannot redirect a numeric-ID write into the unowned namesake',async()=>{const ownership={tabId:'DASHBOARD' as const,templateId:'NO_WEIGHBRIDGE_V1'},owned=fixtureSheet(7,OperationalReportTabRegistry.DASHBOARD.title,[['Metric','Value'],['Trips',0]],{developerMetadata:[operationalTabMetadata(ownership,7)]}),x=operationalSheetsFixture({sheets:[owned]});f.api=x.api;const replacement=fixtureSheet(8,OperationalReportTabRegistry.DASHBOARD.title,[['Private','Keep']]),original=x.api.spreadsheets.batchUpdate.getMockImplementation()!;let changed=false;x.api.spreadsheets.batchUpdate.mockImplementation(async(args:any)=>{if(!changed){changed=true;x.book.sheets![0].properties!.title='Renamed owned report';x.book.sheets!.push(structuredClone(replacement));}return original(args);});await serverWorkspaceService.reconcileTabSnapshot('file',OperationalReportTabRegistry.DASHBOARD.title,'Metric',[{Metric:'Trips',Value:1}],['Metric','Value'],'fixture','RAW',undefined,ownership);expect(x.book.sheets!.find(s=>s.properties?.sheetId===8)).toEqual(replacement);expect(x.requests.flat().filter(r=>r.updateCells).every(r=>(r.updateCells?.range?.sheetId??r.updateCells?.start?.sheetId)===7)).toBe(true);});
 

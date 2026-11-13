@@ -1,3 +1,4 @@
+import type { ImportRow } from '../types/unifiedImport';
 import {IMPORT_OVERLAY_LEVEL} from '../components/import/ImportOverlay';
 const contextualCreation = fs.readFileSync(path.resolve(__dirname, '../components/import/ContextualCanonicalCreation.tsx'), 'utf8');
 const contextualService = fs.readFileSync(path.resolve(__dirname, '../services/import/contextualCanonicalCreation.service.ts'), 'utf8');
@@ -22,59 +23,59 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
   const wizardPath = path.resolve(__dirname, '../components/wizard/ProjectSetupWizard.tsx');
   const wizardContent = fs.readFileSync(wizardPath, 'utf-8');
 
-  const mockBatchWithCarriersAndMaterials: UnifiedImportBatch = {
-    batchId: 'BATCH-C3-001',
-    fileName: 'roster_c3_test.xlsx',
-    fileSize: 15600,
-    fileType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    uploadedAt: new Date().toISOString(),
-    status: 'PARSED',
+  const mockBatchWithCarriersAndMaterials: UnifiedImportBatch = {importBatchId:'BATCH-C3-001',projectId:'PRJ-1',source:{sourceType:'EXCEL',importBatchId:'BATCH-C3-001',sourceFileName:'roster_c3_test.xlsx'},currentStage:'REVIEW',validationStatus:'PENDING',commitStatus:'AWAITING_REVIEW',committedRows:0,operationId:'OP-REVIEW-FIXTURE',createdAt:'2026-01-01T00:00:00Z',createdBy:'reviewer',auditTrail:[],metadata:{fileName: 'roster_c3_test.xlsx',fileSize: 15600,fileType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',uploadedAt: new Date().toISOString(),sourceHeaders: ['رقم الشاحنة', 'الناقل', 'المادة', 'اسم السائق'],columnMappings: {
+      'رقم الشاحنة': 'truck_plate',
+      'الناقل': 'carrier_name',
+      'المادة': 'material_name',
+      'اسم السائق': 'driver_name',
+    }},
+
+
+
+
+
+
     totalRows: 3,
     validRows: 0,
     warningRows: 3,
     errorRows: 0,
     requiresReviewRows: 3,
-    importedRows: 0,
-    sourceHeaders: ['رقم الشاحنة', 'الناقل', 'المادة', 'اسم السائق'],
-    columnMappings: {
-      'رقم الشاحنة': 'truck_plate',
-      'الناقل': 'carrier_name',
-      'المادة': 'material_name',
-      'اسم السائق': 'driver_name',
-    },
+
+
+
     rows: [
-      {
+      {reviewStatus: 'requires_review',
         rowNumber: 1,
         raw: { 'رقم الشاحنة': 'TRK-101', 'الناقل': 'شركة الرمال للنقل', 'المادة': 'رمل مغسول A', 'اسم السائق': 'سالم علي' },
         entityResolutions: {
-          carrier: { sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          material: { sourceValue: 'رمل مغسول A', recommendation: 'REVIEW' },
-          driver: { sourceValue: 'سالم علي', recommendation: 'REVIEW' },
-          truck: { sourceValue: 'TRK-101', recommendation: 'REVIEW' },
+          carrier: {entityType:'CARRIER',originalValue:'شركة الرمال للنقل',confidence:0,isExact:false, sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          material: {entityType:'MATERIAL',originalValue:'رمل مغسول A',confidence:0,isExact:false, sourceValue: 'رمل مغسول A', recommendation: 'REVIEW' },
+          driver: {entityType:'DRIVER',originalValue:'سالم علي',confidence:0,isExact:false, sourceValue: 'سالم علي', recommendation: 'REVIEW' },
+          truck: {entityType:'TRUCK',originalValue:'TRK-101',confidence:0,isExact:false, sourceValue: 'TRK-101', recommendation: 'REVIEW' },
         },
         status: 'WARNING',
         validationIssues: [],
-        resolutionDecisions: {},
-      },
-      {
+
+      } satisfies ImportRow,
+      {reviewStatus: 'requires_review',
         rowNumber: 2,
         raw: { 'رقم الشاحنة': 'TRK-102', 'الناقل': 'شركة الرمال للنقل', 'المادة': 'رمل مغسول A', 'اسم السائق': 'أحمد فهد' },
         entityResolutions: {
-          carrier: { sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          material: { sourceValue: 'رمل مغسول A', recommendation: 'REVIEW' },
-          driver: { sourceValue: 'أحمد فهد', recommendation: 'REVIEW' },
-          truck: { sourceValue: 'TRK-102', recommendation: 'REVIEW' },
+          carrier: {entityType:'CARRIER',originalValue:'شركة الرمال للنقل',confidence:0,isExact:false, sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          material: {entityType:'MATERIAL',originalValue:'رمل مغسول A',confidence:0,isExact:false, sourceValue: 'رمل مغسول A', recommendation: 'REVIEW' },
+          driver: {entityType:'DRIVER',originalValue:'أحمد فهد',confidence:0,isExact:false, sourceValue: 'أحمد فهد', recommendation: 'REVIEW' },
+          truck: {entityType:'TRUCK',originalValue:'TRK-102',confidence:0,isExact:false, sourceValue: 'TRK-102', recommendation: 'REVIEW' },
         },
         status: 'WARNING',
         validationIssues: [],
-        resolutionDecisions: {},
-      },
-      {
+
+      } satisfies ImportRow,
+      {reviewStatus: 'requires_review',
         rowNumber: 3,
         raw: { 'رقم الشاحنة': 'TRK-103', 'الناقل': 'شركة الرمال للنقل', 'المادة': 'حصى خشن B', 'اسم السائق': 'خالد عمر' },
         entityResolutions: {
-          carrier: { sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
-          material: {
+          carrier: {entityType:'CARRIER',originalValue:'شركة الرمال للنقل',confidence:0,isExact:false, sourceValue: 'شركة الرمال للنقل', matchedId: 'CAR-REMAL-01', matchedName: 'شركة الرمال للنقل', recommendation: 'ACCEPT', matchMethod: 'EXACT' },
+          material: {entityType:'MATERIAL',originalValue:'حصى خشن B',confidence:0,isExact:false,
             sourceValue: 'حصى خشن B',
             recommendation: 'REVIEW',
             candidates: [
@@ -85,13 +86,13 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
               },
             ],
           },
-          driver: { sourceValue: 'خالد عمر', recommendation: 'REVIEW' },
-          truck: { sourceValue: 'TRK-103', recommendation: 'REVIEW' },
+          driver: {entityType:'DRIVER',originalValue:'خالد عمر',confidence:0,isExact:false, sourceValue: 'خالد عمر', recommendation: 'REVIEW' },
+          truck: {entityType:'TRUCK',originalValue:'TRK-103',confidence:0,isExact:false, sourceValue: 'TRK-103', recommendation: 'REVIEW' },
         },
         status: 'WARNING',
         validationIssues: [],
-        resolutionDecisions: {},
-      },
+
+      } satisfies ImportRow,
     ],
     issues: [],
   };
@@ -286,14 +287,14 @@ describe('UNIT C3 — SMART IMPORT MATERIAL RESOLUTION LAYER', () => {
   it('18. Zero Material groups evaluate to incomplete and do not display completion banner or progress', () => {
     // When a batch has zero material columns/data:
     // isMaterialLayerComplete = materialGroups.length > 0 && unresolvedCount === 0 => false
-    const emptyMaterialBatch: UnifiedImportBatch = {
-      ...mockBatchWithCarriersAndMaterials,
-      sourceHeaders: ['رقم الشاحنة', 'الناقل', 'اسم السائق'],
-      columnMappings: {
+    const emptyMaterialBatch: UnifiedImportBatch = {metadata:{sourceHeaders: ['رقم الشاحنة', 'الناقل', 'اسم السائق'],columnMappings: {
         'رقم الشاحنة': 'truck_plate',
         'الناقل': 'carrier_name',
         'اسم السائق': 'driver_name',
-      },
+      }},
+      ...mockBatchWithCarriersAndMaterials,
+
+
       rows: mockBatchWithCarriersAndMaterials.rows.map((r) => ({
         ...r,
         raw: { 'رقم الشاحنة': r.raw['رقم الشاحنة'], 'الناقل': r.raw['الناقل'], 'اسم السائق': r.raw['اسم السائق'] },

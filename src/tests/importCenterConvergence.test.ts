@@ -312,7 +312,7 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
       // Invalidation logic executed in useEffect:
       carriers = [];
       readiness = { carriers: 'PENDING', drivers: 'PENDING', trucks: 'PENDING', materials: 'PENDING' };
-      activeBatch = createEmptyImportBatch();
+      activeBatch = { importBatchId: 'BATCH-EMPTY', rows: [] };
 
       expect(carriers).toEqual([]);
       expect(readiness.carriers).toBe('PENDING');
@@ -320,7 +320,7 @@ describe('ImportCenter Canonical Master-Entity Resolution Convergence Tests', ()
       expect(readiness.trucks).toBe('PENDING');
       expect(readiness.materials).toBe('PENDING');
       expect(activeBatch.importBatchId).toBe('BATCH-EMPTY');
-      expect(activeBatch.rowCount).toBe(0);
+      expect(activeBatch.rows).toHaveLength(0);
     });
 
     it('15. Generation guard discards late callbacks from previous project (P1)', () => {

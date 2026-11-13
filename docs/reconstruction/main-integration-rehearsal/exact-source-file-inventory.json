@@ -1,0 +1,802 @@
+{
+  "base": "030e9027685033c674cf2021499db7bfb675cbfd",
+  "branch": "rehearsal/firestore-main-20261113",
+  "sourceAndTestFiles": 159,
+  "files": [
+    {
+      "path": "server/app.ts",
+      "sha256WorkingBytes": "b7b8010f15a4cbc2cbde4a03346e7042f2fba5f4f914528a029be5f459b13d2f",
+      "new": false
+    },
+    {
+      "path": "server/tripCommandHandler.ts",
+      "sha256WorkingBytes": "5a66146f545d3cba6e651bb5d88c0285b57a7206a0b5616da1d5bdfbcc30286f",
+      "new": true
+    },
+    {
+      "path": "src/App.tsx",
+      "sha256WorkingBytes": "e36b0be248db95360b29a360b8ffa3040b2face0e005c6c55ce795bc1e5eb784",
+      "new": false
+    },
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "sha256WorkingBytes": "66d65ccd800f4264f3aa76bf2f7dd0342031efde10502dd2851ae5a28d7a5c72",
+      "new": false
+    },
+    {
+      "path": "src/components/field/DriverView.tsx",
+      "sha256WorkingBytes": "479355afa6bf7507f55351acaac57f7ba5d6013b73eb1f23cab327ff4701fb0f",
+      "new": false
+    },
+    {
+      "path": "src/components/field/FieldSupervisionView.tsx",
+      "sha256WorkingBytes": "4fa6805ba4a2737d43068c670209f837e694b9a24bd17362e17f424def84842e",
+      "new": false
+    },
+    {
+      "path": "src/components/field/LoadingOperatorView.tsx",
+      "sha256WorkingBytes": "090e3e07887bfbf7ed88e1d488eb86ff21b6de3a615d36a30f63d475506450b3",
+      "new": false
+    },
+    {
+      "path": "src/components/field/UnloadingOperatorView.tsx",
+      "sha256WorkingBytes": "77a44c91178b58489ddd5b396cc37fe2c0eda7a5b5a6becd527555059ee386d0",
+      "new": false
+    },
+    {
+      "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+      "sha256WorkingBytes": "858d972f85c4acb90dffb81d28bd41a6f647127dc385c8c9e770c140319501a1",
+      "new": false
+    },
+    {
+      "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+      "sha256WorkingBytes": "a782b0a9b77d57a568fb2f14fe28668191a37c6e08f72e8da8407339f2935b53",
+      "new": false
+    },
+    {
+      "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+      "sha256WorkingBytes": "d779b0580854850f06522e66b91472dd3cd7b796726cefaacbb86ee77b68551e",
+      "new": false
+    },
+    {
+      "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+      "sha256WorkingBytes": "80974b6b9116cc8e73dec97180f6d3a882d852daa51b575d2c6a57b59d4b4b39",
+      "new": false
+    },
+    {
+      "path": "src/components/offline/OutboxDrawer.tsx",
+      "sha256WorkingBytes": "474475ac63d9429aebcd1e1e8a05e8eb615330e6c1978ad8a131d35569f8c031",
+      "new": false
+    },
+    {
+      "path": "src/components/pricing/PricingEngineView.tsx",
+      "sha256WorkingBytes": "e6404c883f04fde35667f58434cdb15c448f3577c91640924914b93ddf6dc836",
+      "new": false
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "sha256WorkingBytes": "11c7720a817482c934da2c245e437a75961c084030e6aafdd843de7abafb3d85",
+      "new": false
+    },
+    {
+      "path": "src/components/reports/ReportsEngineView.tsx",
+      "sha256WorkingBytes": "13deed4e059c7d484a0e2713923e4536ca47f8bc399746ad86fa9e32f30ce2ec",
+      "new": false
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "sha256WorkingBytes": "865f29095b076812bc224a804bb5ad3b6fb2694889e6deb0f656f547258181fa",
+      "new": false
+    },
+    {
+      "path": "src/firebase/authContext.tsx",
+      "sha256WorkingBytes": "30da6bb3bac16b593d43c670820b0ed94e3a58df63f0752574c96cb4697e9644",
+      "new": false
+    },
+    {
+      "path": "src/i18n/codemod/codemod.reporter.ts",
+      "sha256WorkingBytes": "26e50b99d7554cda24329c6777afbbb0516b5e32bdd940e1c2c7d2ea7f45bbe4",
+      "new": false
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "sha256WorkingBytes": "25d3e6ecc5401151d5a0fbb28f8a47f0f30385807be906c0d464461b5726456f",
+      "new": false
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "sha256WorkingBytes": "86bd20d75a1312ce65fe6b10c023e88455fac93a911d54e4cd1069f3ab515b16",
+      "new": false
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "sha256WorkingBytes": "9cc75084ef0ded684b47224917b5ffb94fd958c1d62566d1172df1ecde49f668",
+      "new": false
+    },
+    {
+      "path": "src/repositories/exception.repository.ts",
+      "sha256WorkingBytes": "faef9526e6ab79866d7e02f92780caf8c45b3382b6f930e668e42d4f7983a3f7",
+      "new": false
+    },
+    {
+      "path": "src/repositories/trip.repository.ts",
+      "sha256WorkingBytes": "bc590622d32482c943315961853174293825b5efd2963bad35341769299ac77d",
+      "new": false
+    },
+    {
+      "path": "src/services/canonicalTripPersistence.server.ts",
+      "sha256WorkingBytes": "e71ba49b38cad099a96c1dc4bc022f33e3d106606373df8cca6e4c23128e5fd4",
+      "new": false
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "sha256WorkingBytes": "2b83d409e40e54c79be56add61c64f531c11e9d0aeb41eb892e4067f808d11a1",
+      "new": true
+    },
+    {
+      "path": "src/services/exceptionCommandClient.service.ts",
+      "sha256WorkingBytes": "f02fe05151e5c0acfa7a4dd7f41730b8db3a9c00f02d8964dc8f01f2fa7c41b5",
+      "new": true
+    },
+    {
+      "path": "src/services/exceptionCommands.server.ts",
+      "sha256WorkingBytes": "a4da30b493e17fdc0534978e8b77efb8eb6192cbb0e199f6f0847f0c81edf0ef",
+      "new": true
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+      "sha256WorkingBytes": "f0d534cba9cf247266529090088d0a39abf0fa3c88ba0ec4334ca9a0e7b2b65f",
+      "new": false
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+      "sha256WorkingBytes": "8f210342f675461317cd7efe30f789735db5b701d3f71db43f66379a5a91e5de",
+      "new": false
+    },
+    {
+      "path": "src/services/import/driverTruckImport.ts",
+      "sha256WorkingBytes": "5a990d35b215d2caced8d03a91bb77d1689a0e182c323946a76132c17e0ea46f",
+      "new": false
+    },
+    {
+      "path": "src/services/import/googleDrivePipeline.service.ts",
+      "sha256WorkingBytes": "f9bb8234c3614f1b3eb83d046056c884e848fb8c25c4d90bcb33a0efd67d9f9d",
+      "new": false
+    },
+    {
+      "path": "src/services/import/rosterBatchReview.service.ts",
+      "sha256WorkingBytes": "1402b84bb39bd40e3d670f755ffe78535bac3ca361a20e980efd2b00a92a94f5",
+      "new": false
+    },
+    {
+      "path": "src/services/import/rosterMaterialBinding.ts",
+      "sha256WorkingBytes": "2ff9322da431b9c9dfef93e6abd0301861a2017b75f16cc026500ace729a8d3e",
+      "new": false
+    },
+    {
+      "path": "src/services/import/tripImportCommitter.ts",
+      "sha256WorkingBytes": "71687a83180401e5e88d03a32c565345c8c21e41b6a87219254ae649fabc9e7a",
+      "new": false
+    },
+    {
+      "path": "src/services/import/unifiedImportPipeline.service.ts",
+      "sha256WorkingBytes": "c71eae302016642af7a2a407092c7b81237a0f26198d640f5f88744ebed4fa39",
+      "new": false
+    },
+    {
+      "path": "src/services/offline/conflictResolution.service.ts",
+      "sha256WorkingBytes": "43c947fd75b7b8ce1965913145b550feeb04c59377aa799a55f0df735855196f",
+      "new": false
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "sha256WorkingBytes": "cb528a8e32e9eb8b713beb5d270d7921c66e185bafc769f4bf64e8af2892de85",
+      "new": false
+    },
+    {
+      "path": "src/services/offline/outbox.service.ts",
+      "sha256WorkingBytes": "14414e7828087524ae97988e13a16aaf2fc756fccdf7b0c42bcb97c4c00ae097",
+      "new": false
+    },
+    {
+      "path": "src/services/offline/tripCommandIdentity.ts",
+      "sha256WorkingBytes": "fb18cfb3b63eaa61b7e41ccb5054f07698117698fbbe675ffab362754606207b",
+      "new": true
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "sha256WorkingBytes": "180a3650abca9830e1a2b32b648b726516fe02b58b0a8c6fdb33c2f5ba2f9cbb",
+      "new": false
+    },
+    {
+      "path": "src/services/projectAuditRead.server.ts",
+      "sha256WorkingBytes": "b425b161a716904288217e0d70151699337d998c0ac4200e02db5367a1851d63",
+      "new": true
+    },
+    {
+      "path": "src/services/reportsEngine.service.ts",
+      "sha256WorkingBytes": "75f6a820803cb6b42f9bfa5a63da2a85b1a8939e1450ff9c23b0063e43449420",
+      "new": false
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "sha256WorkingBytes": "8177be4657591596230ecc0e5cfff460d39c7ea7690767d32cded59d05ffb90b",
+      "new": false
+    },
+    {
+      "path": "src/services/tripCommandClient.service.ts",
+      "sha256WorkingBytes": "f0c8cfb74172bbb534286b39f5aeb52449ebd7dfa686dfd000abfc52638b2cb3",
+      "new": false
+    },
+    {
+      "path": "src/services/tripCommands.server.ts",
+      "sha256WorkingBytes": "f79a5747d01e1d5b3c2a68f8121633f300d6d9508e58313fce604c507da419f8",
+      "new": false
+    },
+    {
+      "path": "src/tests/ar2U07OfflineContinuity.test.ts",
+      "sha256WorkingBytes": "9626c7ae6ecd04ea51bc8ec70aeb03f8526c465ede788461727317faa4e10ec5",
+      "new": false
+    },
+    {
+      "path": "src/tests/block102OperationalAccessSmartRoster.test.ts",
+      "sha256WorkingBytes": "c73c22f850a4389a65c8318f6558d8992e39bf2ac4d2be8a8d444872ff0e7c15",
+      "new": false
+    },
+    {
+      "path": "src/tests/canonicalTripDispatchAuthority.test.ts",
+      "sha256WorkingBytes": "afe74a5d3175ece6cd063d85d9baf48b96703c917968db8bf97271eecdc5167d",
+      "new": false
+    },
+    {
+      "path": "src/tests/canonicalTripPersistenceBoundaryConvergenceUnit6A.test.ts",
+      "sha256WorkingBytes": "defb313a4809991f7b4d648f11258a4fc91b8cb9ee0caaf0bfa083d95837058e",
+      "new": false
+    },
+    {
+      "path": "src/tests/conflictEngine.test.ts",
+      "sha256WorkingBytes": "e0c37baa545c5d78f2200662dd333c12803b4254015894eb0b44665eae5ae195",
+      "new": false
+    },
+    {
+      "path": "src/tests/conflictResolution.test.ts",
+      "sha256WorkingBytes": "8480998535cdf0819ba0201e3f8af3a9413655261e5ecfa16704aeeaf281b6cb",
+      "new": false
+    },
+    {
+      "path": "src/tests/controlledIncrementalWorkspaceProjection.test.ts",
+      "sha256WorkingBytes": "c4e8b8dc9b6bf69bfdbca2390ef55b614872e10c8a189e6dd4ebf98c9d79d46c",
+      "new": false
+    },
+    {
+      "path": "src/tests/convergence2Browser.test.ts",
+      "sha256WorkingBytes": "bef2151263290a7e672a89c2b4189a62581f52a3eaf2f3414b30ce7c65a7e7d8",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence2CacheBrowser.test.ts",
+      "sha256WorkingBytes": "68ecd9bf92cc5d2aaaa92778370fe5e13388a9a147ffd68cbe81f322eec8e909",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence2Operational.test.ts",
+      "sha256WorkingBytes": "d6914f38bf32efbdc1f42f39abc8052e0532c082c47f82b71490a2ebf3a31a6b",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence3DurableCommand.test.ts",
+      "sha256WorkingBytes": "7b69ba42cc5e8534e413387d4f40a64247347ffa93c00b5b8204fce67cfedf64",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence3ImportIdentity.test.ts",
+      "sha256WorkingBytes": "1815aa3b0f1f5bd4c4a602b1a01764bb28680e61be100992b9d4ff5339001683",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence3JournalBrowser.test.ts",
+      "sha256WorkingBytes": "aead6bed6916f4ba551da1ea8557a7fe930a8438f961d57cd9db55cad0e80e69",
+      "new": true
+    },
+    {
+      "path": "src/tests/convergence3Journey.test.ts",
+      "sha256WorkingBytes": "694bff474851ac9fc8e7339b600dc527fe46484bd962f5b82ecdd473c6fe0478",
+      "new": true
+    },
+    {
+      "path": "src/tests/dashboardReportsI18n.test.ts",
+      "sha256WorkingBytes": "1f6b61ff0f78033572e8cc68c8ca5c9b147b6fa576681d9c9120250b68cd559f",
+      "new": false
+    },
+    {
+      "path": "src/tests/driverViewConvergenceP603.test.ts",
+      "sha256WorkingBytes": "6b9a00f1308d90bc9c6578352cdf6bda9ec2259af3e8df773e1d6d4b3be494f4",
+      "new": false
+    },
+    {
+      "path": "src/tests/endToEndOperationalValidationBlock94.test.ts",
+      "sha256WorkingBytes": "bbae855781c454a542f2f7633117b8eb1806976c328a3a83c1635028fdc45da8",
+      "new": false
+    },
+    {
+      "path": "src/tests/exceptionEngineRetirement.test.ts",
+      "sha256WorkingBytes": "e64edeebc37207500484e41a6b66918187d111c73f55709bf92ebecd69a25e90",
+      "new": false
+    },
+    {
+      "path": "src/tests/fieldSupervisionDriverBlock78.test.ts",
+      "sha256WorkingBytes": "ce6a8c9a98573945197a8b177c5b797345d17d8ee33590fa1e786dfa4413c7df",
+      "new": false
+    },
+    {
+      "path": "src/tests/finalReleaseReadiness.test.ts",
+      "sha256WorkingBytes": "264ba3db1eb933e898bfd1c277008198296f6a2401b541f9061edca8736efbbb",
+      "new": false
+    },
+    {
+      "path": "src/tests/finalUiArchitectureBlock76.test.ts",
+      "sha256WorkingBytes": "7fc6057525e671beb9c6b6f09f4ca65ec99b330167cebd9fb2d6e373ac1acd46",
+      "new": false
+    },
+    {
+      "path": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "sha256WorkingBytes": "78aed3fc7efe2832f9f0130cb5e801b5532bd598551058888fabaa22cfaa878b",
+      "new": false
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "sha256WorkingBytes": "6b4fe494fd1958ce9c6f37df51064d34dd2117c106d71e54d743f48546172830",
+      "new": true
+    },
+    {
+      "path": "src/tests/googleDriveImport.test.ts",
+      "sha256WorkingBytes": "17a4d2b7225f425dbf4250d9db3dfe57112301670429c714e083319212eb4869",
+      "new": false
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "sha256WorkingBytes": "1acb8aba6c7a42e26c39a9ceadbe063b921ea999e842075293dbd456db7958b1",
+      "new": true
+    },
+    {
+      "path": "src/tests/googleSheetsImport.test.ts",
+      "sha256WorkingBytes": "8404307fd643f61d74eae28c2c9d884ee0155fe20f2329b0f5629d5b06192040",
+      "new": false
+    },
+    {
+      "path": "src/tests/helpers/commandDatabase.ts",
+      "sha256WorkingBytes": "a2150f120ba17e2e28fd120e3803b0a9270c08165b9cfb21d9da48b815743f23",
+      "new": false
+    },
+    {
+      "path": "src/tests/helpers/convergence2BrowserEntry.tsx",
+      "sha256WorkingBytes": "5aa77a59321683e493647c715de8947166b6df992e1da598cd22b1583695c5b0",
+      "new": true
+    },
+    {
+      "path": "src/tests/helpers/convergence2Firestore.ts",
+      "sha256WorkingBytes": "520fedb8ed6c32a88084910a879d03926fd8ef1ecea890f83c6efdaad44c9f04",
+      "new": true
+    },
+    {
+      "path": "src/tests/helpers/convergence3BrowserEntry.tsx",
+      "sha256WorkingBytes": "4aca40f0fc1fa76dadb197fce6f138b76bfd03b4249b91ca0371c015a6edda38",
+      "new": true
+    },
+    {
+      "path": "src/tests/helpers/operationalSheetsFixture.ts",
+      "sha256WorkingBytes": "d76dd656abff7944aa1b649c30aa73762171ea78b95e3a060dadd58cee776ede",
+      "new": false
+    },
+    {
+      "path": "src/tests/helpers/reviewedTripCommandFixture.ts",
+      "sha256WorkingBytes": "d11584fabb29ace58504da9c4e754c085baf7a7b0ba8fe7f5b4896459520d4bb",
+      "new": true
+    },
+    {
+      "path": "src/tests/helpers/rosterReadinessBrowserEntry.tsx",
+      "sha256WorkingBytes": "3212059c4617727a58d8b6493752e68a84ec4bb8bc826c1d3b8b27abd540b64a",
+      "new": true
+    },
+    {
+      "path": "src/tests/helpers/workspaceEnsureFixture.ts",
+      "sha256WorkingBytes": "7774c9870cf651dc8373764605bd85d57576cbe854d4a7c217a5def8670d3260",
+      "new": false
+    },
+    {
+      "path": "src/tests/i18nTranslationCatalog.test.ts",
+      "sha256WorkingBytes": "77499f2343e03894fc0aae8c97848709b0e9fa0fd3dd9fb6de27374b00c1619f",
+      "new": false
+    },
+    {
+      "path": "src/tests/i18nTranslationGeneration.test.ts",
+      "sha256WorkingBytes": "238b1a997ea52fa2479156b33a31bc74b149ea34fc9026b20524d4b04b77c590",
+      "new": false
+    },
+    {
+      "path": "src/tests/importCenterConvergence.test.ts",
+      "sha256WorkingBytes": "c99b551c9a10e4e9b6745028faabc0282fa114f3948485f1bac5e7a9b2464849",
+      "new": false
+    },
+    {
+      "path": "src/tests/liveProjectRosterSmartConvergence.test.ts",
+      "sha256WorkingBytes": "5ea3521b48a5d2602a393947e3ba0c09501178fc97af23683d41a34914d645d6",
+      "new": false
+    },
+    {
+      "path": "src/tests/materialAuthorityP602B2.test.ts",
+      "sha256WorkingBytes": "bc12bc98a2d6924282ffd5d655cbf9262da2eb3ed3a886d653eb4fbc196896bc",
+      "new": false
+    },
+    {
+      "path": "src/tests/operationalProfileAssessment.test.ts",
+      "sha256WorkingBytes": "ea9bd01dfdbadae12befbea8768747abf409f9847e4f689d0fc1043009276e3f",
+      "new": false
+    },
+    {
+      "path": "src/tests/operationalProfileUi.test.tsx",
+      "sha256WorkingBytes": "bb36675bc099c11b31f07c83d44f500d6670c333800b8656edeb2004a1713fe7",
+      "new": false
+    },
+    {
+      "path": "src/tests/operationalReportTabIsolation.test.ts",
+      "sha256WorkingBytes": "885fc587cf81cc35e853895a11f4555cd4c245e059df17839d858632ffc59eba",
+      "new": false
+    },
+    {
+      "path": "src/tests/operationalWorkspaceTemplates.test.ts",
+      "sha256WorkingBytes": "9fb08f363aaa9d5515bcdd17d265b2f9e321290d36b518dfb16ae273d6b1d796",
+      "new": false
+    },
+    {
+      "path": "src/tests/pricingEngine.cases.ts",
+      "sha256WorkingBytes": "978ae67c67558b289aeed70433254864ba950c6e5ae53102485fef95d6c630f0",
+      "new": true
+    },
+    {
+      "path": "src/tests/pricingEngine.test.ts",
+      "sha256WorkingBytes": "1c8bc92bfb8603a2d76e741f36df99741bc36d2b99c68b08650fa794b74289a2",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectActivationReadiness.test.ts",
+      "sha256WorkingBytes": "c2f9053463bc14ec5619a4bda7197d96f17b20100b86bb0f1a3de1bf73767a13",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectCentricOperationsBlock87.test.ts",
+      "sha256WorkingBytes": "71c0e8d59b30293bbe7433b7b9fad932b1400f0b1c254fce59c520f6dc0562ca",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectContextLifetime.test.tsx",
+      "sha256WorkingBytes": "9c899b3ccd3d06153f6db098507840146017355cc91300c0ca36350b9014ca54",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectDriverTruckAssignmentFoundation.test.ts",
+      "sha256WorkingBytes": "6d8576033e529c7e3af7560eaaf1cc6aa3bce046e64045eea06d818370ecf2b9",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectFormDateUx86F.test.ts",
+      "sha256WorkingBytes": "e4e38fd3f86f33eec41e3a563df79b6ca06b5ac0ec155426a7af96ef84e8a651",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectGoogleWorkspaceTemplateSync.test.ts",
+      "sha256WorkingBytes": "9b7dffe96875088f887a63e80fa3adf17329eb1acec3e919f28bcc3858cf1869",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectRouteConvergence.test.ts",
+      "sha256WorkingBytes": "0346a2e2ff3dde8af092df213748a22de0d95a827758d5a31afc14214c506b7a",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectWorkflowNavigation86E.test.ts",
+      "sha256WorkingBytes": "07c06fbf9f697873ca0388c58a5567493cddcc081cd7f87c9c9c93f260ac395c",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectWorkspaceInitialProjectionUnit4A.test.ts",
+      "sha256WorkingBytes": "19fbf5f32020897a3c0f01f0b53b05f2e5d10911a8ad51e00036d8c2508193c9",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectWorkspaceMasterSnapshotReconciliationUnit5D.test.ts",
+      "sha256WorkingBytes": "357a4fea6f7f39c8f18ca161770b31de16c2bbeaec26999ff7db260cf0e31da5",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionAcknowledgementUnit5C.test.ts",
+      "sha256WorkingBytes": "a9ed9aa302bd82470d36bbb8fe1552ef134752060005f5fe3fa36d7100d9fc43",
+      "new": false
+    },
+    {
+      "path": "src/tests/projectWorkspaceProjectionFreshnessUnit5A.test.ts",
+      "sha256WorkingBytes": "9e586d24989ca90df8f35bd22e877945d4a53d4150fcf031dc55af433e50e79e",
+      "new": false
+    },
+    {
+      "path": "src/tests/releaseBlockerPricingAliases.test.ts",
+      "sha256WorkingBytes": "fe11aee94eea2fe7ad976a0f35445fe4f04295cd7bc170b0df537195226ee773",
+      "new": true
+    },
+    {
+      "path": "src/tests/releaseBlockerTripIdentity.test.ts",
+      "sha256WorkingBytes": "84926eca79fdfae4054332a7e85b61ef602d04ae87ac7c4b6ec6d2a1dd5399af",
+      "new": true
+    },
+    {
+      "path": "src/tests/reportsEngine.test.ts",
+      "sha256WorkingBytes": "ffbf61bc5af1cd75f29f5593180aff89c2f95c1c68638fd9a08b6e6679ae1aa5",
+      "new": false
+    },
+    {
+      "path": "src/tests/reportsEngineControlCleanup.test.ts",
+      "sha256WorkingBytes": "0b320f96c678d2170869be7f3be51343b82e71ca2a9ad2af79e815fd09847b1b",
+      "new": false
+    },
+    {
+      "path": "src/tests/reportsEngineConvergence.test.ts",
+      "sha256WorkingBytes": "7cf8cebd9d67e4edd386ed3b9add1fed7d34220eb3dd58675618880627df80a1",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterIdentityGroupingProvenanceSiCg1.test.ts",
+      "sha256WorkingBytes": "3d749978e5fc1f1571fb6d59fecbf54fba691a6d0162c447501230a58ac238f3",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterReadinessBrowserConvergence.test.ts",
+      "sha256WorkingBytes": "9c295e862d2e729aa942656cb5e1ec9aad9dd0d38505c1e9743e43a3ec8a284f",
+      "new": true
+    },
+    {
+      "path": "src/tests/rosterResolutionReadinessConvergence.test.ts",
+      "sha256WorkingBytes": "72c0f5f95571b799dbf92df50f94066bdfe1ea1d7cdb7038b58f964130a397a3",
+      "new": true
+    },
+    {
+      "path": "src/tests/rosterSmartImportCarrierLayerC2.test.ts",
+      "sha256WorkingBytes": "34c8b4e67b0528f534232935dcfcfca51da941a2b8ff9796f971d7173d0fb950",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterSmartImportDriverTruckLayerC4.test.ts",
+      "sha256WorkingBytes": "40084e0b78ee6f1afa7a4e6d1fe2959bc78ab8daf9c66cb6212d22b8958efcd7",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterSmartImportFinalReviewCommitC5.test.ts",
+      "sha256WorkingBytes": "4260dce595d945cf8a736ccd45d897f6c7334fffc67361255b4393360199f71e",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterSmartImportJourneyNavigation.test.ts",
+      "sha256WorkingBytes": "03f91c4c470d0b3922d119e8b8add1b20813ca7a88398278b890c27579be2a8e",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterSmartImportMaterialLayerC3.test.ts",
+      "sha256WorkingBytes": "d8b720b5bcca4ddb9c0ef8f71f7f353b9c62bdf4a658ff34a7bdc7b5e1f44ba4",
+      "new": false
+    },
+    {
+      "path": "src/tests/rosterSmartImportPortalRenderQuality.test.tsx",
+      "sha256WorkingBytes": "ca93d4e46370f39eb6b5df69a30c43aea93fba787124fb466a0c1d5b5ddcf8e6",
+      "new": false
+    },
+    {
+      "path": "src/tests/runtimeGenerationConvergence.test.ts",
+      "sha256WorkingBytes": "e04bbcf883dabb82a3bdda39840c82a46e10f5df880dd8045fdcae5446008369",
+      "new": false
+    },
+    {
+      "path": "src/tests/secureTripNumberingOffline89B.test.ts",
+      "sha256WorkingBytes": "268055320c0d78c2f8c1e547cf1c17392979b21f87b5e699b0195f3917baafa5",
+      "new": false
+    },
+    {
+      "path": "src/tests/setupReadinessBoundary.test.ts",
+      "sha256WorkingBytes": "19223495c9fca0e553616a2e734de82d2797787fb9c75ff10ce14b890d9ff818",
+      "new": false
+    },
+    {
+      "path": "src/tests/setupWizardContinuity.test.tsx",
+      "sha256WorkingBytes": "65427894d0eac021ddd0aff2f65d162ef678cdd335f0e25bda31e6f27c195eb4",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportCanonicalCommitCutoverC2.test.ts",
+      "sha256WorkingBytes": "19f5a4b91b5ce96a1a39da4537063b5e40300fcfe1b2c96052202809931117df",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportCommitIntegrityConvergence.test.ts",
+      "sha256WorkingBytes": "aef373b3e647bf036f3df365d9327686cd083ee67d1798f521b8b4ac1263c396",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportEntityReviewWorkspaceR2.test.ts",
+      "sha256WorkingBytes": "f222e220528781ba34c10eb2723cf100246b01f3c6f2ca778756ea41bb01814c",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceReviewConvergence.test.ts",
+      "sha256WorkingBytes": "06ad9fd31d269740f52a797ba738534f0bd8f965f9afb3f84f6129daf44e844a",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportExternalSourceSessionPersistence.test.ts",
+      "sha256WorkingBytes": "9f5dfc643836afd433c97ddd4aad682f1a32b5348b8b0619b92d7a25c194909d",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportGlobalCanonicalSnapshotBoundary.test.ts",
+      "sha256WorkingBytes": "68ce8dd2c4475e3c6b07a9962b1672a3ae095bf3b0b23737e1728f8cb5c57027",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportPostResolutionValidationConvergence.test.ts",
+      "sha256WorkingBytes": "6bd9ca11121777a941666d2110657630276a260e6d377041419c72811dbf8800",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportServerCanonicalCommitContractC1.test.ts",
+      "sha256WorkingBytes": "37e8dd527b3a5b9b3637ad5b53eab2aa36a0a9a533242c830e92fa139c19dd9f",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportSharedContrast.test.tsx",
+      "sha256WorkingBytes": "2035c133da39a5142f673970ae204939266eaa3c610a11922e3b10f301a19e44",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportTripWriteFailureIntegrity.test.ts",
+      "sha256WorkingBytes": "dc6d3b01186ea723651ee37fa7f61995f53a1d589a58d93388869eb5b0bc6311",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportUnit4AServerSessionPersistence.test.ts",
+      "sha256WorkingBytes": "b69fa2c5326ddac307014ab0f2928c1d7e2204d3b99a0545922e5059e2ffe9a1",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportUnit4B2UiSessionResume.test.ts",
+      "sha256WorkingBytes": "4ce5712bcbe29067768817694d8fc77b7ac0d3c76cf42b0a24610994e7ee8631",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportUnit5AStandaloneFleetBoundary.test.ts",
+      "sha256WorkingBytes": "c93a3ee5600200a233648410a5d3ec4c9731d6f480812bc87373eb5cd271fc31",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartImportUnit5B2CreateMissingCanonicalEntity.test.ts",
+      "sha256WorkingBytes": "54d83bdd71c723adba81a16b5a3a36de4a90568e3fa5ade0b387fab7031fdce0",
+      "new": false
+    },
+    {
+      "path": "src/tests/smartTripImportOperationalConvergence.test.ts",
+      "sha256WorkingBytes": "f6184871d4395fdcdd393dc3072ca6b9fb8987e23ffbe8b93626547e475cc869",
+      "new": false
+    },
+    {
+      "path": "src/tests/systemAuditMigrationRationalization91A.test.ts",
+      "sha256WorkingBytes": "4917911fbebcc6bf2ed33229a41e8dde97ac7edb0740b9a26bdc4e32ed471432",
+      "new": false
+    },
+    {
+      "path": "src/tests/systemToolsRationalization90A.test.ts",
+      "sha256WorkingBytes": "ce1d10f99220efe784fcd867adcb09d8f2522daa77988b87ca8c1f5befa03f9b",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripEngineRetirement.test.ts",
+      "sha256WorkingBytes": "81a1ab2473033eb2beb61710821637a4553935e98548eb83dac25396273c1781",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripIdentityAdjustmentBlock89.test.ts",
+      "sha256WorkingBytes": "c2cc52aff51dbda417d743d47a8b05c7a6eaa2e45eabc274f84a02d63988d57f",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripIntakeConvergence.test.ts",
+      "sha256WorkingBytes": "1c834961f260c1ea655ad9624f404ecafe552c8ca3e89588d4de6d43fb5fcedd",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripMutationBoundary.test.ts",
+      "sha256WorkingBytes": "0121fec7733f572222cd8c78add007d368ba84af67d6bde721aac11df46645af",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripOperationalCommands.test.ts",
+      "sha256WorkingBytes": "b531ea41b333b9dcd6524c0222e14b572ff29c62ca9318c2802b5ace63a8e986",
+      "new": false
+    },
+    {
+      "path": "src/tests/tripOperationalOutbox.test.ts",
+      "sha256WorkingBytes": "56522935f61423074d2e60cfeccc78b2f3405a1649319aa820ecfd8a80d3932a",
+      "new": false
+    },
+    {
+      "path": "src/tests/weighbridgeImport.test.ts",
+      "sha256WorkingBytes": "1491fa1e8661e71bf5ff214c17911b355ba0155be81b316a75e46486b4233a57",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceBoundedWorkbookInspection.test.ts",
+      "sha256WorkingBytes": "ba3376dce55d6f9d23a3b096b26466c744646b60ce7561e30f4b901062782a61",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceConvergence.test.ts",
+      "sha256WorkingBytes": "1ba74cc2ac90bcd92ade8e9b97731c3266bdaa9b91a7ad1eae1219eef33422e1",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceIntegration.test.ts",
+      "sha256WorkingBytes": "6b58a58f104853ad95908c58c13eab13de85b83434ab80bf96eb3e31ae6bb1ce",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceLocalBlueprint.test.ts",
+      "sha256WorkingBytes": "a108f49ba76efb9cbc619620747fdad5866a3b72190413384d4c65b455b77f20",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceOfflineAuthorizationAndWorker.test.ts",
+      "sha256WorkingBytes": "707627cdfac114bf404e3f10aa6babbba4aadcb9a72d305879b0c22132450866",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceOneClickProvisioning.test.ts",
+      "sha256WorkingBytes": "e81639b3512aa8d1f30480adf26b0372ee7c8e196fa7cc8d025045e5db564abb",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceProviderResilience.test.ts",
+      "sha256WorkingBytes": "4913a09c46c35cb8a708ede758d95b211f1b72d5b701e62c8a97d863f07afb8a",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceQuiescenceUi.test.tsx",
+      "sha256WorkingBytes": "1ee9679c6811bb822bef45b04251e1501ccc437eb974ff4e62969ed208ab24e5",
+      "new": false
+    },
+    {
+      "path": "src/tests/workspaceStorageIsolation.test.ts",
+      "sha256WorkingBytes": "fd577ef05719ebb69ed69d439efe456ea5b94d853d58721d20f74754fcca4707",
+      "new": false
+    },
+    {
+      "path": "src/types/entities.ts",
+      "sha256WorkingBytes": "8c9c081b7f2b9a85060dbb5ad09fe39d1d13b4e01cdec1869f46a40b2c4d5c7e",
+      "new": false
+    },
+    {
+      "path": "src/types/googleDriveImport.ts",
+      "sha256WorkingBytes": "e1887377c6d0efc4fd9953e9dc5445681d2c6fdc13e2accd1e20de25ec2ca670",
+      "new": false
+    },
+    {
+      "path": "src/types/offline.ts",
+      "sha256WorkingBytes": "c123b10bbdbe9fe88fa83b11df34771e4df60eddfab70778d14da1be70389406",
+      "new": false
+    },
+    {
+      "path": "src/types/tripEngine.ts",
+      "sha256WorkingBytes": "6b7a30b0761d7f775bddb468d768981dd9bad753d424b97c8fca022a319439ae",
+      "new": false
+    },
+    {
+      "path": "src/types/unifiedImport.ts",
+      "sha256WorkingBytes": "36813bc4695ad9c3565371aaa526eb1b698b5e6543b32727491cade5429d2322",
+      "new": false
+    }
+  ]
+}

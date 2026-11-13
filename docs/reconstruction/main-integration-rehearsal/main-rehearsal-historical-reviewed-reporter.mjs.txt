@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const path='../main-rehearsal-historical-reviewed-diagnostics.json';
+const serialize=e=>Object.fromEntries(['name','message','stack','type','VITEST_TEST_NAME','VITEST_TEST_PATH'].filter(k=>e[k]!==undefined).map(k=>[k,e[k]]));
+export default class ClosureDiagnostics {
+ data={};ctx;
+ save(){fs.writeFileSync(path,JSON.stringify(this.data,null,2));}
+ onInit(ctx){this.ctx=ctx;process.on('uncaughtExceptionMonitor',(error,origin)=>{this.data.uncaughtMonitors=[...(this.data.uncaughtMonitors||[]),{origin,...serialize(error)}];this.save();});process.once('exit',code=>{this.data.observedProcessExitCode=code;this.data.finalUnhandledErrors=typeof this.ctx?.state?.getUnhandledErrors==='function'?this.ctx.state.getUnhandledErrors().map(serialize):[];this.save();});}
+ onTestRunEnd(_modules,errors,reason){this.data.reason=reason;this.data.exitCodeAtRunEnd=process.exitCode??0;this.data.unhandledErrors=errors.map(serialize);this.save();}
+ onProcessTimeout(){this.data.processTimeout=true;this.save();}
+}

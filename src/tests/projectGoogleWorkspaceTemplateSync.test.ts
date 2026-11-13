@@ -1,25 +1,29 @@
-import { describe, it, expect, vi } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { ProjectGoogleWorkspaceServer, continuityRef, syncOutboxRef, workspaceOperation, GoogleWorkspaceCommandError } from '../services/projectGoogleWorkspace.server';
 import type { GoogleTemplatePort } from '../services/projectGoogleWorkspace.server';
 import { sourceCells, writableCells, LOADING_WRITABLE, OFFLOAD_WRITABLE, sheetCorrelation, type OperationalSheetInput } from '../services/projectGoogleSheetContract';
 import { enqueueTripGoogleProjection } from '../services/projectGoogleSheetEvent.server';
 import { classifyGoogleWorkspaceError } from '../utils/googleWorkspaceErrors';
+import {workspaceProjectionProvider,cellBatch} from './helpers/workspaceProjectionProvider';
+import {projectionRequest} from '../../server/workspaceProjectionDelivery';
 function database(seed: Record<string, any>) {
   const records = new Map(Object.entries(structuredClone(seed)));
   const versions = new Map<string, number>();
   const commits: Array<{ path: string; value: any }> = [];
   const reads: string[] = [];
   const snapshot = (path: string) => ({ id: path.split('/').at(-1), exists: records.has(path), data: () => structuredClone(records.get(path)) });
-  const ref = (path: string, collection = false, filter?: [string, any]): any => ({
+  const ref = (path: string, collection = false, filter?: [string, any],max=Infinity): any => ({
     path, collectionKind: collection,
     set: async (value:any) => { records.set(path,structuredClone(value)); versions.set(path,(versions.get(path)||0)+1); },
     collection: (name: string) => ref(`${path}/${name}`, true),
     doc: (id: string) => ref(`${path}/${id}`),
     where: (key: string, _op: string, value: any) => ref(path, true, [key, value]),
+    limit:(count:number)=>ref(path,collection,filter,count),
+    count:()=>({get:async()=>{const snapshot=await ref(path,collection,filter,max).get();return {data:()=>({count:snapshot.docs.length})};}}),
     get: async () => {
       reads.push(path);
       if (!collection) return snapshot(path);
-      return { docs: [...records.keys()].filter(k => k.startsWith(path + '/') && !k.slice(path.length + 1).includes('/') && (!filter || records.get(k)[filter[0]] === filter[1])).map(snapshot) };
+      return { docs: [...records.keys()].filter(k => k.startsWith(path + '/') && !k.slice(path.length + 1).includes('/') && (!filter || records.get(k)[filter[0]] === filter[1])).slice(0,max).map(snapshot) };
     },
   });
   const db = {
@@ -58,12 +62,14 @@ const who={userId:'admin',email:'',displayName:'',role:'PROJECT_ADMIN' as const,
 const project=(id:string)=>({projectId:id,nameAr:'Project',nameEn:'Project',status:'SETUP',settings:{},createdAt:'2026-10-31T00:00:00Z',updatedAt:'2026-10-31T00:00:00Z'});
 function fixture(){
  const data=database({'projects/P1':project('P1'),'projects/P2':project('P2'),'users/admin':{userId:'admin',role:'PROJECT_ADMIN',assignedProjectIds:['P1'],status:'ACTIVE'}});
- const port={subject:vi.fn(async()=> 'google-1'),validateTemplate:vi.fn(async()=>{}),findCopies:vi.fn(async()=>[]),createFolder:vi.fn(async()=> 'folder-1'),copyTemplate:vi.fn(async()=> 'file-1'),verify:vi.fn(async()=>{}),initializeCopy:vi.fn(async()=>{}),upsert:vi.fn(async(_file:string,_input:OperationalSheetInput)=>{})} satisfies GoogleTemplatePort;
+ const provider=workspaceProjectionProvider();
+ const port={subject:vi.fn(async()=> 'google-1'),validateTemplate:vi.fn(async()=>{}),findCopies:vi.fn(async()=>[]),createFolder:vi.fn(async()=> 'folder-1'),copyTemplate:vi.fn(async()=> 'file-1'),verify:vi.fn(async()=>{}),initializeCopy:vi.fn(async()=>{}),upsert:vi.fn(async(file:string,input:OperationalSheetInput)=>{await projectionRequest(cellBatch(file,JSON.stringify(input)),provider.send);})} satisfies GoogleTemplatePort;
  const service=new ProjectGoogleWorkspaceServer(data.db,()=>({id:'template-v1',version:'V1'}));
  return {...data,port,service};
 }
 const input={projectId:'P1',tripId:'trip-1',ticketId:'001',ticketSeries:'abc',weightUnit:'kg' as const,tare:16000,gross:42000,carrierLabel:'Carrier',materialLabel:'Wheat',truckPlate:'ABC',firstWeighbridgeAt:'2026-10-31T07:00:00Z'};
 const statePath='projects/P1/workspace_continuity/current';
+afterEach(()=>vi.restoreAllMocks());
 describe('PFAG-GWS1 provisioning',()=>{
  it('copies once and atomically binds canonical project + template + audit',async()=>{const f=fixture();const b=await f.service.provisionLegacyForTests('P1',who,f.port);expect(b.templateVersion).toBe('V1');expect(f.port.copyTemplate).toHaveBeenCalledTimes(1);expect(f.records.get('projects/P1').settings.googleSpreadsheetId).toBe('file-1');expect([...f.records.values()].some(x=>x.action==='WORKSPACE_BOUND')).toBe(true);});
  it('retries success without another copy or clearing data',async()=>{const f=fixture();await f.service.provisionLegacyForTests('P1',who,f.port);await f.service.provisionLegacyForTests('P1',who,f.port);expect(f.port.copyTemplate).toHaveBeenCalledTimes(1);expect(f.port.initializeCopy).toHaveBeenCalledTimes(1);});
@@ -91,10 +97,10 @@ describe('PFAG-GWS1 input contract',()=>{
 });
 describe('PFAG-GWS1 durable retry',()=>{
  async function ready(){const f=fixture();await f.service.provisionLegacyForTests('P1',who,f.port);const ref=syncOutboxRef(f.db,'P1').doc('event-1');f.records.set(ref.path,{projectId:'P1',tripId:'trip-1',input,revision:1,status:'PENDING'});return f;}
- it('Google failure leaves canonical data and pending event intact, retry converges',async()=>{const f=await ready();f.records.set('projects/P1/trips/trip-1',{tripId:'trip-1'});f.port.upsert.mockRejectedValueOnce(new Error('offline'));await expect(f.service.retrySync('P1',who,f.port)).rejects.toThrow('SHEET_SYNC_FAILED');expect(f.records.get('projects/P1/trips/trip-1')).toEqual({tripId:'trip-1'});expect((await f.service.status('P1',who)).pendingSyncCount).toBe(1);await f.service.retrySync('P1',who,f.port);expect((await f.service.status('P1',who)).pendingSyncCount).toBe(0);});
+ it('Google failure leaves canonical data and pending event intact, retry converges',async()=>{const f=await ready();f.records.set('projects/P1/trips/trip-1',{tripId:'trip-1'});f.port.upsert.mockRejectedValueOnce(new Error('offline'));await expect(f.service.retrySync('P1',who,f.port)).rejects.toThrow('SHEET_SYNC_FAILED');expect(f.records.get('projects/P1/trips/trip-1')).toEqual({tripId:'trip-1'});expect((await f.service.status('P1',who)).pendingSyncCount).toBe(1);await expect(f.service.retrySync('P1',who,f.port)).rejects.toThrow('WORKSPACE_DELIVERY_BACKOFF');vi.spyOn(Date,'now').mockReturnValue(f.records.get(statePath).projectionRetryAt+1);await f.service.retrySync('P1',who,f.port);expect((await f.service.status('P1',who)).pendingSyncCount).toBe(0);});
  it('delivered event is not redelivered on retry',async()=>{const f=await ready();await f.service.retrySync('P1',who,f.port);await f.service.retrySync('P1',who,f.port);expect(f.port.upsert).toHaveBeenCalledTimes(1);});
  it('revision changed in-flight remains pending for latest-state convergence',async()=>{const f=await ready();f.port.upsert.mockImplementationOnce(async()=>{const e=f.records.get('projects/P1/workspace_sync_outbox/event-1');e.revision=2;e.input={...input,gross:43000}});await f.service.retrySync('P1',who,f.port);expect((await f.service.status('P1',who)).pendingSyncCount).toBe(1);await f.service.retrySync('P1',who,f.port);expect(f.port.upsert.mock.calls.at(-1)?.[1].gross).toBe(43000);});
- it('cross-project event is never written',async()=>{const f=await ready();f.records.get('projects/P1/workspace_sync_outbox/event-1').input={...input,projectId:'P2'};await expect(f.service.retrySync('P1',who,f.port)).rejects.toThrow('WORKSPACE_EVENT_SCOPE_INVALID');expect(f.port.upsert).not.toHaveBeenCalled();});
+ it('cross-project event is never written',async()=>{const f=await ready();f.records.get('projects/P1/workspace_sync_outbox/event-1').input={...input,projectId:'P2'};await expect(f.service.retrySync('P1',who,f.port)).rejects.toThrow('SHEET_SOURCE_MAPPING_REQUIRED');expect(f.port.upsert).not.toHaveBeenCalled();});
  it('coalesces canonical snapshots monotonically, with explicit mapping debt',async()=>{const f=fixture();const trip={tripId:'t',projectId:'P1',weights:{},sourceMetadata:{}} as any;await enqueueTripGoogleProjection(f.db,trip);await enqueueTripGoogleProjection(f.db,trip);const events=await syncOutboxRef(f.db,'P1').get();expect(events.docs).toHaveLength(1);expect(events.docs[0].data()).toMatchObject({revision:2,mappingRequired:true,status:'PENDING'});});
 });
 describe('PFAG-GWS1 OAuth evidence',()=>{

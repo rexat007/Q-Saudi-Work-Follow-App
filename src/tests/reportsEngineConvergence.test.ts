@@ -1,3 +1,4 @@
+import {beforeAll,it,expect as vitestExpect} from 'vitest';
 /**
  * Reports Engine Convergence Unit Test Suite
  * 
@@ -336,9 +337,11 @@ export async function runConvergenceTests() {
       'PRJ-2': tripsPrj2,
     });
 
-    expect(merged.length).toBe(2);
+    // Canonical identity is Project + Trip, not an assumed global Trip ID.
+    expect(merged.length).toBe(3);
     expect(merged[0].tripId).toBe('TRP-DUP-01');
-    expect(merged[1].tripId).toBe('TRP-UNIQUE-02');
+    expect(merged.filter(t=>t.tripId==='TRP-DUP-01').map(t=>t.projectId).sort().join(',')).toBe('PRJ-1,PRJ-2');
+    expect(merged[2].tripId).toBe('TRP-UNIQUE-02');
   });
 
   // 10. Origin / Destination / Variance Weight Mapping
@@ -1116,3 +1119,7 @@ if (process.argv[1]?.endsWith('reportsEngineConvergence.test.ts')) {
     process.exit(res.allPassed ? 0 : 1);
   });
 }
+
+let registeredResult: Awaited<ReturnType<typeof runConvergenceTests>>;
+beforeAll(async()=>{registeredResult=await runConvergenceTests();},60000);
+it.each(["[CONV-01]", "[CONV-02]", "[CONV-03]", "[CONV-04]", "[CONV-05]", "[CONV-06]", "[CONV-07]", "[CONV-08]", "[CONV-09]", "[CONV-10]", "[CONV-11]", "[CONV-12]", "[CONV-13]", "[CONV-14]", "[CONV-15]", "[CONV-16]", "[CONV-17]", "[CONV-18]", "[CONV-19]", "[CONV-20]", "[CONV-21]", "[CONV-22]", "[CONV-23]", "[CONV-EXP-01]", "[CONV-EXP-02]", "[CONV-EXP-03]", "[CONV-EXP-04]", "[CONV-EXP-05]", "[CONV-EXP-06]", "[CONV-EXP-07]", "[CONV-EXP-08]", "[CONV-EXP-09]", "[CONV-EXP-10]", "[CONV-EXP-11]", "[CONV-EXP-12]", "[CONV-EXP-13]", "[CONV-EXP-14]", "[CONV-EXP-15]", "[CONV-EXP-16]", "[CONV-EXP-17]", "[CONV-EXP-18]", "[CONV-EXP-19]", "[CONV-EXP-20]", "[CONV-EXP-21-22]", "[CONV-EXP-23]", "[CONV-EXP-24-25]", "[CONV-EXP-26]", "[CONV-EXP-27]"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);vitestExpect(result,'Missing legacy assertion '+id).toBeDefined();vitestExpect(result?.passed,JSON.stringify(result)).toBe(true);});

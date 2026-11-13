@@ -87,6 +87,15 @@ export function captureWorkspaceBlueprint(reference:sheets_v4.Schema$Spreadsheet
 
 /** Stable serialization for review diffs; array ordering remains semantically significant. */
 export function canonicalBlueprintJson(value:unknown):string {
-  const stable=(v:any):any=>Array.isArray(v)?v.map(stable):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])])):v;
+  // Captured JSON can share immutable style objects across thousands of cells.
+  // Normalize each shared node once per call; serialization still expands every
+  // occurrence. No memo survives this call or a source revision change.
+  const memo=new WeakMap<object,unknown>();
+  const stable=(v:any):any=>{
+    if(!v||typeof v!=='object')return v;
+    if(memo.has(v))return memo.get(v);
+    const normalized=Array.isArray(v)?v.map(stable):Object.fromEntries(Object.keys(v).sort().map(k=>[k,stable(v[k])]));
+    memo.set(v,normalized);return normalized;
+  };
   return JSON.stringify(stable(value),null,2)+'\n';
 }

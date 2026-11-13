@@ -13,8 +13,8 @@ function bridge(role = 'DRIVER') {
   const service = new TripCommandsServerService(database.db), actor = buildPrincipal(profile, 'actor', {});
   const fetch = vi.fn(async (_url: any, options: any) => {
     expect(options.headers.Authorization).toBe('Bearer token');
-    try { const result = await service.execute('P1', JSON.parse(options.body), actor); return { ok: true, json: async () => JSON.parse(JSON.stringify({ success: true, ...result })) }; }
-    catch (error: any) { return { ok: false, json: async () => ({ success: false, code: error.code || error.message }) }; }
+    try { const result = await service.execute('P1', JSON.parse(options.body), actor); return { ok: true, status:200, json: async () => JSON.parse(JSON.stringify({ success: true, ...result })) }; }
+    catch (error: any) { return { ok: false, status:403, json: async () => ({ success: false, code: error.code || error.message }) }; }
   });
   vi.stubGlobal('fetch', fetch); return { ...database, fetch, outbox: new OutboxService() };
 }

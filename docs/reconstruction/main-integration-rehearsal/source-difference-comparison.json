@@ -1,0 +1,576 @@
+{
+  "basis": {
+    "main": "030e9027685033c674cf2021499db7bfb675cbfd",
+    "u09": "11326e277939fe3a1d839d723085797d3d6a691f",
+    "convergence": "0057dbed509f15f107bd17345de9e0a98bd8de75"
+  },
+  "finalAcceptedProductionRoots": 55,
+  "transferredRoots": 54,
+  "exactConvergenceTextRoots": 46,
+  "adaptedFirestoreBoundaryRoots": [
+    "server/app.ts",
+    "src/App.tsx",
+    "src/components/offline/OutboxDrawer.tsx",
+    "src/components/wizard/ProjectSetupWizard.tsx",
+    "src/firebase/authContext.tsx",
+    "src/services/exceptionCommandClient.service.ts",
+    "src/services/offline/outbox.service.ts",
+    "src/services/tripCommandClient.service.ts"
+  ],
+  "sqlOnlyExcludedRoots": [
+    "src/components/field/SqlTripWorkstation.tsx"
+  ],
+  "lineEndingNote": "Source comparison uses Git text normalization; checkout CRLF differs physically but was not mass-rewritten.",
+  "records": [
+    {
+      "path": "server/app.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "b7b8010f15a4cbc2cbde4a03346e7042f2fba5f4f914528a029be5f459b13d2f",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "5d65cb8c044c2ae69503e40eec7470e54c4ef1577b705bb73de497ef86239ae6",
+      "u09Sha256": "17fbec3dabe6de4d4d2db7e71c74b4c28e68665c3b9e6f8c469bd88a741278c1",
+      "convergenceSha256": "3c47cb5bb1f87750c72f0c1fa962bedce7cd771e64f1644debe6ee3132424d38"
+    },
+    {
+      "path": "server/tripCommandHandler.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "edece25066a1c22dfbaaa2006f192690c7e9ebffeb7d46e67ed3489c7648c56f",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "edece25066a1c22dfbaaa2006f192690c7e9ebffeb7d46e67ed3489c7648c56f"
+    },
+    {
+      "path": "src/App.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "c1ffe517affe7d950e215389ccb06d62f2b8ba75baec7692162908db0ea6f05d",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "dbe16f4b1f7b4e847a98818e94a23ce08854f1135edd5834400eb96f8523fd72",
+      "u09Sha256": "f76f65c90f404d3e03f7e37bfb24635a3617952153abcc57ac3827972cb18f50",
+      "convergenceSha256": "579133beb3c38b6ab9e5b49c1e03f7bfc46d36f4ede8f11444afc9cfefb3c414"
+    },
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "cb59819d078cf4f6a367086eee563b517281feaeaeacc8db730c23a24fca5592",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": false,
+      "mainSha256": "8d8d8094a4b3288c4e8ea0792d0d57ede10815e959ca82156d1da91765b0229d",
+      "u09Sha256": "55ee18145a021a716e0b9e667298df61ca2eb39ff2a588ac1df7ad23f4a17dbc",
+      "convergenceSha256": "cb59819d078cf4f6a367086eee563b517281feaeaeacc8db730c23a24fca5592"
+    },
+    {
+      "path": "src/components/field/DriverView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "ddd3ca951f777552b94ce1ece88b89478123d5c9fcc13d4bb837c187dc44ac75",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "892935e4d8866b84dc5a2707c96a4ddd99a52c54970a6ae2052afd8615a28eb2",
+      "u09Sha256": "892935e4d8866b84dc5a2707c96a4ddd99a52c54970a6ae2052afd8615a28eb2",
+      "convergenceSha256": "ddd3ca951f777552b94ce1ece88b89478123d5c9fcc13d4bb837c187dc44ac75"
+    },
+    {
+      "path": "src/components/field/FieldSupervisionView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "f8bcf5e4f85af4627061c7f42ceb526ac9bb29ca4a4e2e5f186499602326279d",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "a40b637ccd5e92cb467c208f017add22cefd01c87afda4c9d0256bb648cbcacf",
+      "u09Sha256": "a40b637ccd5e92cb467c208f017add22cefd01c87afda4c9d0256bb648cbcacf",
+      "convergenceSha256": "f8bcf5e4f85af4627061c7f42ceb526ac9bb29ca4a4e2e5f186499602326279d"
+    },
+    {
+      "path": "src/components/field/LoadingOperatorView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "b450a99e60fe2cb28168b55dcc33eaf68f99c9d66da0cde9667c16064a66e309",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "c0a8e61f15ab2401ad0437e74da79ae3d9f687d6b075a3c4dfd13e7c37a4926b",
+      "u09Sha256": "c0a8e61f15ab2401ad0437e74da79ae3d9f687d6b075a3c4dfd13e7c37a4926b",
+      "convergenceSha256": "b450a99e60fe2cb28168b55dcc33eaf68f99c9d66da0cde9667c16064a66e309"
+    },
+    {
+      "path": "src/components/field/SqlTripWorkstation.tsx",
+      "excluded": true,
+      "candidateGitTextSha256": null,
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": null,
+      "u09Sha256": "0c2ec6a5913b119d46568dcba2bbcbfe567c69d7df3fe1f83aa5765b29cf7ea2",
+      "convergenceSha256": "86db75ef62584f8bd419c42fd3fc6a0447de0091fbc508a6291cfbae00feae39"
+    },
+    {
+      "path": "src/components/field/UnloadingOperatorView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "7118b07edf47d50031a20e7866c8e4dd6ab0aac95ce4a0251ae2053da2f08e56",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "239a7d3cfa062a77177ee5ebd02194871a8e5919f1482f20320c72ba1d0a6e01",
+      "u09Sha256": "239a7d3cfa062a77177ee5ebd02194871a8e5919f1482f20320c72ba1d0a6e01",
+      "convergenceSha256": "7118b07edf47d50031a20e7866c8e4dd6ab0aac95ce4a0251ae2053da2f08e56"
+    },
+    {
+      "path": "src/components/import/RosterCarrierResolutionLayer.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "081fe1963d0c7f9995bff3304a90bbbf4f1b971b694fdc59f8162f1cd61df3c3",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "7433e59a03229ff76b02b0c3e961af36c7e5aaeafffff4d3fbd0dff70279f729",
+      "u09Sha256": "7433e59a03229ff76b02b0c3e961af36c7e5aaeafffff4d3fbd0dff70279f729",
+      "convergenceSha256": "081fe1963d0c7f9995bff3304a90bbbf4f1b971b694fdc59f8162f1cd61df3c3"
+    },
+    {
+      "path": "src/components/import/RosterMaterialResolutionLayer.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "5b25d38a5114571d96fc2beeb2826d4e35f3be31121e12926e53b37ae0787069",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "9c5eb4867a975711b366076c29415441d30314d51c42d671d634c051cd74d059",
+      "u09Sha256": "9c5eb4867a975711b366076c29415441d30314d51c42d671d634c051cd74d059",
+      "convergenceSha256": "5b25d38a5114571d96fc2beeb2826d4e35f3be31121e12926e53b37ae0787069"
+    },
+    {
+      "path": "src/components/importCenter/GoogleDriveImportSection.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "f0b4db97b293d981380502e00b5e75a3a07222677e9a9355026172fe0d952c73",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "8be6106f85ce31fafa5ca12941f4c69b3045b9b305d9d854f944dd84d575f37b",
+      "u09Sha256": "8be6106f85ce31fafa5ca12941f4c69b3045b9b305d9d854f944dd84d575f37b",
+      "convergenceSha256": "f0b4db97b293d981380502e00b5e75a3a07222677e9a9355026172fe0d952c73"
+    },
+    {
+      "path": "src/components/importCenter/GoogleSheetsImportSection.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "4cce307009a28ddc414887776c6d22482eb879c52b69992d443f0b3b81f4eaf9",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "2aca30b7afee76a201499f75ff8d0c235a49c2af87e95bb6541de51bc91b61dd",
+      "u09Sha256": "2aca30b7afee76a201499f75ff8d0c235a49c2af87e95bb6541de51bc91b61dd",
+      "convergenceSha256": "4cce307009a28ddc414887776c6d22482eb879c52b69992d443f0b3b81f4eaf9"
+    },
+    {
+      "path": "src/components/offline/OutboxDrawer.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "46780052a837fca94f0cac00f82fa13ae96937116a8a00fcacda4226f0529dab",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "c009b9a374fa66ba3a2df87be0fc05a2cab92ed6423b037ed8048ca5ad3075dc",
+      "u09Sha256": "c1f960709d1049eac84df3fed2e085826c5bf5d5780de53d8a80039d60150039",
+      "convergenceSha256": "c819ae992716de62e5b2ab2a42f17a98a159ef52ed88d0cb21755b6cd976a069"
+    },
+    {
+      "path": "src/components/pricing/PricingEngineView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "57fa93131318e739f27bb4ac7cdeee868cbea21d305d7f65b36f60ea46436b9b",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "bbe9ff4555f6f9fe2775f5c63546093499ed6b829b3c559fc6fe5d0e3cf5667c",
+      "u09Sha256": "bbe9ff4555f6f9fe2775f5c63546093499ed6b829b3c559fc6fe5d0e3cf5667c",
+      "convergenceSha256": "57fa93131318e739f27bb4ac7cdeee868cbea21d305d7f65b36f60ea46436b9b"
+    },
+    {
+      "path": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "a48c28fddb614b77d0886bebbb52b8a7e06a6f2357e5642725139f6a87c0ce87",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "e3dfc7c66014a331e5d3cd6c9bdee056ae4e316fe31e628954be7573e6638ae8",
+      "u09Sha256": "e3dfc7c66014a331e5d3cd6c9bdee056ae4e316fe31e628954be7573e6638ae8",
+      "convergenceSha256": "a48c28fddb614b77d0886bebbb52b8a7e06a6f2357e5642725139f6a87c0ce87"
+    },
+    {
+      "path": "src/components/reports/ReportsEngineView.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "e5929133caa7cd04a42b984ed0640e5a8b5ab010f8dea73c5a3f5fd425b21f1f",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "ed81ea34a2b59386994df3440185dee0f5ff9b5963a7fcb86b0778cac539445d",
+      "u09Sha256": "ed81ea34a2b59386994df3440185dee0f5ff9b5963a7fcb86b0778cac539445d",
+      "convergenceSha256": "e5929133caa7cd04a42b984ed0640e5a8b5ab010f8dea73c5a3f5fd425b21f1f"
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "659837a81134b00e8246b0c628be433fffb3b317bd8aef4d8ab9a800d3e60973",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "758166d2bf9832509645eb46ece3669595f2b36e85a56d058f6eaac2e0c959df",
+      "u09Sha256": "3053bd0292132840e62b624389a7c0d0f7d0b4ece4ba22067656dcabbe049c70",
+      "convergenceSha256": "a99838820518de1557a2e39bcf3d6d21885800424e60b9f003b41c835cb60fd7"
+    },
+    {
+      "path": "src/firebase/authContext.tsx",
+      "excluded": false,
+      "candidateGitTextSha256": "30da6bb3bac16b593d43c670820b0ed94e3a58df63f0752574c96cb4697e9644",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "dd507337c23ffde4d7391340022696e5a18964e15db7e44367b5523009a6a625",
+      "u09Sha256": "08584a5bc4cf3d95684e982e0d83e000185222ace1a348d88ec1e3026ea47fd8",
+      "convergenceSha256": "166b390e6026932ae98afb1c19d6e048413719b2bc3cf72797c1e2c3b85af42d"
+    },
+    {
+      "path": "src/i18n/codemod/codemod.reporter.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "a7aacabb85425f25307658ac031318697b4f9cd77f7588cbb0b5da0fcf12102b",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "d0f0d9d69e848c236b7eb1b5208824165d247757be9880ee2599f43bdc522a14",
+      "u09Sha256": "d0f0d9d69e848c236b7eb1b5208824165d247757be9880ee2599f43bdc522a14",
+      "convergenceSha256": "a7aacabb85425f25307658ac031318697b4f9cd77f7588cbb0b5da0fcf12102b"
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "c560c51683826b4b713848a52b2905e662945cdb98be28c2cd535c4298063c47",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "eab17a9f49ca3b4af11daa114e94536e754a8405bb1f897e0ae4589418d6ee2c",
+      "u09Sha256": "eab17a9f49ca3b4af11daa114e94536e754a8405bb1f897e0ae4589418d6ee2c",
+      "convergenceSha256": "c560c51683826b4b713848a52b2905e662945cdb98be28c2cd535c4298063c47"
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "6bfeb5c95cf19934cc8954c1dc396f2e238f961c5ae9a876bf2b7dc8003ac669",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "35865cbc79e306e715fa577be45924719781a5284252f69f17467cdfc523efba",
+      "u09Sha256": "35865cbc79e306e715fa577be45924719781a5284252f69f17467cdfc523efba",
+      "convergenceSha256": "6bfeb5c95cf19934cc8954c1dc396f2e238f961c5ae9a876bf2b7dc8003ac669"
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "e2f0ea8be673a6c915f66f869fb54ca7f32d69e373c2765a426546cb175e89d4",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "e3ddb3aa2877df7dc5bbd2b0f62b0c5ddfed1ab0006ba1436add5bd3915e2e06",
+      "u09Sha256": "e3ddb3aa2877df7dc5bbd2b0f62b0c5ddfed1ab0006ba1436add5bd3915e2e06",
+      "convergenceSha256": "e2f0ea8be673a6c915f66f869fb54ca7f32d69e373c2765a426546cb175e89d4"
+    },
+    {
+      "path": "src/repositories/exception.repository.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "b3d70b5c2b05b4ea21b487031d626e24c7d32273766e648998863118e7e791c7",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "ded7418a565f76b7a3f6f045f7602b1e86fd95038178fc3d47c1892cf4a3700e",
+      "u09Sha256": "ded7418a565f76b7a3f6f045f7602b1e86fd95038178fc3d47c1892cf4a3700e",
+      "convergenceSha256": "b3d70b5c2b05b4ea21b487031d626e24c7d32273766e648998863118e7e791c7"
+    },
+    {
+      "path": "src/repositories/trip.repository.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "8a95f54f04c9a620831b90088ed63b6287d646706bc85f10c45a7d2533785735",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "98a30cdfe2c5e84f4b1fb518faa0d3284af7a5a086cec72df13b6c488551c463",
+      "u09Sha256": "98a30cdfe2c5e84f4b1fb518faa0d3284af7a5a086cec72df13b6c488551c463",
+      "convergenceSha256": "8a95f54f04c9a620831b90088ed63b6287d646706bc85f10c45a7d2533785735"
+    },
+    {
+      "path": "src/services/canonicalTripPersistence.server.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "be86aa1460e3025f8818f7b2884dbf27afc0a21d50418bc21c03d7f0d4830eb5",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "a6849260128236c4f7d48c21f11b65c8f89a4d5c3f8f36072134a2dc61fab08e",
+      "u09Sha256": "a6849260128236c4f7d48c21f11b65c8f89a4d5c3f8f36072134a2dc61fab08e",
+      "convergenceSha256": "be86aa1460e3025f8818f7b2884dbf27afc0a21d50418bc21c03d7f0d4830eb5"
+    },
+    {
+      "path": "src/services/durableTripCommandClient.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "32efe554b68ec3c2f06304e51fb106e163d681c5553717980dae6556c49269c1",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "32efe554b68ec3c2f06304e51fb106e163d681c5553717980dae6556c49269c1"
+    },
+    {
+      "path": "src/services/exceptionCommandClient.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "f02fe05151e5c0acfa7a4dd7f41730b8db3a9c00f02d8964dc8f01f2fa7c41b5",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "606d4edb33832748d4b0ceb9b4805676fdf820399ba699203933947b4417214f"
+    },
+    {
+      "path": "src/services/exceptionCommands.server.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "3d4f8439f7921e82995a25bd5dfad0dca454cfe1223648275feee8cf865900fb",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "3d4f8439f7921e82995a25bd5dfad0dca454cfe1223648275feee8cf865900fb"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/capture.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "2ac2d47d17f1f16dfeb8d6e8ea0fef099c3a623a8d2cc12bab1aa1e7971bdf83",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "deb813f39647135d1b40c8213c30f0e42d4c26a2df6edb30dd664aee651c5b24",
+      "u09Sha256": "deb813f39647135d1b40c8213c30f0e42d4c26a2df6edb30dd664aee651c5b24",
+      "convergenceSha256": "2ac2d47d17f1f16dfeb8d6e8ea0fef099c3a623a8d2cc12bab1aa1e7971bdf83"
+    },
+    {
+      "path": "src/services/googleWorkspaceBlueprint/contract.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "808a8438759c61ac024e9ab873d51318ad1e9bfa2cf7aead565b7f35255483a3",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "523742a55319cfffd4476700e7f2660330b055883154892fbc4d1fc2908436cd",
+      "u09Sha256": "523742a55319cfffd4476700e7f2660330b055883154892fbc4d1fc2908436cd",
+      "convergenceSha256": "808a8438759c61ac024e9ab873d51318ad1e9bfa2cf7aead565b7f35255483a3"
+    },
+    {
+      "path": "src/services/import/driverTruckImport.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "e67e55669aed57dac7d77271ad20bfe7f7d9f3cec3f4db9bece329b819f7528b",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "57fc6bb763cb29be5a293fbb04fbba5d5848641e7d6ec3f542d1616a27698c51",
+      "u09Sha256": "57fc6bb763cb29be5a293fbb04fbba5d5848641e7d6ec3f542d1616a27698c51",
+      "convergenceSha256": "e67e55669aed57dac7d77271ad20bfe7f7d9f3cec3f4db9bece329b819f7528b"
+    },
+    {
+      "path": "src/services/import/googleDrivePipeline.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "8957f454167c7503875f953ccce02197e70265dcd38ff4897d06437a299953bc",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "e534a77c24183a649ba1f8aa87b7a37eb7a9f34b0349edf129e72c4c93851612",
+      "u09Sha256": "e534a77c24183a649ba1f8aa87b7a37eb7a9f34b0349edf129e72c4c93851612",
+      "convergenceSha256": "8957f454167c7503875f953ccce02197e70265dcd38ff4897d06437a299953bc"
+    },
+    {
+      "path": "src/services/import/rosterBatchReview.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "4b8afad51741a47ccb674501ef8fde5d89a953e54defb9cd4670af61dffe90f9",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "0adfa55ce5b9ab47e5c11046796c752b7d349a08fd49f0f8588464422866a212",
+      "u09Sha256": "0adfa55ce5b9ab47e5c11046796c752b7d349a08fd49f0f8588464422866a212",
+      "convergenceSha256": "4b8afad51741a47ccb674501ef8fde5d89a953e54defb9cd4670af61dffe90f9"
+    },
+    {
+      "path": "src/services/import/rosterMaterialBinding.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "1bc07c91d6a6506c7962ea03e6b9154b7f09f26d7591c24236e793bd597d7a7b",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "fe30b719ff15c8290e0444582bc1c79e51b130132976e9af006ef70a7a254972",
+      "u09Sha256": "fe30b719ff15c8290e0444582bc1c79e51b130132976e9af006ef70a7a254972",
+      "convergenceSha256": "1bc07c91d6a6506c7962ea03e6b9154b7f09f26d7591c24236e793bd597d7a7b"
+    },
+    {
+      "path": "src/services/import/tripImportCommitter.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "94e68f3a6e3d672a9714c82fcc4bac19a6d8aa95fcce1e011b1f159e9f33f7be",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "6520959fb5658e97c3239ff5960330cd686e0ed6d0c3a3cdb339d36303f7b9e5",
+      "u09Sha256": "6520959fb5658e97c3239ff5960330cd686e0ed6d0c3a3cdb339d36303f7b9e5",
+      "convergenceSha256": "94e68f3a6e3d672a9714c82fcc4bac19a6d8aa95fcce1e011b1f159e9f33f7be"
+    },
+    {
+      "path": "src/services/import/unifiedImportPipeline.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "be569ad7a00876425fe0e71e9a3d290bb33e2556b9ca546d9587d21928444702",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "960078e5892e2c7cef8f63fbc203e5a3d1c7b6e8dcfe70b9d8b17232fc7052c6",
+      "u09Sha256": "960078e5892e2c7cef8f63fbc203e5a3d1c7b6e8dcfe70b9d8b17232fc7052c6",
+      "convergenceSha256": "be569ad7a00876425fe0e71e9a3d290bb33e2556b9ca546d9587d21928444702"
+    },
+    {
+      "path": "src/services/offline/conflictResolution.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "568e330f0fa9805e1868ed972e6939438b4126be9992bc5d2106c024c73a9425",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "7baef8c1f03f63639177e9c39a11f53312fe97e6aecdc9de8c79b65f9e52bcee",
+      "u09Sha256": "7baef8c1f03f63639177e9c39a11f53312fe97e6aecdc9de8c79b65f9e52bcee",
+      "convergenceSha256": "568e330f0fa9805e1868ed972e6939438b4126be9992bc5d2106c024c73a9425"
+    },
+    {
+      "path": "src/services/offline/indexedDB.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "f4cbb429950015c5223032d8e68f27e5aa14b5c135e79e8d0c2ab699a9a4dfa3",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "47f1def899d076a999551c9e13ff94db1e4bef0a4e6f518594900a9cc6b565df",
+      "u09Sha256": "47f1def899d076a999551c9e13ff94db1e4bef0a4e6f518594900a9cc6b565df",
+      "convergenceSha256": "f4cbb429950015c5223032d8e68f27e5aa14b5c135e79e8d0c2ab699a9a4dfa3"
+    },
+    {
+      "path": "src/services/offline/outbox.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "14414e7828087524ae97988e13a16aaf2fc756fccdf7b0c42bcb97c4c00ae097",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "cf206539b070768cd719f936b189d9fe74311d88d4788caa6f53ec70781ae609",
+      "u09Sha256": "dcc15bd915d9bd499141e200f015cf2c55f83d3c19d5451325d3bc223c55e5d3",
+      "convergenceSha256": "96bd7ae05c6cd0ab5f7f39de272c7f200e094251a3c4cd917e9dfa1de6060a61"
+    },
+    {
+      "path": "src/services/offline/tripCommandIdentity.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "4cb9ad0114ae661ab610024e2f09c5290c00b6af1bbec5b9e7bc6c1d77e190f7",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "4cb9ad0114ae661ab610024e2f09c5290c00b6af1bbec5b9e7bc6c1d77e190f7"
+    },
+    {
+      "path": "src/services/pricing.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "158d4c45f18bffb9f41bf407589ba4cd149cdcb036182c3f3c85b2dda1c44bf1",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "6eba777f898dfa2751ba6eec16294bf5550e065d4aa0878521a7edc29cc7eeab",
+      "u09Sha256": "6eba777f898dfa2751ba6eec16294bf5550e065d4aa0878521a7edc29cc7eeab",
+      "convergenceSha256": "158d4c45f18bffb9f41bf407589ba4cd149cdcb036182c3f3c85b2dda1c44bf1"
+    },
+    {
+      "path": "src/services/projectAuditRead.server.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "f45bed6f3e137155c2773a4419949656a3846d4f017bc1828fdc19489323a5f9",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "f45bed6f3e137155c2773a4419949656a3846d4f017bc1828fdc19489323a5f9"
+    },
+    {
+      "path": "src/services/reportsEngine.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "bc1dd66359a8dd8ac67fd8fd9a2efd893eab1820066959665c5db96d7892b9f2",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "e26e0a46f31941d23059e57887b89724d4b514a0a3eba0a8ea2017c046e6d745",
+      "u09Sha256": "e26e0a46f31941d23059e57887b89724d4b514a0a3eba0a8ea2017c046e6d745",
+      "convergenceSha256": "bc1dd66359a8dd8ac67fd8fd9a2efd893eab1820066959665c5db96d7892b9f2"
+    },
+    {
+      "path": "src/services/trip.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "856c3b6309d16dceba3bd3a18992da1bae21084d6a8c1f8f466b082114564365",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "c7f924d43b93da7ff87608b12c0d986b44918cd743a99c7bdcb97eb07a20817d",
+      "u09Sha256": "c7f924d43b93da7ff87608b12c0d986b44918cd743a99c7bdcb97eb07a20817d",
+      "convergenceSha256": "856c3b6309d16dceba3bd3a18992da1bae21084d6a8c1f8f466b082114564365"
+    },
+    {
+      "path": "src/services/tripCommandClient.service.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "f0c8cfb74172bbb534286b39f5aeb52449ebd7dfa686dfd000abfc52638b2cb3",
+      "exactConvergenceText": false,
+      "mainEqualsU09Base": false,
+      "mainSha256": "9e73b7bc6e2850d68228d7c9e91501bfe6014efc76c649aeb9836b908e1cacf5",
+      "u09Sha256": "0cf04733a45576b9afe1d56e1149acfb7750d1bb9ce6f8df158df17d257687d6",
+      "convergenceSha256": "03f03b7fc50edc77502685292e8c769e5e95265d63a40364e140ca6810c627d7"
+    },
+    {
+      "path": "src/services/tripCommands.server.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "35ba03337ab4a237e0d8ac39b469a54e657a740499023802923d3fb342f54c91",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "e8137bc9daac7534ab6394eb030bad14c3c38e0d3b2d0ba6a59563ae301984f3",
+      "u09Sha256": "e8137bc9daac7534ab6394eb030bad14c3c38e0d3b2d0ba6a59563ae301984f3",
+      "convergenceSha256": "35ba03337ab4a237e0d8ac39b469a54e657a740499023802923d3fb342f54c91"
+    },
+    {
+      "path": "src/tests/googleDriveImport.cases.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "06541062ce8af0cbdeb1e83ba290cab6799341edc3be6593df2e9c653cd285af",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "06541062ce8af0cbdeb1e83ba290cab6799341edc3be6593df2e9c653cd285af"
+    },
+    {
+      "path": "src/tests/googleSheetsImport.cases.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "cfe027ada70bbe9773e019a460e218b2bf9169d736a789193a772fc005dfcbfa",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "cfe027ada70bbe9773e019a460e218b2bf9169d736a789193a772fc005dfcbfa"
+    },
+    {
+      "path": "src/tests/pricingEngine.cases.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "2e9d2dc68d7ed80dfc1bcdea91abc16d24b61e76b97f80df1e5f2053424cebc1",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": null,
+      "u09Sha256": null,
+      "convergenceSha256": "2e9d2dc68d7ed80dfc1bcdea91abc16d24b61e76b97f80df1e5f2053424cebc1"
+    },
+    {
+      "path": "src/types/entities.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "53272bc627fb469475a11a51dc5c6d27a21706f641f53819b911c2ad91af71c2",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "a753381151515bb2dc250efd3b36a6a68861bedc0433b3a43f80bc08a1160ab8",
+      "u09Sha256": "a753381151515bb2dc250efd3b36a6a68861bedc0433b3a43f80bc08a1160ab8",
+      "convergenceSha256": "53272bc627fb469475a11a51dc5c6d27a21706f641f53819b911c2ad91af71c2"
+    },
+    {
+      "path": "src/types/googleDriveImport.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "d50a45c78ffa816d09451388706fbc01692ea27f876742f2234cd472fc73976f",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "d8598fcfa15c3b2d5f2b5ed2a3b521df5bb764153e1ee14bee534ccf1a38d492",
+      "u09Sha256": "d8598fcfa15c3b2d5f2b5ed2a3b521df5bb764153e1ee14bee534ccf1a38d492",
+      "convergenceSha256": "d50a45c78ffa816d09451388706fbc01692ea27f876742f2234cd472fc73976f"
+    },
+    {
+      "path": "src/types/offline.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "0e9a4417636c98d9f77829270ac5d4ce9573c6ed96c3d58bece8efdf53141909",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "0ac8ec8102f9a785bb6b7c13ec6423f934f52fe874b7c58bfff0ce269550c71d",
+      "u09Sha256": "0ac8ec8102f9a785bb6b7c13ec6423f934f52fe874b7c58bfff0ce269550c71d",
+      "convergenceSha256": "0e9a4417636c98d9f77829270ac5d4ce9573c6ed96c3d58bece8efdf53141909"
+    },
+    {
+      "path": "src/types/tripEngine.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "3a2699b015ec31c11681a6a0c2ccf21e0857456e05399ccc53b7157736929102",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "531c5c28e05a887045f5b7fe93efcffca1e56075c337705192991e541a498a52",
+      "u09Sha256": "531c5c28e05a887045f5b7fe93efcffca1e56075c337705192991e541a498a52",
+      "convergenceSha256": "3a2699b015ec31c11681a6a0c2ccf21e0857456e05399ccc53b7157736929102"
+    },
+    {
+      "path": "src/types/unifiedImport.ts",
+      "excluded": false,
+      "candidateGitTextSha256": "460fefabbecab7d459167a8184df3f63f4ed1d6b3422b813fe4fde277c983e7c",
+      "exactConvergenceText": true,
+      "mainEqualsU09Base": true,
+      "mainSha256": "2cbb435d41565f12bda3e8be4671fe52d1c8f2b8cc7a28d58bbfe7cbc08c73a3",
+      "u09Sha256": "2cbb435d41565f12bda3e8be4671fe52d1c8f2b8cc7a28d58bbfe7cbc08c73a3",
+      "convergenceSha256": "460fefabbecab7d459167a8184df3f63f4ed1d6b3422b813fe4fde277c983e7c"
+    }
+  ]
+}

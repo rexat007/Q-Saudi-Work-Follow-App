@@ -297,6 +297,34 @@ export class ReportsEngineService {
    * 4. Demurrage: reads contractual rate without hardcoded fallbacks; uncontracted demurrage becomes DEMURRAGE_PENDING.
    */
   public computeTripFinancialBreakdown(trip: TripRecord) {
+    const financials = trip.financials;
+    if (financials && typeof financials.isFinalized === 'boolean' && typeof financials.subtotalSAR === 'number') {
+      const pending = !financials.isFinalized;
+      const gross = trip.pricingSnapshot?.settlementAmount ?? financials.baseAmountSAR;
+      const net = financials.finalSubtotalSAR ?? financials.subtotalSAR;
+      const total = financials.finalTotalAmountSAR ?? financials.totalAmountSAR;
+      const vat = financials.finalVatAmountSAR ?? financials.vatAmountSAR;
+      if (![gross, net, total, vat, financials.demurrageAmountSAR, financials.deductionsAmountSAR].every(Number.isFinite)) throw new Error('CANONICAL_FINANCIAL_EVIDENCE_REQUIRED');
+      return {
+        grossAmount: pending ? 0 : gross,
+        adjustments: pending ? 0 : financials.demurrageAmountSAR + (financials.adjustmentsTotalAmountSAR ?? 0),
+        exceptions: pending ? 0 : financials.deductionsAmountSAR,
+        netAmount: pending ? 0 : net,
+        vatAmount: pending ? 0 : vat,
+        totalAmount: pending ? 0 : total,
+        isPending: pending,
+        pendingReason: pending ? trip.pricingSnapshot?.pendingReason || 'Pending canonical settlement' : undefined,
+        pricingStatusLabelAr: pending ? 'معلق التسوية (Pending Settlement)' : 'تسوية معتمدة (Finalized)',
+        demurrageStatus: financials.demurrageAmountSAR ? 'RESOLVED' as const : 'NOT_APPLICABLE' as const,
+        demurrageAmount: pending ? 0 : financials.demurrageAmountSAR,
+        pricingType: trip.pricingSnapshot?.pricingType || trip.pricingType,
+        agreedRate: trip.pricingSnapshot?.agreedRate ?? trip.agreedRate,
+        currency: financials.currency,
+        settlementBase: trip.pricingSnapshot?.settlementBase ?? trip.settlementBase,
+        pricingRuleId: trip.pricingSnapshot?.pricingRuleId || trip.pricingRuleId,
+        pricingSnapshotAt: trip.pricingSnapshot?.pricingSnapshotAt || trip.createdAt,
+      };
+    }
     const isExplicitFinalizedZero = (trip as any).isFinalizedZero === true || 
       (trip.pricingSnapshot?.isPending === false && trip.pricingSnapshot?.settlementAmount === 0 && trip.pricingSnapshot?.agreedRate === 0);
 
@@ -1813,6 +1841,8 @@ export class ReportsEngineService {
       updatedAt,
       updatedBy,
       pricingSnapshot,
+      financials: trip.financials ? {...trip.financials} : undefined,
+      unloadDecision: trip.unloadDecision,
       entitySnapshots,
       hasExceptions,
       activeExceptionCount,

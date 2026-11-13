@@ -28,6 +28,7 @@ export interface GoogleDriveFileItem {
 }
 
 export interface GoogleDriveProcessOptions {
+  importBatchId?: string;
   sheetName?: string;
   headerRowIndex?: number;
   customMappings?: Record<string, keyof CanonicalTripRow>;

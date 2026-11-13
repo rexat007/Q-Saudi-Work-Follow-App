@@ -22,8 +22,16 @@ function exact(input: any, fields: readonly string[]) {
 export class TripCommandsServerService {
   constructor(private database: any = adminDb) {}
   async execute(projectId: string, raw: any, authenticated: AuthUserContext) {
+    return this.run(projectId, raw, authenticated, false);
+  }
+  /** Read-only recovery uses the same current-principal and fingerprint checks. */
+  async receipt(projectId: string, raw: any, authenticated: AuthUserContext) {
+    return this.run(projectId, raw, authenticated, true);
+  }
+  private async run(projectId: string, raw: any, authenticated: AuthUserContext, receiptOnly: boolean): Promise<any> {
     if (!validId(projectId) || !authenticated?.userId) return deny('FORBIDDEN_PROJECT_ACCESS');
-    exact(raw, ['command', 'tripId', 'payload', 'operationId']);
+    exact(raw, ['command', 'tripId', 'payload', 'operationId', 'expectedRevision']);
+    if (raw.expectedRevision !== undefined && (!Number.isSafeInteger(raw.expectedRevision) || raw.expectedRevision < 0)) return deny('INVALID_TRIP_COMMAND');
     if (typeof raw.command !== 'string' || !Object.hasOwn(TRIP_COMMANDS, raw.command) || typeof raw.operationId !== 'string' || !/^[a-zA-Z0-9_.:-]{1,256}$/.test(raw.operationId)) return deny('INVALID_TRIP_COMMAND');
     const command = raw.command as TripCommandName, policy = TRIP_COMMANDS[command];
     const payload = raw.payload === undefined ? {} : raw.payload;
@@ -33,6 +41,10 @@ export class TripCommandsServerService {
     }
     if (payload.pricingMode !== undefined && !['RESOLVED', 'PENDING'].includes(payload.pricingMode)) return deny('INVALID_TRIP_COMMAND');
     if (payload.operationalData) exact(payload.operationalData, ['shiftDate', 'ticketId', 'tareWeightKg', 'grossWeightKg', 'netWeightKg', 'destinationNetWeightKg', 'weighTime', 'loadTime', 'unloadTime', 'legacyStatus', 'tripSerial', 'note']);
+    if(payload.operationalData){
+      for(const key of ['tareWeightKg','grossWeightKg','netWeightKg','destinationNetWeightKg']){const value=payload.operationalData[key];if(value!==undefined&&(typeof value!=='number'||!Number.isFinite(value)||value<0))return deny('INVALID_TRIP_COMMAND');}
+      if(payload.operationalData.grossWeightKg!==undefined&&payload.operationalData.tareWeightKg!==undefined&&payload.operationalData.grossWeightKg<payload.operationalData.tareWeightKg)return deny('INVALID_TRIP_COMMAND');
+    }
     if (payload.sourceMetadata) exact(payload.sourceMetadata, ['importBatchId', 'sourceFileId', 'sourceFileName', 'sourceSheetName', 'sourceRowId', 'sourceMimeType', 'metadata', 'legacyTripSerial', 'legacyRate', 'legacyStatus']);
     for (const key of ['originTicketNo', 'destinationTicketNo']) if (payload[key] !== undefined && typeof payload[key] !== 'string') return deny('INVALID_TRIP_COMMAND');
     for (const key of ['carrierId', 'truckId', 'driverId', 'materialId', 'pricingRuleId'])
@@ -41,11 +53,11 @@ export class TripCommandsServerService {
     const creation = ['DISPATCH_TRIP', 'RECORD_LOADING', 'IMPORT_TRIP'].includes(command);
     if (creation ? raw.tripId !== undefined : !validId(raw.tripId)) return deny('INVALID_TRIP_COMMAND');
     for (const key of policy.fields) if (/^(origin|destination)(Tare|Gross)Kg$/.test(key)) {
-      if (typeof payload[key] !== 'number' || !Number.isFinite(payload[key]) || payload[key] <= 0) return deny('INVALID_TRIP_COMMAND');
+      if (typeof payload[key] !== 'number' || !Number.isFinite(payload[key]) || (/Tare/.test(key) ? payload[key] < 0 : payload[key] <= 0)) return deny('INVALID_TRIP_COMMAND');
     }
     if (command === 'RECORD_DESTINATION_NET' && (typeof payload.destinationNetKg !== 'number' || !Number.isFinite(payload.destinationNetKg) || payload.destinationNetKg <= 0)) return deny('INVALID_TRIP_COMMAND');
     for (const prefix of ['origin', 'destination']) if (payload[`${prefix}GrossKg`] !== undefined && payload[`${prefix}GrossKg`] <= payload[`${prefix}TareKg`]) return deny('INVALID_TRIP_COMMAND');
-    const fingerprint = createHash('sha256').update(JSON.stringify([command, raw.tripId || null, Object.entries(payload).sort(([a], [b]) => a.localeCompare(b))])).digest('hex');
+    const fingerprint = createHash('sha256').update(JSON.stringify([command, raw.tripId || null, Object.entries(payload).sort(([a], [b]) => a.localeCompare(b)), ...(raw.expectedRevision === undefined ? [] : [raw.expectedRevision])])).digest('hex');
     return this.database.runTransaction(async (tx: any) => {
       const account = await tx.get(this.database.collection('users').doc(authenticated.userId));
       const actor = buildPrincipal(account.exists ? account.data() : null, authenticated.userId, { email: authenticated.email, name: authenticated.displayName });
@@ -72,8 +84,10 @@ export class TripCommandsServerService {
         if (actor.role === 'DRIVER' && (previous.linkedDriverId !== actor.linkedDriverId || previous.tripId !== raw.tripId)) return deny('FORBIDDEN_DRIVER_OWNERSHIP');
         const latest = current || await persistence.tripRepository.findById(projectId, previous.tripId);
         if (!latest) return deny('TRIP_NOT_FOUND');
-        return { trip: latest, idempotentReplay: true };
+        return { trip: latest, ...(previous.exception ? {exception: previous.exception} : {}), idempotentReplay: true, ...(receiptOnly ? {found: true} : {}) };
       }
+      if (receiptOnly) return {found: false};
+      if (raw.expectedRevision !== undefined && raw.expectedRevision !== (creation ? 0 : current?.version ?? 0)) return deny('TRIP_REVISION_CONFLICT');
       // Preserve pre-command publication idempotency, but only after current
       // authorization and an actor/identity match. A client ledger is never trusted.
       if (creation) {
@@ -101,6 +115,8 @@ export class TripCommandsServerService {
         if(!validId(payload.driverId))return deny('INVALID_TRIP_COMMAND');
         current=await tripService.associateOperationalDriver(projectId,raw.tripId,payload.driverId,actor);
       } else if (command === 'REPORT_EXCEPTION') {
+        const existingException = await transaction.db.collection('projects').doc(projectId).collection('trips').doc(raw.tripId).collection('exceptions').doc(payload.exceptionId).get();
+        if (existingException.exists) return deny('TRIP_COMMAND_CONFLICT');
         // Reuse exception domain validation; persistence is buffered in this same transaction.
         const exceptionPersistence = new ServerExceptionPersistenceAdapter(transaction.db);
         exception = await new ExceptionService(exceptionPersistence).raiseException({ exceptionId: payload.exceptionId, type: payload.type || 'ROUTE_DEVIATION', severity: payload.severity || 'MEDIUM', description: payload.descriptionAr || payload.descriptionEn || '', reasonAr: payload.descriptionAr || 'Operational exception', tripId: raw.tripId, projectId, status: 'OPEN' } as any, actor);
@@ -113,8 +129,11 @@ export class TripCommandsServerService {
       if (!current) return deny('TRIP_NOT_FOUND');
       current = await persistence.tripRepository.findById(projectId, current.tripId);
       if (!current) return deny('TRIP_NOT_FOUND');
+      await persistence.tripRepository.update(projectId, current.tripId, {version: (current.version ?? 0) + 1}, actor.userId);
+      current = await persistence.tripRepository.findById(projectId, current.tripId);
+      if (!current) return deny('TRIP_NOT_FOUND');
       await enqueueTripGoogleProjection(transaction.db, current);
-      tx.set(ledger, sanitizeUndefined({ operationId: raw.operationId, command, fingerprint, tripId: current.tripId, linkedDriverId: actor.linkedDriverId || null, trip: current, status: 'PROCESSED', projectId, createdBy: actor.userId, updatedBy: actor.userId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }));
+      tx.set(ledger, sanitizeUndefined({ operationId: raw.operationId, command, fingerprint, tripId: current.tripId, linkedDriverId: actor.linkedDriverId || null, trip: current, ...(exception ? {exception} : {}), status: 'PROCESSED', projectId, createdBy: actor.userId, updatedBy: actor.userId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }));
       transaction.flush();
       return { trip: current, ...(exception ? { exception } : {}), idempotentReplay: false };
     });

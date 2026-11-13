@@ -43,10 +43,10 @@ describe('Phase 6 — ExceptionEngine Standalone Surface Retirement Verification
     expect(isAuthorized).toBe(false);
 
     const devTools = navigationService.getAuthorizedDeveloperTools('SUPER_ADMIN');
-    expect(devTools.some(t => t.id === 'EXCEPTION_ENGINE')).toBe(false);
+    expect(devTools.some(t => String(t.id) === 'EXCEPTION_ENGINE')).toBe(false);
 
     const allTabs = navigationService.getAuthorizedTabs('SUPER_ADMIN');
-    expect(allTabs.some(t => t.id === 'EXCEPTION_ENGINE')).toBe(false);
+    expect(allTabs.some(t => String(t.id) === 'EXCEPTION_ENGINE')).toBe(false);
   });
 
   // 4. navigationService denies EXCEPTION_ENGINE for PROJECT_ADMIN
@@ -65,10 +65,10 @@ describe('Phase 6 — ExceptionEngine Standalone Surface Retirement Verification
 
   // 6. no production navigation registry exposes EXCEPTION_ENGINE
   it('6. no production navigation registry exposes EXCEPTION_ENGINE', () => {
-    const navItem = NAV_ITEMS_REGISTRY.find(item => item.id === 'EXCEPTION_ENGINE');
+    const navItem = NAV_ITEMS_REGISTRY.find(item => String(item.id) === 'EXCEPTION_ENGINE');
     expect(navItem).toBeUndefined();
 
-    const devItem = DEVELOPER_TOOLS_REGISTRY.find(item => item.id === 'EXCEPTION_ENGINE');
+    const devItem = DEVELOPER_TOOLS_REGISTRY.find(item => String(item.id) === 'EXCEPTION_ENGINE');
     expect(devItem).toBeUndefined();
   });
 

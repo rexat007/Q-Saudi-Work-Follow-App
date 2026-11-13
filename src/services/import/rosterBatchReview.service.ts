@@ -597,11 +597,27 @@ export class RosterBatchReviewService {
   }
 }
 
+/** Existing-identity presentation gate, never execution or authorization authority.
+ * Check each row: display grouping can omit ID-only unresolved candidates or
+ * combine rows whose evidence differs. Driver/Truck creation plans cannot stand
+ * in for an accepted Carrier or Material identity.
+ */
+export function acceptedRosterIdentity(
+  resolution: ImportEntityResolutionInfo | undefined,
+  entityType: 'CARRIER' | 'MATERIAL',
+): boolean {
+  // Older durable resolutions omit the redundant kind; the owning row field
+  // supplies it. A supplied contradictory kind must still fail closed.
+  return Boolean(resolution && (!resolution.entityType || resolution.entityType === entityType) && !resolution.resolutionReason &&
+    resolution.creationDisposition !== 'PREPARED_NEW' &&
+    RosterBatchReviewService.determineGroupStatus(resolution) === 'AUTO_RESOLVED');
+}
+
 /** Existing canonical Carrier-layer gate, shared by rendering and resumed-stage presentation. */
 export function canonicalCarrierRowsReady(batch: UnifiedImportBatch): boolean {
   const groups = RosterBatchReviewService.getBatchReviewGroups(batch).carrier;
   return !groups.some(g => g.status === 'REVIEW_REQUIRED' || g.status === 'UNRESOLVED' || g.status === 'CONFLICT') &&
     batch.rows.some(r => r.status !== 'REJECTED') &&
     batch.rows.filter(r => r.status !== 'REJECTED').every(r =>
-      (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate) || Boolean(r.entityResolutions?.carrier?.matchedId));
+      (!r.canonical?.carrierName && !r.canonical?.carrierId && !r.canonical?.driverName && !r.canonical?.driverIdentity && !r.canonical?.truckPlate && !r.entityResolutions?.carrier) || acceptedRosterIdentity(r.entityResolutions?.carrier, 'CARRIER'));
 }

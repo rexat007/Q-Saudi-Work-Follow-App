@@ -14,13 +14,15 @@ vi.mock('../services/importSessionClient.service', () => ({ importSessionClientS
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
 const project = { projectId: 'P1', projectCode: 'P1', projectNumber: 1, nameAr: 'Example Project', clientName: 'Client', status: 'SETUP', settings: {}, location: { addressAr: 'Address' }, authorizedCarrierIds: [], authorizedMaterialIds: [] } as any;
 const auth = { userId: 'actor', role: 'SUPER_ADMIN', assignedProjectIds: ['P1'], email: 'actor@example.invalid' } as any;
-const snapshot = () => ({ materials: [{ materialId: 'M1', name: 'Canonical Material', code: 'MAT', isActive: true }], carriers: [{ carrierId: 'C1', name: 'Canonical Carrier', isActive: true }], fleetRows: [], relationshipContext: { projectId: 'P1', knownDrivers: [], knownTrucks: [], knownCarriers: [{ carrierId: 'C1' }], knownMaterials: [{ materialId: 'M1' }], authorizedCarrierIds: ['C1'], authorizedMaterialIds: ['M1'] } }) as any;
+let canonicalProject = project;
+const snapshot = () => ({ project:canonicalProject, materials: [{ materialId: 'M1', name: 'Canonical Material', code: 'MAT', isActive: true }], carriers: [{ carrierId: 'C1', name: 'Canonical Carrier', isActive: true }], fleetRows: [], relationshipContext: { projectId: 'P1', knownDrivers: [], knownTrucks: [], knownCarriers: [{ carrierId: 'C1' }], knownMaterials: [{ materialId: 'M1' }], authorizedCarrierIds: ['C1'], authorizedMaterialIds: ['M1'] } }) as any;
 let container: HTMLDivElement, root: ReturnType<typeof createRoot>;
 let preview: any;
 const response = (data: any) => ({ ok: true, status: 200, json: async () => data });
 beforeEach(() => {
+  canonicalProject = project;
   container = document.createElement('div'); document.body.append(container); root = createRoot(container);
-  vi.mocked(projectCanonicalRefreshService.refresh).mockResolvedValue(snapshot());
+  vi.mocked(projectCanonicalRefreshService.refresh).mockImplementation(async()=>snapshot());
   preview = { projectId: 'P1', driverId: null, truckId: null, assignments: [], allocation: null };
   vi.stubGlobal('fetch', vi.fn(async (url: string) => url.endsWith('/intake-preview') ? response({ success: true, data: preview }) : url.endsWith('/setup-context') ? response({ success: true, data: { projectId: 'P1', participants: [], fleet: { projectId: 'P1', rows: [], truckCount: 0 } } }) : response({ success: true, data: {}, ready: false, blockers: [], projectId: 'P1' })));
 });
@@ -39,8 +41,8 @@ async function submit(form: HTMLFormElement) { await act(async () => form.dispat
 const intakeCalls = () => vi.mocked(fetch).mock.calls.filter(([url]) => url === '/api/intake/canonical');
 describe('P6-B1 manual intake continuity', () => {
   it('uses the canonical Material name and full refresh before resetting the form', async () => {
-    const form = await openManual(); expect(form.textContent).toContain('Canonical Material'); await submit(form);
-    expect(intakeCalls()).toHaveLength(1); expect(projectCanonicalRefreshService.refresh).toHaveBeenCalledTimes(2); expect(container.querySelector('form')).toBeNull();
+    const form = await openManual(); expect(form.textContent).toContain('Canonical Material'); vi.mocked(projectCanonicalRefreshService.refresh).mockClear(); await submit(form);
+    expect(intakeCalls()).toHaveLength(1); expect(projectCanonicalRefreshService.refresh).toHaveBeenCalledWith('P1',expect.objectContaining({isCurrent:expect.any(Function)})); expect(container.querySelector('form')).toBeNull();
   });
   it('retains successful intake and retries refresh without another preview or command', async () => {
     const form = await openManual(); vi.mocked(projectCanonicalRefreshService.refresh).mockRejectedValueOnce(Error('down'));
@@ -68,8 +70,8 @@ describe('P6-B1 manual intake continuity', () => {
 describe('P6-B1 Foundation and Global governance presentation', () => {
   it('keeps the successful canonical Foundation reread visible while the project subscription is delayed', async () => {
     vi.spyOn(projectService, 'updateProject').mockResolvedValue();
-    vi.spyOn(projectService, 'getProject').mockResolvedValue({ ...project, nameAr: 'Canonical Foundation', updatedAt: new Date('2026-10-26') });
-    await render(); await click('projects.batch4.edit_data'); await change(container.querySelector<HTMLInputElement>('input[value="Example Project"]')!, 'Submitted draft');
+    const savedProject = { ...project, nameAr: 'Canonical Foundation', updatedAt: new Date('2026-10-26') };
+    await render(); await click('projects.batch4.edit_data'); await change(container.querySelector<HTMLInputElement>('input[value="Example Project"]')!, 'Submitted draft'); canonicalProject=savedProject;
     await click('shared.actions.save');
     expect(container.querySelector<HTMLInputElement>('input[value="Canonical Foundation"]')?.disabled).toBe(true);
     expect(container.querySelector('input[value="Submitted draft"]')).toBeNull();
@@ -78,6 +80,7 @@ describe('P6-B1 Foundation and Global governance presentation', () => {
     expect(container.querySelector('input[value="Newer canonical subscription"]')).not.toBeNull();
   });
   it('offers the existing APPROVED return-to-Setup command without requiring operational readiness', async () => {
+    canonicalProject={...project,status:'APPROVED'};
     vi.stubGlobal('alert', vi.fn());
     await act(async () => root.render(<ProjectSetupWizard projects={[{ ...project, status: 'APPROVED' }]} authContext={auth} selectedProjectId="P1" />));
     const review = Array.from(container.querySelectorAll('button')).find(b => b.textContent?.includes('projects.batch4.layer_activation'))!;
@@ -87,8 +90,7 @@ describe('P6-B1 Foundation and Global governance presentation', () => {
   });
   it('Foundation refresh failure keeps a receipt; retry never repeats the Project command', async () => {
     const command = vi.spyOn(projectService, 'updateProject').mockResolvedValue();
-    vi.spyOn(projectService, 'getProject').mockRejectedValueOnce(Error('read failed')).mockResolvedValue({ ...project, nameAr: 'Changed project' });
-    await render(); await click('projects.batch4.edit_data'); await change(container.querySelector<HTMLInputElement>('input[value="Example Project"]')!, 'Changed project');
+    await render(); await click('projects.batch4.edit_data'); await change(container.querySelector<HTMLInputElement>('input[value="Example Project"]')!, 'Changed project'); canonicalProject={...project,nameAr:'Changed project'};vi.mocked(projectCanonicalRefreshService.refresh).mockRejectedValueOnce(Error('read failed'));
     await click('shared.actions.save'); expect(container.textContent).toContain('setup.errors.refresh'); expect(container.textContent).not.toContain('projects.messages.changes_saved');
     await click('setup.retry'); expect(command).toHaveBeenCalledTimes(1); expect(container.textContent).toContain('projects.messages.changes_saved');
   });

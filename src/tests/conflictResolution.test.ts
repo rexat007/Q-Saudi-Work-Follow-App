@@ -1,3 +1,4 @@
+import {beforeAll,it,expect} from 'vitest';
 /**
  * Conflict Resolution Verification Test Suite
  * 
@@ -565,3 +566,7 @@ export async function runConflictResolutionTestSuite(): Promise<{
     results,
   };
 }
+
+let registeredResult: Awaited<ReturnType<typeof runConflictResolutionTestSuite>>;
+beforeAll(async()=>{registeredResult=await runConflictResolutionTestSuite();},60000);
+it.each(["CONF-TEST-01", "CONF-TEST-02", "CONF-TEST-03", "CONF-TEST-04", "CONF-TEST-05", "CONF-TEST-06", "CONF-TEST-07", "CONF-TEST-08", "CONF-TEST-09", "CONF-TEST-10"])('%s',id=>{const result=registeredResult.results.find(row=>row.id===id);expect(result,'Missing legacy assertion '+id).toBeDefined();expect(result?.passed,JSON.stringify(result)).toBe(true);});

@@ -87,7 +87,7 @@ describe('Block 42 Translation Catalog & Semantic Review Layer Test Suite (15 Te
   });
 
   it('I18N-TCAT-07: Internal data key derivation', () => {
-    const key = deriveInternalDataKey('netWeight');
+    const key = deriveInternalDataKey('netWeight', 'Net weight');
     expect(typeof key).toBe('string');
   });
 

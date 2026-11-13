@@ -1,3 +1,4 @@
+import {test} from 'vitest';
 /**
  * BLOCK 76: Final Product UI Architecture & Role-Based Experience Test Suite
  *
@@ -25,7 +26,7 @@ describe('Block 76 Final Product UI Architecture & Role-Based Experience Test Su
 // -------------------------------------------------------------
 // Section 1: Deliverables & Schema Conformance
 // -------------------------------------------------------------
-test('B76-T01', 'Architectural JSON deliverable exists and parses correctly', () => {
+test('B76-T01', /* Architectural JSON deliverable exists and parses correctly */ () => {
   if (!fs.existsSync(jsonReportPath)) throw new Error('Missing reports/final-ui-architecture-block76.json');
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   if (content.metadata.block !== 76) throw new Error('Expected metadata.block === 76');
@@ -34,7 +35,7 @@ test('B76-T01', 'Architectural JSON deliverable exists and parses correctly', ()
   }
 });
 
-test('B76-T02', 'Architectural Markdown deliverable exists and contains required headings', () => {
+test('B76-T02', /* Architectural Markdown deliverable exists and contains required headings */ () => {
   if (!fs.existsSync(mdReportPath)) throw new Error('Missing reports/final-ui-architecture-block76.md');
   const content = fs.readFileSync(mdReportPath, 'utf-8');
   const requiredHeadings = [
@@ -57,7 +58,7 @@ test('B76-T02', 'Architectural Markdown deliverable exists and contains required
 // -------------------------------------------------------------
 // Section 2: Four Major Interface Areas
 // -------------------------------------------------------------
-test('B76-T03', 'All four major interface areas are represented in JSON report', () => {
+test('B76-T03', /* All four major interface areas are represented in JSON report */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const areas = content.interfaceAreas;
   if (!areas.area1_fieldOperations) throw new Error('Missing area1_fieldOperations');
@@ -66,7 +67,7 @@ test('B76-T03', 'All four major interface areas are represented in JSON report',
   if (!areas.area4_centralDashboard) throw new Error('Missing area4_centralDashboard');
 });
 
-test('B76-T04', 'Field Operations defines all 4 required sub-interfaces (Loading, Unloading, Supervision, Driver)', () => {
+test('B76-T04', /* Field Operations defines all 4 required sub-interfaces (Loading, Unloading, Supervision, Driver) */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const subInterfaces = content.interfaceAreas.area1_fieldOperations.subInterfaces;
   if (!Array.isArray(subInterfaces) || subInterfaces.length !== 4) {
@@ -79,7 +80,7 @@ test('B76-T04', 'Field Operations defines all 4 required sub-interfaces (Loading
   }
 });
 
-test('B76-T05', 'Loading and Unloading define shortest safe workflows', () => {
+test('B76-T05', /* Loading and Unloading define shortest safe workflows */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const subInterfaces = content.interfaceAreas.area1_fieldOperations.subInterfaces;
   const loading = subInterfaces.find((s: any) => s.id === 'LOADING_INTERFACE');
@@ -93,7 +94,7 @@ test('B76-T05', 'Loading and Unloading define shortest safe workflows', () => {
   }
 });
 
-test('B76-T06', 'Driver interface is strictly limited to supported capabilities (no trip creation or exception approvals)', () => {
+test('B76-T06', /* Driver interface is strictly limited to supported capabilities (no trip creation or exception approvals) */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const subInterfaces = content.interfaceAreas.area1_fieldOperations.subInterfaces;
   const driver = subInterfaces.find((s: any) => s.id === 'DRIVER_INTERFACE');
@@ -107,7 +108,7 @@ test('B76-T06', 'Driver interface is strictly limited to supported capabilities 
   }
 });
 
-test('B76-T07', 'Projects interface defines management flow and access control rules', () => {
+test('B76-T07', /* Projects interface defines management flow and access control rules */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const projects = content.interfaceAreas.area2_projectsInterface;
   if (!projects.subInterfaces || projects.subInterfaces.length < 4) {
@@ -118,7 +119,7 @@ test('B76-T07', 'Projects interface defines management flow and access control r
   }
 });
 
-test('B76-T08', 'Field Reports preserves existing business rules (pending settlement separation, pricing snapshots)', () => {
+test('B76-T08', /* Field Reports preserves existing business rules (pending settlement separation, pricing snapshots) */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const reports = content.interfaceAreas.area3_fieldReportsInterface;
   if (!reports.reportCategories || reports.reportCategories.length < 4) {
@@ -134,7 +135,7 @@ test('B76-T08', 'Field Reports preserves existing business rules (pending settle
   }
 });
 
-test('B76-T09', 'Central Dashboard defines 7-level information hierarchy', () => {
+test('B76-T09', /* Central Dashboard defines 7-level information hierarchy */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const dashboard = content.interfaceAreas.area4_centralDashboard;
   if (!dashboard.informationHierarchy || dashboard.informationHierarchy.length !== 7) {
@@ -145,7 +146,7 @@ test('B76-T09', 'Central Dashboard defines 7-level information hierarchy', () =>
 // -------------------------------------------------------------
 // Section 3: Authority & Role Matrix
 // -------------------------------------------------------------
-test('B76-T10', 'Role matrix references only valid pre-existing roles (no invented roles)', () => {
+test('B76-T10', /* Role matrix references only valid pre-existing roles (no invented roles) */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const roles = content.authorityAndRoleMatrix.existingRoles.map((r: any) => r.role);
   
@@ -175,7 +176,7 @@ test('B76-T10', 'Role matrix references only valid pre-existing roles (no invent
 // -------------------------------------------------------------
 // Section 4: Navigation Architecture & Responsive Strategy
 // -------------------------------------------------------------
-test('B76-T11', 'Navigation model preserves existing developer/system tools under secondary drawer', () => {
+test('B76-T11', /* Navigation model preserves existing developer/system tools under secondary drawer */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const drawer = content.navigationModel.systemAndAdminDrawer;
   if (!drawer || !drawer.tools || drawer.tools.length < 10) {
@@ -183,7 +184,7 @@ test('B76-T11', 'Navigation model preserves existing developer/system tools unde
   }
 });
 
-test('B76-T12', 'Responsive strategy defines distinct rules for Phone (<640px), Tablet (640-1024px), and Desktop (>1024px)', () => {
+test('B76-T12', /* Responsive strategy defines distinct rules for Phone (<640px), Tablet (640-1024px), and Desktop (>1024px) */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   const strategy = content.responsiveStrategy;
   if (!strategy.breakPoints.phone || !strategy.breakPoints.tablet || !strategy.breakPoints.desktop) {
@@ -196,7 +197,7 @@ test('B76-T12', 'Responsive strategy defines distinct rules for Phone (<640px), 
 
 
 
-test('B76-T16', 'Zero translation drift across AR, EN, and UR', () => {
+test('B76-T16', /* Zero translation drift across AR, EN, and UR */ () => {
   const arKeys = new Set(Object.keys(arTranslations));
   const enKeys = new Set(Object.keys(enTranslations));
   const urKeys = new Set(Object.keys(urTranslations));
@@ -210,7 +211,7 @@ test('B76-T16', 'Zero translation drift across AR, EN, and UR', () => {
 // -------------------------------------------------------------
 // Section 6: Invariant Verification (No Redesigned UI Implemented)
 // -------------------------------------------------------------
-test('B76-T17', 'Confirms no redesigned interfaces were implemented in Block 76', () => {
+test('B76-T17', /* Confirms no redesigned interfaces were implemented in Block 76 */ () => {
   const content = JSON.parse(fs.readFileSync(jsonReportPath, 'utf-8'));
   if (content.metadata.redesignedInterfacesImplemented !== false) {
     throw new Error('Expected metadata.redesignedInterfacesImplemented === false');

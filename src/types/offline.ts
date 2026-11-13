@@ -2,14 +2,16 @@
  * Types and interfaces for Offline-First PWA, IndexedDB storage, and Outbox sync engine.
  */
 
-export type OutboxStatus = 'PENDING' | 'SENDING' | 'SYNCED' | 'FAILED' | 'CONFLICT';
+export type OutboxStatus = 'PENDING' | 'SENDING' | 'AWAITING_RECEIPT' | 'SYNCED' | 'FAILED' | 'CONFLICT';
 
 export interface OutboxOperation {
+  dependsOnOperationId?: string;
   operationId: string;
   projectId: string;
   userId: string;
   deviceId: string;
   operationType: 
+    | 'TRIP_COMMAND'
     | 'CREATE_TRIP_LOADING' 
     | 'UPDATE_TRIP_STATUS' 
     | 'RECORD_RECEIPT' 
@@ -23,6 +25,8 @@ export interface OutboxOperation {
   errorReason?: string;
   syncedAt?: string;
   serverAck?: {
+    /** Read-only canonical server response for presentation after durable ACK. */
+    canonicalTrip?: import('./entities').TripEntity;
     tripId?: string;
     tripSerial?: string;
     serverVersion?: number;
@@ -159,6 +163,7 @@ export interface OfflineTripPrerequisitesReport {
 }
 
 export interface OutboxStats {
+  awaiting_receipt?: number;
   total: number;
   pending: number;
   sending: number;

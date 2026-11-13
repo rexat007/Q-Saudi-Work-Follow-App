@@ -93,7 +93,7 @@ describe('Dashboard and Reports localization boundaries', () => {
       ts.forEachChild(node, visit);
     };
     visit(source);
-    expect(new Set(keys).size).toBe(3);
+    expect([...new Set(keys)]).toEqual(['analytics.ui.data_loading_failed']);
     for (const key of keys) {
       const values = (['ar', 'en', 'ur'] as const).map(locale => tFor(locale)(key));
       expect(new Set(values).size).toBe(3);
