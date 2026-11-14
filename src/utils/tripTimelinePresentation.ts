@@ -36,7 +36,7 @@ export function tripTimeline(trip:OperationalTripActionView,roles:readonly strin
  const timeline=trip.operationalTimeline||{},view=operationalActionPresentation(trip,roles);
  const definitions:Array<{id:string;status:string[];point?:keyof OperationalTimeline;commands:TripCommandName[]}>=[
   {id:'dispatch',status:[],commands:[]},
-  {id:'origin',status:['DISPATCHED','AT_ORIGIN'],commands:['ARRIVE_ORIGIN']},
+  {id:'origin',status:['AT_ORIGIN'],commands:['ARRIVE_ORIGIN']},
   {id:'loading',status:['LOADING','WEIGHED_ORIGIN'],point:'loadingCompletedAt',commands:['START_LOADING','COMPLETE_LOADING','RECORD_ORIGIN_WEIGHT']},
   {id:'transit',status:['IN_TRANSIT'],point:'arrivedAt',commands:['START_TRANSIT']},
   {id:'destination',status:['AT_DESTINATION','WEIGHED_DESTINATION'],point:'arrivedAt',commands:['RECORD_ARRIVAL','RECORD_DESTINATION_WEIGHT']},

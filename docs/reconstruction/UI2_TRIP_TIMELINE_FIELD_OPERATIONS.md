@@ -61,3 +61,12 @@ All 17 other worktree HEADs and dirty statuses are preserved, including converge
 **UI2 GO for independent source review as a local commit.** Owner publication authorization is still required. The two inherited historical failures, physical-device testing, screen-reader testing, independent review and operational acceptance remain open; none is concealed by a weakened assertion or test exclusion. No push, PR, merge, deployment, Google resource changes, SQL cutover or UI3 work is authorized or performed.
 
 Raw artifacts are compressed JSON/log files under `ui2/`; decompress before independent inspection. Source hashes identify the final source used by the gates. Native browser fixture coverage and real authenticated emulator journeys are explicitly separate evidence classes.
+
+
+## Final timeline truthfulness correction (after5749305)
+
+Independent review identified that Origin's current-status mapping also included DISPATCHED. The presentation selected current before checking next-action eligibility, incorrectly implying origin arrival for a merely dispatched Trip. The bounded correction removes DISPATCHED from that one mapping. Dispatch stays server-confirmed; Origin is next only when ARRIVE_ORIGIN is eligible, otherwise pending. Direct transit remains an independent eligible choice for the two profiles without an origin weighbridge. AT_ORIGIN confirmation, later current/completed/pending states and optional bypassed/not-recorded checkpoints are unchanged; no timestamps or transition rules are introduced.
+
+Twenty-three regressions were appended without changing the53 original timeline cases. Before the fix,9 new regressions failed (67/76passed); after it, the complete affected UI2/UI1/profile/command/Outbox family passes **212/212**, eight files, zero skipped. The timeline file passes76/76. Existing TypeScript/lint yields zero diagnostics and the client/PWA/server build passes. No unrelated full-suite rerun is claimed: original UI2's earlier reports and two inherited historical failures remain historical evidence for5749305.
+
+Exact seven changed files, final source hashes and raw before/after/build evidence are in [timeline-truthfulness/verification.json](ui2/timeline-truthfulness/verification.json). Production correction is exactly one mapping-line change. UI1, U03, command/permission/financial/Outbox/SQL/migration contracts, all17 other worktrees and original RB4 nine dirty files/013 are preserved. **GO for local corrective review only**; the new commit SHA is reported after commit. No push, PR, merge, deployment or UI3.

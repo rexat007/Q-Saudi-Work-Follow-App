@@ -55,3 +55,55 @@ it.each([
  ['PROJECT_ADMIN','OFFLOADED',['COMPLETE_TRIP']],
  ['VIEWER','LOADING',[]]
 ] as const)('%s at %s sees only its permitted next actions',(role,status,expected)=>{const value=trip('DUAL_WEIGHBRIDGE',status);if(status==='OFFLOADED')value.weights={originNetKg:20000,destinationNetKg:20000};expect(operationalActionPresentation(value,[role]).allowed).toEqual(expected);});
+
+// Timeline truthfulness: dispatch is not evidence of origin arrival.
+it.each(profiles)('%s DISPATCHED confirms dispatch without claiming current or completed origin',profile=>{
+ const steps=tripTimeline(trip(profile),roles);
+ expect(steps.find(s=>s.id==='dispatch')).toEqual({id:'dispatch',state:'confirmed',timestamp:undefined});
+ expect(steps.find(s=>s.id==='origin')).toEqual({id:'origin',state:'next',timestamp:undefined});
+ expect(steps.filter(s=>s.state==='current')).toEqual([]);
+ expect(steps.every(s=>s.timestamp===undefined)).toBe(true);
+ expect(steps.find(s=>s.id==='completion')!.state).toBe('pending');
+});
+it.each(profiles)('%s dispatched choices remain legitimate alternatives without invented arrival',async profile=>{
+ await render(trip(profile));
+ expect(host.querySelector('[data-stage="origin"]')!.getAttribute('data-state')).toBe('next');
+ expect(host.querySelector('[data-stage="origin"]')!.hasAttribute('aria-current')).toBe(false);
+ expect(button('ARRIVE_ORIGIN')).not.toBeNull();expect(button('START_LOADING')).not.toBeNull();
+ const direct=['UNLOADING_SCALE_ONLY','NO_WEIGHBRIDGE'].includes(profile);
+ expect(Boolean(button('START_TRANSIT'))).toBe(direct);
+ expect(host.querySelector('[data-stage="transit"]')!.getAttribute('data-state')).toBe(direct?'next':'pending');
+ expect(host.textContent).toContain('ui2.choices');expect(host.querySelectorAll('[data-primary="true"]')).toHaveLength(0);
+});
+it.each(['UNLOADING_SCALE_ONLY','NO_WEIGHBRIDGE'])('%s direct transit preserves unrecorded optional origin/loading',profile=>{
+ const value=trip(profile,'IN_TRANSIT');value.operationalTimeline={departedAt:'2026-11-14T00:00:00Z'};
+ const steps=tripTimeline(value,roles);
+ expect(steps.find(s=>s.id==='origin')).toEqual({id:'origin',state:'not_recorded',timestamp:undefined});
+ expect(steps.find(s=>s.id==='loading')).toEqual({id:'loading',state:'not_recorded',timestamp:undefined});
+ expect(steps.find(s=>s.id==='transit')!.state).toBe('current');
+ expect(steps.find(s=>s.id==='dispatch')!.state).toBe('confirmed');
+});
+it.each(profiles)('%s canonical AT_ORIGIN remains confirmed without an invented arrival timestamp',profile=>{
+ const steps=tripTimeline(trip(profile,'AT_ORIGIN'),roles);
+ expect(steps.find(s=>s.id==='origin')).toEqual({id:'origin',state:'confirmed',timestamp:undefined});
+ expect(steps.find(s=>s.id==='dispatch')!.state).toBe('confirmed');
+ expect(steps.find(s=>s.id==='loading')!.state).toBe('next');
+});
+it.each(profiles)('%s actual loading status retains current and pending stage semantics',profile=>{
+ const steps=tripTimeline(trip(profile,'LOADING'),roles);
+ expect(steps.find(s=>s.id==='loading')!.state).toBe('current');
+ expect(steps.find(s=>s.id==='origin')!.state).toBe('not_recorded');
+ expect(steps.find(s=>s.id==='completion')!.state).toBe('pending');
+});
+it.each(profiles)('%s confirmed completion retains recorded facts and optional bypass truthfulness',profile=>{
+ const value=trip(profile,'COMPLETED');value.operationalTimeline={completedAt:'2026-11-14T01:00:00Z'};
+ const steps=tripTimeline(value,roles);
+ expect(steps.find(s=>s.id==='completion')).toEqual({id:'completion',state:'confirmed',timestamp:'2026-11-14T01:00:00Z'});
+ expect(steps.find(s=>s.id==='origin')!.state).toBe('not_recorded');
+ expect(steps.find(s=>s.id==='dispatch')!.state).toBe('confirmed');
+});
+it('Origin is pending rather than next when this role cannot ARRIVE_ORIGIN',()=>{
+ const steps=tripTimeline(trip(),['SCALE_OPERATOR']);
+ expect(steps.find(s=>s.id==='origin')).toEqual({id:'origin',state:'pending',timestamp:undefined});
+ expect(steps.find(s=>s.id==='loading')!.state).toBe('next');
+});
