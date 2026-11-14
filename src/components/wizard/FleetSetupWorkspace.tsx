@@ -21,7 +21,7 @@ interface Props {
   isCurrent: () => boolean;
   apply: (snapshot: ProjectCanonicalRefreshSnapshot) => void;
 }
-const control = 'w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-white disabled:opacity-50';
+const control = 'w-full min-h-11 rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-white disabled:opacity-50';
 
 export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, apply, cleanupAllowed=false, canonicalContext }: Props) {
   const { t, direction } = useI18n();
@@ -58,7 +58,7 @@ export function FleetSetupWorkspace({ projectId, mutable, revision, isCurrent, a
     <div role="tablist" className="flex flex-wrap gap-2">{(['DRIVER', 'TRUCK', 'PARTICIPATION'] as const).map(value => <button key={value} role="tab" aria-selected={tab === value} onClick={() => setTab(value)} className="rounded-lg border border-stone-700 px-3 py-2">{t(`setup.tab.${value}`)}</button>)}</div>
     {loading && <p role="status">{t('shared.status.loading')}</p>}
     <p className="text-xs text-stone-400">{t('setup.closure.tableScrollHint')}</p>
-    <div role="tabpanel" className="min-w-0 overflow-x-auto">
+    <div role="tabpanel" tabIndex={0} aria-label={t('ui3.fleet_table')} className="min-w-0 overflow-x-auto focus-visible:ring-2 focus-visible:ring-emerald-400">
       <table className="w-full min-w-[48rem] text-start text-xs"><thead><tr>{['identity', 'global', 'membership', 'carrier', 'current', 'state', 'actions'].map(key => <th key={key} className="p-2 text-start">{t(`setup.${key}`)}</th>)}</tr></thead>
         <tbody>{participants.map(p => {
           const row = context.fleet.rows.find(r => r.truckId === p.id);

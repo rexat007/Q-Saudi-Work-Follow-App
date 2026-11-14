@@ -1,0 +1,42 @@
+{
+  "repository": "rexat007/Q-Saudi-Work-Follow-App",
+  "main": "7be559e06025d44341aac242fe4df488d2cc899a",
+  "branch": "ui/ui3-setup-import-20261114",
+  "initialCleanIsolatedWorktree": true,
+  "mergedUI1UI2U03": true,
+  "postMergeCI": [
+    {
+      "run": 43622902703,
+      "status": "success",
+      "event": "push",
+      "sha": "7be559e06025d44341aac242fe4df488d2cc899a",
+      "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43622902703"
+    },
+    {
+      "run": 43622902700,
+      "status": "success",
+      "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43622902700"
+    }
+  ],
+  "contracts": [
+    "SMART_IMPORT_ASSURANCE_CONTRACT.md",
+    "PROJECT_FOUNDATION_MAINTENANCE_CONTRACT.md"
+  ],
+  "baselineWorkspace": "ui2-trip-timeline-20261114",
+  "baselineHead": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+  "baselineTreeEqualsMain": true,
+  "activeRoute": [
+    "App",
+    "ProjectSetupWizard",
+    "FleetSetupWorkspace",
+    "existing seven-stage Roster modal",
+    "RosterSemanticReview",
+    "existing execution recovery/receipt"
+  ],
+  "inactiveOrFallback": {
+    "Step7Review": "No production caller; unchanged",
+    "RosterFinalReviewLayer": "Fallback; unchanged",
+    "ProjectOperationalReadiness": "Other existing surfaces; unchanged",
+    "ImportOverlay": "Active shared manager; unchanged"
+  }
+}

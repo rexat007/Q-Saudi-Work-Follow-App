@@ -1,0 +1,164 @@
+{
+  "status": "GO_FOR_INDEPENDENT_UI3_REVIEW_WITH_BASELINE_DEBT",
+  "startingMain": "7be559e06025d44341aac242fe4df488d2cc899a",
+  "branch": "ui/ui3-setup-import-20261114",
+  "newTests": {
+    "presentation": 35,
+    "browser": 9,
+    "connected": 2,
+    "all46Passed": true
+  },
+  "nativeBrowser": {
+    "passed": 11,
+    "failed": 0,
+    "skipped": 0,
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "engine": "Microsoft Edge headless",
+    "syntheticFixture": true,
+    "actualAppConnectedLanguage": "ar",
+    "physicalDevices": "NOT_PERFORMED",
+    "screenReader": "NOT_PERFORMED"
+  },
+  "connected": {
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "formats": [
+      "CSV",
+      "EXCEL"
+    ],
+    "exit": 0,
+    "cleanupErrors": [],
+    "remainingListeners": []
+  },
+  "focused": {
+    "baseline": {
+      "passed": 584,
+      "failed": 19,
+      "total": 603
+    },
+    "broadCandidate": {
+      "passed": 605,
+      "failed": 33,
+      "total": 638
+    },
+    "unchangedSupplement": {
+      "passed": 53,
+      "failed": 1,
+      "total": 54
+    },
+    "additionalBroadFailureIdentitiesPassedInSupplement": 14,
+    "newUnresolvedFailureIdentities": [],
+    "baselineDebtStillRecorded": 19,
+    "fullHistoricalPassClaimed": false,
+    "details": "failure-comparison.json"
+  },
+  "typecheck": {
+    "command": "npm run lint (tsc --noEmit)",
+    "diagnostics": 0,
+    "nativeExit": 0,
+    "exactFinalSource": true
+  },
+  "build": {
+    "command": "npm run build",
+    "clientPwaAndServer": "PASS",
+    "nativeExit": 0,
+    "warning": "existing bundle chunk-size warning",
+    "productionInputsMatchFinal": true
+  },
+  "sourceIdentities": {
+    "src/components/import/RosterJourneyStatus.tsx": {
+      "gitBlob": "ef0626772a03644cdd6c7df08d67eecdd89f7d4f",
+      "sha256": "4ef2aa1d91b27dfd2043e5217cc112f533d1ccc582e5921f393706239e3ec87e"
+    },
+    "src/components/import/RosterSemanticReview.tsx": {
+      "gitBlob": "0f4ba528a47ad1a223ca1cbe1b6409e60c772b3e",
+      "sha256": "241049dd7cdf2f70c0c87251c69c74da4e4635b522d36974c50be73d259bc9ef"
+    },
+    "src/components/wizard/FleetSetupWorkspace.tsx": {
+      "gitBlob": "143cac5c7454c245f94a4c7bd727e592b010ed36",
+      "sha256": "baa0f31b2332038fc47147fe196aa85146ad5365387acbde363f4c040a94dd6a"
+    },
+    "src/components/wizard/ProjectSetupWizard.tsx": {
+      "gitBlob": "fd89c63912996f16c9be8f1e261e6b393480774e",
+      "sha256": "71249b7ba4e49b63a1e741cb61d0ca417bf0f50961bfdd80c178f02f14d0d364"
+    },
+    "src/components/wizard/SetupJourneySummary.tsx": {
+      "gitBlob": "50fdfae3a27bdbbf90e49f06e4d700506ead3106",
+      "sha256": "1af245f02dedf02f37a7def3fea827e7889a25005e3a329efee035df0877bdfc"
+    },
+    "src/components/wizard/SetupReadinessPanel.tsx": {
+      "gitBlob": "094234afecc00cddc12762a15a890541b9c28956",
+      "sha256": "62391aa1328b4f6086d5aa65dbe7ef7ccc86bab98f5517b9aa32ccc2459beeee"
+    },
+    "src/locales/ar/index.ts": {
+      "gitBlob": "a8d400116832d40cb879f78fa7dee62cb09035ff",
+      "sha256": "c4051fa2c0330b8774d8c340f0fb04b228e96e28e4e013e94aa426428dc96cc7"
+    },
+    "src/locales/en/index.ts": {
+      "gitBlob": "e1f20b149ff32ca17c9cd69ae11024f9ce6e1b2b",
+      "sha256": "9a5843aa862e5d58d0ed54301e17d4e6dd07fea60a297765d537ae262b1f28c5"
+    },
+    "src/locales/ur/index.ts": {
+      "gitBlob": "700da3730a81e363aa695c4b67805b941450e307",
+      "sha256": "19a7b545738a96977fe805aa3b0541034e6c2274d8e030e916dbc64a20b5eb64"
+    },
+    "src/tests/helpers/ui3BrowserEntry.tsx": {
+      "gitBlob": "f3e35c48fd751c0ed7aa818f8e91bf8f06fc74eb",
+      "sha256": "efd606f7a1bdbce7c074b78e051dae56da318709b57d3079e33e9f313d3bde39"
+    },
+    "src/tests/ui3Browser.test.ts": {
+      "gitBlob": "8bf7e1294076a2226786b541b7c0e7d3dd892504",
+      "sha256": "e5d296af2689d52fd4d34aff660fd3ec3530bd13f4dac9558bb1e1aca3dee1b7"
+    },
+    "src/tests/ui3ConnectedJourney.test.ts": {
+      "gitBlob": "63f66208b6db182c1b5f6663ae0b9b752a025822",
+      "sha256": "19f38a490ec819e090e07c8bd2c0a17427c00bc8089ebedcc85be0f636d0c769"
+    },
+    "src/tests/ui3Presentation.test.tsx": {
+      "gitBlob": "020400727792f713eee96471f4b6744804785034",
+      "sha256": "a9a7d9b7eae47a168aeb7a4c54cd655373c7563ef55745c6d7d3a9746e8fafb4"
+    }
+  },
+  "authorityPreservation": {
+    "wizardPreRenderHandlersIdenticalExceptTwoImports": true,
+    "oldTestFilesChanged": 0,
+    "newExecutionPath": false,
+    "serverServicePolicyDtoOutboxSqlMigrationChanges": false,
+    "reviewSignatureDisplacementAndCanAcceptUnchanged": true,
+    "overlayManagerUnchanged": true,
+    "migrationsUnchanged": true,
+    "otherWorktreesPreserved": 18,
+    "rb4NineDirtyFilesAnd013Preserved": true
+  },
+  "knownLimits": [
+    "19 baseline failure identities remain; broad focused run is non-green.",
+    "No physical-device or screen-reader certification.",
+    "Component locale/viewport matrix uses synthetic fixtures; connected actual-App journeys are Arabic.",
+    "No per-layer completion inferred where canonical readiness has no per-layer receipt.",
+    "No full historical/release rerun or production activation."
+  ],
+  "publication": "NOT_AUTHORIZED; local commit only",
+  "ui4": "NOT_STARTED",
+  "integrityReview": {
+    "exactInventoryVerified": true,
+    "secretScan": {
+      "files": 36,
+      "gzipFilesDecompressed": 10,
+      "credentialPatternMatches": 0,
+      "excludedRuntimeSnapshots": true
+    },
+    "oldTestEdits": 0,
+    "skipsAdded": 0,
+    "diffCheck": "PASS"
+  }
+}
