@@ -332,12 +332,50 @@ describe('AR2-U03 real PostgreSQL 17 temporal authority',()=>{
         await Promise.all(clients.map((client,i)=>rawContext(client,i?second:project)));
         const pids=await Promise.all(clients.map(async client=>(await client.query('SELECT pg_backend_pid() AS pid')).rows[0].pid));
         expect(new Set(pids).size).toBe(2);
+        const operations=await Promise.all(clients.map(async client=>(await client.query("SELECT current_setting('app.operation_id') AS id")).rows[0].id));
         const results=await Promise.allSettled(clients.map(async(client,i)=>{
           try{const result=await rawInsert(client,kind,refs(Boolean(i)),i?second:project);await client.query('COMMIT');return result;}
           catch(error){await client.query('ROLLBACK');throw error;}
         }));
         expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);
-        expect((results.find(r=>r.status==='rejected') as PromiseRejectedResult).reason.code).toBe('23P01');
+        expect(results.filter(r=>r.status==='rejected')).toHaveLength(1);
+        const winner=results.findIndex(r=>r.status==='fulfilled'),loser=1-winner;
+        const committed=(results[winner] as PromiseFulfilledResult<pg.QueryResult>).value.rows[0];
+        const rejection=(results[loser] as PromiseRejectedResult).reason;
+        const {table,owner}=RELATIONSHIPS[kind];
+        const persisted=async()=>{
+          // Administrative read intentionally spans projects: exclusion ownership is company-wide.
+          const rows=(await admin.query(`SELECT *,upper_inf(valid_period) AS open FROM ${table}
+            WHERE company_id=$1 AND ${owner}=$2`,[company,refs(false)[owner]])).rows;
+          expect(rows).toHaveLength(1);
+          expect(rows[0]).toMatchObject({id:committed.id,project_id:winner?second:project,
+            ...refs(Boolean(winner)),record_status:'ACCEPTED',voided_at:null,revision:'1',open:true,
+            opened_operation_id:operations[winner]});
+          const events=(await admin.query(`SELECT relationship_id,operation_id,revision FROM ${table}_events
+            WHERE company_id=$1 AND operation_id=ANY($2::text[])`,[company,operations])).rows;
+          expect(events).toEqual([{relationship_id:committed.id,operation_id:operations[winner],revision:'1'}]);
+        };
+        await persisted();
+        // Both connections must have settled, including a usable, rolled-back loser.
+        for(const client of clients)expect((await client.query('SELECT txid_current_if_assigned() AS xid')).rows[0].xid).toBeNull();
+        const fresh=await runtime.connect();
+        try{
+          await rawContext(fresh,loser?second:project);
+          const constraint=kind==='DRIVER_AFFILIATION'?'driver_carrier_one_carrier_per_period'
+            :kind==='TRUCK_AFFILIATION'?'truck_carrier_one_carrier_per_period'
+            :kind==='ASSIGNMENT'?'assignment_one_driver_per_period':'allocation_one_material_per_period';
+          // A settled conflict must be the exclusion violation, never a deadlock substitute.
+          await expect(rawInsert(fresh,kind,refs(Boolean(loser)),loser?second:project))
+            .rejects.toMatchObject({code:'23P01',constraint,table});
+        }finally{await release(fresh);}
+        await persisted();
+        // PostgreSQL 17 execIndexing.c documents mutual exclusion-scan XID waits.
+        // Accept that concurrent abort only after committed-state and exact 23P01 proofs.
+        expect(['23P01','40P01']).toContain(rejection.code);
+        if(rejection.code==='40P01')expect(rejection.where).toContain('while checking exclusion constraint');
+        console.info('U03_EXCLUSION_RACE',JSON.stringify({kind,pids,winner,code:rejection.code,
+          detail:rejection.detail,where:rejection.where,committedId:committed.id,
+          acceptedRows:1,committedEvents:1,sequentialCode:'23P01',rolledBack:true}));
       }finally{for(const client of clients)await release(client);}
     });
   }

@@ -1,0 +1,1317 @@
+{
+  "source": {
+    "path": "src/tests/ar2U03TemporalAuthority.test.ts",
+    "sha256": "5f762909927bbc07322f2dc7af39669962a6f705de57d6f9f049f26141467d2f",
+    "gitBlob": "5378c2785954ad825902ea31e45ff42dc1ae8b15",
+    "mtimeMs": 1794626099047.8533
+  },
+  "races": [
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        26540,
+        26076
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "3cf46026-bcf5-45f1-bded-b2f30e64935c",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 1
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        26076,
+        26540
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "83057b3f-d4fe-4dc1-9ce1-9f79f929197c",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 1
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        26540,
+        26076
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "238cf949-e236-4e79-bce5-efde168dcfaa",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 1
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        26076,
+        26540
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 26076 waits for ShareLock on transaction 8754; blocked by process 26540.\nProcess 26540 waits for ShareLock on transaction 8753; blocked by process 26076.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"truck_material_allocations\"",
+      "committedId": "bbdc4215-2232-4d37-b21c-dc5411d1d035",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 1
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        18508,
+        16332
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "1324e3a4-6e2d-4f99-9f02-3b797ce585a3",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 2
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        16332,
+        18508
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 16332 waits for ShareLock on transaction 8811; blocked by process 18508.\nProcess 18508 waits for ShareLock on transaction 8810; blocked by process 16332.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_carrier_affiliations\"",
+      "committedId": "81ab0f5b-725c-4cc9-919a-e306e5eec016",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 2
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        18508,
+        16332
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "cefbcd6f-3299-48ad-8d96-824598d136a4",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 2
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        16332,
+        18508
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "168a5729-3236-490c-92c9-5e189a52c7ea",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 2
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        24340,
+        14960
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 14960 waits for ShareLock on transaction 8898; blocked by process 24340.\nProcess 24340 waits for ShareLock on transaction 8899; blocked by process 14960.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_carrier_affiliations\"",
+      "committedId": "267f23a7-7321-453d-9f9f-43fe969338e8",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 3
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        14960,
+        24340
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 14960 waits for ShareLock on transaction 8916; blocked by process 24340.\nProcess 24340 waits for ShareLock on transaction 8915; blocked by process 14960.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_carrier_affiliations\"",
+      "committedId": "f0bb2370-3d95-4782-83c4-1dad0d126249",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 3
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        24340,
+        14960
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "1643caf7-251a-4038-86c6-059db0a97181",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 3
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        14960,
+        24340
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "74a7eb66-5296-41df-a8cb-bab890d89f9e",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 3
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        16012,
+        25220
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "83f5173d-8700-4340-bb04-d6be5ac1da20",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 4
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        25220,
+        16012
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "04f63f85-13c5-4c03-8945-79791405aaf6",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 4
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        16012,
+        25220
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "433b547d-d9fe-436d-9437-466990bed936",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 4
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        25220,
+        16012
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "5d61dac6-0b66-4106-8a18-f16241c36d29",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 4
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        25868,
+        22288
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 22288 waits for ShareLock on transaction 9093; blocked by process 25868.\nProcess 25868 waits for ShareLock on transaction 9094; blocked by process 22288.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_carrier_affiliations\"",
+      "committedId": "1dd67c2d-1b01-4989-899f-09e4be5e9c80",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 5
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        22288,
+        25868
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 25868 waits for ShareLock on transaction 9110; blocked by process 22288.\nProcess 22288 waits for ShareLock on transaction 9111; blocked by process 25868.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"truck_carrier_affiliations\"",
+      "committedId": "392e05b0-df9d-4190-be69-4a5e446c68be",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 5
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        25868,
+        22288
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "9648d572-12b6-4c8c-986c-54588020a130",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 5
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        22288,
+        25868
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 22288 waits for ShareLock on transaction 9145; blocked by process 25868.\nProcess 25868 waits for ShareLock on transaction 9144; blocked by process 22288.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_material_allocations\"",
+      "committedId": "5129b24b-15a5-45b9-bdbe-b0e52c4141b1",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 5
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        19580,
+        13264
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "e4bc23f1-92b5-45e2-a38b-f22f941814fd",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 6
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        13264,
+        19580
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "c651722d-e625-49a7-940e-302cf8350f14",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 6
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        19580,
+        13264
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 19580 waits for ShareLock on transaction 9219; blocked by process 13264.\nProcess 13264 waits for ShareLock on transaction 9218; blocked by process 19580.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"driver_truck_assignments\"",
+      "committedId": "ebd4c52c-924b-4fb6-8077-6698255aedc3",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 6
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        13264,
+        19580
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "a0c09a73-b4b9-499d-95a2-31caf840a3f1",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 6
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        18488,
+        24440
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 24440 waits for ShareLock on transaction 9288; blocked by process 18488.\nProcess 18488 waits for ShareLock on transaction 9289; blocked by process 24440.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_carrier_affiliations\"",
+      "committedId": "fbefd83e-db78-446c-8dec-6fd5e94eb0b3",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 7
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        24440,
+        18488
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "46a09155-d7f1-4398-ba38-80baa5539603",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 7
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        18488,
+        24440
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "551084af-f75b-4028-9e55-d63e85d3d759",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 7
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        24440,
+        18488
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "6ce63c00-ce94-4f60-a618-bc8d4628ad20",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 7
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        22364,
+        23184
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "6798119c-a873-4868-a12f-4c932548635e",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 8
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        23184,
+        22364
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "5914ab9e-1a85-469d-a357-9271bfb93288",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 8
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        22364,
+        23184
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "0211876a-910a-4a22-ba93-050aa22936b0",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 8
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        23184,
+        22364
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "32b9c60b-0946-4724-80e3-a0b09284ed7c",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 8
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        16888,
+        1184
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "39d4c3d9-1fe6-4de9-b02d-c91378e5cff0",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 9
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        1184,
+        16888
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "128c3560-a12b-4ad1-9326-a662c7aa4a04",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 9
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        16888,
+        1184
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "f07166fa-34db-4946-b07b-0af1288ca73b",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 9
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        1184,
+        16888
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "89fb31ff-3b6a-4f0d-ab69-9dc317738709",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 9
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        23924,
+        22308
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "d9bb74e6-6b6c-4504-adae-6f18df6404b5",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 10
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        22308,
+        23924
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "0eff3937-02ed-4cfb-8fb4-f37d3b5498ce",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 10
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        23924,
+        22308
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "b1c15159-25dd-4bc4-adaf-93560eb4ccfc",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 10
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        22308,
+        23924
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 22308 waits for ShareLock on transaction 9613; blocked by process 23924.\nProcess 23924 waits for ShareLock on transaction 9612; blocked by process 22308.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_material_allocations\"",
+      "committedId": "e1dc0837-6e88-4266-b059-b8b187a522ee",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 10
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        19352,
+        20604
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "269c29a2-3b4f-4849-a478-0f53bc3c36fa",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 11
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        20604,
+        19352
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "f6406c59-0c34-4b82-b949-0a4e74e8d6ed",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 11
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        19352,
+        20604
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "f8b5ebc2-69b4-4af9-83d4-eebe06a7a942",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 11
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        20604,
+        19352
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "f2b7d9f9-c448-4548-8083-abde228558bf",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 11
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        25752,
+        15548
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "37af8a6b-bdb5-45d7-9724-aa2093e86cfb",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 12
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        15548,
+        25752
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 25752 waits for ShareLock on transaction 9760; blocked by process 15548.\nProcess 15548 waits for ShareLock on transaction 9761; blocked by process 25752.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"truck_carrier_affiliations\"",
+      "committedId": "8f0d920a-ef1e-4823-9af0-ff71cd0f7982",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 12
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        25752,
+        15548
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 15548 waits for ShareLock on transaction 9777; blocked by process 25752.\nProcess 25752 waits for ShareLock on transaction 9778; blocked by process 15548.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"driver_truck_assignments\"",
+      "committedId": "b6b98c78-d461-46bd-ba10-01a0219dd9be",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 12
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        15548,
+        25752
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "e6d99d6c-0f46-4098-bc73-8ffbc4060785",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 12
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        18740,
+        25948
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "473d6392-2d71-400d-a0f9-5acc67acd83f",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 13
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        25948,
+        18740
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 25948 waits for ShareLock on transaction 9866; blocked by process 18740.\nProcess 18740 waits for ShareLock on transaction 9865; blocked by process 25948.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_carrier_affiliations\"",
+      "committedId": "112517f1-fc9d-4625-973d-74cb437dbdf5",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 13
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        18740,
+        25948
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 18740 waits for ShareLock on transaction 9883; blocked by process 25948.\nProcess 25948 waits for ShareLock on transaction 9882; blocked by process 18740.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"driver_truck_assignments\"",
+      "committedId": "23d33cc2-ebe3-462c-b4a1-0bbf3b6695d9",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 13
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        25948,
+        18740
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "25c44fd4-61af-41a5-8eb7-a6249e6ec21a",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 13
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        24204,
+        10008
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "e2850a37-d6e0-453e-8533-77555d1d2fc3",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 14
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        10008,
+        24204
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "1743ec24-25ea-4ae6-b829-67a2e70389c6",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 14
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        24204,
+        10008
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 10008 waits for ShareLock on transaction 9973; blocked by process 24204.\nProcess 24204 waits for ShareLock on transaction 9974; blocked by process 10008.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_truck_assignments\"",
+      "committedId": "8ab9104c-8126-4e00-b156-2b28705f5756",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 14
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        10008,
+        24204
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 24204 waits for ShareLock on transaction 9990; blocked by process 10008.\nProcess 10008 waits for ShareLock on transaction 9991; blocked by process 24204.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_material_allocations\"",
+      "committedId": "2ff48388-ee75-4043-813b-31e2d5be814a",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 14
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        22448,
+        22360
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "9d53c41f-11c7-4a35-b4c2-0cf0c3d15dc2",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 15
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        22360,
+        22448
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 22360 waits for ShareLock on transaction 10062; blocked by process 22448.\nProcess 22448 waits for ShareLock on transaction 10061; blocked by process 22360.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_carrier_affiliations\"",
+      "committedId": "1556601c-95f0-485e-bb0b-ddc898e1d9a1",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 15
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        22448,
+        22360
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 22360 waits for ShareLock on transaction 10078; blocked by process 22448.\nProcess 22448 waits for ShareLock on transaction 10079; blocked by process 22360.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"driver_truck_assignments\"",
+      "committedId": "54ee20ad-99ee-45d0-ad7f-2ff54778399c",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 15
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        22360,
+        22448
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 22360 waits for ShareLock on transaction 10096; blocked by process 22448.\nProcess 22448 waits for ShareLock on transaction 10095; blocked by process 22360.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_material_allocations\"",
+      "committedId": "6b188324-bee6-45e9-9bfc-af11027b82ae",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 15
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        25340,
+        20352
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "d719ce2c-9c38-4482-86d2-bbb314cbc952",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 16
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        20352,
+        25340
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "09612424-021e-4cb1-9202-4a79399067a5",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 16
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        25340,
+        20352
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "52dd406c-4da3-4c08-9eab-f56733cc4743",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 16
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        20352,
+        25340
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 20352 waits for ShareLock on transaction 10187; blocked by process 25340.\nProcess 25340 waits for ShareLock on transaction 10186; blocked by process 20352.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_material_allocations\"",
+      "committedId": "224844cf-cf1b-4c1e-bc01-65059ee39bd2",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 16
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        26356,
+        6400
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "09d1e8e2-f742-4be0-a18d-4a873ec39a07",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 17
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        6400,
+        26356
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 26356 waits for ShareLock on transaction 10243; blocked by process 6400.\nProcess 6400 waits for ShareLock on transaction 10244; blocked by process 26356.",
+      "where": "while checking exclusion constraint on tuple (1,1) in relation \"truck_carrier_affiliations\"",
+      "committedId": "7cf4bf50-4619-48ee-8ad7-5bfd073215ec",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 17
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        26356,
+        6400
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 26356 waits for ShareLock on transaction 10261; blocked by process 6400.\nProcess 6400 waits for ShareLock on transaction 10260; blocked by process 26356.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_truck_assignments\"",
+      "committedId": "a5733e83-da24-41dc-a076-728d3342c19d",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 17
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        6400,
+        26356
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "d8b0b17a-4605-43e2-b8a4-ec9cf09a3a32",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 17
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        25828,
+        19720
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "bd8f64a3-a900-42a2-a687-b78036b413e2",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 18
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        19720,
+        25828
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 25828 waits for ShareLock on transaction 10334; blocked by process 19720.\nProcess 19720 waits for ShareLock on transaction 10335; blocked by process 25828.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"truck_carrier_affiliations\"",
+      "committedId": "9b77f926-d391-4fcc-8860-2e1014e9461b",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 18
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        25828,
+        19720
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "16366035-8e11-4fdb-9221-a14881b36bc3",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 18
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        19720,
+        25828
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 19720 waits for ShareLock on transaction 10369; blocked by process 25828.\nProcess 25828 waits for ShareLock on transaction 10368; blocked by process 19720.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_material_allocations\"",
+      "committedId": "1874d70a-b2eb-4eec-bfce-848fd23af645",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 18
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        1752,
+        19316
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "8c40c4a3-6953-4b3b-8611-a3ffd2f50927",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 19
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        19316,
+        1752
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 19316 waits for ShareLock on transaction 10426; blocked by process 1752.\nProcess 1752 waits for ShareLock on transaction 10425; blocked by process 19316.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_carrier_affiliations\"",
+      "committedId": "3ab8fda7-17be-4680-959f-1726c4066345",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 19
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        1752,
+        19316
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "a142fcb5-3d10-4202-a77b-b1841d9687a4",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 19
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        19316,
+        1752
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "f399957b-7675-4cc2-81b1-d07a79ec1ec4",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 19
+    },
+    {
+      "kind": "DRIVER_AFFILIATION",
+      "pids": [
+        19088,
+        25140
+      ],
+      "winner": 0,
+      "code": "40P01",
+      "detail": "Process 25140 waits for ShareLock on transaction 10501; blocked by process 19088.\nProcess 19088 waits for ShareLock on transaction 10502; blocked by process 25140.",
+      "where": "while checking exclusion constraint on tuple (0,1) in relation \"driver_carrier_affiliations\"",
+      "committedId": "ada187f7-3c44-4b09-8520-ffadb71182e0",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 20
+    },
+    {
+      "kind": "TRUCK_AFFILIATION",
+      "pids": [
+        25140,
+        19088
+      ],
+      "winner": 1,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "c54d9219-2811-4519-a4d0-cd2223e83105",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 20
+    },
+    {
+      "kind": "ASSIGNMENT",
+      "pids": [
+        19088,
+        25140
+      ],
+      "winner": 0,
+      "code": "23P01",
+      "detail": "Key conflicts with existing key.",
+      "committedId": "56155cd1-a5fa-4593-9b93-7dc3dce40f43",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 20
+    },
+    {
+      "kind": "ALLOCATION",
+      "pids": [
+        25140,
+        19088
+      ],
+      "winner": 1,
+      "code": "40P01",
+      "detail": "Process 25140 waits for ShareLock on transaction 10553; blocked by process 19088.\nProcess 19088 waits for ShareLock on transaction 10552; blocked by process 25140.",
+      "where": "while checking exclusion constraint on tuple (0,2) in relation \"truck_material_allocations\"",
+      "committedId": "c5ad863e-2c90-434b-9394-6605234a6d14",
+      "acceptedRows": 1,
+      "committedEvents": 1,
+      "sequentialCode": "23P01",
+      "rolledBack": true,
+      "iteration": 20
+    }
+  ]
+}
