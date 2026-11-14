@@ -1,0 +1,14 @@
+[
+  {
+    "path": "docs/reconstruction/02_PHASE_LEDGER.md",
+    "previousWorkingBytesSha256": "6980953166e5f7023e6314c2ec2eb47da59521b0d7eee7ba79c2d9554be7d904",
+    "previousBytesPreservedAsPrefix": true,
+    "appendedBytes": 1298
+  },
+  {
+    "path": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "previousWorkingBytesSha256": "02622c3a1413ead332016ea33b2d3b56372cb95c8dd1d11992992fccd167f8bc",
+    "previousBytesPreservedAsPrefix": true,
+    "appendedBytes": 1583
+  }
+]

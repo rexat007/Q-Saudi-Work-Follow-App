@@ -1,0 +1,331 @@
+{
+  "base": "4685999f6c77b7911e5b90c2b307f8384568a241",
+  "sourceFiles": 2,
+  "testFiles": 2,
+  "documentationEvidenceFiles": 50,
+  "totalFiles": 54,
+  "files": [
+    {
+      "path": "docs/reconstruction/UI1_NAVIGATION_GATE_CORRECTION.md",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "0e75fbfa309823dd27ab9fe6ef3e6b0b54b8f5d7303ca0cd0cb10b56c8af59e1",
+      "expectedGitBlob": "a7b96d832e77151d1f8ec5d6532aeca9484b4ff3"
+    },
+    {
+      "path": "docs/reconstruction/UI1_TRIP_ENTRY_DISPATCH_CLARITY.md",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "5edbc1003cb84d54b6e6adef3c74bf02197934ed6bbc36c2c6b07952263effca",
+      "expectedGitBlob": "c39e5268bc0677e90eba33c738475dbef6d0f356"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/changed-file-inventory.json",
+      "selfReference": true
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/documentation-append-proof.json",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "52062c3b34acbf8d863996f7ed2d8c1b758e9de9610dfa36628ef8f315cd9ef4",
+      "expectedGitBlob": "30c945069dcfd1c3311460c04feba7b73b3ceb78"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/scan.json",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "3481f39e78c1b6f8dde38efe7a36b1e9025d4d83e9cca4847d2041681eeee188",
+      "expectedGitBlob": "575ed2479678502bb5d40a8d492ba4badfb3e662"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "f812f415e2e192ca93cb2d2e1c75bcacfe582eebc5de3e899dcb16124c758198",
+      "expectedGitBlob": "60651728479e4ef630c36552b8e5d5144c6d6f77"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-final-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "5f778efa74e7b85d10c13c7725f4531c2069837818b1dc7052fb4bc49e5b5632",
+      "expectedGitBlob": "1c1164de14d0e88217b76dd67833f2deaab39a78"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-final.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "24db08127e7f2c986c12e49740e7993125cd48c3dd1a06ff09d968bdd1fa9465",
+      "expectedGitBlob": "fdd561498ca73b8d837261749be213aa1a0d5bc9"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-final.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e4f43839f1b177079e7538ec80ff0e1518500fa1de15702a57ec015eebdb6263",
+      "expectedGitBlob": "3b4654c4b1ee6b99ce3119b733187963cc6b00e4"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-verified-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "b229c0ab026c5855e5b45bd058a4f2e9b752d8839fa2eabd96a754df5ae334a4",
+      "expectedGitBlob": "1619b43b72763cea465bdcdb8a9b3a109aab45af"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-verified.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "cbd7347133d7b5d7eb87300a4df825bc1e3c68447988d86ef02f5e7289c7c3dd",
+      "expectedGitBlob": "421dc10deec6ff5d16023dcc7c4b4e099aea4f2a"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate-verified.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e2c1fbb4c66411909c0cf96a1e1289db563b7047e4319dd3e22431225f009f83",
+      "expectedGitBlob": "a9b4db9e30d04d6b9c6128345d7da7e99db68c1c"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "1477fcb36884e509b146562812d18ef8504a8df972f1a6bdacecad3173004828",
+      "expectedGitBlob": "2fabba5d05a8af1cb356eb63a96db48dd4b02f3f"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-focused-gate.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "cbb4d81e9dd98222ca3491e14d5ae1361fe2179122fe04354c1f1bf7dc6f1833",
+      "expectedGitBlob": "d25ed5e7e7923f60e9179037af51cef28c6c6dc8"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-auth-failure-summary.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "6a73e1f1a72ca3c9b00ae3f9b5aeff5b95e3357d172fbbd4efea956356bba6b5",
+      "expectedGitBlob": "ce33950859815d6a3c712a8c0177777b99bfdce0"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-connected-browser-diagnostics.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0",
+      "expectedGitBlob": "28f621bd20386fee052f83ca126ffb0b4496575b"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-connected-browser-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "790d48dcff7c07788592c861d9e4e07e8e0c1cd53ec04732c472b7a86127cc15",
+      "expectedGitBlob": "750e126f8548ba7b0242d0f81be84fcf5d0728b5"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-connected-browser-reporter.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "cfbf7aafb88fa26fd251248135467304f03cfc13f1a85f7d555dcd8b1b0480da",
+      "expectedGitBlob": "ec20403c9321e4cef440704e85d124c3dca14207"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-connected-browser.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "3d0cdd65d87efcc4d38d5d0af9583d6a05d2633cd2764beb3e42aa90f533efaf",
+      "expectedGitBlob": "4849273c3c797825e30b1e30dcd080d171134e57"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-connected-browser.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "bc61cea6fbff8ba28bfbc9a4700144eb6063edc05ca192bf9f9a69d8f1c21c22",
+      "expectedGitBlob": "5f5777433d40061628c1f3611ed07367f80cb115"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-emulator-ownership.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "30457147d0f1c8d4f35ba6d0bbe6096d9991708645e2f578f81c094cf54e8674",
+      "expectedGitBlob": "8549ece46fa114aac7b6f83ad21a008733b87511"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-connected-run.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e875a40a1c0f66552a1d28e618977afbe651fc7d69d9986a7e68c35dbbf67e6b",
+      "expectedGitBlob": "470f46b4c4d7a97b46ef05dcec4ed9aa4f9b4cc1"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-consumption.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "294ee0d0b2e4afa90fe8f738a487b899e45221e9bdda256a627e5957a1ee1f70",
+      "expectedGitBlob": "1c834d038a52f5a6a18f3329c37abbe108f8a23e"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-consumption.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "de534b0a620bb2dfaa46206ffa0c738b0e6f4e8e254f48bc514eec4aa796ca50",
+      "expectedGitBlob": "64d14742595445f251d2a86e35387cdb8f3c529a"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-connected-browser-diagnostics.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "89c1c28467b64d9750a76496373b52872de793eda3ff23e434e6e9bf5c4d9f1a",
+      "expectedGitBlob": "89e093ff658d9c18fce6591c01b7e948d6cd1d40"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-connected-browser-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "1293723c4556093a12b46bcd67d92ebbde77b5a50ddbff229291b47e83c3c237",
+      "expectedGitBlob": "9e4154710ce64089dfc4f77bd641bb7abb55b024"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-connected-browser-reporter.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e9a2067efd83ef02a9faf813198bdd69ed967a75178dae9ff893fc539ebf1cb3",
+      "expectedGitBlob": "d9fa12bff473620cf14e174cbb9055b974a7f67e"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-connected-browser.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "7d2455a8c3c47a8e05dad9a1dfe385d83ce3ed86e64d1d17222b4b83a5c121f5",
+      "expectedGitBlob": "59e74ea8943402230173b4dd1b8a034870a4ba31"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-connected-browser.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "0ae0f718d01737bab366fb0a6848ece075b0fab451afa2ab0298a14db66e204f",
+      "expectedGitBlob": "fafac5c1e5cda19a1b270166fb7cb59d7feaf1f1"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-emulator-ownership.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e3d8cd3906229de62114aa61e39c4b461233be826a9669be46b4591c1c5cdf24",
+      "expectedGitBlob": "14a8df82093ce376c08b12defcbf91c351e13dfe"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-final-connected-run.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "226a03703c109f3c5c267baf9ccaaa36c3cb05b9f9837737fb9090cf656ebbc9",
+      "expectedGitBlob": "fedb38e514eaf6a5ae9fb6aded54d0fd4eaf0101"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-first-journey-results.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "0e52100f9ef8e201cda85a017cc27aafa475b5614e95f625bf4ecc0500bab59c",
+      "expectedGitBlob": "e20d8f43fdc21d0d815164b04a2dca8b6366b762"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-initial.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "5f3e6d2913ebc82f55d1a7575e2509a626f3ddba90b77e45d7b5cec0ef01623e",
+      "expectedGitBlob": "815c98704147be8424ca08788a189c2f9294a240"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-initial.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "a1c0c3da43646138e3e6a015e24ca1ddce366cb45b95f2b9d8dc73e8288df7c7",
+      "expectedGitBlob": "5ad8891ff75175550783f4d4b6992ca8e579ab29"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-prior-journey-preservation.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "6889279f3bab073a6037c6a43aa64643deaa30ad48b9ef2b70ea67a9ff11946e",
+      "expectedGitBlob": "9a2008ef23c5bccea4449c7509d17352ea39d40d"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-connected-browser-diagnostics.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "040c699f8978aa326519085a3f52798302c577af75b42607cfd8bf4096d77ca0",
+      "expectedGitBlob": "28f621bd20386fee052f83ca126ffb0b4496575b"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-connected-browser-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "790d48dcff7c07788592c861d9e4e07e8e0c1cd53ec04732c472b7a86127cc15",
+      "expectedGitBlob": "750e126f8548ba7b0242d0f81be84fcf5d0728b5"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-connected-browser-reporter.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "09cc5c3cecf4371d73abf7c2d6a20c6ab0853e20671d4b51888e51b36db9aa30",
+      "expectedGitBlob": "d4e91f8a4bde1ab32bab4ba48e5ba3ac329175fa"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-connected-browser.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "ccd026a94dc7de5012aaca5374219bb3f2babfed35e8993c10c829ca80595288",
+      "expectedGitBlob": "5f73714cda346e560fed53db9ba79285174f6ee0"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-connected-browser.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "a47225df33b8ee3fc83d11ddfe913561a5305a16a6afa34b6f528f35e21a8929",
+      "expectedGitBlob": "c499ed964259497c8dc7cb5aa868d10f09511124"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-emulator-ownership.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "4b13b8ae80185303310bf4d15459070ee26f006f885aec04c6d8f5b4d8aab039",
+      "expectedGitBlob": "8f8f2d0d48ec105c9975bec2107f7061a2677985"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-retry-connected-run.mjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "76e2400e60109decb327bab67c5a43a71aa28a5eb4b7b1cbffc53acc577498f7",
+      "expectedGitBlob": "7ce00769bb089e7145a2d11524c2f2571777f2be"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-gate-verify-run.cjs.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "d46c4775ce60b903db0cebb9a88e63d5de98234aa0c8e021e13300662c59e744",
+      "expectedGitBlob": "dc55ad1d51b7ac74b984c2392e9e27b6e2b79529"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-lint-gate-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "3b8319efe36b40a3b5de8794611f1e13e17c95c19d20a8e64222ace6b602ff7e",
+      "expectedGitBlob": "04da4be3eee14562b66bfb1ed3f012c1f5994f13"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-lint-gate.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "89761ab691bf6f3e890454cc3ccae1987b24d725e5eccc6ce75a43289cdd92fc",
+      "expectedGitBlob": "b1645476952353104015c4e83b44b5a52a5c1630"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-release-gate-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "11d5a43265331e9cd15cfa8056cf7e5a51f7698150452bf188423612f83e1e71",
+      "expectedGitBlob": "2c967ff01dc55848d9a95ff22d205476782da634"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-release-gate-final-exit.json.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "e9f227c922948b571558fc499e4e829cae1d50f1f4d33f7e8cc13bac90a5dd0b",
+      "expectedGitBlob": "4cc0bd5299e462b341b1e9e84515f0476c36e9e9"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-release-gate-final.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "02b6a9ab6032d1ebc330aa6b1b6f9452d990f9911147c19f39e6e917bc4b4a37",
+      "expectedGitBlob": "e55cc98966f1d410179ca70b63c0dedce16b38ec"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/ui1-release-gate.log.gz",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "82cc4cd492ed6f256645b51761351b0571ba5b7a98469ce320e672c425110714",
+      "expectedGitBlob": "27107ca863cb455bcaafa4a16763a0e017ba713c"
+    },
+    {
+      "path": "docs/reconstruction/ui1/navigation-gate-correction/verification.json",
+      "category": "documentationEvidence",
+      "sha256WorkingBytes": "58ac192d88951da2b1879ab339e109283186bb6581845d2104939cfebdfef5a9",
+      "expectedGitBlob": "371c8011f83bd912818b764fd63906b13ab09921"
+    },
+    {
+      "path": "src/App.tsx",
+      "category": "sourceOrTest",
+      "sha256WorkingBytes": "97842ae11fc4d89b7f6541e537796a7862a5d62e57d59bbf53d855801261a307",
+      "expectedGitBlob": "f32cea3b84723bc54bf30b5647244e7fe7adc76f"
+    },
+    {
+      "path": "src/components/wizard/ProjectSetupWizard.tsx",
+      "category": "sourceOrTest",
+      "sha256WorkingBytes": "2531dff195fcf82ef4180de26e6c8aee136bdc9dcd9a3c1541ffeee37fd075cc",
+      "expectedGitBlob": "63e4931bbdf045641864217433359128803ef143"
+    },
+    {
+      "path": "src/tests/convergence3Journey.test.ts",
+      "category": "sourceOrTest",
+      "sha256WorkingBytes": "67fa7883227fd38a626ef7cd9cab18498447fc6de2291ba68fc1df16f6de255a",
+      "expectedGitBlob": "3acbd2a05c70901b4e69f3b527f9a0c5b407dadb"
+    },
+    {
+      "path": "src/tests/ui1WizardEntryGate.test.tsx",
+      "category": "sourceOrTest",
+      "sha256WorkingBytes": "9467291b49b3e9e098f5b518a542cac887456de055a5ecd3d4e2fec682289252",
+      "expectedGitBlob": "57e15d7626bf2f2b9f4d86f632184be35cba63f3"
+    }
+  ]
+}

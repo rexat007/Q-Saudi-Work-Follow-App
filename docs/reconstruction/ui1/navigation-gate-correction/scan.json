@@ -1,0 +1,6 @@
+{
+  "scope": "All changed files including decompressed evidence",
+  "findings": [],
+  "sourceAndTests": 4,
+  "noAssertionWeakening": "Original two failing tests byte-identical to4685999; existing journey only adds assertions/actions. No skip/only/todo or type suppression added."
+}

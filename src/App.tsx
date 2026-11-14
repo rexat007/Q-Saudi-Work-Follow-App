@@ -1,3 +1,4 @@
+import {tripEntryTarget,newProjectEntryTarget} from './utils/tripEntryPresentation';
 import {ProfileContinuity} from './components/auth/ProfileContinuity';
 import {readWorkspaceContinuation} from './runtime/workspaceProvisioningResume';
 import {AdaptiveOperationalReports} from './components/reports/AdaptiveOperationalReports';
@@ -94,6 +95,7 @@ export default function App() {
 
   const [projects, setProjects] = useState<ProjectEntity[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [setupEntry, setSetupEntry] = useState<{projectId:string;actorId:string;layer:'ROSTER'}>();
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
@@ -124,6 +126,8 @@ export default function App() {
   const assignedProjectScopeKey = JSON.stringify([...new Set(userProfile?.assignedProjectIds || [])].sort());
 
   const inventoryScope = JSON.stringify([user?.uid, effectiveRole, assignedProjectScopeKey, profileAuthority, userProfile?.status]);
+  // A navigation request cannot survive a principal/authorization change while the Wizard is unmounted.
+  useEffect(() => { setSetupEntry(undefined); }, [inventoryScope]);
   const inventoryScopeRef = useRef(inventoryScope);
   inventoryScopeRef.current = inventoryScope;
   const inventoryGeneration = useRef(0);
@@ -570,9 +574,19 @@ export default function App() {
                     projects={projects}
                     selectedProjectId={selectedProjectId}
                     setSelectedProjectId={setSelectedProjectId}
-                    onNavigateToWizard={() => {
-                      setSelectedProjectId('');
-                      setActiveTab('WIZARD');
+                    onNavigateToWizard={newProjectEntryTarget(activeAuthContext)?() => {
+                      const target=newProjectEntryTarget(activeAuthContext);
+                      if(!target)return;
+                      setSetupEntry(undefined);
+                      setSelectedProjectId(target.projectId);
+                      setActiveTab(target.tab);
+                    }:undefined}
+                    onManageFleet={projectId => {
+                      const target = tripEntryTarget(activeAuthContext, projects.find(p=>p.projectId===projectId), 'FLEET');
+                      if(!target) return;
+                      setSelectedProjectId(target.projectId);
+                      setSetupEntry({projectId:target.projectId,actorId:activeAuthContext!.userId,layer:'ROSTER'});
+                      setActiveTab(target.tab);
                     }}
                     authContext={activeAuthContext}
                   />
@@ -583,6 +597,15 @@ export default function App() {
                   <ProjectSetupWizard 
                     projects={projects}
                     onProjectChanged={publishCanonicalProject}
+                    entryIntent={setupEntry}
+                    onEntryIntentConsumed={intent => setSetupEntry(current => current === intent ? undefined : current)}
+                    onOpenProjectOperations={projectId => {
+                      const target=tripEntryTarget(activeAuthContext,projects.find(p=>p.projectId===projectId),'OPERATIONS');
+                      if(!target)return;
+                      setSetupEntry(undefined);
+                      setSelectedProjectId(target.projectId);
+                      setActiveTab(target.tab);
+                    }}
                     authContext={activeAuthContext!}
                     selectedProjectId={selectedProjectId}
                     onSelectProject={(projId) => setSelectedProjectId(projId || '')}

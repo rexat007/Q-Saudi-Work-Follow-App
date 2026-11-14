@@ -1,0 +1,6 @@
+{
+  "file": "src/components/wizard/ProjectSetupWizard.tsx",
+  "beforeSha256": "43bae5a99aaa79df33e09685beb0d4e5880e2a83540a180dde0e619db0c1ebbd",
+  "afterSha256": "71283a2f3af20e23c6e11b89a5b4541dc8f6c737d2cbb21e7426944105b331f0",
+  "change": "Removed28 spaces on one otherwise empty line left by moving the Operations entry; exact equality after stripping line-end whitespace. No executable source, assertion, string or comment changes."
+}

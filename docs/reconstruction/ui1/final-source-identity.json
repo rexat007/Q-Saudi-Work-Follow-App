@@ -1,0 +1,27 @@
+{
+  "base": "653655d1e332559055d6928721026896320ab0ae",
+  "files": {
+    "src/App.tsx": "29cdfc4a02581cdf3c5e0e2ac35134e0ba64c743af4e7dd2020c00f0884c01a3",
+    "src/components/field/FieldOperationsView.tsx": "bf6b22f276dfb2c78c12be86a4b37b7e234b086155201f353ff8c0344f87bc98",
+    "src/components/field/AdaptiveOperationsView.tsx": "070fd7ecc0c637f34fe8e4b9bda09d16a318dbc3ecb649f9bf2a9ce09bbacadf",
+    "src/components/field/TripEntryNotice.tsx": "f17bacc61594d26614bacd5a34d1c3b41c82c3500b4072e985d1674347f8e695",
+    "src/components/wizard/ProjectSetupWizard.tsx": "71283a2f3af20e23c6e11b89a5b4541dc8f6c737d2cbb21e7426944105b331f0",
+    "src/components/wizard/OpenProjectOperations.tsx": "df9aabe64edb409572644a86e05504ac9d7ef2624727ebb48012a3680b41b32b",
+    "src/utils/tripEntryPresentation.ts": "9cd23ce3971ecb0473901ced5a9206531f81809114db5dea6c5eb9a822235e6c",
+    "src/locales/ar/index.ts": "7190051afd2d234bcb0074799e6e542d8af459263538c9ae6596df47a6ff2ae7",
+    "src/locales/en/index.ts": "1c3816436caeb6649a0a92ce3979e6709294d953e4a544572468c13359d4315c",
+    "src/locales/ur/index.ts": "ab0f7e2718675f2ba05c8d06c305ed732624ec62ba0786e192a73a80c3f3704f",
+    "src/tests/ui1TripEntry.test.tsx": "e8389b4cfa23741cdaf3cb17f05748a9c575c7574c2b666d414420111564dfd1",
+    "src/tests/ui1TripEntryBrowser.test.ts": "de81de7e022051dec9fff45edaec7a57ca0801c2114fdc77cf0fb9067e3aa7a2",
+    "src/tests/helpers/ui1BrowserEntry.tsx": "5aa7b0089c334e699daf1784941a24ed2d473a900077f36c0537667e2e26e9b0",
+    "src/tests/convergence3Journey.test.ts": "d61930fc7e9d918d3b35541966ac7ebe462f4211466755fa88f8071a8a12ad27",
+    "src/tests/operationalProfileUi.test.tsx": "de008c06e3acc1ea6eb063e17e7c4d8760792a8f1ef7fc26500ba2f29ede8d27"
+  },
+  "browserCss": [
+    {
+      "file": "index-D6jqq2mQ.css",
+      "sha256": "c688b687dc1ecb15ff2f9c624475e95769bb604b04e59c207b4e0017563cca93"
+    }
+  ],
+  "note": "Final production and fixture state after exact-label fix, explicit Project status, material label and consistent synthetic driver assignment; subsequent verification must match these bytes."
+}

@@ -1,0 +1,26 @@
+{
+  "CSV": {
+    "result": "PASS",
+    "reportTrips": 1002,
+    "projectId": "Q-PRJ-001",
+    "tripId": "TRP-c7391d2d-396d-4685-9ce3-3124c3a62801",
+    "import": "COMMITTED",
+    "status": "COMPLETED",
+    "totalAmountSAR": 273.13,
+    "eventsBefore": 9,
+    "postsBefore": 9,
+    "receiptLookups": 3
+  },
+  "EXCEL": {
+    "result": "PASS",
+    "reportTrips": 1,
+    "projectId": "Q-PRJ-002",
+    "tripId": "TRP-12bd158b-42e4-490a-9b4b-9fd6f8e79f54",
+    "import": "COMMITTED",
+    "status": "COMPLETED",
+    "totalAmountSAR": 273.13,
+    "eventsBefore": 9,
+    "postsBefore": 9,
+    "receiptLookups": 3
+  }
+}
