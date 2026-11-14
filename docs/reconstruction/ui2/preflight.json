@@ -1,0 +1,17 @@
+{
+  "main": "75f1ed8681ccb4f70baaf2e7aa1f6a821a29da7d",
+  "branch": "ui/ui2-trip-timeline-20261114",
+  "UI1Merged": true,
+  "U03Merged": true,
+  "mainCI": {
+    "runId": 43592792252,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43592792252"
+  },
+  "codeql": {
+    "runId": 43592791931,
+    "conclusion": "success"
+  },
+  "scope": "Adaptive operational presentation, new pure UI model/timeline/actions, AR/EN/UR dictionaries, focused/native-browser tests and evidence. Existing Trip engine, policies, durable commands, legacy stations, SQL/U09/RB4 unchanged."
+}
