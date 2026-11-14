@@ -10,12 +10,13 @@ import {durableTripCommand,pendingTripOperations,recoverTripOperation} from '../
 import {outboxService} from '../../services/offline/outbox.service';
 import type {OutboxOperation} from '../../types/offline';
 import {canExecuteTripCommand,type TripCommandName} from '../../types/tripCommands';
-import {profileTransitionAllowed,resolveOperationalWeights,resolveRequiredTripFields} from '../../services/operationalProfileResolver';
+import {resolveRequiredTripFields} from '../../services/operationalProfileResolver';
 import {profileTripRow} from '../../services/operationalReporting';
 import {tripCommandErrorKey} from '../../i18n/tripCommandErrors';
 import {fleetEntryBlocker,tripEntryTarget} from '../../utils/tripEntryPresentation';
 import {TripEntryNotice,tripEntryControl,tripEntryAction} from './TripEntryNotice';
 import {useI18n} from '../../i18n';
+import {OperationalTripActions} from './OperationalTripActions';
 
 type Props={project:ProjectEntity;authContext:AuthUserContext;onManageRoster?:()=>void};
 type ReadState='LOADING'|'READY'|'ERROR'|'DENIED';
@@ -48,7 +49,7 @@ function TripEntryWorkspace({project,authContext,onManageRoster}:Props){
   void canonicalProjectRead<ProjectFleetReadModelResponse>(project.projectId,'fleet-read-model').then(data=>{if(!active)return;if(data.projectId!==project.projectId||!Array.isArray(data.rows))throw Error('INVALID_FLEET_READ');setFleet(data);setFleetState('READY');}).catch(e=>{if(active){setFleet(null);setFleetState(classify(e));}});
   const loadPricing=async()=>{const generation=++pricingRead;setPricingState('LOADING');try{const data=await pricingRuleRepository.listByProject(project.projectId);if(active&&generation===pricingRead){setRules(data);setPricingState('READY');}}catch(e){if(active&&generation===pricingRead){setRules([]);setPricingState(classify(e));}}};
   void loadPricing();window.addEventListener('pricing-rules-updated',loadPricing);
-  const unsubTrips=tripRepository.subscribeByProject(project.projectId,data=>{if(active){setTrips(data);setTripState('READY');}},()=>{if(active)setTripState('ERROR');});
+  const unsubTrips=tripRepository.subscribeByProject(project.projectId,data=>{if(active){setTrips(old=>data.filter(value=>value.projectId===project.projectId).map(value=>{const prior=old.find(v=>v.tripId===value.tripId);return prior&&(prior.version??0)>(value.version??0)?prior:value;}));setTripState('READY');}},()=>{if(active)setTripState('ERROR');});
   return()=>{active=false;read++;pricingRead++;stopOutbox();unsubTrips();window.removeEventListener('pricing-rules-updated',loadPricing);};
  },[project.projectId,authContext.userId,revision]);
  const required=project.operationalConfiguration?resolveRequiredTripFields(project.operationalConfiguration):null;
@@ -81,6 +82,7 @@ function TripEntryWorkspace({project,authContext,onManageRoster}:Props){
   try{const result=await recoverTripOperation(operation,authContext.userId);if(alive.current)applyTrip(result.trip,result.operationId,operation.payload.command==='DISPATCH_TRIP');}
   catch(e){if(alive.current)setError(explain(e));}finally{if(alive.current){await refreshPending.current();if(alive.current)setBusy(false);}submitting.current=false;}
  }
+ let delayStatus='UNKNOWN';try{if(trip)delayStatus=String(profileTripRow(trip).delayStatus);}catch{/* Invalid canonical facts are explained by the action panel; never synthesize metrics. */}
  const canManage=Boolean(onManageRoster&&tripEntryTarget(authContext,project,'FLEET'));
  return <section dir={direction} className="min-w-0 space-y-5 rounded-2xl border border-stone-700 bg-stone-950 p-4 sm:p-6 text-stone-100 leading-relaxed" aria-label={t('ui1.title')}>
   <header className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl font-bold">{t('ui1.title')}</h2><p className="text-sm text-stone-300">{project.nameAr} · {t('ui1.help')}</p><p className="text-sm text-stone-300">{t('rb2.project_status')}: {project.status==='ACTIVE'?t('setup.status.ACTIVE'):<bdi dir="ltr">{project.status}</bdi>}</p></div>
@@ -100,26 +102,10 @@ function TripEntryWorkspace({project,authContext,onManageRoster}:Props){
   <section id="ui1-current-trip" tabIndex={-1} aria-labelledby="ui1-follow-title" className="space-y-4 rounded-xl border border-stone-700 p-4 focus-visible:ring-2 focus-visible:ring-emerald-400"><h3 id="ui1-follow-title" className="text-lg font-bold">{t('ui1.follow_trip')}</h3><p className="text-sm text-stone-300">{t('ui1.follow_help')}</p>
    {tripState==='LOADING'?<TripEntryNotice>{t('ui1.trips_loading')}</TripEntryNotice>:tripState==='ERROR'?<TripEntryNotice tone="error">{t('ui1.trips_error')} <button className={tripEntryAction} type="button" onClick={()=>setRevision(v=>v+1)}>{t('ui1.reload')}</button></TripEntryNotice>:!trips.filter(r=>r.operationalSnapshot).length&&<TripEntryNotice>{t('ui1.trips_empty')}</TripEntryNotice>}
    <div className="block space-y-2"><label htmlFor="ui1-trip"><span>{t('op.trip')}</span></label><select id="ui1-trip" className={tripEntryControl} value={selected} disabled={busy||tripState!=='READY'} onChange={e=>setSelected(e.target.value)}><option value="">{t('op.choose')}</option>{trips.filter(r=>r.operationalSnapshot&&(authContext.role!=='DRIVER'||r.driverId===authContext.linkedDriverId)).map(r=><option key={r.tripId} value={r.tripId}>{r.tripNumber||`${t('ui1.canonical_id')}: ${r.tripId}`} · {r.truckSnapshot?.plateNumberAr||t('ui1.name_unavailable')} · {t(`op.${r.status}`)}</option>)}</select></div>
-   {trip&&<><p>{t('ui1.current_status')}: <strong>{t(`op.${trip.status}`)}</strong> · {t('op.driver')}: {trip.driverSnapshot?.fullNameAr||t('op.driver_unknown')}</p><p>{t('op.delayStatus')}: {t(`op.${String(profileTripRow(trip).delayStatus)}`)}</p><OperationalTripActions key={trip.tripId} trip={trip} roles={[authContext.role]} busy={busy||pendingState!=='READY'||pendingOperations.length>0} draft={pendingOperations.find(op=>op.payload.tripId===trip.tripId)} onCommand={(name,payload)=>command(name,payload,trip.tripId)}/></>}
+   {trip&&<><p>{t('ui1.current_status')}: <strong>{t(`op.${trip.status}`)}</strong> · {t('op.driver')}: {trip.driverSnapshot?.fullNameAr||t('op.driver_unknown')}</p><p>{t('op.delayStatus')}: {t(`op.${delayStatus}`)}</p><OperationalTripActions key={trip.tripId} trip={trip} roles={[authContext.role]} busy={busy||tripState!=='READY'||project.status!=='ACTIVE'||pendingState!=='READY'||pendingOperations.length>0} driverOptions={fleetState==='READY'?Array.from(new Map((fleet?.rows||[]).filter(r=>r.projectId===project.projectId&&r.truckId===trip.truckId&&r.carrierId===trip.carrierId&&r.driverId).map(r=>[r.driverId!,{id:r.driverId!,name:r.driverName||''}])).values()):[]} draft={pendingOperations.find(op=>op.payload.tripId===trip.tripId)} onCommand={(name,payload)=>command(name,payload,trip.tripId)}/></>}
   </section>
  </section>;
 }
 
-export interface OperationalTripActionView {tripId:string;revision?:number;status:string;driverId?:string|null;weights:{originNetKg?:number|string|null;destinationNetKg?:number|string|null};financials:{isFinalized:boolean};operationalSnapshot?:import('../../types/operationalProfile').TripOperationalSnapshot|null;operationalTimeline?:import('../../types/operationalProfile').OperationalTimeline}
-/** Existing operational controls, pure presentation. Neither data provider nor backend selection lives here. */
-export function OperationalTripActions({trip,roles,busy,onCommand,draft}:{trip:OperationalTripActionView;roles:readonly string[];busy:boolean;draft?:OutboxOperation;onCommand:(name:TripCommandName,payload:Record<string,unknown>)=>Promise<unknown>}){
- const {t}=useI18n(),[tare,setTare]=useState(''),[gross,setGross]=useState(''),[ticket,setTicket]=useState(''),[driver,setDriver]=useState('');
- useEffect(()=>{if(!draft)return;const data=draft.payload.payload||{};setTare(String(data.originTareKg??data.destinationTareKg??''));setGross(String(data.originGrossKg??data.destinationGrossKg??''));setTicket(String(data.originTicketNo??data.destinationTicketNo??''));},[draft?.operationId]);
- if(!trip.operationalSnapshot)return null;
- const can=(name:TripCommandName)=>roles.some(role=>canExecuteTripCommand(role as import('../../types/common').UserRole,name));
- const command=async(name:TripCommandName,payload:Record<string,unknown>={},_id?:string)=>{const result=await onCommand(name,payload);if(result!==undefined){setTare('');setGross('');setTicket('');}return result;};
- const candidates: Array<[TripCommandName,string]>=[['ARRIVE_ORIGIN','AT_ORIGIN'],['START_LOADING','LOADING'],['RECORD_ORIGIN_WEIGHT','WEIGHED_ORIGIN'],['START_TRANSIT','IN_TRANSIT'],['RECORD_ARRIVAL','AT_DESTINATION'],['RECORD_DESTINATION_WEIGHT','WEIGHED_DESTINATION'],['COMPLETE_UNLOADING','OFFLOADED'],['COMPLETE_TRIP','COMPLETED']];
- const weights=trip?resolveOperationalWeights(trip.operationalSnapshot!.configuration,{loadingMeasuredWeight:trip.weights.originNetKg==null?null:Number(trip.weights.originNetKg)/1000,unloadingMeasuredWeight:trip.weights.destinationNetKg==null?null:Number(trip.weights.destinationNetKg)/1000,estimatedCapacityTonnes:trip.operationalSnapshot!.estimatedCapacityTonnes}):null;
- const allowed=candidates.filter(([commandName,status])=>trip&&can(commandName)&&profileTransitionAllowed(trip.status,status,trip.operationalSnapshot!,trip.operationalTimeline||{},weights!));
- const measurement=allowed.some(([c])=>c==='RECORD_ORIGIN_WEIGHT'||c==='RECORD_DESTINATION_WEIGHT');
- return <div className="space-y-4"> {measurement&&<div className="grid gap-3 sm:grid-cols-3">{[['tare',tare,setTare],['gross',gross,setGross],['ticket',ticket,setTicket]].map(([key,value,setter])=><label key={key as string}>{t(`op.${key}`)}<input className={tripEntryControl} disabled={busy} type={key==='ticket'?'text':'number'} min="0" value={value as string} onChange={e=>(setter as (v:string)=>void)(e.target.value)}/></label>)}</div>}
- <div className="flex flex-wrap gap-3">{allowed.map(([name])=><button className={tripEntryAction} data-trip-command={name} type="button" key={name} disabled={busy||(name.includes('WEIGHT')&&(!tare||!gross||Number(gross)<=Number(tare)))} onClick={()=>void command(name,name==='RECORD_ORIGIN_WEIGHT'?{originTareKg:Number(tare),originGrossKg:Number(gross),originTicketNo:ticket}:name==='RECORD_DESTINATION_WEIGHT'?{destinationTareKg:Number(tare),destinationGrossKg:Number(gross),destinationTicketNo:ticket}:{},trip.tripId)}>{t(`op.${name}`)}</button>)}
- {can('COMPLETE_LOADING')&&trip.status==='LOADING'&&!trip.operationalTimeline?.loadingCompletedAt&&<button className={tripEntryAction} type="button" disabled={busy} onClick={()=>void command('COMPLETE_LOADING',{},trip.tripId)}>{t('op.COMPLETE_LOADING')}</button>}
- {can('START_UNLOADING')&&['AT_DESTINATION','WEIGHED_DESTINATION'].includes(trip.status)&&!trip.operationalTimeline?.unloadingStartedAt&&<button className={tripEntryAction} type="button" disabled={busy} onClick={()=>void command('START_UNLOADING',{},trip.tripId)}>{t('op.START_UNLOADING')}</button>}</div>
- {!trip.driverId&&!trip.financials.isFinalized&&can('ASSOCIATE_DRIVER')&&<div><label>{t('op.associate_help')}<input className={tripEntryControl} value={driver} onChange={e=>setDriver(e.target.value)}/></label><button className={tripEntryAction} type="button" disabled={busy||!driver} onClick={()=>void command('ASSOCIATE_DRIVER',{driverId:driver},trip.tripId)}>{t('op.ASSOCIATE_DRIVER')}</button></div>} </div>;
-}
+export {OperationalTripActions} from './OperationalTripActions';
+export type {OperationalTripActionView} from './OperationalTripActions';

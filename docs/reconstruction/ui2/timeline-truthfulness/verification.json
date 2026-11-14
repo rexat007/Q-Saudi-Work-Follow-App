@@ -1,0 +1,82 @@
+{
+  "base": "574930536cceefe808716e4441ee9381684d07bc",
+  "branch": "ui/ui2-trip-timeline-20261114",
+  "rootCause": "Origin current-status mapping included DISPATCHED. Current-stage selection took priority over next-action eligibility and falsely located a newly dispatched Trip at origin.",
+  "correction": "Remove only DISPATCHED from Origin status mapping; AT_ORIGIN confirmation and all recorded checkpoint/eligibility logic remain unchanged.",
+  "source": [
+    {
+      "path": "src/utils/tripTimelinePresentation.ts",
+      "sha256": "412dad468133b6dd1dc5649c4ec92b2c8ddde586932f2c225a006c3dcbfd630e",
+      "gitBlob": "16c65700d089a67fcb5d082360012b4caca5557e"
+    },
+    {
+      "path": "src/tests/ui2TripTimeline.test.tsx",
+      "sha256": "dc3770ddb5ba30da9c8c26253ba87939e1d832c3b30e1f403fb254e98e601156",
+      "gitBlob": "0aa169e8fa1215b05f333dc8cff9b32d17b4ae31"
+    }
+  ],
+  "newRegressionCases": 23,
+  "before": {
+    "passed": 67,
+    "failed": 9,
+    "allOriginal53CasesPreserved": true
+  },
+  "focused": {
+    "files": 8,
+    "passed": 212,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "ui2TimelineCases": 76,
+    "ui2WorkspaceCases": 8,
+    "nativeExit": 0
+  },
+  "profiles": [
+    "DUAL_WEIGHBRIDGE",
+    "LOADING_SCALE_ONLY",
+    "UNLOADING_SCALE_ONLY",
+    "NO_WEIGHBRIDGE"
+  ],
+  "truthfulness": {
+    "dispatchedOriginNeverCurrentOrConfirmedWithoutEvidence": true,
+    "dispatchRemainsConfirmed": true,
+    "originNextOnlyWithEligibleArriveOrigin": true,
+    "directTransitPreservedForUnloadingScaleOnlyAndNoWeighbridge": true,
+    "optionalBypassedCheckpointsRemainNotRecorded": true,
+    "atOriginConfirmationUnchanged": true,
+    "completedCurrentPendingSemanticsRetained": true,
+    "noFabricatedTimestamp": true
+  },
+  "typecheck": {
+    "command": "npm run lint",
+    "nativeExit": 0,
+    "diagnostics": 0
+  },
+  "build": {
+    "command": "npm run build",
+    "nativeExit": 0,
+    "clientPWA": "PASS",
+    "server": "PASS"
+  },
+  "preservation": {
+    "otherWorktrees": 17,
+    "headsAndDirtyStatusesMatchBefore": true,
+    "rb4OriginalNineHashesAndDiffMatchApprovedBaseline": true,
+    "migration013Preserved": true,
+    "UI1U03CommandsPermissionsFinancialsOutboxSQLMigrationsUnchanged": true,
+    "existing53TimelineTestsRetainedByteForByte": true,
+    "newDependenciesOrTestSkips": false
+  },
+  "historicalEvidence": "Original UI2 evidence/inventory applies to5749305. Its two broader inherited failures remain historical debt; broader historical/native-browser/connected/release suites were not rerun for this one-line mapping correction. Required focused UI2/affected eight-file family, TypeScript and build were run.",
+  "changedFiles": [
+    "docs/reconstruction/UI2_TRIP_TIMELINE_FIELD_OPERATIONS.md",
+    "docs/reconstruction/ui2/timeline-truthfulness/before.json.gz",
+    "docs/reconstruction/ui2/timeline-truthfulness/focused.json.gz",
+    "docs/reconstruction/ui2/timeline-truthfulness/lint-build.log.gz",
+    "docs/reconstruction/ui2/timeline-truthfulness/verification.json",
+    "src/tests/ui2TripTimeline.test.tsx",
+    "src/utils/tripTimelinePresentation.ts"
+  ],
+  "decision": "GO_FOR_LOCAL_CORRECTIVE_REVIEW_ONLY",
+  "publication": "One local corrective commit; no push, PR, merge, deployment or UI3."
+}

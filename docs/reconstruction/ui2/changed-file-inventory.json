@@ -1,0 +1,106 @@
+{
+  "sourceTestFiles": [
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "sha256": "844133d7d0be259fb50a0c5066611bd19f4dbf2a1502e870255ec7c9a2f0114a",
+      "gitBlob": "856c73a541c1ae5e6f00fe8b620c0f781ba20df3"
+    },
+    {
+      "path": "src/components/field/OperationalTripActions.tsx",
+      "sha256": "4c3474d841dcfaeccce0a0b5a0cd7dd1527f77e24a352fa73a0ba46f4d6622b3",
+      "gitBlob": "bb5030d7986de6716cc88f6c03fd79913cfd8def"
+    },
+    {
+      "path": "src/components/field/TripTimeline.tsx",
+      "sha256": "015136bb7f66e60424e67d6330a619ec21e1b80c4e71f4da28d550cb5d8cc52b",
+      "gitBlob": "00a5c2ed59829352fd8ca61147882023470053fe"
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "sha256": "4f4e04def45f296e1ad47674b86c75fa3c2404d234dc818fdb63311f6626c1e7",
+      "gitBlob": "4457730fb32ccb22c1385da567f5c5f9d0d06635"
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "sha256": "172f601b37503a1ee9abcde04e3b2399cc961636a0ea518affc1bf05f7529524",
+      "gitBlob": "a729e20ebd609790bcfb1e311b9fbee8c832f825"
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "sha256": "74b635054f0ba851a12b1fba5ba701963366ed545775d890bfd8e92dcf758a2d",
+      "gitBlob": "869d20100aec480ea09ef93cbc29898560695358"
+    },
+    {
+      "path": "src/tests/helpers/ui2BrowserEntry.tsx",
+      "sha256": "545540e675c0ae5751f1ae5b6e9ed16ee142b0de2fb4328697a464563bc840be",
+      "gitBlob": "27aa46f2dd6420f00c05a7df5c9da5303ddab9ae"
+    },
+    {
+      "path": "src/tests/ui2TripTimeline.test.tsx",
+      "sha256": "e34670595bb905d4188db5d433c2349c2406b5b3fa2420e72af2a6af85dacc88",
+      "gitBlob": "7e17b7ecb644db90df7a2a1f83848136572a921b"
+    },
+    {
+      "path": "src/tests/ui2TripTimelineBrowser.test.ts",
+      "sha256": "281b19596a23b67273a10ce036c60b8306ce24d2d41875742c5949d979c7dc71",
+      "gitBlob": "3059530e3c60411d7d94b2b7756be187e52d5b23"
+    },
+    {
+      "path": "src/tests/ui2TripWorkspace.test.tsx",
+      "sha256": "1a791abbfe49f6d231b0db7a1d052d15f913d5d9f58846b5466ccf2fb17080a9",
+      "gitBlob": "69bab4361ade4315c85e0c2aeedaf1e61f6d4f50"
+    },
+    {
+      "path": "src/utils/tripTimelinePresentation.ts",
+      "sha256": "4107c04389e3c2ea1bdcdffc85570575132110c8b4251a079ce7ef18088f698c",
+      "gitBlob": "01508fda0573415074dcb2b799f0be9a66da233a"
+    }
+  ],
+  "productionFiles": 7,
+  "testFixtureFiles": 4,
+  "documentationEvidenceFiles": [
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/UI2_TRIP_TIMELINE_FIELD_OPERATIONS.md",
+    "docs/reconstruction/ui2/affected-family.json.gz",
+    "docs/reconstruction/ui2/ar-390-DUAL_WEIGHBRIDGE.png",
+    "docs/reconstruction/ui2/changed-file-inventory.json",
+    "docs/reconstruction/ui2/connected-first-attempt.json.gz",
+    "docs/reconstruction/ui2/connected-journeys.json.gz",
+    "docs/reconstruction/ui2/en-1440-NO_WEIGHBRIDGE.png",
+    "docs/reconstruction/ui2/focused-native.json.gz",
+    "docs/reconstruction/ui2/matched-baseline.json.gz",
+    "docs/reconstruction/ui2/npm-test.log.gz",
+    "docs/reconstruction/ui2/preflight.json",
+    "docs/reconstruction/ui2/release.log.gz",
+    "docs/reconstruction/ui2/ur-768-UNLOADING_SCALE_ONLY.png",
+    "docs/reconstruction/ui2/verification.json"
+  ],
+  "changedFiles": [
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/UI2_TRIP_TIMELINE_FIELD_OPERATIONS.md",
+    "docs/reconstruction/ui2/affected-family.json.gz",
+    "docs/reconstruction/ui2/ar-390-DUAL_WEIGHBRIDGE.png",
+    "docs/reconstruction/ui2/changed-file-inventory.json",
+    "docs/reconstruction/ui2/connected-first-attempt.json.gz",
+    "docs/reconstruction/ui2/connected-journeys.json.gz",
+    "docs/reconstruction/ui2/en-1440-NO_WEIGHBRIDGE.png",
+    "docs/reconstruction/ui2/focused-native.json.gz",
+    "docs/reconstruction/ui2/matched-baseline.json.gz",
+    "docs/reconstruction/ui2/npm-test.log.gz",
+    "docs/reconstruction/ui2/preflight.json",
+    "docs/reconstruction/ui2/release.log.gz",
+    "docs/reconstruction/ui2/ur-768-UNLOADING_SCALE_ONLY.png",
+    "docs/reconstruction/ui2/verification.json",
+    "src/components/field/AdaptiveOperationsView.tsx",
+    "src/components/field/OperationalTripActions.tsx",
+    "src/components/field/TripTimeline.tsx",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/tests/helpers/ui2BrowserEntry.tsx",
+    "src/tests/ui2TripTimeline.test.tsx",
+    "src/tests/ui2TripTimelineBrowser.test.ts",
+    "src/tests/ui2TripWorkspace.test.tsx",
+    "src/utils/tripTimelinePresentation.ts"
+  ]
+}

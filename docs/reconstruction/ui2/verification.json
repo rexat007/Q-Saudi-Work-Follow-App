@@ -1,0 +1,317 @@
+{
+  "startingMain": "75f1ed8681ccb4f70baaf2e7aa1f6a821a29da7d",
+  "branch": "ui/ui2-trip-timeline-20261114",
+  "decision": "UI2_SOURCE_IMPLEMENTED_GO_FOR_LOCAL_REVIEW_ONLY",
+  "productionFiles": 7,
+  "testFixtureFiles": 4,
+  "source": [
+    {
+      "path": "src/components/field/AdaptiveOperationsView.tsx",
+      "sha256": "844133d7d0be259fb50a0c5066611bd19f4dbf2a1502e870255ec7c9a2f0114a",
+      "gitBlob": "856c73a541c1ae5e6f00fe8b620c0f781ba20df3"
+    },
+    {
+      "path": "src/components/field/OperationalTripActions.tsx",
+      "sha256": "4c3474d841dcfaeccce0a0b5a0cd7dd1527f77e24a352fa73a0ba46f4d6622b3",
+      "gitBlob": "bb5030d7986de6716cc88f6c03fd79913cfd8def"
+    },
+    {
+      "path": "src/components/field/TripTimeline.tsx",
+      "sha256": "015136bb7f66e60424e67d6330a619ec21e1b80c4e71f4da28d550cb5d8cc52b",
+      "gitBlob": "00a5c2ed59829352fd8ca61147882023470053fe"
+    },
+    {
+      "path": "src/locales/ar/index.ts",
+      "sha256": "4f4e04def45f296e1ad47674b86c75fa3c2404d234dc818fdb63311f6626c1e7",
+      "gitBlob": "4457730fb32ccb22c1385da567f5c5f9d0d06635"
+    },
+    {
+      "path": "src/locales/en/index.ts",
+      "sha256": "172f601b37503a1ee9abcde04e3b2399cc961636a0ea518affc1bf05f7529524",
+      "gitBlob": "a729e20ebd609790bcfb1e311b9fbee8c832f825"
+    },
+    {
+      "path": "src/locales/ur/index.ts",
+      "sha256": "74b635054f0ba851a12b1fba5ba701963366ed545775d890bfd8e92dcf758a2d",
+      "gitBlob": "869d20100aec480ea09ef93cbc29898560695358"
+    },
+    {
+      "path": "src/tests/helpers/ui2BrowserEntry.tsx",
+      "sha256": "545540e675c0ae5751f1ae5b6e9ed16ee142b0de2fb4328697a464563bc840be",
+      "gitBlob": "27aa46f2dd6420f00c05a7df5c9da5303ddab9ae"
+    },
+    {
+      "path": "src/tests/ui2TripTimeline.test.tsx",
+      "sha256": "e34670595bb905d4188db5d433c2349c2406b5b3fa2420e72af2a6af85dacc88",
+      "gitBlob": "7e17b7ecb644db90df7a2a1f83848136572a921b"
+    },
+    {
+      "path": "src/tests/ui2TripTimelineBrowser.test.ts",
+      "sha256": "281b19596a23b67273a10ce036c60b8306ce24d2d41875742c5949d979c7dc71",
+      "gitBlob": "3059530e3c60411d7d94b2b7756be187e52d5b23"
+    },
+    {
+      "path": "src/tests/ui2TripWorkspace.test.tsx",
+      "sha256": "1a791abbfe49f6d231b0db7a1d052d15f913d5d9f58846b5466ccf2fb17080a9",
+      "gitBlob": "69bab4361ade4315c85e0c2aeedaf1e61f6d4f50"
+    },
+    {
+      "path": "src/utils/tripTimelinePresentation.ts",
+      "sha256": "4107c04389e3c2ea1bdcdffc85570575132110c8b4251a079ce7ef18088f698c",
+      "gitBlob": "01508fda0573415074dcb2b799f0be9a66da233a"
+    }
+  ],
+  "focusedAndNativeBrowser": {
+    "total": 207,
+    "passed": 207,
+    "failed": 0,
+    "skipped": 0,
+    "focused": 189,
+    "browser": 18,
+    "newUI2Unit": 61,
+    "newUI2Browser": 9,
+    "ui1BrowserPreserved": 9
+  },
+  "profileMatrix": {
+    "DUAL_WEIGHBRIDGE": [
+      "origin",
+      "destination"
+    ],
+    "LOADING_SCALE_ONLY": [
+      "origin"
+    ],
+    "UNLOADING_SCALE_ONLY": [
+      "destination"
+    ],
+    "NO_WEIGHBRIDGE": []
+  },
+  "driverModes": [
+    "PRELOADED_ROSTER",
+    "ON_FIRST_OPERATION",
+    "MIXED"
+  ],
+  "nativeBrowser": {
+    "engine": "Microsoft Edge / Playwright",
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "widths": [
+      390,
+      768,
+      1440
+    ],
+    "profileViewportContexts": 36,
+    "screenshots": 36,
+    "screenshotsCommitted": 3,
+    "keyboard": true,
+    "noHorizontalOverflow": true,
+    "unhandledPageErrors": 0,
+    "realDevice": "NOT_PERFORMED",
+    "screenReader": "NOT_PERFORMED",
+    "fixtures": "Synthetic presentation only; authenticated real Firestore/Auth/HTTP journeys verified separately."
+  },
+  "connectedJourneys": {
+    "passed": 2,
+    "failed": 0,
+    "formats": [
+      "CSV",
+      "EXCEL"
+    ],
+    "emulatorProject": "demo-convergence2",
+    "nativeExit": 0,
+    "cleanup": {
+      "status": 0,
+      "cleanupErrors": [],
+      "remainingListeners": [],
+      "node": "v22.22.0",
+      "emulatorProject": "demo-convergence2"
+    },
+    "diagnostics": {
+      "reason": "passed",
+      "exitCodeAtRunEnd": 0,
+      "unhandledErrors": [],
+      "observedProcessExitCode": 0,
+      "finalUnhandledErrors": []
+    },
+    "sourceHarnessUnchanged": true,
+    "evidenceIsolation": "Separate runner cwd with junctions to actual UI2 source; original accepted UI1 journey outputs untouched.",
+    "firstAttempt": {
+      "failed": 2,
+      "rootCause": "New driver section aria-label contained the trip selector label, causing unchanged partial getByLabel to match two elements. Fixed section accessible name to the existing specific driver label; historical assertions unchanged. Second attempt passed."
+    }
+  },
+  "releaseGate": {
+    "command": "npm run verify:beta2",
+    "nativeExit": 0,
+    "typescriptDiagnostics": 0,
+    "lint": "PASS",
+    "clientPWABuild": "PASS",
+    "serverBuild": "PASS",
+    "reportsPassed": 19,
+    "releasePassed": 443,
+    "skipped": 0
+  },
+  "npmTest": {
+    "command": "npm test",
+    "nativeExit": 0,
+    "passed": 546,
+    "invocations": 48,
+    "failed": 0,
+    "skipped": 0
+  },
+  "historicalComparison": {
+    "baselineTree": "e1bfda50404bfc90737663d0047c2973e9bcf455",
+    "baselineWorktreeCommit": "018a593e2d027dddc860799b996ffb2f323abeb8",
+    "baselinePassed": 26,
+    "baselineFailed": 2,
+    "candidatePassed": 286,
+    "candidateFailed": 2,
+    "newFailures": 0,
+    "failureIdentities": [
+      {
+        "file": "operationalMessages.test.ts",
+        "identity": "Batch-2 operational message presentation adapter keeps the registry unique and grounded in current service literals/templates",
+        "error": "AssertionError: operations.service.state.pricing_unregistered: expected false to be true // Object.is equality"
+      },
+      {
+        "file": "projectSetupLayeredWorkflow.test.tsx",
+        "identity": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode",
+        "error": "AssertionError: expected \"updateProject\" to be called with arguments: [ 'PRJ-RYD-101', …(2) ]"
+      }
+    ],
+    "historicalTestAssertionsUnchanged": true
+  },
+  "preservation": {
+    "otherWorktrees": 17,
+    "headsAndDirtyStatusesUnchanged": true,
+    "originalRB4NineFileHashesAndDiffMatch": true,
+    "originalRB4Migration013Sha256": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+    "migrations": [
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/001_canonical_schema.sql",
+        "gitBlob": "e857aa069d6e76d9cc88d53e0948f982833bd01e"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/002_roles_and_rls.sql",
+        "gitBlob": "f16c715308d19764198ba2b7fe780d431d1fb34e"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "gitBlob": "b3905ec78540fdf2a4aaa7be926dd0026179dcbf"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "gitBlob": "73fb813544962a5fe7fe3be8c3f75bc127a02c8c"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "gitBlob": "1081f756171b87defd5ff396afaf344357ee7ccd"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "gitBlob": "55ad95315a7a0968570f8181920baba88285b8af"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/007_durable_import_execution.sql",
+        "gitBlob": "3fd7a8e7c0f7203a2b35dadb4736f1fa1c91ed82"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "gitBlob": "6da8a694c6cf0a3ac23ef3b76de4851224543675"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "gitBlob": "47b474077daceae6317e982e034ed68e129039a3"
+      },
+      {
+        "workspace": "UI2-main",
+        "file": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "gitBlob": "69cbee41b042ecbb9d5500cf79e9af3a5b21d22e"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/001_canonical_schema.sql",
+        "gitBlob": "e857aa069d6e76d9cc88d53e0948f982833bd01e"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/002_roles_and_rls.sql",
+        "gitBlob": "f16c715308d19764198ba2b7fe780d431d1fb34e"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "gitBlob": "b3905ec78540fdf2a4aaa7be926dd0026179dcbf"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "gitBlob": "73fb813544962a5fe7fe3be8c3f75bc127a02c8c"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "gitBlob": "1081f756171b87defd5ff396afaf344357ee7ccd"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "gitBlob": "55ad95315a7a0968570f8181920baba88285b8af"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/007_durable_import_execution.sql",
+        "gitBlob": "3fd7a8e7c0f7203a2b35dadb4736f1fa1c91ed82"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "gitBlob": "6da8a694c6cf0a3ac23ef3b76de4851224543675"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "gitBlob": "47b474077daceae6317e982e034ed68e129039a3"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "gitBlob": "69cbee41b042ecbb9d5500cf79e9af3a5b21d22e"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/011_runtime_composition_readiness.sql",
+        "gitBlob": "81229298d8cc4ff77f4371724a901897dfa7f5a2"
+      },
+      {
+        "workspace": "original-U09",
+        "file": "src/db/migrations/012_project_account_governance.sql",
+        "gitBlob": "7db1a45a46a8ca86874bfc6065269ea93fbca0f6"
+      }
+    ],
+    "legacyStationsDriverSupervisionUnchanged": true,
+    "tripCommandsPolicyEngineOutboxUnchanged": true,
+    "noNewProviderOrBusinessAuthority": true,
+    "packageConfigCSSAndFontsUnchanged": true
+  },
+  "verificationSourceIdentity": "All 11 final source/test files were last modified before the final 207-case run started; hashes recorded above.",
+  "publication": "One local commit only; no push, PR, merge, deployment, Google resource changes, production data operation or SQL activation. UI3 not started.",
+  "finalScopeCheck": {
+    "totalChangedFiles": 26,
+    "documentationEvidenceFiles": 15,
+    "decompressedSecretScan": "PASS",
+    "diffCheck": "PASS",
+    "historicalTestFilesModified": 0
+  }
+}
