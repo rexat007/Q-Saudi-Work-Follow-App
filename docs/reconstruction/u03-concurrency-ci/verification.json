@@ -1,0 +1,231 @@
+{
+  "base": "653655d1e332559055d6928721026896320ab0ae",
+  "branch": "test/u03-exclusion-concurrency-20261114",
+  "source": {
+    "path": "src/tests/ar2U03TemporalAuthority.test.ts",
+    "sha256": "5f762909927bbc07322f2dc7af39669962a6f705de57d6f9f049f26141467d2f",
+    "gitBlob": "5378c2785954ad825902ea31e45ff42dc1ae8b15",
+    "mtimeMs": 1794626099047.8533
+  },
+  "postgres": {
+    "version": "17.6",
+    "deadlock_timeout": "1s",
+    "isolation": "read committed",
+    "data_directory": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-ci-pg-cluster-20261114",
+    "port": 55449,
+    "host": "127.0.0.1",
+    "remainingOwnedTestDatabases": 0,
+    "stoppedAfterVerification": true
+  },
+  "baseline": {
+    "passed": 3,
+    "failed": 1,
+    "filteredOut": 59,
+    "failedCase": "TRUCK_AFFILIATION EXCLUDE rejects a real two-connection cross-project race without service prechecks",
+    "expected": "23P01",
+    "actual": "40P01"
+  },
+  "finalStress": {
+    "iterations": 20,
+    "passedRaces": 80,
+    "failedRaces": 0,
+    "concurrentAbortCodes": {
+      "23P01": 53,
+      "40P01": 27
+    },
+    "byKind": {
+      "ALLOCATION": {
+        "40P01": 8,
+        "23P01": 12
+      },
+      "ASSIGNMENT": {
+        "23P01": 14,
+        "40P01": 6
+      },
+      "DRIVER_AFFILIATION": {
+        "23P01": 16,
+        "40P01": 4
+      },
+      "TRUCK_AFFILIATION": {
+        "23P01": 11,
+        "40P01": 9
+      }
+    },
+    "eachRunFilteredOut": 59,
+    "retryOnFailure": false
+  },
+  "native": {
+    "passed": 425,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "files": 11,
+    "u03Cases": 63,
+    "u03ExecutedAfterFinalFixtureRestoration": true
+  },
+  "authority": {
+    "passed": 148,
+    "failed": 0,
+    "skipped": 0,
+    "todo": 0,
+    "files": 4
+  },
+  "typescript": {
+    "exitCode": 0,
+    "diagnostics": 0
+  },
+  "intermediateChecks": {
+    "initialAddedStateAssertions": "Corrected expected revision from number to PostgreSQL bigint string; four cases initially failed. No invariant removed.",
+    "fixtureEncoding": "Restored three unchanged Arabic fixture lines from HEAD after detecting incidental encoding drift. Only final-source stress runs are accepted here.",
+    "priorStress": "20 preliminary runs passed but are excluded from final-source totals."
+  },
+  "preservation": {
+    "otherWorktreesUnchanged": 16,
+    "allOtherRefsUnchanged": true,
+    "rb4NineFileHashesAndBinaryDiffMatch": true,
+    "rb4Migration013Sha256": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+    "trackedMigrations": [
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/001_canonical_schema.sql",
+        "gitBlob": "e857aa069d6e76d9cc88d53e0948f982833bd01e"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/002_roles_and_rls.sql",
+        "gitBlob": "f16c715308d19764198ba2b7fe780d431d1fb34e"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "gitBlob": "b3905ec78540fdf2a4aaa7be926dd0026179dcbf"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "gitBlob": "73fb813544962a5fe7fe3be8c3f75bc127a02c8c"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "gitBlob": "1081f756171b87defd5ff396afaf344357ee7ccd"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "gitBlob": "55ad95315a7a0968570f8181920baba88285b8af"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/007_durable_import_execution.sql",
+        "gitBlob": "3fd7a8e7c0f7203a2b35dadb4736f1fa1c91ed82"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "gitBlob": "6da8a694c6cf0a3ac23ef3b76de4851224543675"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "gitBlob": "47b474077daceae6317e982e034ed68e129039a3"
+      },
+      {
+        "workspace": "isolated-main",
+        "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "gitBlob": "69cbee41b042ecbb9d5500cf79e9af3a5b21d22e"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/001_canonical_schema.sql",
+        "gitBlob": "e857aa069d6e76d9cc88d53e0948f982833bd01e"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/002_roles_and_rls.sql",
+        "gitBlob": "f16c715308d19764198ba2b7fe780d431d1fb34e"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/003_runtime_authority_hardening.sql",
+        "gitBlob": "b3905ec78540fdf2a4aaa7be926dd0026179dcbf"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+        "gitBlob": "73fb813544962a5fe7fe3be8c3f75bc127a02c8c"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/005_temporal_relationship_authority.sql",
+        "gitBlob": "1081f756171b87defd5ff396afaf344357ee7ccd"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/006_foundation_bounded_reads.sql",
+        "gitBlob": "55ad95315a7a0968570f8181920baba88285b8af"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/007_durable_import_execution.sql",
+        "gitBlob": "3fd7a8e7c0f7203a2b35dadb4736f1fa1c91ed82"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+        "gitBlob": "6da8a694c6cf0a3ac23ef3b76de4851224543675"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/009_u06_event_read_security_gate.sql",
+        "gitBlob": "47b474077daceae6317e982e034ed68e129039a3"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+        "gitBlob": "69cbee41b042ecbb9d5500cf79e9af3a5b21d22e"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/011_runtime_composition_readiness.sql",
+        "gitBlob": "81229298d8cc4ff77f4371724a901897dfa7f5a2"
+      },
+      {
+        "workspace": "original-U09",
+        "path": "src/db/migrations/012_project_account_governance.sql",
+        "gitBlob": "7db1a45a46a8ca86874bfc6065269ea93fbca0f6"
+      }
+    ],
+    "ui1Head": "fd0ba387c6202a09512fedd7d1f6c341d15c3a3a"
+  },
+  "assertions": {
+    "exactOneCommit": true,
+    "winningPersistedRelationshipAndEvent": true,
+    "loserRolledBack": true,
+    "freshExact23P01NamedConstraint": true,
+    "concurrent40P01RequiresExclusionContext": true,
+    "noNewSkippedTests": true,
+    "noRetriesOrProductionChanges": true
+  },
+  "changedFiles": [
+    "docs/reconstruction/u03-concurrency-ci/README.md",
+    "docs/reconstruction/u03-concurrency-ci/authority-148.json.gz",
+    "docs/reconstruction/u03-concurrency-ci/baseline-diagnostic.json.gz",
+    "docs/reconstruction/u03-concurrency-ci/native-425.json.gz",
+    "docs/reconstruction/u03-concurrency-ci/postgres-deadlock.txt",
+    "docs/reconstruction/u03-concurrency-ci/race-results.json",
+    "docs/reconstruction/u03-concurrency-ci/verification.json",
+    "src/tests/ar2U03TemporalAuthority.test.ts"
+  ],
+  "publication": "Local commit only; no push, PR, merge, deployment or production activation",
+  "limits": "Native Windows PostgreSQL 17.6; GitHub Linux CI has not been rerun by this local-only task.",
+  "scopeChecks": {
+    "exactFiles": 8,
+    "sourceTestFiles": 1,
+    "documentationEvidenceFiles": 7,
+    "compressedEvidenceInspected": true,
+    "highConfidenceCredentialScan": "PASS",
+    "noConfigurationOrMigrationChanges": true,
+    "finalTypeScriptLogBytes": 0
+  }
+}
