@@ -1,0 +1,25 @@
+2026-11-14 06:04:33.701 +03 [18800] ERROR:  40P01: deadlock detected
+2026-11-14 06:04:33.701 +03 [18800] DETAIL:  Process 18800 waits for ShareLock on transaction 792; blocked by process 25104.
+	Process 25104 waits for ShareLock on transaction 791; blocked by process 18800.
+	Process 18800: INSERT INTO truck_carrier_affiliations(id,company_id,project_id,truck_id,carrier_id,external_id,valid_period,record_status,
+	      revision,created_at,updated_at,created_by,updated_by,created_role,updated_role,opened_operation_id)
+	      VALUES($1,$2,$3,$4,$5,$6,tstzrange(current_setting('app.temporal_at')::timestamptz,NULL,'[)'),'ACCEPTED',1,
+	      current_setting('app.temporal_at')::timestamptz,current_setting('app.temporal_at')::timestamptz,current_setting('app.actor_id')::uuid,current_setting('app.actor_id')::uuid,current_setting('app.commercial_role'),current_setting('app.commercial_role'),current_setting('app.operation_id')) RETURNING id,external_id
+	Process 25104: INSERT INTO truck_carrier_affiliations(id,company_id,project_id,truck_id,carrier_id,external_id,valid_period,record_status,
+	      revision,created_at,updated_at,created_by,updated_by,created_role,updated_role,opened_operation_id)
+	      VALUES($1,$2,$3,$4,$5,$6,tstzrange(current_setting('app.temporal_at')::timestamptz,NULL,'[)'),'ACCEPTED',1,
+	      current_setting('app.temporal_at')::timestamptz,current_setting('app.temporal_at')::timestamptz,current_setting('app.actor_id')::uuid,current_setting('app.actor_id')::uuid,current_setting('app.commercial_role'),current_setting('app.commercial_role'),current_setting('app.operation_id')) RETURNING id,external_id
+2026-11-14 06:04:33.701 +03 [18800] HINT:  See server log for query details.
+2026-11-14 06:04:33.701 +03 [18800] CONTEXT:  while checking exclusion constraint on tuple (1,1) in relation "truck_carrier_affiliations"
+2026-11-14 06:04:33.701 +03 [18800] LOCATION:  DeadLockReport, deadlock.c:1135
+2026-11-14 06:04:33.701 +03 [18800] STATEMENT:  INSERT INTO truck_carrier_affiliations(id,company_id,project_id,truck_id,carrier_id,external_id,valid_period,record_status,
+	      revision,created_at,updated_at,created_by,updated_by,created_role,updated_role,opened_operation_id)
+	      VALUES($1,$2,$3,$4,$5,$6,tstzrange(current_setting('app.temporal_at')::timestamptz,NULL,'[)'),'ACCEPTED',1,
+	      current_setting('app.temporal_at')::timestamptz,current_setting('app.temporal_at')::timestamptz,current_setting('app.actor_id')::uuid,current_setting('app.actor_id')::uuid,current_setting('app.commercial_role'),current_setting('app.commercial_role'),current_setting('app.operation_id')) RETURNING id,external_id
+2026-11-14 06:04:33.701 +03 [25104] LOG:  00000: process 25104 acquired ShareLock on transaction 791 after 1016.274 ms
+2026-11-14 06:04:33.701 +03 [25104] CONTEXT:  while checking exclusion constraint on tuple (0,1) in relation "truck_carrier_affiliations"
+2026-11-14 06:04:33.701 +03 [25104] LOCATION:  ProcSleep, proc.c:1578
+2026-11-14 06:04:33.701 +03 [25104] STATEMENT:  INSERT INTO truck_carrier_affiliations(id,company_id,project_id,truck_id,carrier_id,external_id,valid_period,record_status,
+	      revision,created_at,updated_at,created_by,updated_by,created_role,updated_role,opened_operation_id)
+	      VALUES($1,$2,$3,$4,$5,$6,tstzrange(current_setting('app.temporal_at')::timestamptz,NULL,'[)'),'ACCEPTED',1,
+	      current_setting('app.temporal_at')::timestamptz,current_setting('app.temporal_at')::timestamptz,current_setting('app.actor_id')::uuid,current_setting('app.actor_id')::uuid,current_setting('app.commercial_role'),current_setting('app.commercial_role'),current_setting('app.operation_id')) RETURNING id,external_id
