@@ -64,11 +64,22 @@ export function operationalReportPresentation(trips: TripEntity[], projectId: st
   return {report, dataset, family, families, optionRows: trips.filter(trip => trip.projectId === projectId && trip.operationalSnapshot).map(trip => profileTripRow(trip, now)), legacyTripsExcluded: base.legacyTripsExcluded};
 }
 
+const exportAuditLabelKeys = {
+ sourceType: 'ui4.sourceType',
+ pricingSnapshotAt: 'ui4.pricingSnapshotAt',
+ destinationWeightSource: 'ui4.destinationWeightSource',
+ settlementStatus: 'ui4.settlementStatus',
+} as const;
+type ExportAuditKey = keyof typeof exportAuditLabelKeys;
+
 /** Make legacy export audit columns explicit in the same rendered/printed dataset.
  * Missing historical evidence remains unavailable; never invoke export fallbacks. */
 export function completeReportExportColumns(dataset:ReportDataset,t:Translate):ReportDataset {
- const aliases:Record<string,string[]>={sourceType:['sourceType','sourceTypeLabelAr'],pricingSnapshotAt:['pricingSnapshotAt','snapshotDate'],destinationWeightSource:['destinationWeightSource','destinationWeightSourceLabelAr'],settlementStatus:['settlementStatus','pricingStatusLabelAr']};
+ const aliases:Record<ExportAuditKey,string[]>={sourceType:['sourceType','sourceTypeLabelAr'],pricingSnapshotAt:['pricingSnapshotAt','snapshotDate'],destinationWeightSource:['destinationWeightSource','destinationWeightSourceLabelAr'],settlementStatus:['settlementStatus','pricingStatusLabelAr']};
  const columns=[...dataset.columns];
- for(const [key,names] of Object.entries(aliases))if(!columns.some(c=>names.includes(c.key)))columns.push({key,labelAr:t('ui4.'+key),labelEn:t('ui4.'+key)});
+ for(const key of Object.keys(aliases) as ExportAuditKey[]) {
+  const names=aliases[key];
+  if(!columns.some(c=>names.includes(c.key)))columns.push({key,labelAr:t(exportAuditLabelKeys[key]),labelEn:t(exportAuditLabelKeys[key])});
+ }
  return {...dataset,columns,rows:dataset.rows.map(row=>{const copy={...row};for(const [key,names] of Object.entries(aliases))if(columns.some(c=>c.key===key)&&copy[key]==null)copy[key]=names.map(n=>row[n]).find(v=>v!=null)??'—';return copy;})};
 }

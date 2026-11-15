@@ -1,14 +1,26 @@
 {
   "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
   "branch": "ui/ui4-operational-reports-20261115",
+  "ci1PinnedFailingHead": "85c648022e3669be025faa68ac4eeae35f243dd6",
   "counts": {
     "production": 9,
-    "testsAndFixtures": 8,
-    "documentationAndEvidence": 32,
-    "total": 49
+    "testsAndFixtures": 9,
+    "documentationAndEvidence": 34,
+    "total": 52
   },
-  "beforeCount": 45,
-  "beforeInventory": "rb1-recovery.json::EXACT_CHANGED_FILES_BEFORE_AND_AFTER.beforeFiles",
+  "beforeCount": 49,
+  "ci1DeltaFiles": [
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+    "docs/reconstruction/ui4/README.md",
+    "docs/reconstruction/ui4/ci1-recovery.json",
+    "docs/reconstruction/ui4/ci1-verification-raw.zip",
+    "docs/reconstruction/ui4/evidence-sha256.json",
+    "docs/reconstruction/ui4/exact-file-inventory.json",
+    "docs/reconstruction/ui4/verification.json",
+    "src/components/reports/operationalReportPresentation.ts",
+    "src/tests/ui4Ci1ExportLabels.test.ts"
+  ],
   "files": [
     {
       "file": "docs/reconstruction/00_WORK_START_HERE.md",
@@ -42,6 +54,16 @@
     },
     {
       "file": "docs/reconstruction/ui4/README.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/ci1-recovery.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/ci1-verification-raw.zip",
       "classification": "DOCUMENTATION_OR_EVIDENCE",
       "sha256": null
     },
@@ -188,7 +210,7 @@
     {
       "file": "src/components/reports/operationalReportPresentation.ts",
       "classification": "PRODUCTION",
-      "sha256": "dbf44c36a6f26665332ee251944df22aa61b0d9dfe719d0de2f5d74029c32634"
+      "sha256": "c6ccb64476cc5822464047592d7b78fc2122de840de761d38baa933c31a92ffa"
     },
     {
       "file": "src/components/reports/useReportScope.ts",
@@ -229,6 +251,11 @@
       "file": "src/tests/helpers/ui4ReportFixture.ts",
       "classification": "TEST_OR_FIXTURE",
       "sha256": "76bd73de224f98f5b785ba4dffb77941d3a7b37485fe1a2a666208c791912fb8"
+    },
+    {
+      "file": "src/tests/ui4Ci1ExportLabels.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "2b02b2a4953ad2f14feb2fac797c08663b01382646e1cabf7f6dd071ca1da7f0"
     },
     {
       "file": "src/tests/ui4ExportIntegrity.test.ts",

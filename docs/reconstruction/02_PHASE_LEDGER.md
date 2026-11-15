@@ -1,3 +1,7 @@
+## CURRENT UI4-CI1 FOUNDATION RECOVERY — 2026-11-15
+
+PR #105 failing head `85c648022e3669be025faa68ac4eeae35f243dd6`: runtime audit 11/16 → 16/16 after one explicit typed four-key label mapping. Focused UI4 87/87; lint/TypeScript/build exit 0. Scope 52 files (9 production / 9 tests-fixtures / 34 docs-evidence), CI1 delta ten paths. Original audit, dictionaries, XLSX correction and historical failures unchanged; 21 protected worktrees and RB4/013 preserved. [Current CI1 local evidence](ui4/ci1-recovery.json). Remote required CI is PENDING for the upcoming corrective commit; HOLD until success is observed on its exact PR head. Publication authorization is one additive commit and normal push to existing Draft PR #105 only; stop at owner review, no merge or activation. Earlier UI4/RB1 gates below are historical snapshots.
+
 ## CURRENT UI4-RB1 CORRECTIVE OWNER-REVIEW GATE — 2026-11-15
 
 XLSX multiline row blocker resolved and verified; scope 49 files (9 production / 8 tests-fixtures / 32 docs-evidence). Red 10/12 → green 12/12; affected 168/168, Edge 9/9, enhanced connected 1/1. Matched broad baseline 310/324 and candidate 394/408 retain identical 14 failures: NOT PASS. Typecheck/lint/build exit 0. Original connected 16/17 and corrected 1/1 remain historical. [Current RB1 record](ui4/rb1-recovery.json). Stop at owner review; publication HOLD, no commit/push/PR/merge/deploy/RB4/SQL action. Earlier UI4 source evidence below remains historical.

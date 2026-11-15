@@ -336,5 +336,17 @@
     "raw": "rb1-verification-raw.zip",
     "scopeTotal": 49,
     "decision": "GO_TO_OWNER_SOURCE_REVIEW_ONLY; PUBLICATION_HOLD"
+  },
+  "UI4_CI1_CURRENT": {
+    "record": "ci1-recovery.json",
+    "raw": "ci1-verification-raw.zip",
+    "pinnedFailingHead": "85c648022e3669be025faa68ac4eeae35f243dd6",
+    "failingRunId": 43715381498,
+    "scopeTotal": 52,
+    "localRuntimeAudit": "16/16 PASS",
+    "localFocused": "87/87 PASS",
+    "typecheckLintBuild": "PASS",
+    "remoteRequiredCI": "PENDING: only exact new PR-head workflow success can clear the CI hold",
+    "historicalEvidenceBoundary": "Original fields and RB1 records retain their pre-CI1 source/status snapshots. They are preserved, not a CI success claim."
   }
 }

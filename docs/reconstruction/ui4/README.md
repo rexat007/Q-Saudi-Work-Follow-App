@@ -1,3 +1,7 @@
+# Current UI4-CI1 foundation recovery
+
+[CI1 local gates and original CI failure](ci1-recovery.json), [current 52-file inventory](exact-file-inventory.json), [CI1 raw red/green evidence and original 49-file backup](ci1-verification-raw.zip). Runtime 16/16, focused UI4 87/87, lint/build exit 0. Required remote CI remains PENDING in this pre-publication snapshot: HOLD until observed success on the exact new PR head. Original evidence below is retained historical state; source hashes in original RB1 records refer to pre-CI1 bytes. No historical failure is relabeled PASS.
+
 # Current UI4-RB1 correction evidence
 
 [RB1 final gates](rb1-recovery.json), [current exact inventory](exact-file-inventory.json), [RB1 raw evidence and before-byte backups](rb1-verification-raw.zip). Scope 49; export blocker verified resolved; owner source review only, publication HOLD. The pre-RB1 evidence below and source-contract.json are preserved historical snapshots. The original raw archive remains byte-identical.
