@@ -1,0 +1,78 @@
+# UI4 — Operational Reports: Scoped Reading, Freshness & Export Clarity
+
+## Authority and scope
+
+Owner-authorized bounded implementation, based on main `800434f634fb7ea5099fc12e4ec064dfb05d6df2`, isolated branch `ui/ui4-operational-reports-20261115`. No commit or publication authorized. The sole current-state owner is `02_PHASE_LEDGER.md`; original UI3 and forensic records remain historical evidence, including all failures.
+
+The five inherited post-merge documentation changes were read and frozen before modification (`ui4/preflight.json` and `ui4/inherited-five-docs.patch`). The owner amendments in MASTER_PROJECT_HANDOFF supersede the historical proposal-only disposition, without retroactively authorizing its execution. GitHub main was read independently before editing. Other worktrees, original RB4 nine unfinished files and migration 013 must remain unchanged.
+
+## Source-derived causes and implementation
+
+| Cause | Bounded correction | Authority kept |
+| --- | --- | --- |
+| Legacy report hooks ran even when the adaptive return hid their UI | ReportsEngineView mounts only its active adaptive or financial child; Hooks remain unconditional within each component | App routing and existing report repositories |
+| Async responses lacked complete presentation-context fencing | useReportScope keys principal, profile authority/status, role, assignments and project, with a generation object identity; each request also has lifecycle/request fencing | AuthProvider, Firestore Rules, server authorization |
+| Failed and stale reads could retain apparently current results | Read state separates loading/error/confirmed ready; failed or retired requests cannot publish rows, timestamps, exports or print | Server-confirmed bounded Firestore reads |
+| Rendering, metrics and export family selection diverged | operationalReportPresentation composes the existing engine into one selected family/filter dataset for visible table, summary, CSV, XLSX and print | Existing calculations, pricing and historical snapshots |
+| Refresh control was offered beyond server administrative scope | Existing project-admin/super-admin presentation predicate gates the existing endpoint; backend still reauthorizes | No new command, grant or privilege |
+| Read/generation/Google times were conflated; missing response time became a client success timestamp | Three facts are separately labeled; missing Google server time is explicitly unknown, failure never claims success | Existing refresh response and transport |
+| Timestamp-derived REP identifier implied a registered document | Print explicitly says local/unregistered preview; signatures remain blank/unrecorded | No document registry invented |
+| Print focus and mobile containment were inconsistent | Existing ImportOverlay manager owns focus trap, inert background, Escape and focus return; report-local responsive/RTL styles | Existing modal manager, framework and fonts |
+
+The source-read timestamp is **the client clock at completion of a successful server Firestore read**, not an authoritative database commit time. Report generation is local calculation time. Google freshness is only the existing server-returned lastReportRefreshAt. Neither a failed refresh nor missing timestamp advances it.
+
+## Active routes and dataset contract
+
+App's configured project Dashboard directly mounts AdaptiveOperationalReports. Reports Engine mounts the same adaptive surface; its financial action mounts the existing legacy financial surface exclusively. Unconfigured legacy reports remain available through the existing route and role contract. No App routing change.
+
+All existing families remain: daily, weekly, carrier/truck/driver/shift/material productivity, delay, live movement and capability-appropriate weight reconciliation. Canonical date/identity/status/shift filters affect table, family metrics, financial summary and all exports/printing. Optional missing measurements display an em dash; historical profiles retain original capability/idle/financial evidence. Export operations still use the existing services. Legacy quick table search is explicitly **viewport-only**: it does not alter canonical totals, CSV, XLSX or print. Adaptive has no separate quick-search layer.
+
+Print/CSV/XLSX consume the same ReportDataset columns/rows. Wide printable tables use bounded column bands with the original Trip ID repeated for reading continuity; every original column and row is retained. Local print styles prevent horizontal clipping and provide paper margins. The total-Trip label correctly describes totalTrips rather than implying that every selected Trip is completed. Both adaptive and legacy datasets explicitly include exporter-required audit columns; unavailable aggregate evidence stays an em dash rather than triggering fabricated export fallback values. Legacy export/print actions recheck current authorization at invocation. Financial calculations and original financial summaries are unchanged. Existing XLSX adds its established metadata/summary preamble before the same table; equivalence checks compare actual table cells, excluding this documented preamble. Existing shared XLSX branding/metadata remains Arabic; UI4 adds no global export localization engine. AR/EN/UR UI4 labels and dataset headers are localized. This retained metadata limitation requires operational language acceptance.
+
+## Verification and limitations
+
+Final execution counts, native exits, exact baseline failure identities, source hashes and preservation results are recorded in the adjacent `ui4/` evidence. Early red runs are retained and classified, never substituted for final results. Focused tests and emulator/browser fixtures are not production/live acceptance. No live Google success, production Firebase, PostgreSQL activation, physical-device or assistive-technology acceptance is claimed.
+
+No existing command, permission policy, financial calculation, Outbox, Workspace binding, SQL provider, migration, dependency, CI or build gate is changed. This implementation stops at owner review. UI5 and unrelated work are not started.
+
+## Final local verification
+
+See [exact files](ui4/exact-file-inventory.json), [commands/native exits](ui4/verification.json), [all matched failure identities](ui4/failure-comparison.json) and [retained raw evidence](ui4/verification-raw.zip).
+
+Exact final focused differential: baseline **310/324**, candidate **382/396**, native exits **1/1**, zero new failure identities, zero skips. It is **NOT PASS**. All 72 new unit cases pass. Twelve of 14 failures require explicit loopback; the matching operational family separately passes **14/14 on both baseline and candidate**. The other two remain unchanged Wizard/Outbox translation assertions.
+
+Final affected print/security/localization: **156/156**, exit **0**. Final native Edge: **9/9**, exit **0**, zero skips, AR/EN/UR mobile/tablet/desktop, four profiles and all report families. Actual CSV/XLSX cell equivalence and complete printed row/column coverage are asserted. All six final PDF pages were rendered and visually inspected, alongside retained negative clipped-table evidence.
+
+Authenticated emulator results remain distinct: baseline **14/14**; initial candidate **16/17**, exit **1**, including both unchanged UI3 CSV/Excel journeys passing and 1002-Trip reporting. The new test incorrectly assumed Sidebar selection stays on Reports; it explicitly enters Wizard. Following that unchanged route yields corrected UI4 **1/1**, exit **0**. No synthesized 17/17 aggregate. Both owned runs clean all listeners with zero cleanup errors.
+
+Final TypeScript/lint (`npm run lint` executes `tsc --noEmit`): **0 diagnostics / exit 0**. Client/PWA/server build: **exit 0**, existing chunk-size warning retained. Source contract **exit 0**: original seven Google assertions and all other old tests unchanged; no protected authority/dependency/CI/migration changes; other worktrees and original nine RB4 raw hashes unchanged. Final diff/secret/link checks are adjacent evidence.
+
+Earlier red iterations and two native deadlines remain retained. They were not reproduced in final 9/9; cause **CAUSE_UNRESOLVED**, not a proven environment explanation. Emulator ADC/runtime Git warnings do not establish live Google or deployed-runtime acceptance. Shared XLSX Arabic metadata, physical devices, assistive technology and real Workspace refresh/freshness need separate operational acceptance.
+
+**GO to owner source review with inherited debt.** HEAD unchanged; changes uncommitted/unstaged. No publication, deployment, cutover or product-live acceptance authorized.
+
+Verification identity boundary: final production/test bytes match the source-contract manifest and did not change after the final gates. Only documentation/evidence was finalized afterwards; the local dirty build ID is not a deployed release identity. Exact commands and native exits are in verification.json and its retained raw archive.
+
+## UI4-RB1 export row integrity recovery — 2026-11-15
+
+This corrective record supersedes pre-recovery XLSX-integrity acceptance. The unchanged exporter reproduced the confirmed defect: two logical records with quoted CRLF text became four XLSX data rows. CSV and XLSX now share one bounded private export-table builder in the existing reports engine. CSV quotes and escapes headers and cells with UTF-8 BOM; XLSX uses structured columns/rows directly. Existing fallback values, audit ordering, string export values, metadata preamble, worksheet RTL settings, widths and filenames remain. Valid CRLF/LF/CR text is preserved verbatim. No report generation, validators, pricing, permission, source data, persistence, Workspace or dependency contract changes. Earlier statements that report services were unchanged describe the original UI4 phase; this bounded export correction is the sole new service exception.
+
+[RB1 gate evidence](ui4/rb1-recovery.json) records red **10/12** (two failures), green **12/12**, final affected export/presentation/security/localization **168/168**, and the physical workbook cell readback. The exact independent route fixture now exports **2 records → 2 XLSX data rows** with CSV parity. CSV parity uses an independent character-preserving parser because SheetJS 0.18 normalizes CRLF in CSV input; physical XLSX is independently read using SheetJS. Formula-like values remain string cells without formula fields.
+
+New matched baseline **310/324**, candidate **394/408**, exits **1/1**; the same 14 inherited failure identities remain, zero additions and zero skips. Broad aggregate remains **NOT PASS**. Newly executed native Edge **9/9** across AR/EN/UR and three sizes; enhanced authenticated emulator export journey **1/1**, with a real downloaded multiline XLSX workbook. Its first enhanced run timed out at the original 90-second limit and remains retained; diagnostic stage/action limits were added without increasing that limit or removing assertions. Final cleanup has zero errors and no listeners. Initial test-fixture type errors are preserved and corrected; final `npm run lint` / `tsc --noEmit` and production client/PWA/server build exit **0**. Existing chunk-size warning remains.
+
+The original connected **16/17** failure and corrected **1/1** evidence remain historical, separately labeled; no synthetic 17/17 claim. Original PDF visual QA is reused for unchanged print components; the new Edge run rechecks export/print row and column coverage. No new visual, live Google, physical-device or assistive-technology acceptance is claimed. Prior manifest fields and original source-contract are historical snapshots, with exact original bytes retained in the [RB1 raw archive](ui4/rb1-verification-raw.zip).
+
+Scope is now **49 files: 9 production, 8 tests/fixtures, 32 documentation/evidence**, previously 45. All original 45 files and bytes are backed up; the connected test gains additive XLSX assertions and valid multiline fixture text. The [revised inventory](ui4/exact-file-inventory.json) lists every before/after path. Twenty-one other worktrees remain protected; original RB4 nine raw hashes and unpublished/untracked migration 013 are unchanged. HEAD/branch unchanged and index empty. GitHub read-only lookup finds no published UI4 branch or PR. **GO to owner source review only; publication HOLD. STOP at owner review.**
+
+## UI4-CI1 required foundation recovery — 2026-11-15
+
+Pinned published candidate `85c648022e3669be025faa68ac4eeae35f243dd6` failed [workflow 43715381498](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43715381498), Required foundation / Verify runtime translation keys. The unchanged `npm run test:i18n-runtime` reproduced **11/16**, with five failures caused by the statically extracted incomplete key `ui4.` from `t('ui4.' + key)` in completeReportExportColumns. The original GitHub job log and local red output are preserved in the CI1 raw archive.
+
+The sole production change replaces that prefix concatenation with an explicit `as const` mapping of the four existing full audit-label keys, a derived ExportAuditKey union and a correspondingly typed alias record. The iteration preserves original audit ordering; row cloning, aliases, null fallback, empty/zero/false values and financial summaries are unchanged. No dictionary, runtime audit, shared XLSX exporter, historical test or other accepted UI4 behavior changes. A new independent test resolves all four real translated strings in AR/EN/UR and verifies ordering, aliases, fallback values and source immutability.
+
+New local verification: unchanged runtime command **16/16 PASS**; focused UI4 presentation/scope/export/CI1 tests **87/87 PASS** (including unchanged XLSX integrity **12/12**); lint/TypeScript and client/PWA/server production build **exit 0**. Existing chunk-size warning retained. Historical broad baseline 310/324 and candidate 394/408 remain **NOT PASS**, with the same 14 historical identities; those broad suites are reused historical evidence, not newly rerun or relabeled. Earlier browser 9/9 and authenticated emulator 1/1 also remain explicitly historical; no new connected/browser acceptance is claimed for this four-label correction.
+
+Current candidate scope is **52 files: 9 production, 9 tests/fixtures, 34 documentation/evidence**. CI1 adds three paths to the original 49-file scope: its independent test, recovery JSON and raw evidence ZIP. Its additive commit changes exactly ten paths (one existing production file, one new test and eight necessary current documentation/evidence paths). [CI1 verification](ui4/ci1-recovery.json), [current exact inventory](ui4/exact-file-inventory.json), and [preserved CI1 red/green evidence](ui4/ci1-verification-raw.zip) are authoritative for this local source snapshot. All original 49 bytes are backed up; original raw archives, failed/interrupted attempts and all historical non-green results remain intact.
+
+Twenty-one protected worktrees, the original nine RB4 dirty files and unpublished migration 013 are unchanged. No dependency, validator, pricing, permission, canonical persistence, Workspace, SQL or activation contract changes. **Pre-publication decision: local gates PASS; GitHub CI PENDING on the not-yet-published corrective head. HOLD until required CI succeeds on that exact head; local tests are not CI success.** Publish only one additive commit by normal fast-forward push to existing Draft PR #105, then observe its new workflow. No new PR, amend, force push, merge, deployment, SQL cutover, RB4 activation or UI5. Stop at owner review.

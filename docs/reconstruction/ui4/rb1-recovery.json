@@ -1,0 +1,1044 @@
+{
+  "ROOT_CAUSE_VERIFIED": {
+    "status": "PASS",
+    "source": "src/services/reportsEngine.service.ts",
+    "cause": "Quoted CSV cells containing CRLF were split as physical CSV lines, corrupting logical XLSX records. XLSX now consumes the same bounded structured export table as CSV, without reparsing CSV. Header CSV quoting is corrected too."
+  },
+  "EXACT_CHANGED_FILES_BEFORE_AND_AFTER": {
+    "beforeTotal": 45,
+    "beforeFiles": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/ui4/README.md",
+      "docs/reconstruction/ui4/doc-links.json",
+      "docs/reconstruction/ui4/evidence-sha256.json",
+      "docs/reconstruction/ui4/exact-file-inventory.json",
+      "docs/reconstruction/ui4/failure-comparison.json",
+      "docs/reconstruction/ui4/history.json",
+      "docs/reconstruction/ui4/inherited-five-docs.patch",
+      "docs/reconstruction/ui4/pdf-qa/ar-1.png",
+      "docs/reconstruction/ui4/pdf-qa/ar-2.png",
+      "docs/reconstruction/ui4/pdf-qa/en-1.png",
+      "docs/reconstruction/ui4/pdf-qa/en-2.png",
+      "docs/reconstruction/ui4/pdf-qa/ur-1.png",
+      "docs/reconstruction/ui4/pdf-qa/ur-2.png",
+      "docs/reconstruction/ui4/preflight.json",
+      "docs/reconstruction/ui4/screenshots/ar-mobile.png",
+      "docs/reconstruction/ui4/screenshots/ar-print.png",
+      "docs/reconstruction/ui4/screenshots/en-desktop.png",
+      "docs/reconstruction/ui4/screenshots/en-print.png",
+      "docs/reconstruction/ui4/screenshots/ur-print.png",
+      "docs/reconstruction/ui4/screenshots/ur-tablet.png",
+      "docs/reconstruction/ui4/secret-scan.json",
+      "docs/reconstruction/ui4/source-contract.json",
+      "docs/reconstruction/ui4/verification-raw.zip",
+      "docs/reconstruction/ui4/verification.json",
+      "src/components/reports/AdaptiveOperationalReports.tsx",
+      "src/components/reports/PrintableReportModal.tsx",
+      "src/components/reports/ReportsEngineView.tsx",
+      "src/components/reports/operationalReportPresentation.ts",
+      "src/components/reports/useReportScope.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+      "src/tests/helpers/ui4ReportFixture.ts",
+      "src/tests/ui4ReportBrowser.test.ts",
+      "src/tests/ui4ReportConnectedJourney.test.ts",
+      "src/tests/ui4ReportPresentation.test.ts",
+      "src/tests/ui4ReportScope.test.tsx"
+    ],
+    "afterTotal": 49,
+    "afterFiles": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/ui4/README.md",
+      "docs/reconstruction/ui4/doc-links.json",
+      "docs/reconstruction/ui4/evidence-sha256.json",
+      "docs/reconstruction/ui4/exact-file-inventory.json",
+      "docs/reconstruction/ui4/failure-comparison.json",
+      "docs/reconstruction/ui4/history.json",
+      "docs/reconstruction/ui4/inherited-five-docs.patch",
+      "docs/reconstruction/ui4/pdf-qa/ar-1.png",
+      "docs/reconstruction/ui4/pdf-qa/ar-2.png",
+      "docs/reconstruction/ui4/pdf-qa/en-1.png",
+      "docs/reconstruction/ui4/pdf-qa/en-2.png",
+      "docs/reconstruction/ui4/pdf-qa/ur-1.png",
+      "docs/reconstruction/ui4/pdf-qa/ur-2.png",
+      "docs/reconstruction/ui4/preflight.json",
+      "docs/reconstruction/ui4/rb1-recovery.json",
+      "docs/reconstruction/ui4/rb1-verification-raw.zip",
+      "docs/reconstruction/ui4/screenshots/ar-mobile.png",
+      "docs/reconstruction/ui4/screenshots/ar-print.png",
+      "docs/reconstruction/ui4/screenshots/en-desktop.png",
+      "docs/reconstruction/ui4/screenshots/en-print.png",
+      "docs/reconstruction/ui4/screenshots/ur-print.png",
+      "docs/reconstruction/ui4/screenshots/ur-tablet.png",
+      "docs/reconstruction/ui4/secret-scan.json",
+      "docs/reconstruction/ui4/source-contract.json",
+      "docs/reconstruction/ui4/verification-raw.zip",
+      "docs/reconstruction/ui4/verification.json",
+      "src/components/reports/AdaptiveOperationalReports.tsx",
+      "src/components/reports/PrintableReportModal.tsx",
+      "src/components/reports/ReportsEngineView.tsx",
+      "src/components/reports/operationalReportPresentation.ts",
+      "src/components/reports/useReportScope.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/services/reportsEngine.service.ts",
+      "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+      "src/tests/helpers/ui4ReportFixture.ts",
+      "src/tests/ui4ExportIntegrity.test.ts",
+      "src/tests/ui4ReportBrowser.test.ts",
+      "src/tests/ui4ReportConnectedJourney.test.ts",
+      "src/tests/ui4ReportPresentation.test.ts",
+      "src/tests/ui4ReportScope.test.tsx"
+    ],
+    "counts": {
+      "production": 9,
+      "testsAndFixtures": 8,
+      "documentationAndEvidence": 32
+    },
+    "addedToChangedFileScope": [
+      "src/services/reportsEngine.service.ts",
+      "src/tests/ui4ExportIntegrity.test.ts",
+      "docs/reconstruction/ui4/rb1-recovery.json",
+      "docs/reconstruction/ui4/rb1-verification-raw.zip"
+    ],
+    "original45BytesPreservedAt": "rb1-verification-raw.zip::before/",
+    "inventory": "exact-file-inventory.json"
+  },
+  "RED_TO_GREEN_REGRESSION_EVIDENCE": {
+    "red": {
+      "numTotalTests": 12,
+      "numPassedTests": 10,
+      "numFailedTests": 2,
+      "numPendingTests": 0
+    },
+    "green": {
+      "numTotalTests": 12,
+      "numPassedTests": 12,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "redNativeExit": 1,
+    "greenNativeExit": 0,
+    "redFailureIdentities": [
+      "UI4-RB1 physical export integrity preserves two logical records and exact cells: \"Origin\\r\\nGate A\"",
+      "UI4-RB1 physical export integrity escapes quotes and multiline headers as well as values"
+    ],
+    "strictFinalRerunIncludedIn": "affected-final.json",
+    "intermediatesRetained": [
+      "red.log",
+      "red-native.log",
+      "red-confirmed.log",
+      "green.log"
+    ],
+    "explanation": "Initial CSV readback harness was corrected for BOM handling and SheetJS CSV CRLF normalization. Identical strict parser tests then ran red on unchanged HEAD exporter and green on corrected exporter. Final fixture typing was completed without weakening assertions."
+  },
+  "CSV_XLSX_LOGICAL_PARITY": {
+    "status": "PASS",
+    "values": "Exact character equality using an independent CSV state-machine reader and physical SheetJS XLSX readFile. SheetJS 0.18 CSV reader normalizes embedded CRLF, so it cannot prove verbatim parity.",
+    "routeProbe": {
+      "validCanonicalConfiguration": true,
+      "lineBreakPreserved": true,
+      "inputDatasetRows": 2,
+      "csvDataRows": 2,
+      "xlsxDataRows": 2,
+      "equivalent": true,
+      "csvRows": [
+        [
+          "T1",
+          "P1",
+          "2026-11-01",
+          "C1",
+          "ناقل معتمد 1",
+          "TR1",
+          "أ ب ج 1",
+          "D1",
+          "سائق معتمد 1",
+          "M1",
+          "مادة 1",
+          "",
+          "Origin\r\nGate A",
+          "Destination",
+          "—",
+          "—",
+          "2026-11-01T08:00:00Z",
+          "2026-11-01T09:00:00.000Z",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "op.IN_TRANSIT",
+          "op.DELAYED",
+          "OPEN",
+          "2026-11-01T08:00:00Z",
+          "240",
+          "MANUAL",
+          "2026-11-01T08:00:00Z",
+          "—",
+          "ui4.finalized"
+        ],
+        [
+          "T2",
+          "P1",
+          "2026-11-01",
+          "C2",
+          "ناقل معتمد 2",
+          "TR2",
+          "أ ب ج 2",
+          "D2",
+          "سائق معتمد 2",
+          "M2",
+          "مادة 2",
+          "",
+          "Origin\r\nGate A",
+          "Destination",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "op.AT_ORIGIN",
+          "op.UNKNOWN",
+          "",
+          "2026-11-01T10:00:00Z",
+          "120",
+          "MANUAL",
+          "2026-11-01T08:00:00Z",
+          "—",
+          "ui4.finalized"
+        ]
+      ],
+      "xlsxRows": [
+        [
+          "T1",
+          "P1",
+          "2026-11-01",
+          "C1",
+          "ناقل معتمد 1",
+          "TR1",
+          "أ ب ج 1",
+          "D1",
+          "سائق معتمد 1",
+          "M1",
+          "مادة 1",
+          "",
+          "Origin\r\nGate A",
+          "Destination",
+          "—",
+          "—",
+          "2026-11-01T08:00:00Z",
+          "2026-11-01T09:00:00.000Z",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "op.IN_TRANSIT",
+          "op.DELAYED",
+          "OPEN",
+          "2026-11-01T08:00:00Z",
+          "240",
+          "MANUAL",
+          "2026-11-01T08:00:00Z",
+          "—",
+          "ui4.finalized"
+        ],
+        [
+          "T2",
+          "P1",
+          "2026-11-01",
+          "C2",
+          "ناقل معتمد 2",
+          "TR2",
+          "أ ب ج 2",
+          "D2",
+          "سائق معتمد 2",
+          "M2",
+          "مادة 2",
+          "",
+          "Origin\r\nGate A",
+          "Destination",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "—",
+          "op.AT_ORIGIN",
+          "op.UNKNOWN",
+          "",
+          "2026-11-01T10:00:00Z",
+          "120",
+          "MANUAL",
+          "2026-11-01T08:00:00Z",
+          "—",
+          "ui4.finalized"
+        ]
+      ]
+    }
+  },
+  "PHYSICAL_WORKBOOK_ROUNDTRIP": {
+    "status": "PASS",
+    "unitArtifacts": "final-workbooks/ in raw archive; real XLSX files are written to disk, checked for ZIP signature, then readFile by SheetJS; only browser download boundary is captured.",
+    "connectedArtifact": "ui4-evidence-20261115/connected/multiline-route.xlsx in raw archive; actual authenticated Edge download"
+  },
+  "MULTILINE_RECORD_INTEGRITY": {
+    "status": "PASS",
+    "originalProbe": {
+      "records": 2,
+      "xlsxDataRows": 4
+    },
+    "correctedProbe": {
+      "records": 2,
+      "xlsxDataRows": 2
+    },
+    "preserved": [
+      "CRLF",
+      "LF",
+      "CR",
+      "commas",
+      "quotes",
+      "escaped double quotes",
+      "Arabic Unicode",
+      "empty cells",
+      "column and traceability order"
+    ],
+    "formulas": "Formula-like text remains string cells; no XLSX formula fields. Metadata rows excluded from record counts. No sanitization or rejection of valid multiline text."
+  },
+  "UI4_REGRESSION_RESULTS": {
+    "baseline": {
+      "numTotalTests": 324,
+      "numPassedTests": 310,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "candidate": {
+      "numTotalTests": 408,
+      "numPassedTests": 394,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "affectedFinal": {
+      "numTotalTests": 168,
+      "numPassedTests": 168,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "nativeEdge": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "connectedEnhancedFinal": {
+      "numTotalTests": 1,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "aggregateDisposition": "NOT_PASS: 14 inherited broad-suite failures retained",
+    "historicalEvidenceReused": "Original connected 16/17 and corrected 1/1 remain unchanged historical evidence, including original 1002-trip UI3 journeys. Original PDF visual QA reused because print/UI components are unchanged; newly executed Edge matrix independently rechecks actual export and print coverage.",
+    "newConnectedTimeout": "First enhanced connected run timed out at unchanged 90s, exit 1, cleanup clean. Retained. Staged follow-up uses stricter 10s action deadlines; no test skips or deadline relaxation."
+  },
+  "BASELINE_CANDIDATE_FAILURE_IDENTITIES": {
+    "baseline": [
+      [
+        "convergence2Operational.test.ts",
+        "canonical exception decisions are current-role scoped, atomic and idempotent"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "current persisted roles fence receipt reads for all nine roles with no business effects"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "import net-only and zero evidence never fabricates gross/tare or finalized missing pricing"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore lifecycle reconciles snapshots, settlement, receipt replay and rollback"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore rejects stale concurrent revisions and cross-Project scope"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore write failure rolls back the full compound command"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: ACCEPT_ORIGIN_NET"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: DIRECT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: WEIGHT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare -1 without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare Infinity without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare NaN without a mutation"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Residual offline and PWA translation construction protects message boundaries and preserves installation and conflict action wiring"
+      ]
+    ],
+    "candidate": [
+      [
+        "convergence2Operational.test.ts",
+        "canonical exception decisions are current-role scoped, atomic and idempotent"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "current persisted roles fence receipt reads for all nine roles with no business effects"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "import net-only and zero evidence never fabricates gross/tare or finalized missing pricing"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore lifecycle reconciles snapshots, settlement, receipt replay and rollback"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore rejects stale concurrent revisions and cross-Project scope"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore write failure rolls back the full compound command"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: ACCEPT_ORIGIN_NET"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: DIRECT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: WEIGHT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare -1 without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare Infinity without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare NaN without a mutation"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Residual offline and PWA translation construction protects message boundaries and preserves installation and conflict action wiring"
+      ]
+    ],
+    "historicalCandidate": [
+      [
+        "convergence2Operational.test.ts",
+        "canonical exception decisions are current-role scoped, atomic and idempotent"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "current persisted roles fence receipt reads for all nine roles with no business effects"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "import net-only and zero evidence never fabricates gross/tare or finalized missing pricing"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore lifecycle reconciles snapshots, settlement, receipt replay and rollback"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore rejects stale concurrent revisions and cross-Project scope"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real Firestore write failure rolls back the full compound command"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: ACCEPT_ORIGIN_NET"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: DIRECT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "real measurement provenance and settlement: WEIGHT"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare -1 without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare Infinity without a mutation"
+      ],
+      [
+        "convergence2Operational.test.ts",
+        "rejects invalid origin tare NaN without a mutation"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations"
+      ],
+      [
+        "translationByConstructionGuard.test.ts",
+        "Residual offline and PWA translation construction protects message boundaries and preserves installation and conflict action wiring"
+      ]
+    ],
+    "baselineCandidateIdentical": true,
+    "all14InheritedIdentitiesRetained": true,
+    "newFailureIdentities": []
+  },
+  "TYPECHECK_LINT_BUILD": {
+    "typecheckAndLint": "PASS: npm run lint runs tsc --noEmit; final exit 0",
+    "build": "PASS: client/PWA/server production build exit 0; existing chunk-size warning retained",
+    "initialLint": "Exit 2 from missing required fields in newly added test fixture; corrected. Original output retained.",
+    "commands": [
+      {
+        "name": "baseline",
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-main-baseline-20261115",
+        "args": [
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/reportsEngine.test.ts",
+          "src/tests/reportsEngineConvergence.test.ts",
+          "src/tests/reportsEngineControlCleanup.test.ts",
+          "src/tests/dashboard.test.ts",
+          "src/tests/fieldReportsCentralDashboardBlock80.test.ts",
+          "src/tests/dashboardReportsI18n.test.ts",
+          "src/tests/operationalProfiles.test.ts",
+          "src/tests/operationalReportTabIsolation.test.ts",
+          "src/tests/googleDerivedReportRefreshUi.test.tsx",
+          "src/tests/googleReportRefreshRouteCredential.test.ts",
+          "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+          "src/tests/foundationSafetyPfagRb1.test.ts",
+          "src/tests/projectScopeRemediation.test.ts",
+          "src/tests/convergence2Operational.test.ts",
+          "src/tests/uiuxP2FixesBlock74.test.ts",
+          "src/tests/uiuxFixesBlock83A.test.ts",
+          "src/tests/tripEngineRetirement.test.ts",
+          "src/tests/exceptionEngineRetirement.test.ts",
+          "src/tests/translationByConstructionGuard.test.ts",
+          "--maxWorkers=1",
+          "--no-file-parallelism",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\baseline.json"
+        ],
+        "status": 1,
+        "signal": null,
+        "startedAt": "2026-11-15T09:03:09.777Z",
+        "finishedAt": "2026-11-15T09:04:25.077Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "candidate",
+        "args": [
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/reportsEngine.test.ts",
+          "src/tests/reportsEngineConvergence.test.ts",
+          "src/tests/reportsEngineControlCleanup.test.ts",
+          "src/tests/dashboard.test.ts",
+          "src/tests/fieldReportsCentralDashboardBlock80.test.ts",
+          "src/tests/dashboardReportsI18n.test.ts",
+          "src/tests/operationalProfiles.test.ts",
+          "src/tests/operationalReportTabIsolation.test.ts",
+          "src/tests/googleDerivedReportRefreshUi.test.tsx",
+          "src/tests/googleReportRefreshRouteCredential.test.ts",
+          "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+          "src/tests/foundationSafetyPfagRb1.test.ts",
+          "src/tests/projectScopeRemediation.test.ts",
+          "src/tests/convergence2Operational.test.ts",
+          "src/tests/uiuxP2FixesBlock74.test.ts",
+          "src/tests/uiuxFixesBlock83A.test.ts",
+          "src/tests/tripEngineRetirement.test.ts",
+          "src/tests/exceptionEngineRetirement.test.ts",
+          "src/tests/translationByConstructionGuard.test.ts",
+          "src/tests/ui4ReportPresentation.test.ts",
+          "src/tests/ui4ReportScope.test.tsx",
+          "src/tests/ui4ExportIntegrity.test.ts",
+          "--maxWorkers=1",
+          "--no-file-parallelism",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\candidate.json"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 1,
+        "signal": null,
+        "startedAt": "2026-11-15T09:04:25.083Z",
+        "finishedAt": "2026-11-15T09:05:45.978Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "lint",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 2,
+        "signal": null,
+        "startedAt": "2026-11-15T09:05:45.983Z",
+        "finishedAt": "2026-11-15T09:07:35.528Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "build",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T09:07:35.532Z",
+        "finishedAt": "2026-11-15T09:08:15.604Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "browser",
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\runner",
+        "args": [
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/ui4ReportBrowser.test.ts",
+          "--maxWorkers=1",
+          "--no-file-parallelism",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\browser.json"
+        ],
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T09:08:15.606Z",
+        "finishedAt": "2026-11-15T09:10:23.265Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "connected",
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\runner",
+        "args": [
+          "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\connected-run.mjs"
+        ],
+        "status": 1,
+        "signal": null,
+        "startedAt": "2026-11-15T09:10:23.268Z",
+        "finishedAt": "2026-11-15T09:12:41.485Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "affected-final",
+        "args": [
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/dashboardReportsI18n.test.ts",
+          "src/tests/foundationSafetyPfagRb1.test.ts",
+          "src/tests/googleDerivedReportRefreshUi.test.tsx",
+          "src/tests/reportsEngineControlCleanup.test.ts",
+          "src/tests/ui4ReportPresentation.test.ts",
+          "src/tests/ui4ReportScope.test.tsx",
+          "src/tests/ui4ExportIntegrity.test.ts",
+          "--maxWorkers=1",
+          "--no-file-parallelism",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-rb1-evidence-20261115\\affected-final.json"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T11:24:40.136Z",
+        "finishedAt": "2026-11-15T11:25:23.443Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "lint-final",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T11:25:23.445Z",
+        "finishedAt": "2026-11-15T11:27:20.902Z",
+        "node": "v22.22.0"
+      }
+    ]
+  },
+  "DOCUMENTATION_RECONCILIATION": {
+    "status": "PASS",
+    "priorManifestScope": "All pre-RB1 verification fields and source-contract.json refer to preserved historical source bytes. rb1-recovery.json and revised exact inventory carry current state.",
+    "files": [
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/ui4/README.md",
+      "docs/reconstruction/ui4/verification.json",
+      "docs/reconstruction/ui4/exact-file-inventory.json",
+      "docs/reconstruction/ui4/evidence-sha256.json"
+    ]
+  },
+  "PROTECTED_WORKTREES_AND_MIGRATION_STATUS": {
+    "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+    "branch": "ui/ui4-operational-reports-20261115",
+    "stagedFiles": 0,
+    "protectedWorktrees": [
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true
+      },
+      {
+        "folder": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-main-baseline-20261115",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "rawHashesUnchanged": true,
+        "note": "Additional detached comparison worktree is clean; no mutations were made by correction."
+      }
+    ],
+    "originalRb4NineFiles": [
+      {
+        "file": "server/workspaceProjectionDelivery.ts",
+        "sha256": "6e2de083d64939792463e8c35b9958687a677c1e2d7ac4ddcdfa6d72a046d917",
+        "matchesOriginal": true
+      },
+      {
+        "file": "docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md",
+        "sha256": "4214dd0fa88d7f381cdf511a9f70b791532f61976e311fe2d2ff512e5708a7f2",
+        "matchesOriginal": true
+      },
+      {
+        "file": "server/sqlWorkspaceDelivery.ts",
+        "sha256": "abd6bdaf7cba2a96b3ff7ecd521740243a48d559c61bb6c0a0b554b2f9d518ac",
+        "matchesOriginal": true
+      },
+      {
+        "file": "server/workspaceDeliveryJournal.ts",
+        "sha256": "4937ce73ae7e7b7626d4578134efa26801b3579fedaec02c9d9facd2408ca1b0",
+        "matchesOriginal": true
+      },
+      {
+        "file": "src/db/migrations/013_workspace_delivery_journal.sql",
+        "sha256": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+        "matchesOriginal": true
+      },
+      {
+        "file": "src/db/workspaceBindingAuthority.ts",
+        "sha256": "adee0db02f2ad1e878670ad3d75247620c70cb281350ca40368fb059bcf634de",
+        "matchesOriginal": true
+      },
+      {
+        "file": "src/db/workspaceDeliveryJournal.ts",
+        "sha256": "c2031e414589f15712cff4429c38f46e364b403b09d135f05853711c81ef6d3d",
+        "matchesOriginal": true
+      },
+      {
+        "file": "src/db/workspaceGrantAuthority.ts",
+        "sha256": "22db6d8b8baf7064d5a2c556cdc9394c24745b4c4b2eed23a45e46612f6afaf2",
+        "matchesOriginal": true
+      },
+      {
+        "file": "src/tests/ar2U09Rb4Workspace.test.ts",
+        "sha256": "451be2507a1fb02d28e17553c6b73891bd083e2947ddf5932f24e561663f972d",
+        "matchesOriginal": true
+      }
+    ],
+    "migration013": "UNTRACKED_UNPUBLISHED_UNCHANGED",
+    "productionAuthorityException": [
+      "src/services/reportsEngine.service.ts"
+    ],
+    "originalUI4SourcePreservedExceptAdditiveConnectedExportAssertions": true,
+    "sourceFiles": [
+      {
+        "file": "src/components/reports/AdaptiveOperationalReports.tsx",
+        "sha256": "cbfd6cc697fecb614aa55a88cf07ccb23c931c783c52a6aebf87c23c62a15a97"
+      },
+      {
+        "file": "src/components/reports/PrintableReportModal.tsx",
+        "sha256": "3db3953c8b86988b850ca81f079ceea1353c84486cf8db546d3491d25667d51f"
+      },
+      {
+        "file": "src/components/reports/ReportsEngineView.tsx",
+        "sha256": "45ef3af16cab3657d652fb0e7b049c706fb53441d9a49be7d9cde60ea10db035"
+      },
+      {
+        "file": "src/components/reports/operationalReportPresentation.ts",
+        "sha256": "dbf44c36a6f26665332ee251944df22aa61b0d9dfe719d0de2f5d74029c32634"
+      },
+      {
+        "file": "src/components/reports/useReportScope.ts",
+        "sha256": "9561030a887dff56db62b1e567c32b2692dcbb9e16ec29781e9c32eed318ddd5"
+      },
+      {
+        "file": "src/locales/ar/index.ts",
+        "sha256": "b24ab5d056b587e8af669173c4e51496a79a1f417b69bbd99bf4ec5201b65452"
+      },
+      {
+        "file": "src/locales/en/index.ts",
+        "sha256": "35b9e53076821cd60b4f0d56a9db6d11dee479fcb3ac8b7cfa46a32358fbbf53"
+      },
+      {
+        "file": "src/locales/ur/index.ts",
+        "sha256": "cfbbd5ae0a702d9eb2a010ad0f77bc17efb0f9c6b1753a20871c625c282fab8d"
+      },
+      {
+        "file": "src/services/reportsEngine.service.ts",
+        "sha256": "17004ee89914f91a2d17ef8d8ade154d608e16595462a4da41a01ae484915cf8"
+      },
+      {
+        "file": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+        "sha256": "314bf8a39b255955f355baf3783c2b5c4dc4eeafaba3eb745b8096f529f79417"
+      },
+      {
+        "file": "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+        "sha256": "2bb3e86b40b5984b3d198e1a181d2726b14bd903f7da57fc6ad5d7dd65c7a05d"
+      },
+      {
+        "file": "src/tests/helpers/ui4ReportFixture.ts",
+        "sha256": "76bd73de224f98f5b785ba4dffb77941d3a7b37485fe1a2a666208c791912fb8"
+      },
+      {
+        "file": "src/tests/ui4ExportIntegrity.test.ts",
+        "sha256": "0fdc13b2de38554a912f76fab6c3f361bdb26707635c03c453645424a1a60204"
+      },
+      {
+        "file": "src/tests/ui4ReportBrowser.test.ts",
+        "sha256": "2fcb47e539e334a6d81438aec20cbb0b8957be6cb7b77ccf69340a3b1ffe36f1"
+      },
+      {
+        "file": "src/tests/ui4ReportConnectedJourney.test.ts",
+        "sha256": "38b876955074aaf836e33d64789cd91f540d48ad35d58cdff455c1c98fefe610"
+      },
+      {
+        "file": "src/tests/ui4ReportPresentation.test.ts",
+        "sha256": "bddf0deb3a11fe269f9aec872e21f0ea44ceffcc6532f6137841e3fe2c152d4e"
+      },
+      {
+        "file": "src/tests/ui4ReportScope.test.tsx",
+        "sha256": "8af32832aa9fdc2fc797bf4891e8264f447abd2a19037a9c8f32c991536fcbbf"
+      }
+    ]
+  },
+  "FINAL_PUBLICATION_READINESS_DECISION": {
+    "decision": "GO_TO_OWNER_SOURCE_REVIEW_ONLY; PUBLICATION_HOLD",
+    "xlsxBlocker": "RESOLVED_AND_VERIFIED",
+    "broadSuite": "NOT_PASS_WITH_IDENTICAL_14_INHERITED_FAILURES",
+    "ownerGate": "STOP at owner review. No commit, staging, push, PR, merge, deployment, RB4 activation or SQL cutover performed.",
+    "readback": {
+      "method": "GitHub connector read-only search_branches and search_prs",
+      "repository": "rexat007/Q-Saudi-Work-Follow-App",
+      "branchQuery": "ui/ui4-operational-reports-20261115",
+      "remoteBranches": [],
+      "prQuery": "repo:rexat007/Q-Saudi-Work-Follow-App head:ui/ui4-operational-reports-20261115",
+      "pullRequests": [],
+      "localHead": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+      "noPublicationActionsPerformed": true
+    }
+  },
+  "artifactSha256": "bfa35339d1747ac1b854a91e30f94e5169fda2776557f9a6c1a2c66bd368b0cf"
+}

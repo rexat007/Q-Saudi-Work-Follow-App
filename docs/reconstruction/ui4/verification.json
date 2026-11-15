@@ -1,0 +1,352 @@
+{
+  "startingMain": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+  "githubMainReadback": {
+    "url": "https://api.github.com/repos/rexat007/Q-Saudi-Work-Follow-App/branches/main",
+    "sha": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+    "method": "GitHub connector read before edits and independent readback during verification"
+  },
+  "branch": "ui/ui4-operational-reports-20261115",
+  "localHead": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+  "noCommitOrPublication": true,
+  "commands": [
+    {
+      "name": "lint-owner-review",
+      "args": [
+        "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+      "status": 0,
+      "signal": null,
+      "startedAt": "2026-11-15T07:43:43.221Z",
+      "finishedAt": "2026-11-15T07:45:05.240Z"
+    },
+    {
+      "name": "build-owner-review",
+      "args": [
+        "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+      "status": 0,
+      "signal": null,
+      "startedAt": "2026-11-15T07:45:05.243Z",
+      "finishedAt": "2026-11-15T07:45:37.413Z"
+    },
+    {
+      "name": "browser-owner-review",
+      "args": [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/tests/ui4ReportBrowser.test.ts",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=verbose",
+        "--reporter=json",
+        "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\browser-owner-review.json"
+      ],
+      "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+      "status": 0,
+      "signal": null,
+      "startedAt": "2026-11-15T07:45:37.422Z",
+      "finishedAt": "2026-11-15T07:47:38.757Z"
+    },
+    {
+      "name": "emulator-owner-review",
+      "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\owned-connected-r2\\runner",
+      "args": [
+        "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\owned-connected-r2\\run.mjs"
+      ],
+      "status": 0,
+      "signal": null,
+      "startedAt": "2026-11-15T07:47:38.759Z",
+      "finishedAt": "2026-11-15T07:48:46.771Z"
+    },
+    {
+      "name": "source-contract-owner-review",
+      "args": [
+        "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\source-contract.mjs"
+      ],
+      "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+      "status": 0,
+      "signal": null,
+      "startedAt": "2026-11-15T07:48:46.777Z",
+      "finishedAt": "2026-11-15T07:48:52.291Z"
+    }
+  ],
+  "differential": {
+    "baseline": {
+      "numTotalTests": 324,
+      "numPassedTests": 310,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "candidateFinalSource": {
+      "numTotalTests": 396,
+      "numPassedTests": 382,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "nativeExits": [
+      1,
+      1
+    ],
+    "newFailureIdentities": [],
+    "aggregateDisposition": "NOT_PASS"
+  },
+  "newUnitTests": {
+    "total": 72,
+    "passed": 72
+  },
+  "finalPrintSecurityLocalizationFamily": {
+    "result": {
+      "numTotalTests": 156,
+      "numPassedTests": 156,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "nativeExit": 0,
+    "files": [
+      "dashboardReportsI18n.test.ts",
+      "foundationSafetyPfagRb1.test.ts",
+      "googleDerivedReportRefreshUi.test.tsx",
+      "reportsEngineControlCleanup.test.ts",
+      "ui4ReportPresentation.test.ts",
+      "ui4ReportScope.test.tsx"
+    ],
+    "args": [
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "src/tests/dashboardReportsI18n.test.ts",
+      "src/tests/foundationSafetyPfagRb1.test.ts",
+      "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "src/tests/reportsEngineControlCleanup.test.ts",
+      "src/tests/ui4ReportPresentation.test.ts",
+      "src/tests/ui4ReportScope.test.tsx",
+      "--maxWorkers=1",
+      "--no-file-parallelism",
+      "--reporter=verbose",
+      "--reporter=json",
+      "--outputFile=../ui4-evidence-20261115/print-affected-reviewed.json"
+    ]
+  },
+  "finalBrowser": {
+    "result": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "nativeExit": 0,
+    "browser": "Headless Microsoft Edge",
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "viewports": [
+      390,
+      768,
+      1440
+    ],
+    "fourOperationalProfiles": true,
+    "allExistingReportFamilies": true,
+    "liveProviderOrPhysicalDeviceAcceptance": false,
+    "fixtures": "Explicit presentation-only auth/storage/provider fixtures; actual production components, calculations and exports."
+  },
+  "connected": {
+    "baselineOperational": {
+      "numTotalTests": 14,
+      "numPassedTests": 14,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "baselineNativeExit": 0,
+    "initialCandidate": {
+      "numTotalTests": 17,
+      "numPassedTests": 16,
+      "numFailedTests": 1,
+      "numPendingTests": 0
+    },
+    "initialCandidateNativeExit": 1,
+    "unchangedUi3Journeys": {
+      "passed": 2,
+      "formats": [
+        "CSV",
+        "EXCEL"
+      ],
+      "reportScale": 1002
+    },
+    "newUi4AfterCanonicalNavigationFixtureRepair": {
+      "numTotalTests": 1,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "newUi4NativeExit": 0,
+    "assertedEmulators": [
+      "127.0.0.1:8085",
+      "127.0.0.1:9099"
+    ],
+    "project": "demo-convergence2",
+    "actualAppAuthFirestoreAndServer": true,
+    "syntheticReportRecordsInNewUi4Case": true,
+    "liveGoogleCalls": false,
+    "cleanupErrors": [],
+    "remainingListeners": [],
+    "initial17CaseAggregate": "NOT_PASS; no synthesized 17/17 rerun claim"
+  },
+  "pdfReadOnlyQa": [
+    {
+      "locale": "ar",
+      "pages": 2,
+      "renderExit": 0,
+      "textContainsT1": true,
+      "path": "..\\ui4-evidence-20261115\\browser\\ar-report.pdf"
+    },
+    {
+      "locale": "en",
+      "pages": 2,
+      "renderExit": 0,
+      "textContainsT1": true,
+      "path": "..\\ui4-evidence-20261115\\browser\\en-report.pdf"
+    },
+    {
+      "locale": "ur",
+      "pages": 2,
+      "renderExit": 0,
+      "textContainsT1": true,
+      "path": "..\\ui4-evidence-20261115\\browser\\ur-report.pdf"
+    }
+  ],
+  "originalFiveDocuments": [
+    {
+      "file": "docs/reconstruction/00_WORK_START_HERE.md",
+      "allOriginalAddedLinesPreservedInOrder": true
+    },
+    {
+      "file": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "allOriginalAddedLinesPreservedInOrder": true
+    },
+    {
+      "file": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "allOriginalAddedLinesPreservedInOrder": true
+    },
+    {
+      "file": "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "allOriginalAddedLinesPreservedInOrder": true
+    },
+    {
+      "file": "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md",
+      "allOriginalAddedLinesPreservedInOrder": true
+    }
+  ],
+  "scopePreservation": {
+    "sourceContract": "source-contract.json",
+    "originalGoogleSevenTestAssertionsUnchanged": true,
+    "allOtherOriginalTestsUnchanged": true,
+    "allOtherWorktreesAndOriginalNineRb4HashesUnchanged": true,
+    "migrationsUnchanged": true,
+    "noStaging": true
+  },
+  "remainingAcceptance": [
+    "Owner source review and separate authorization before commit/publication.",
+    "Two inherited translationByConstructionGuard assertions remain failing.",
+    "Earlier native browser deadlines not reproduced in final 9/9; cause remains unresolved.",
+    "Existing shared XLSX Arabic metadata/branding retained; physical device/screen-reader acceptance remains.",
+    "Emulator runner ADC metadata lookup and runtime Git discovery warnings do not establish live Google or deployed-runtime acceptance.",
+    "Live Workspace refresh/provider credentials and operational freshness require separately authorized acceptance."
+  ],
+  "focusedDifferentialCommands": {
+    "baseline": {
+      "status": 1,
+      "signal": null,
+      "args": [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/tests/reportsEngine.test.ts",
+        "src/tests/reportsEngineConvergence.test.ts",
+        "src/tests/reportsEngineControlCleanup.test.ts",
+        "src/tests/dashboard.test.ts",
+        "src/tests/fieldReportsCentralDashboardBlock80.test.ts",
+        "src/tests/dashboardReportsI18n.test.ts",
+        "src/tests/operationalProfiles.test.ts",
+        "src/tests/operationalReportTabIsolation.test.ts",
+        "src/tests/googleDerivedReportRefreshUi.test.tsx",
+        "src/tests/googleReportRefreshRouteCredential.test.ts",
+        "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+        "src/tests/foundationSafetyPfagRb1.test.ts",
+        "src/tests/projectScopeRemediation.test.ts",
+        "src/tests/convergence2Operational.test.ts",
+        "src/tests/uiuxP2FixesBlock74.test.ts",
+        "src/tests/uiuxFixesBlock83A.test.ts",
+        "src/tests/tripEngineRetirement.test.ts",
+        "src/tests/exceptionEngineRetirement.test.ts",
+        "src/tests/translationByConstructionGuard.test.ts",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\baseline.json"
+      ],
+      "node": "v22.22.0"
+    },
+    "candidate": {
+      "status": 1,
+      "signal": null,
+      "args": [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/tests/reportsEngine.test.ts",
+        "src/tests/reportsEngineConvergence.test.ts",
+        "src/tests/reportsEngineControlCleanup.test.ts",
+        "src/tests/dashboard.test.ts",
+        "src/tests/fieldReportsCentralDashboardBlock80.test.ts",
+        "src/tests/dashboardReportsI18n.test.ts",
+        "src/tests/operationalProfiles.test.ts",
+        "src/tests/operationalReportTabIsolation.test.ts",
+        "src/tests/googleDerivedReportRefreshUi.test.tsx",
+        "src/tests/googleReportRefreshRouteCredential.test.ts",
+        "src/tests/googleReportRefreshRateLimitBudget.test.ts",
+        "src/tests/foundationSafetyPfagRb1.test.ts",
+        "src/tests/projectScopeRemediation.test.ts",
+        "src/tests/convergence2Operational.test.ts",
+        "src/tests/uiuxP2FixesBlock74.test.ts",
+        "src/tests/uiuxFixesBlock83A.test.ts",
+        "src/tests/tripEngineRetirement.test.ts",
+        "src/tests/exceptionEngineRetirement.test.ts",
+        "src/tests/translationByConstructionGuard.test.ts",
+        "src/tests/ui4ReportPresentation.test.ts",
+        "src/tests/ui4ReportScope.test.tsx",
+        "--maxWorkers=1",
+        "--no-file-parallelism",
+        "--reporter=default",
+        "--reporter=json",
+        "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-evidence-20261115\\candidate-owner-review.json"
+      ],
+      "node": "v22.22.0"
+    }
+  },
+  "buildSourceBoundary": "The final production/test bytes match source-contract.json and were unchanged after the final TypeScript/build/browser/emulator gates. Documentation/evidence was finalized afterwards. The dirty local build ID is not a published/deployed artifact acceptance claim.",
+  "preRecoveryEvidenceScope": "All original fields are preserved historical pre-RB1 evidence, not the corrected service source identity. Current correction gates and source hashes are in rb1-recovery.json.",
+  "UI4_RB1_CURRENT": {
+    "record": "rb1-recovery.json",
+    "raw": "rb1-verification-raw.zip",
+    "scopeTotal": 49,
+    "decision": "GO_TO_OWNER_SOURCE_REVIEW_ONLY; PUBLICATION_HOLD"
+  },
+  "UI4_CI1_CURRENT": {
+    "record": "ci1-recovery.json",
+    "raw": "ci1-verification-raw.zip",
+    "pinnedFailingHead": "85c648022e3669be025faa68ac4eeae35f243dd6",
+    "failingRunId": 43715381498,
+    "scopeTotal": 52,
+    "localRuntimeAudit": "16/16 PASS",
+    "localFocused": "87/87 PASS",
+    "typecheckLintBuild": "PASS",
+    "remoteRequiredCI": "PENDING: only exact new PR-head workflow success can clear the CI hold",
+    "historicalEvidenceBoundary": "Original fields and RB1 records retain their pre-CI1 source/status snapshots. They are preserved, not a CI success claim."
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "UI4_CI1_ROOT_CAUSE": {
+    "source": "src/components/reports/operationalReportPresentation.ts",
+    "cause": "Static runtime audit extracts the incomplete quoted prefix ui4. from t('ui4.' + key); not missing full dictionary keys.",
+    "originalGitHubRunId": 43715381498,
+    "originalHead": "85c648022e3669be025faa68ac4eeae35f243dd6",
+    "originalConclusion": "failure",
+    "originalFoundationJobId": 132815670568
+  },
+  "EXACT_SOURCE_CHANGE": {
+    "file": "src/components/reports/operationalReportPresentation.ts",
+    "solution": "Explicit literal four-key mapping, derived ExportAuditKey union and typed aliases; stable iteration and unchanged row/fallback logic.",
+    "sourceSha256": "c6ccb64476cc5822464047592d7b78fc2122de840de761d38baa933c31a92ffa",
+    "actualResolvedLabels": {
+      "ar": {
+        "ui4.sourceType": "نوع المصدر",
+        "ui4.pricingSnapshotAt": "وقت لقطة التسعير",
+        "ui4.destinationWeightSource": "دليل وزن الوجهة",
+        "ui4.settlementStatus": "حالة التسوية"
+      },
+      "en": {
+        "ui4.sourceType": "Source type",
+        "ui4.pricingSnapshotAt": "Pricing snapshot time",
+        "ui4.destinationWeightSource": "Destination weight evidence",
+        "ui4.settlementStatus": "Settlement status"
+      },
+      "ur": {
+        "ui4.sourceType": "ماخذ کی قسم",
+        "ui4.pricingSnapshotAt": "قیمت کے محفوظ عکس کا وقت",
+        "ui4.destinationWeightSource": "منزل کے وزن کا ثبوت",
+        "ui4.settlementStatus": "تصفیے کی حالت"
+      }
+    }
+  },
+  "RED_TO_GREEN_RUNTIME_AUDIT": {
+    "unchangedCommand": "npm run test:i18n-runtime",
+    "red": {
+      "passed": 11,
+      "failed": 5,
+      "total": 16,
+      "exit": 1
+    },
+    "green": {
+      "passed": 16,
+      "failed": 0,
+      "total": 16,
+      "exit": 0
+    },
+    "auditFileUnchanged": true,
+    "incompleteDictionaryKeyAdded": false
+  },
+  "UI4_AFFECTED_REGRESSIONS": {
+    "numTotalTests": 87,
+    "numPassedTests": 87,
+    "numFailedTests": 0,
+    "numPendingTests": 0
+  },
+  "TYPECHECK_LINT_BUILD": {
+    "commands": [
+      {
+        "name": "runtime-green",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "test:i18n-runtime"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T13:50:43.295Z",
+        "finishedAt": "2026-11-15T13:50:47.764Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "ui4-focused",
+        "args": [
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/ui4Ci1ExportLabels.test.ts",
+          "src/tests/ui4ReportPresentation.test.ts",
+          "src/tests/ui4ReportScope.test.tsx",
+          "src/tests/ui4ExportIntegrity.test.ts",
+          "--maxWorkers=1",
+          "--no-file-parallelism",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui4-ci1-evidence-20261115\\ui4-focused.json"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T13:50:47.766Z",
+        "finishedAt": "2026-11-15T13:51:04.779Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "lint",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T13:51:04.785Z",
+        "finishedAt": "2026-11-15T13:52:53.331Z",
+        "node": "v22.22.0"
+      },
+      {
+        "name": "build",
+        "args": [
+          "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-postmerge-ui4-entry-20261115",
+        "status": 0,
+        "signal": null,
+        "startedAt": "2026-11-15T13:52:53.333Z",
+        "finishedAt": "2026-11-15T13:53:29.709Z",
+        "node": "v22.22.0"
+      }
+    ],
+    "status": "PASS"
+  },
+  "UPDATED_FILE_INVENTORY": {
+    "previousTotal": 49,
+    "total": 52,
+    "counts": {
+      "production": 9,
+      "testsAndFixtures": 9,
+      "documentationAndEvidence": 34
+    },
+    "ci1DeltaFiles": [
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/ui4/README.md",
+      "docs/reconstruction/ui4/ci1-recovery.json",
+      "docs/reconstruction/ui4/ci1-verification-raw.zip",
+      "docs/reconstruction/ui4/evidence-sha256.json",
+      "docs/reconstruction/ui4/exact-file-inventory.json",
+      "docs/reconstruction/ui4/verification.json",
+      "src/components/reports/operationalReportPresentation.ts",
+      "src/tests/ui4Ci1ExportLabels.test.ts"
+    ],
+    "ci1DeltaCount": 10,
+    "newCandidatePaths": [
+      "src/tests/ui4Ci1ExportLabels.test.ts",
+      "docs/reconstruction/ui4/ci1-recovery.json",
+      "docs/reconstruction/ui4/ci1-verification-raw.zip"
+    ]
+  },
+  "EVIDENCE_PRESERVATION": {
+    "status": "PASS",
+    "protectedWorktrees": 21,
+    "allOriginalSourceAndTestsUnchangedExcept": "src/components/reports/operationalReportPresentation.ts",
+    "runtimeAuditSha256": "5541005ec16e0b95f0ce665e3cc82b34dcc61350361dbb4506ba6305adcb70a5",
+    "sharedXlsxServiceSha256": "17004ee89914f91a2d17ef8d8ade154d608e16595462a4da41a01ae484915cf8",
+    "dictionaryFilesUnchanged": true,
+    "rb4OriginalNineAndMigration013Unchanged": true,
+    "allOriginal49BytesBackedUp": "before-49.zip",
+    "originalArchivesAndNonGreenIdentityFilesUnchanged": true
+  },
+  "historicalNonGreen": {
+    "broadBaseline": "310/324",
+    "broadCandidate": "394/408",
+    "same14Identities": true,
+    "disposition": "NOT_PASS",
+    "notRerunForCI1": true,
+    "originalConnected": "16/17 then separate corrected 1/1; preserved",
+    "newerConnected": "first enhanced timeout then final 1/1; preserved",
+    "sourceFiles": {
+      "src/components/reports/AdaptiveOperationalReports.tsx": "cbfd6cc697fecb614aa55a88cf07ccb23c931c783c52a6aebf87c23c62a15a97",
+      "src/components/reports/PrintableReportModal.tsx": "3db3953c8b86988b850ca81f079ceea1353c84486cf8db546d3491d25667d51f",
+      "src/components/reports/ReportsEngineView.tsx": "45ef3af16cab3657d652fb0e7b049c706fb53441d9a49be7d9cde60ea10db035",
+      "src/components/reports/operationalReportPresentation.ts": "dbf44c36a6f26665332ee251944df22aa61b0d9dfe719d0de2f5d74029c32634",
+      "src/components/reports/useReportScope.ts": "9561030a887dff56db62b1e567c32b2692dcbb9e16ec29781e9c32eed318ddd5",
+      "src/locales/ar/index.ts": "b24ab5d056b587e8af669173c4e51496a79a1f417b69bbd99bf4ec5201b65452",
+      "src/locales/en/index.ts": "35b9e53076821cd60b4f0d56a9db6d11dee479fcb3ac8b7cfa46a32358fbbf53",
+      "src/locales/ur/index.ts": "cfbbd5ae0a702d9eb2a010ad0f77bc17efb0f9c6b1753a20871c625c282fab8d",
+      "src/services/reportsEngine.service.ts": "17004ee89914f91a2d17ef8d8ade154d608e16595462a4da41a01ae484915cf8",
+      "src/tests/googleDerivedReportRefreshUi.test.tsx": "314bf8a39b255955f355baf3783c2b5c4dc4eeafaba3eb745b8096f529f79417",
+      "src/tests/helpers/ui4ReportBrowserEntry.tsx": "2bb3e86b40b5984b3d198e1a181d2726b14bd903f7da57fc6ad5d7dd65c7a05d",
+      "src/tests/helpers/ui4ReportFixture.ts": "76bd73de224f98f5b785ba4dffb77941d3a7b37485fe1a2a666208c791912fb8",
+      "src/tests/ui4ExportIntegrity.test.ts": "0fdc13b2de38554a912f76fab6c3f361bdb26707635c03c453645424a1a60204",
+      "src/tests/ui4ReportBrowser.test.ts": "2fcb47e539e334a6d81438aec20cbb0b8957be6cb7b77ccf69340a3b1ffe36f1",
+      "src/tests/ui4ReportConnectedJourney.test.ts": "38b876955074aaf836e33d64789cd91f540d48ad35d58cdff455c1c98fefe610",
+      "src/tests/ui4ReportPresentation.test.ts": "bddf0deb3a11fe269f9aec872e21f0ea44ceffcc6532f6137841e3fe2c152d4e",
+      "src/tests/ui4ReportScope.test.tsx": "8af32832aa9fdc2fc797bf4891e8264f447abd2a19037a9c8f32c991536fcbbf"
+    }
+  },
+  "remotePublication": {
+    "target": "existing Draft PR #105",
+    "newCommit": "PENDING at this local snapshot",
+    "newRemoteHead": "PENDING",
+    "newWorkflow": "PENDING; original failing run cannot establish corrected CI success"
+  },
+  "FINAL_MERGE_GATE": "HOLD pending successful required CI on exact new PR head, then owner independent review; no merge authorization",
+  "archiveSha256": "84e1bb4a77eba1af355838876f6c771755307e73873a3f8c00173b86ad89fdd0",
+  "secretScan": {
+    "status": "PASS",
+    "textEntriesScanned": 2599,
+    "findings": []
+  },
+  "docLinks": {
+    "status": "PASS",
+    "checked": [
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/verification.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/failure-comparison.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/rb1-recovery.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/rb1-verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/ci1-recovery.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "target": "ui4/ci1-verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/02_PHASE_LEDGER.md",
+        "target": "ui4/ci1-recovery.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "ci1-recovery.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "ci1-verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "rb1-recovery.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "rb1-verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "verification.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "exact-file-inventory.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "source-contract.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "failure-comparison.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "history.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "verification-raw.zip"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "inherited-five-docs.patch"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "preflight.json"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "screenshots/ar-mobile.png"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "screenshots/en-desktop.png"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "screenshots/ur-tablet.png"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "../02_PHASE_LEDGER.md"
+      },
+      {
+        "source": "docs/reconstruction/ui4/README.md",
+        "target": "../UI4_OPERATIONAL_REPORTS.md"
+      }
+    ]
+  }
+}

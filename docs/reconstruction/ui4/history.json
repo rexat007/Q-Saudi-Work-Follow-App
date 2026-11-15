@@ -1,0 +1,222 @@
+[
+  {
+    "artifact": "baseline.json",
+    "counts": {
+      "numTotalTests": 324,
+      "numPassedTests": 310,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-final-reviewed.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-final.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-owner-review.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 9,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "classification": "FINAL_ACCEPTANCE_EVIDENCE"
+  },
+  {
+    "artifact": "browser-r1.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 0,
+      "numFailedTests": 9,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r2.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 0,
+      "numFailedTests": 9,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r3.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 0,
+      "numFailedTests": 9,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r4.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 0,
+      "numFailedTests": 9,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r5-diagnostic.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 0,
+      "numFailedTests": 1,
+      "numPendingTests": 8
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r6-diagnostic.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 8
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "browser-r8-diagnostic.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 8
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "candidate-final.json",
+    "counts": {
+      "numTotalTests": 396,
+      "numPassedTests": 382,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "candidate-owner-review.json",
+    "counts": {
+      "numTotalTests": 396,
+      "numPassedTests": 382,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "classification": "FINAL_ACCEPTANCE_EVIDENCE"
+  },
+  {
+    "artifact": "candidate.json",
+    "counts": {
+      "numTotalTests": 395,
+      "numPassedTests": 381,
+      "numFailedTests": 14,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "new-r1.json",
+    "counts": {
+      "numTotalTests": 49,
+      "numPassedTests": 41,
+      "numFailedTests": 8,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "new-r3.json",
+    "counts": {
+      "numTotalTests": 77,
+      "numPassedTests": 76,
+      "numFailedTests": 1,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "new-r4.json",
+    "counts": {
+      "numTotalTests": 77,
+      "numPassedTests": 77,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "print-affected-final.json",
+    "counts": {
+      "numTotalTests": 156,
+      "numPassedTests": 155,
+      "numFailedTests": 1,
+      "numPendingTests": 0
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "print-affected-reviewed.json",
+    "counts": {
+      "numTotalTests": 156,
+      "numPassedTests": 156,
+      "numFailedTests": 0,
+      "numPendingTests": 0
+    },
+    "classification": "FINAL_ACCEPTANCE_EVIDENCE"
+  },
+  {
+    "artifact": "print-pdf-diagnostic.json",
+    "counts": {
+      "numTotalTests": 9,
+      "numPassedTests": 1,
+      "numFailedTests": 0,
+      "numPendingTests": 8
+    },
+    "classification": "PRESERVED_INTERMEDIATE_OR_DIAGNOSTIC_NOT_FINAL_ACCEPTANCE"
+  },
+  {
+    "artifact": "new-r2-interruption.json",
+    "classification": "OWNED_TEST_FIXTURE_INTERRUPTION_RETAINED",
+    "explanation": "A new useAuth mock created a new profile object every render; cache stability corrected. No old assertion or test deadline changed."
+  },
+  {
+    "artifact": "browser-verified-interruption.json",
+    "classification": "NOT_REPRODUCED_IN_FINAL_MATRIX_CAUSE_UNRESOLVED",
+    "explanation": "Original 60-second deadlines preserved. Owned tree stopped; stage evidence and stricter 10-second action limits added. Final nine cases passed."
+  },
+  {
+    "artifact": "owned-connected-r1/candidate-connected.json",
+    "classification": "NEW_TEST_FIXTURE_NAVIGATION_ASSUMPTION",
+    "explanation": "Unchanged Sidebar selector explicitly enters WIZARD. New test verifies old report disappears, then follows existing Reports route before asserting new project."
+  },
+  {
+    "artifact": "print-affected-final.json",
+    "classification": "NEW_TEST_UPDATED_FOR_COLUMN_BANDS",
+    "explanation": "Each printed band repeats canonical rows. New tests assert every band row count and full unique column-key union, retaining the dataset-equivalence guarantee."
+  }
+]

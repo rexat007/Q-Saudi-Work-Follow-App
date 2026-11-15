@@ -1,3 +1,13 @@
+## CURRENT ENTRY POINTER — UI4 local owner review
+
+Read the [sole current-state ledger](02_PHASE_LEDGER.md#current-ui4-owner-authorized-local-implementation--2026-11-15) and [UI4 scope/evidence](UI4_OPERATIONAL_REPORTS.md). The owner authorized bounded implementation after the historical proposal. No publication or production operation is authorized. All prior checkpoints below are historical.
+
+## CURRENT CHECKPOINT — post PR #104, 2026-11-15
+
+GitHub main `800434f634fb7ea5099fc12e4ec064dfb05d6df2` merges UI3 and its documentation-only RB1 (PR #104); exact-main Secret-free foundation CI run `43666983421` succeeded. UI3 = MERGED / SOURCE_VERIFIED / SOURCE_CLOSED, not product-live accepted; historical broad 605/638 remains NOT PASS and the 15 earlier additional failures remain CAUSE_UNRESOLVED despite passing bounded contrast. `02_PHASE_LEDGER.md` alone owns current state. Next is UI4 area-wide discovery/target contract, NOT implementation; no SQL/RB4 activation, deployment or unauthorized publication. Older entries below are historical.
+
+Read the [sole current-state ledger](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15); the summary above is an entry pointer, not another state owner.
+
 ## Current Controlled Incremental Workspace Projection & Derived Report Refresh checkpoint — 2026-11-03
 
 Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Working source contains completed Controlled Incremental Workspace Projection & Cost, Scale, Synchronization Architecture and Explicit Derived Report Refresh Convergence verified locally (`7d50d3a31e72eb2e573ed169a029d5822f0a0742` baseline). Standard operational authority is strictly Firestore (`FIRESTORE` = SOLE CANONICAL OPERATIONAL AUTHORITY; `GOOGLE_SHEETS` = DEFERRED PROJECTION / CONTINUITY / REPORT EXPORT). Ordinary data sync (`retrySync`) performs strictly incremental Trip projection (0 full Trip collection scans). Derived operational reports are updated via an explicit bounded server-authoritative operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`). Automatic user-active activity trigger POST requests (`useUserActiveWorkspaceSync`) and unbounded continuous 30s PWA polling in `pwaUpdate.ts` are retired to strictly 0 calls. Scheduled worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects without Google calls. Local test suites `controlledIncrementalWorkspaceProjection.test.ts` (5/5 PASS), `userActiveWorkspaceSync.test.tsx` (10/10 PASS), `runtimeGenerationConvergence.test.ts` (18/18 PASS), and `workspaceSyncCoordinator.test.ts` (28/28 PASS) all pass (61/61 total PASS). Publication is pending owner review; no push, PR, merge, or Phase 10.

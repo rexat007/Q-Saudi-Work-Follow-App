@@ -1,0 +1,158 @@
+{
+  "startingMain": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+  "inheritedDocDiffSha256": "3b54c40763fd00b5421358637d1142b3f278445fb7bcc877e30f1ff92f0b4b6a",
+  "inheritedFiveDocuments": {
+    "docs/reconstruction/00_WORK_START_HERE.md": "c72ce456f7a62f169df14229ba21d65faf31235cf5d4e0f97b21c199df2e864d",
+    "docs/reconstruction/02_PHASE_LEDGER.md": "db84e72d367a44e03cdd5fbc4929e389f1648430305ef086efc7207e43c56128",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "c89c6fb17674f782d19359bdd7359a18399045feef57fd691722109ac71cee86",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "760caa7cc7b560890516666b07008d1f04c3951d2e69c3774f52b4f9a572f983",
+    "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md": "488f3a436a5361efa040ee931b5496206516e051a187bfb40cb996cc3259f57f"
+  },
+  "otherWorktrees": {
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App": {
+      "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+      "status": [
+        " M server/workspaceProjectionDelivery.ts",
+        "?? docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md",
+        "?? server/sqlWorkspaceDelivery.ts",
+        "?? server/workspaceDeliveryJournal.ts",
+        "?? src/db/migrations/013_workspace_delivery_journal.sql",
+        "?? src/db/workspaceBindingAuthority.ts",
+        "?? src/db/workspaceDeliveryJournal.ts",
+        "?? src/db/workspaceGrantAuthority.ts",
+        "?? src/tests/ar2U09Rb4Workspace.test.ts"
+      ]
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline": {
+      "head": "365134064ad790377cd0bc2c2b58c0044ce7952a",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline": {
+      "head": "a5cc9f552d71317cc0db20b367d7612b10075132",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify": {
+      "head": "bd390ad4fd31076e53bddfc154b22b338e4a8aff",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline": {
+      "head": "c36c3854ab45ca375ebb4ba2ab688d8aacbfa463",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify": {
+      "head": "e9f3cc63406523c44db9eb42965b01a258312fa2",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline": {
+      "head": "7ce8f7827e6e9a037a8010791c4ee69170d868ff",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final": {
+      "head": "bb468587c90c9a76956579057cb68de1fc5bd0be",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify": {
+      "head": "311794c8b5c168ca34249855a5c7be8347350f7d",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline": {
+      "head": "1db763ca6a5423f3855c1be251f4270a7e12048e",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline": {
+      "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline": {
+      "head": "545507c70c7e4861e9f732b7f9cdce613d1b3e58",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1": {
+      "head": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline": {
+      "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+      "status": [
+        " M reports/trip-identity-adjustment-block89.json",
+        " M reports/trip-identity-adjustment-block89.md"
+      ]
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113": {
+      "head": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114": {
+      "head": "419459d870294f41a0948de15a576db9ddd2249e",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113": {
+      "head": "018a593e2d027dddc860799b996ffb2f323abeb8",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114": {
+      "head": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115": {
+      "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+      "status": [
+        " M docs/reconstruction/00_WORK_START_HERE.md",
+        " M docs/reconstruction/02_PHASE_LEDGER.md",
+        " M docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+        " M docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+        " M docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md"
+      ]
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115": {
+      "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+      "status": []
+    },
+    "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114": {
+      "head": "39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1",
+      "status": []
+    }
+  },
+  "allowlist": {
+    "existingProduction": [
+      "src/components/reports/ReportsEngineView.tsx",
+      "src/components/reports/AdaptiveOperationalReports.tsx",
+      "src/components/reports/PrintableReportModal.tsx",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts"
+    ],
+    "newPresentation": [
+      "src/components/reports/useReportScope.ts",
+      "src/components/reports/operationalReportPresentation.ts"
+    ],
+    "existingTestFixtureOnly": [
+      "src/tests/googleDerivedReportRefreshUi.test.tsx"
+    ],
+    "newTests": [
+      "src/tests/ui4ReportPresentation.test.ts",
+      "src/tests/ui4ReportScope.test.tsx",
+      "src/tests/ui4ReportBrowser.test.ts",
+      "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+      "src/tests/ui4ReportConnectedJourney.test.ts",
+      "src/tests/helpers/ui4ReportFixture.ts"
+    ],
+    "docs": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/ui4/"
+    ]
+  },
+  "classification": {
+    "KEEP": "App routing, server/middleware, repositories, report/calculation/profile services, types, Outbox, SQL/migrations/CI/dependencies",
+    "HARDEN": "Report-local principal/project/auth/request generation and truthful read/Google timestamps",
+    "CONVERGE": "Existing report renderer, canonical dataset views, accessible print and localization",
+    "RETIRE": "Hidden unused report loader while adaptive child is mounted; synthetic official print references",
+    "REBUILD": "NONE",
+    "DEFER": "All unrelated UI1-UI3, global shell/design, financial authority, Workspace binding and SQL/RB4"
+  }
+}

@@ -1921,10 +1921,10 @@ export class ReportsEngineService {
   // =========================================================================
 
   /**
-   * Exports dataset to a clean CSV formatted string with UTF-8 BOM.
+   * Builds the ordered logical table shared by CSV and XLSX.
    * Includes sourceType, pricingSnapshotAt, destinationWeightSource, and settlement status.
    */
-  public exportDatasetToCSV(dataset: ReportDataset): string {
+  private buildExportTable(dataset: ReportDataset): { columns: ReportColumnDef[]; rows: string[][] } {
     const exportColumns = [...dataset.columns];
 
     // Ensure audit & traceability columns are present in export
@@ -1946,7 +1946,6 @@ export class ReportsEngineService {
       exportColumns.push({ key: 'settlementStatus', labelAr: 'حالة التسوية (Settlement Status)', labelEn: 'Settlement Status', format: 'text' });
     }
 
-    const headers = exportColumns.map(c => `"${c.labelAr}"`).join(',');
     const rows = dataset.rows.map(r => {
       return exportColumns.map(c => {
         let val = r[c.key];
@@ -1957,12 +1956,19 @@ export class ReportsEngineService {
           else if (c.key === 'settlementStatus') val = r.pricingStatusLabelAr || (r.pendingTrips > 0 || r.isPending ? 'معلق التسوية (Pending)' : 'تسوية معتمدة (Finalized)');
           else val = '';
         }
-        const escaped = String(val).replace(/"/g, '""');
-        return `"${escaped}"`;
-      }).join(',');
+        return String(val);
+      });
     });
 
-    return '\uFEFF' + [headers, ...rows].join('\r\n');
+    return { columns: exportColumns, rows };
+  }
+
+  /** Serialize the canonical logical table without changing embedded line breaks. */
+  public exportDatasetToCSV(dataset: ReportDataset): string {
+    const { columns, rows } = this.buildExportTable(dataset);
+    const quote = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    return '\uFEFF' + [columns.map(c => c.labelAr), ...rows]
+      .map(row => row.map(quote).join(',')).join('\r\n');
   }
 
   /**
@@ -1989,8 +1995,7 @@ export class ReportsEngineService {
    * Exports dataset to a true binary Excel (.xlsx) file using SheetJS.
    */
   public exportToXLSX(dataset: ReportDataset): void {
-    const csvString = this.exportDatasetToCSV(dataset);
-    const lines = csvString.replace(/^\uFEFF/, '').split('\r\n');
+    const { columns, rows } = this.buildExportTable(dataset);
     const tableData: any[][] = [];
 
     // Header info rows
@@ -2006,12 +2011,8 @@ export class ReportsEngineService {
     ]);
     tableData.push([]); // empty line
 
-    lines.forEach(line => {
-      if (!line.trim()) return;
-      // Simple CSV line parser
-      const row = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"'));
-      tableData.push(row);
-    });
+    // Keep record boundaries structured: CSV line breaks may belong to a cell.
+    tableData.push(columns.map(c => c.labelAr), ...rows);
 
     const ws = XLSX.utils.aoa_to_sheet(tableData);
 

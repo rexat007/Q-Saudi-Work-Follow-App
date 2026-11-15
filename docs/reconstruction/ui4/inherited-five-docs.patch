@@ -1,0 +1,181 @@
+diff --git a/docs/reconstruction/00_WORK_START_HERE.md b/docs/reconstruction/00_WORK_START_HERE.md
+index 86d96b5..c284045 100644
+--- a/docs/reconstruction/00_WORK_START_HERE.md
++++ b/docs/reconstruction/00_WORK_START_HERE.md
+@@ -1,3 +1,9 @@
++## CURRENT CHECKPOINT — post PR #104, 2026-11-15
++
++GitHub main `800434f634fb7ea5099fc12e4ec064dfb05d6df2` merges UI3 and its documentation-only RB1 (PR #104); exact-main Secret-free foundation CI run `43666983421` succeeded. UI3 = MERGED / SOURCE_VERIFIED / SOURCE_CLOSED, not product-live accepted; historical broad 605/638 remains NOT PASS and the 15 earlier additional failures remain CAUSE_UNRESOLVED despite passing bounded contrast. `02_PHASE_LEDGER.md` alone owns current state. Next is UI4 area-wide discovery/target contract, NOT implementation; no SQL/RB4 activation, deployment or unauthorized publication. Older entries below are historical.
++
++Read the [sole current-state ledger](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15); the summary above is an entry pointer, not another state owner.
++
+ ## Current Controlled Incremental Workspace Projection & Derived Report Refresh checkpoint — 2026-11-03
+ 
+ Read [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md) first; it alone owns current state. Working source contains completed Controlled Incremental Workspace Projection & Cost, Scale, Synchronization Architecture and Explicit Derived Report Refresh Convergence verified locally (`7d50d3a31e72eb2e573ed169a029d5822f0a0742` baseline). Standard operational authority is strictly Firestore (`FIRESTORE` = SOLE CANONICAL OPERATIONAL AUTHORITY; `GOOGLE_SHEETS` = DEFERRED PROJECTION / CONTINUITY / REPORT EXPORT). Ordinary data sync (`retrySync`) performs strictly incremental Trip projection (0 full Trip collection scans). Derived operational reports are updated via an explicit bounded server-authoritative operation (`refreshOperationalReports` / `POST /api/projects/:projectId/workspace/refresh-reports`). Automatic user-active activity trigger POST requests (`useUserActiveWorkspaceSync`) and unbounded continuous 30s PWA polling in `pwaUpdate.ts` are retired to strictly 0 calls. Scheduled worker (`WorkspaceSyncCoordinator.ts`) filters and skips non-ACTIVE projects without Google calls. Local test suites `controlledIncrementalWorkspaceProjection.test.ts` (5/5 PASS), `userActiveWorkspaceSync.test.tsx` (10/10 PASS), `runtimeGenerationConvergence.test.ts` (18/18 PASS), and `workspaceSyncCoordinator.test.ts` (28/28 PASS) all pass (61/61 total PASS). Publication is pending owner review; no push, PR, merge, or Phase 10.
+diff --git a/docs/reconstruction/02_PHASE_LEDGER.md b/docs/reconstruction/02_PHASE_LEDGER.md
+index 5cf9e93..b0930f6 100644
+--- a/docs/reconstruction/02_PHASE_LEDGER.md
++++ b/docs/reconstruction/02_PHASE_LEDGER.md
+@@ -1,5 +1,25 @@
+ # PHASE LEDGER
+ 
++## CURRENT POST-MERGE OVERRIDE — UI3 / PR #104 — 2026-11-15
++
++- `CURRENT_CODE_BASELINE = 800434f634fb7ea5099fc12e4ec064dfb05d6df2` (verified GitHub `main`, merged PR #104).
++- `PR_104 = MERGED`; merge recorded at `2026-11-15T02:16:13Z`; source ancestry `7be559e06025d44341aac242fe4df488d2cc899a → 90d115f09ed9b7af7bee1998903a179d2b23d2b5 → 39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1 → merge 800434f634fb7ea5099fc12e4ec064dfb05d6df2`.
++- `MAIN_GIT_HISTORY = 3 ahead / 0 behind` relative to UI3 base; `PR_104_CHANGED_FILES = 50` (9 production/UI/locales + 4 tests/fixtures + 37 docs/evidence).
++- `CI_EXACT_MAIN = SUCCESS`, GitHub Actions `Secret-free foundation CI`, push run `43666983421` on merge SHA. `PR_HEAD_CI = SUCCESS`, run `43666452218` on `39433a8`.
++- `UI3 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED`; `UI3_RB1 = MERGED / EVIDENCE_RECONCILED` (documentation-only correction); product acceptance on real devices/assistive technologies/production = `NOT_PERFORMED`, not CLOSED.
++- `UI3_FOCUSED_NEW = 35/35 PASS`; `NATIVE_BROWSER = 11/11 PASS`; `CONNECTED_EMULATOR_JOURNEYS = 2/2 PASS` (bounded evidence only).
++- `HISTORICAL_BROAD_BASELINE = 584/603 / NOT_PASS`; `HISTORICAL_BROAD_UI3 = 605/638 / NOT_PASS`; failure sets: baseline19, UI3 33, shared18, UI3-only15, baseline-only1, union34; `NET_FAILURE_COUNT_DELTA=14` is not the UI3-only identity count. Controlled main/UI3 contrast = 53/54 both, same inherited Foundation expected-arguments failure. `UI3_ONLY_15_CAUSE = CAUSE_UNRESOLVED`, `NOT_REPRODUCED` in bounded supplement/pair; zero confirmed source regression, zero confirmed environmental cause.
++- `NEXT_ACTION = UI4_TARGET_CONTRACT_AND_AREA_WIDE_SOURCE_DISCOVERY`; `UI4_IMPLEMENTATION = NOT_STARTED`; no approved UI4 title/scope has been established in current repository. `UI5_UI6 = NOT_STARTED`.
++- `ACTIVE_OPERATIONAL_AUTHORITY = FIRESTORE`; Google Sheets downstream only. SQL / U09 production cutover, migrations, RB4 activation, dual writes, deployments, new authoritative data routes: `NOT_AUTHORIZED`. Preserve original RB4 nine dirty files and unpublished 013 in their separate worktree.
++- Prior Nov 9 / Nov 14 / pre-merge Nov 15 review states elsewhere in this ledger are `HISTORICAL_AS_OF_THEIR_DATE` and do not override this newer GitHub-verified status. Do not silently re-open earlier closed units or claim Beta 2 release certification.
++- References: [UI3 source contract](UI3_PROJECT_SETUP_SMART_IMPORT.md); [UI3-RB1 forensic record](ui3-rb1/README.md); [product acceptance contract](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md); [decisions and debt](05_DECISION_AND_DEBT_LOG.md).
++
++Verified GitHub evidence: [merged PR #104](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/104), [exact-main CI43666983421](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666983421), [PR-head CI43666452218](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666452218).
++
++### UI4 discovery disposition — 2026-11-15 (proposal pending owner review)
++
++The documentation-only post-merge reconciliation and one area-wide current-source discovery are complete locally. Proposed single-scope target: **Operational Reports: Scoped Reading, Freshness & Export Clarity**; [exact proposed contract and gates](MASTER_PROJECT_HANDOFF.md#ui4-proposed-target-contract--2026-11-15). `UI4_TARGET_CONTRACT = PROPOSED / NOT_OWNER_APPROVED`; `UI4_IMPLEMENTATION = NOT_STARTED`. The override’s NEXT_ACTION names the enclosing target-contract/discovery gate: its source-discovery part is now complete locally, while the gate remains pending owner review. The only next authorized action is owner review of that target contract, not implementation. Current browser/emulator/device execution for this discovery = NOT_PERFORMED; no UI4 product acceptance or release gate is promoted. Existing UI1–UI3 source closure and all historical evidence remain preserved. This ledger alone owns the disposition; the handoff contains proposal detail only.
++
+ ### AR2-U08 — Source implemented / independent review required — 2026-11-09
+ 
+ Starting/final fetched main: `1db763ca6a5423f3855c1be251f4270a7e12048e` (PR #98 merged). Dedicated branch: `reconstruction/ar2-u08-workspace-reporting-authority`. U08 is SOURCE_IMPLEMENTED / VERIFIED_LOCALLY / READY_FOR_INDEPENDENT_REVIEW; the earlier NEXT/NOT_STARTED entries below are historical. It is not MERGED/CLOSED or live accepted. The [U08 record](15_AR2_U08_WORKSPACE_REPORTING_AUTHORITY.md) owns exact source inventory, active-runtime authority, delivery/failure model, measured comparison and remaining gates. Final comparison: same 133 files 2,373 passed / 92 baseline failures; 29/29 new cases; standalone 148/148; no new assertion failures. Twelve existing suite-load errors and two existing unhandled rejections remain. Typecheck is NOT PASS (446→446; added/removed 0); build/diff checks PASS. Dedicated-branch publication is authorized; exact commit/remote SHA is recorded in the executor report.
+diff --git a/docs/reconstruction/05_DECISION_AND_DEBT_LOG.md b/docs/reconstruction/05_DECISION_AND_DEBT_LOG.md
+index fe3afd2..f89b4c4 100644
+--- a/docs/reconstruction/05_DECISION_AND_DEBT_LOG.md
++++ b/docs/reconstruction/05_DECISION_AND_DEBT_LOG.md
+@@ -1,3 +1,14 @@
++## 2026-11-15 — Post-merge UI3 / UI3-RB1 source closure, debt unchanged
++
++- PR #104 merged on exact main `800434f634fb7ea5099fc12e4ec064dfb05d6df2`; exact main Secret-free foundation CI succeeded (`43666983421`). Source closure is verified; physical-device/screen-reader/live operational owner acceptance not performed.
++- Original broad UI3 candidate `605/638` remains NOT PASS; original baseline `584/603` remains NOT PASS. Exact failure identities: 18 shared, 15 candidate-only, 1 baseline-only, union 34. The earlier 14 count represents net failures difference only.
++- The additional 15 passed in the bounded three-file pair and supplement; main/UI3 pair each 53/54 with the same pre-existing Foundation `updateProject` argument assertion. No confirmed source regression or environment cause. Historical original mechanism for the 15 = `CAUSE_UNRESOLVED`; DO NOT mark `CONFIRMED_TRANSIENT` or dismiss non-timeout TypeError/assertion evidence.
++- Preserve inherited Foundation expected-version argument assertion separately from the UI3 broad-run alternate failure form. Neither test expectation nor source was changed in RB1.
++- UI3 is source-closed; remaining native-device/assistive/live acceptance, non-green historical broad suites, SQL/RB4, legacy offline/provider readiness and Beta 2 release certification retain their independent gates.
++- UI4 is NEXT_FOR_DISCOVERY_ONLY. Exact scope/title must be derived from current code/product journey; no production change before target-contract review and owner authorization.
++
++Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The records below retain their original dates and evidence.
++
+ ## 2026-11-09 — AR2-U08 source implemented / independent review required
+ 
+ - Firestore remains active operational authority. Preserve canonical command/outbox composition; freeze minimized source facts and bounded master/report snapshots in the existing server path.
+diff --git a/docs/reconstruction/MASTER_PROJECT_HANDOFF.md b/docs/reconstruction/MASTER_PROJECT_HANDOFF.md
+index cfd06cf..28da345 100644
+--- a/docs/reconstruction/MASTER_PROJECT_HANDOFF.md
++++ b/docs/reconstruction/MASTER_PROJECT_HANDOFF.md
+@@ -1,3 +1,93 @@
++## CURRENT CHECKPOINT — post PR #104, 2026-11-15
++
++GitHub main `800434f634fb7ea5099fc12e4ec064dfb05d6df2` merges UI3 and its documentation-only RB1 (PR #104); exact-main Secret-free foundation CI run `43666983421` succeeded. UI3 = MERGED / SOURCE_VERIFIED / SOURCE_CLOSED, not product-live accepted; historical broad 605/638 remains NOT PASS and the 15 earlier additional failures remain CAUSE_UNRESOLVED despite passing bounded contrast. `02_PHASE_LEDGER.md` alone owns current state. Next is UI4 area-wide discovery/target contract, NOT implementation; no SQL/RB4 activation, deployment or unauthorized publication. Older entries below are historical.
++
++Current state is owned only by the [phase ledger](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15). Supporting source/evidence: [UI3 record](UI3_PROJECT_SETUP_SMART_IMPORT.md#post-merge-disposition-2026-11-15), [RB1 forensic record](ui3-rb1/README.md). Owner-provided `02_REPOSITORY_DOC_RECONCILIATION_2026-11-15.md` is external reconciliation context, not a second repository ledger. This handoff does not authorize implementation, commit or publication.
++
++## UI4 proposed target contract — 2026-11-15
++
++**PROPOSAL ONLY — OWNER REVIEW REQUIRED.** Proposed title: **UI4 — Operational Reports: Scoped Reading, Freshness & Export Clarity**. This is a source-derived candidate, not an approved UI4 assignment, implementation or new current-state ledger. Current disposition belongs only to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15). Source inspected at `800434f634fb7ea5099fc12e4ec064dfb05d6df2`; no browser, emulator, test, build, device or production operation was executed for this discovery. Screenshots: **NOT_CAPTURED**. Earlier source-audit/rendering artifacts are historical context, not current browser observations.
++
++### Area-wide discovery and selection rationale
++
++| Remaining journey / actual entry | Current source ownership and observed role | Disposition for this proposal |
++| --- | --- | --- |
++| Sign-in → account approval/status → profile continuity | [App](../../src/App.tsx), [AccountStatusGate](../../src/components/auth/AccountStatusGate.tsx), [ProfileContinuity](../../src/components/auth/ProfileContinuity.tsx), [auth context](../../src/firebase/authContext.tsx) | KEEP authority gates; DEFER broad account UX. Profile continuity already owns an authority-level overlay; do not duplicate it. |
++| Project context / desktop and mobile navigation | [Sidebar](../../src/components/navigation/Sidebar.tsx), [MobileNavDrawer](../../src/components/navigation/MobileNavDrawer.tsx), [navigation registry](../../src/services/navigation.service.ts) | KEEP existing role/project entry contracts. No global shell or framework redesign. Keyboard concerns without a current browser run remain hypotheses. |
++| Setup, readiness, roster import | [ProjectSetupWizard](../../src/components/wizard/ProjectSetupWizard.tsx), [FleetSetupWorkspace](../../src/components/wizard/FleetSetupWorkspace.tsx), import components | KEEP merged UI3; do not reopen its stages, commands or navigation gate. |
++| Trip entry, dispatch, timeline, weighing and driver association | [FieldOperationsView](../../src/components/field/FieldOperationsView.tsx), [AdaptiveOperationsView](../../src/components/field/AdaptiveOperationsView.tsx) | KEEP UI1/UI2; report links may reference confirmed Trip facts, never execute Trip commands. |
++| Selected configured project's reports and configured dashboard | [App:558](../../src/App.tsx#L558), [App:565](../../src/App.tsx#L565), [ReportsEngineView](../../src/components/reports/ReportsEngineView.tsx), [AdaptiveOperationalReports](../../src/components/reports/AdaptiveOperationalReports.tsx) | **SELECTED coherent UI4 candidate**: both entries reach the same operational-report renderer, so one bounded change covers the important read/filter/export journey. |
++| Unconfigured/legacy dashboard and financial reporting | [OperationsDashboardView](../../src/components/dashboard/OperationsDashboardView.tsx), [WidgetFilterBar](../../src/components/dashboard/WidgetFilterBar.tsx), legacy branches within ReportsEngineView | These are real conditional routes, not dead code. KEEP calculations, authorization and entry/return behavior; DEFER seven-widget redesign and financial-screen redesign. Shared print-frame changes require their regressions. |
++| Account/driver governance and audits | [AdminConsoleView](../../src/components/admin/AdminConsoleView.tsx), [DriverAccountBindingControl](../../src/components/admin/DriverAccountBindingControl.tsx), [SecurityAuditView](../../src/components/security/SecurityAuditView.tsx) | KEEP canonical server commands; DEFER separate governance UX, not an inferred part of UI4. |
++| Offline/PWA, uncertain commands and conflicts | [OutboxDrawer](../../src/components/offline/OutboxDrawer.tsx), [OfflineIndicator](../../src/components/offline/OfflineIndicator.tsx), [ConflictResolutionModal](../../src/components/offline/ConflictResolutionModal.tsx), existing offline services | KEEP original operation/receipt recovery. DEFER Outbox redesign and U07/SQL/provider debt. |
++| Workspace provisioning / grant / automation recovery | Wizard WORKSPACE → [WorkspaceEnsurePanel](../../src/components/wizard/WorkspaceEnsurePanel.tsx), [WorkspaceAutomationRecovery](../../src/components/wizard/WorkspaceAutomationRecovery.tsx) | KEEP resource identities and existing authorized maintenance. UI4 overlap is only the report renderer's existing explicit derived-report refresh action; no provisioning/repair work. |
++| Developer and legacy tools | App secondary branches and navigation developer registry | Conditional tool authorization is distinct from primary product navigation. Do not treat every JSX branch or retired standalone route as an active user screen; no revival or removal in UI4. |
++
++Why this area first: operators who finish accepted setup and Trip workflows must inspect scoped movement, understand the age/source of their evidence, and export an auditable result. Two primary routes reuse one renderer; current source exposes specific filter/projection/action-hierarchy gaps. Existing report/snapshot/1002-row export regressions offer bounded protection. This has stronger source evidence and lower business-mutation risk than a speculative global-shell, admin or offline rewrite. No fresh P0 incident, measured quota outage or live usability failure is claimed. Historical release/live/cost debt retains its own gates; UI4 does not close it.
++
++Requirements basis: [product acceptance governance](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md), existing [ReportDataset/filters](../../src/types/reports.ts), report metadata and RP-27/RP-28/RP-34 comments in [reportsEngine.service](../../src/services/reportsEngine.service.ts), and current source/tests below. No new report family, business formula or authority is proposed.
++
++### Exact entry routes and call graph
++
++These are application state tabs, **not invented URL routes**:
++
++1. Sidebar/mobile navigation → `REPORTS_ENGINE` → App → `ReportsEngineView`. A selected project with operationalConfiguration renders keyed `AdaptiveOperationalReports` unless the existing category is PRICING/SETTLEMENT. The existing Financial reports button selects the legacy financial branch; preserve that branch and a clear return to operational reports.
++2. `OPERATIONS_DASHBOARD` → App → keyed `AdaptiveOperationalReports` for a configured selected project; otherwise the existing `OperationsDashboardView`. No consolidation/removal of either navigation permission set is proposed.
++3. Adaptive renderer → [tripRepository.listCompleteByProject](../../src/repositories/trip.repository.ts) → authenticated Firestore `projects/{projectId}/trips`, server reads in pages500 with a hard maximum50000. Reaching the bound fails; it never yields a falsely complete truncated export. Principal checks and Rules remain authoritative.
++4. Read facts → [buildOperationalReport/profileTripRow](../../src/services/operationalReporting.ts) → [operationalProfileResolver](../../src/services/operationalProfileResolver.ts) and [profileTripColumns](../../src/services/operationalReportColumns.ts). Each Trip's approved historical snapshot determines weights/times/applicability, not current project edits.
++5. Existing `ReportDataset` → [reportsEngineService export/summary](../../src/services/reportsEngine.service.ts) → CSV/XLSX or [PrintableReportModal](../../src/components/reports/PrintableReportModal.tsx). Preserve complete filtered rows, numeric facts, financial snapshots and pending/finalized separation.
++6. Explicit secondary Google action → [clientWorkspaceService.refreshOperationalReports](../../src/services/workspace.service.ts#L868) → [POST /api/projects/:projectId/workspace/refresh-reports](../../server/app.ts#L65) → authentication/project isolation/role and runtime generation fence → existing execution credential resolver → [ProjectGoogleWorkspaceServer](../../src/services/projectGoogleWorkspace.server.ts#L649) → approved Google transport. Cooldown, authorization, binding and provider journal remain server-owned. This is downstream projection, not a reload of the local report's Firestore dataset.
++
++Roles: REPORTS_ENGINE currently admits SUPER_ADMIN, PROJECT_ADMIN, SUPERVISOR, SITE_SUPERVISOR, DISPATCHER, FINANCE_AUDITOR, VIEWER; OPERATIONS_DASHBOARD admits SUPER_ADMIN, PROJECT_ADMIN, FINANCE_AUDITOR, VIEWER. DRIVER/SCALE_OPERATOR are not granted those entries by this proposal. Google refresh has a different capability: outer middleware admits dispatcher-or-above, but transaction-time `authorized` requires SUPER_ADMIN or assigned PROJECT_ADMIN, active account/lifecycle conditions and valid Workspace authorization. A report-reader role is not permission to mutate the projection. UI hints may use the existing current profile/scope; backend reauthorization remains decisive, with no new capability endpoint or browser authority.
++
++### Current source facts versus hypotheses
++
++| ID / priority | Source evidence and user implication | Classification / verification limit |
++| --- | --- | --- |
++| R1 / P1 | ReportsEngineView's legacy loader effect at142–216 runs before its adaptive early return at366 and has no adaptive-active guard. Its default ALL filter enables authorized-project enumeration/read work while that legacy UI is not shown; the child also loads the selected project. | Source-confirmed enabled duplicate/broad read paths, not a measured call count or quota incident. Harden the view boundary; retain legacy financial reads when that branch is actually selected. |
++| R2 / P1 | Adaptive dataset at116 supplies `filtersApplied:{projectId}` while its rows respond to date/carrier/truck/driver/shift/material/status filters. PrintableReportModal at87–100 reads applied dates/carrier/material from that metadata. | Source-confirmed filter provenance omission: a filtered output cannot fully describe its criteria. Map UI filters into the **existing** declared ReportFilterParams names; keep rows/totals unchanged. |
++| R3 / P1 | The Google refresh button is unconditional in AdaptiveOperationalReports, despite the different reader/admin permission sets and transaction-time authorization at ProjectGoogleWorkspaceServer:100. | Source-confirmed actionable-permission mismatch; not an authorization bypass. Offer an honest admin/grant handoff or non-actionable explanation to readers; do not weaken server policy. |
++| R4 / P1 | Firestore report reads are one-shot; only the error panel exposes `readRevision` retry. Google refresh neither reloads that source dataset nor proves its freshness. LIVE is a report family over this loaded snapshot. | Source-confirmed refresh semantics. Provide one explicit source-read action and clearly secondary Google projection action; label source read time separately from server-confirmed projection time. No polling, focus/online triggers or auto-sync. |
++| R5 / P1 | Print preview is a fixed div frame without dialog/focus/Escape ownership. Its date formatting is hardcoded ar-SA, and physical left/right classes coexist with RTL. | Source-confirmed semantic/localization gaps; actual focus escape, clipping and computed contrast have **not** been observed in a current browser. Preserve paper styling and existing print/export contracts. |
++| R6 / P2 | Adaptive filters expose technical IDs, KPI cards share one flat grid, and no explicit source-empty versus filtered-empty branch is present. | Source-confirmed presentation structure; user confusion, contrast failure and mobile clipping are hypotheses until observed. Reuse snapshot labels where available, keep isolated IDs as fallback, never broad master lookups or invented names. |
++| H1 / hardening | Adaptive's local lastRefreshAt is not reset by its project/read effect; async projection feedback has no local captured-context check; missing server timestamp falls back to browser clock. However **both production mount sites key the component by project ID**, which already protects ordinary project-switch remounts. | Do **not** call this a reproduced cross-project leak. Test principal/role/grant changes, late ACKs and absent timestamps; preserve key-based protection and show unknown server time honestly. The server normally records lastReportRefreshAt on successful refresh; no missing-time production response was observed. |
++
++### Bounded implementation contract proposed for owner review
++
++One UI4 batch: **choose current project/report → understand source and projection freshness → filter and inspect complete results → export/print exactly that scope**. The explicit Google action is a secondary existing projection operation, not another workflow or writer.
++
++- **KEEP:** Firestore/Rules read authority, current route role sets, complete bounded report read, immutable Trip/pricing snapshots, profile-specific measured/estimated/not-applicable semantics, ReportDataset numeric totals, finalized/pending financial separation, existing server/Google credentials, resources and journals. Keep the legacy financial and unconfigured-dashboard routes reachable under their existing permissions.
++- **HARDEN:** make read/loading/denied/unavailable/empty/filtered-empty and stale/refreshing/success/unknown/failure states explicit; scope visible results and pending action feedback to current verified principal/project/role generation. Never display source read failure as zero successful results. Never use client time as a server-confirmed Google timestamp or treat a provider timeout as success. Keep existing authoritative recovery/status operations; no new queue, receipt authority, blind retry or provider call on mount.
++- **CONVERGE:** one report header with project/profile/report-family context; legible local typography and grouped KPI sections using unchanged metrics; compact filter rows with clear active criteria/reset; one primary source-read action, exports adjacent to result scope, secondary role-appropriate Google refresh; keyboard-scrollable long tables and an accessible print dialog with focus return. Make LIVE's snapshot nature clear. Labels, numbers and identifiers must remain truthful.
++- **RETIRE:** only the unshown legacy loader's work while the adaptive branch is active, after exact read-count and financial-branch regression proof. Do not remove report families, legacy financial execution, metrics or data.
++- **REBUILD:** **none proposed**. If this needs a new data source, report engine, global framework or business-authority redesign, stop and return the specific dependency for owner review.
++- **DEFER:** other global shell/admin/account/offline surfaces; legacy seven-widget/financial-screen visual redesign; Google binding/provisioning/Script maintenance; UI1–UI3 reopening; historical failure stabilization; U09/RB4/SQL, migrations, provider configuration, epoch changes, deployments and live data operations.
++
++Do not paginate/truncate away existing complete results in this unit. Preserve the current1002-row DOM/export assertion and the50000 safety-bound error. Long tables use contained accessible scrolling; any future visual pagination requires a separately reviewed compatibility contract, not weakening that assertion. No new report/calculation/format is declared supported. Keep existing CSV/XLSX/PDF identities and negative authority checks.
++
++### Expected source/test impact surface, not an edit authorization
++
++Expected existing production roots: `src/components/reports/AdaptiveOperationalReports.tsx`, `ReportsEngineView.tsx`, `PrintableReportModal.tsx`, `src/App.tsx` only for existing context plumbing if needed, and `src/locales/{ar,en,ur}/index.ts`. At most two small report-local presentation components, e.g. `src/components/reports/ReportReadContext.tsx` and `ReportStatePanel.tsx`, if duplication is demonstrated. No global CSS/font/component-framework/dependency change. Do not change `navigation.service`, server/middleware, repositories, operationalReporting/profile resolution, report calculation/financial services, permissions or persistence for this UI batch.
++
++Expected tests: new scoped report-state/component tests, a native AR/EN/UR browser fixture using actual report components, and a connected actual-App emulator report journey. Existing `googleDerivedReportRefreshUi.test.tsx` may need explicit current-auth fixture wiring if a required scoped prop is added; preserve every existing assertion/case and no-auto-call semantics. Treat this as an expected surface; the next authorized implementation must establish an exact file allowlist before edits. No test/fixture is added by this handoff.
++
++### Verification and owner-acceptance matrix
++
++All gates below are **PROPOSED / NOT_RUN in this task**. The verified historical UI3 gates and exact-main CI do not stand in for UI4 acceptance.
++
++| Gate | Required evidence for the subsequent authorized batch |
++| --- | --- |
++| Source/authority | Reverify then-current merged main and clean isolated scope. Verify both actual entry branches, current roles and principal/project generation. Only existing read/projection commands; unchanged server/services/types/calculation/snapshot/Outbox/SQL/migration/CI/dependency blobs outside the approved UI allowlist. |
++| Component regression | Ready/loading/unavailable/denied/source-empty/filtered-empty; correct filter metadata; principal/role/project changes and late source/projection ACK; no invented timestamp or identity; reader cannot invoke admin refresh; double-click suppressed; cooldown/rate/provider failures preserve valid source content; no automatic provider or status calls on mount/focus/filters. Prove hidden legacy reads absent only when adaptive branch is active, and present correctly for permitted financial view. |
++| Existing complete report families | `reportsEngine.test.ts`, `reportsEngineConvergence.test.ts`, `reportsEngineControlCleanup.test.ts`, `dashboard.test.ts`, `fieldReportsCentralDashboardBlock80.test.ts`, `dashboardReportsI18n.test.ts`, `operationalProfiles.test.ts`, `operationalReportTabIsolation.test.ts`, `googleDerivedReportRefreshUi.test.tsx`, `googleReportRefreshRouteCredential.test.ts`, `googleReportRefreshRateLimitBudget.test.ts`. Inspect source-derived assertions; report failures against exact baseline by identity, never waive/skip or grow timeouts to green. |
++| Real browser / languages | Actual report entry/filter/read/export/print controls, AR/EN/UR at390/768/1440 plus844/1000-height samples; document lang/dir; RTL with LTR-isolated IDs/times; logical spacing; no horizontal body overflow, contained scrollable tables; visible keyboard focus, labels, Enter/Space, dialog focus trap/Escape/return, zoom and long values. Measure contrast; do not certify accessibility from screenshots alone. No global typography change. |
++| Connected emulator / integration | Real App + authenticated local Auth/Firestore + existing server routes. Assigned/unassigned project, reader/admin, suspended/revoked scope, all four approved operational profiles, recorded versus absent checkpoints, missing measurements and unchanged historical snapshots. CSV/XLSX/PDF match the full filtered dataset; preserve1002-row and missing-bound failure cases. Existing approved server test Google transport only, no live Google operation or production source adapter. No business mutations from read/export; explicit authorized projection operation keeps current server budget and identities. |
++| UI1–UI3 and finance continuity | Relevant unchanged navigation/Trip/roster tests, existing `convergence2Browser.test.ts`, `convergence2CacheBrowser.test.ts`, `convergence3Journey.test.ts` and UI3 connected journey where source overlap warrants. Keep exact commands, reviewed source/receipt recovery, finalized/pending amounts and historical pricing. Do not reimplement their workflows to seed report acceptance. |
++| Toolchain / reporting | TypeScript, lint, client/PWA/server build and diff/path checks on final candidate; no false PASS for historical baseline debt. Record actual language/viewport/role coverage and absent physical-device/screen-reader/live checks. Source/CI closure remains separate from product/live and global Beta2 certification. |
++| Owner acceptance | Owner reviews this proposed scope first. After a separately authorized implementation and verified source/browser/emulator evidence, owner explicitly accepts report context/read freshness/filter/export/print behavior using chosen roles/profiles/languages/devices. Live Google/device operations need their own explicit authorization. No automatic product CLOSED, publication, merge or deployment. |
++
++**Next owner decision:** approve this single report-reading/freshness/export contract, revise its boundaries, or select another area with source-backed priority. UI4 implementation remains NOT_STARTED until that review and a separate explicit implementation instruction. No approved UI4 title is inferred from its number.
++
+ ## Controlled Incremental Workspace Projection handoff checkpoint — 2026-11-03
+ 
+ Exact state belongs to [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). Baseline: `7d50d3a31e72eb2e573ed169a029d5822f0a0742`. Working source contains the completed Controlled Incremental Workspace Projection & Explicit Derived Report Refresh Convergence.
+diff --git a/docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md b/docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md
+index a1e99be..b661afe 100644
+--- a/docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md
++++ b/docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md
+@@ -1,5 +1,15 @@
+ # UI3 — Project Setup, Readiness and Smart Roster Import
+ 
++## Post-merge disposition (2026-11-15)
++
++[PR #104](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/104) merged at2026-11-15T02:16:13Z into exact GitHub main `800434f634fb7ea5099fc12e4ec064dfb05d6df2`. [Exact-main Secret-free foundation CI43666983421](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666983421) succeeded on that merge; [PR-head CI43666452218](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666452218) succeeded on `39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1`. UI3 is MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED and its documentation-only RB1 is MERGED / EVIDENCE_RECONCILED. The [phase ledger](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15) alone owns current state.
++
++Source closure does not certify physical devices, screen readers, production live operations or global Beta2 acceptance; those remain NOT_PERFORMED/open. Original broad584/603 and605/638 remain NOT_PASS. Failure sets remain19 baseline,33 candidate,18 shared,15 candidate-only,1 baseline-only,34 union; pair53/54 each retains the same inherited Foundation argument assertion. Original15 causes remain CAUSE_UNRESOLVED / NOT_REPRODUCED in bounded evidence, not confirmed environmental/transient. All original raw reports and denominators below remain historical evidence.
++
++The merged50-file scope is9 production/UI/locales,4 tests/fixtures and37 docs/evidence; RB1 changed documentation only. UI4 implementation is NOT_STARTED and its target contract requires owner review. SQL/U09 production routing, RB4/013 activation and deployment remain NOT_AUTHORIZED. No new tests/build or live acceptance was performed by this documentation-only reconciliation.
++
++**Historical original authoring-time disposition (preserved verbatim below):** “Local commit only,” earlier no-publication/review-pending wording and the original implementation baseline describe their authoring dates; they no longer describe PR#104's publication/merge status.
++
+ Bounded presentation convergence on main `7be559e06025d44341aac242fe4df488d2cc899a`, isolated branch `ui/ui3-setup-import-20261114`. Local commit only. Verification and final disposition are recorded in [verification](ui3/verification.json); every reviewed path is recorded in [inventory](ui3/changed-file-inventory.json). This record does not authorize publication, deployment, SQL activation or UI4.
+ 
+ ## Active workflow and boundaries

@@ -48,6 +48,11 @@ vi.mock('../services/operationalReportColumns', () => ({
   profileTripColumns: () => ['tripId', 'status'],
 }));
 
+
+// Explicit current authority fixture; all original cases and assertions are preserved.
+vi.mock('../firebase/authContext',()=>({useAuth:()=>({user:{uid:'actor'},userProfile:{userId:'actor',role:'SUPER_ADMIN',status:'ACTIVE',isActive:true,assignedProjectIds:['PRJ-1']},isAuthReady:true,isProfileLoading:false,profileAuthority:'AVAILABLE'})}));
+vi.mock('../firebase/config',()=>({auth:{currentUser:{uid:'actor'}},db:{}}));
+
 let host: HTMLDivElement, root: ReturnType<typeof createRoot>;
 
 describe('Google Derived Report Refresh UI Wiring', () => {
