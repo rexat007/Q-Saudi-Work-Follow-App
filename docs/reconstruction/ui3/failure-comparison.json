@@ -359,7 +359,6 @@
     }
   ],
   "additionalIdentitiesPassedInUnchangedSupplement": 15,
-  "newUnresolvedIdentities": [],
   "supplementFailure": [
     {
       "file": "projectSetupLayeredWorkflow.test.tsx",
@@ -367,5 +366,72 @@
       "failure": "AssertionError: expected \"updateProject\" to be called with arguments: [ 'PRJ-RYD-101', …(2) ]\n\nReceived:\n\n  1st updateProject call:\n\n  [\n    \"PRJ-RYD-101\",\n-   ObjectContaining {\n+   {\n      \"clientName\": \"أمانة منطقة الرياض\",\n+     \"location\": {\n+       \"addressAr\": \"الرياض الملز\",\n+       \"geoFenceRadiusMeters\": 1000,\n+       \"lat\": 24.7136,\n+       \"lng\": 46.6753,\n+     },\n      \"nameAr\": \"مشروع البنية التحتية بالرياض\",\n+     \"settings\": {\n+       \"zatcaTaxNumber\": \"310101010101013\",\n+     },\n+     \"startDate\": \"2026-10-01\",\n    },\n    {\n      \"assignedProjectIds\": [],\n      \"displayName\": \"Super Admin\",\n      \"email\": \"superadmin@qsaudi.com\",\n      \"role\": \"SUPER_ADMIN\",\n      \"userId\": \"USR-SA-WIZ\",\n    },\n+   0,\n  ]\n\n\nNumber of calls: 1\n\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:2233:10)\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:1944:14)\n    at Proxy.methodWrapper (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/chai/index.js:1737:25)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114/src/tests/projectSetupLayeredWorkflow.test.tsx:618:23\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20"
     }
   ],
-  "interpretation": "Broad run is 605/638, not PASS. All 14 additional identities passed in the unchanged 54-test supplemental run; its sole Foundation failure matches main. The 19 baseline identities remain debt (2 assertions and 17 default-5s journey timeouts). No assertion or timeout edits. Latest-observation union is not a single all-green run."
+  "interpretation": "Baseline19 and candidate33 share18 identities. Candidate-only15 and baseline-only1 yield net14 extra failures, not14 extra identities. All15 candidate-only identities pass the original supplement and the one UI3-RB1 bounded main/candidate pair. The original broad run605/638 is not PASS; upstream causes of the15 historical failures remain unresolved. See ../ui3-rb1/reconciliation.json.",
+  "sharedFailureIdentityCount": 18,
+  "baselineOnlyFailureIdentityCount": 1,
+  "candidateOnlyFailureIdentityCount": 15,
+  "unionIdentityCount": 34,
+  "candidateOnlyCauseUnresolvedIdentities": [
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite B. New Project Entry Contract: Opened projects initialize to FOUNDATION layer"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite D. ROSTER permits incremental setup with no current Carrier or Material"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite J. Workspace Isolation: Google Workspace Setup is isolated from other layers"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite K. Materials Isolation: Materials list and modals are present only on MATERIALS layer"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite L. Carriers and Roster are strictly separated into Layer 4 and Layer 5"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite N. Unit 2: Edit mode enables fields, typing does not mutate server, and Cancel restores canonical values"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite Q. Unit 2: Save failure preserves draft, remains in edit mode, and displays error"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite R. Unit 2: Local validation gates save when nameAr < 3 chars or ZATCA is invalid format"
+    },
+    {
+      "file": "projectSetupLayeredWorkflow.test.tsx",
+      "identity": "Q-Saudi Project Setup Layered Workflow Test Suite S. Unit 2: Prop updates refresh view mode values, but do not overwrite active draft while editing"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity blocks double submit while the command is in flight"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity fails closed when no reliable intake preview is available"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity previews displaced IDs and requires explicit confirmation before composite intake"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity retains successful intake and retries refresh without another preview or command"
+    },
+    {
+      "file": "setupWizardContinuity.test.tsx",
+      "identity": "P6-B1 manual intake continuity uses the canonical Material name and full refresh before resetting the form"
+    },
+    {
+      "file": "smartImportOverlayAssurance.test.tsx",
+      "identity": "group pagination limits DOM rows, preserves full progress/readiness and reaches the final group"
+    }
+  ],
+  "confirmedNewSourceRegressions": []
 }

@@ -1,0 +1,42 @@
+{
+  "pinnedHead": "90d115f09ed9b7af7bee1998903a179d2b23d2b5",
+  "rawCompressedEvidence": {
+    "docs\\reconstruction\\ui3\\affected-54.json.gz": "e093c0e043941fed5f957173e15931d7417a90b4886cde9f622f5adde0b67b9a",
+    "docs\\reconstruction\\ui3\\baseline-603.json.gz": "e1bc85281cee0729884198a5b1583509e8629b7914a098eb09095ea97fa93eab",
+    "docs\\reconstruction\\ui3\\baseline-journey-isolated.json.gz": "b8ac9a34d97d3fe0cced73d2d319f39ab83790021b3a58962b485988b9994882",
+    "docs\\reconstruction\\ui3\\build.log.gz": "868fca93eca0e0348c2985645bbd990ca3588329fce7f860ccadf84976115d5c",
+    "docs\\reconstruction\\ui3\\connected-2.json.gz": "e1e963d413d17b74420e8f49b704539cebd0b436abf9465d54a2f2141b2702bd",
+    "docs\\reconstruction\\ui3\\connected-browser.log.gz": "25d99bba4380053b13b28d812af65d15a394a8dda4452492fff1aa2154966764",
+    "docs\\reconstruction\\ui3\\focused-638.json.gz": "bca28764578044b52f79de55fdf25106ce940afa3505373e874c27717c80fa23",
+    "docs\\reconstruction\\ui3\\iteration-history.json.gz": "12be60e9e33efe4c4280d71f27488d4207a5deb8964b4fe74e04a8caa5023aab",
+    "docs\\reconstruction\\ui3\\native-11.json.gz": "bbb73bcfdf80d8e8aae2932c2e5e5af02bcfe3ad67adc24cfb4beb89d24e281c",
+    "docs\\reconstruction\\ui3\\typecheck.log.gz": "5c019c787f9de0cbc3d9a64848f838562e6d2d25c562972ac569a1e4546dcc26"
+  },
+  "reconciliation": {
+    "path": "C:\\Users\\Hp\\.codex\\visualizations\\2026\\11\\10\\01a1c340-9b3b-75c1-80e7-bbfccad49180\\ui3-prepublication-reconciliation.json",
+    "sha256": "f7f946a132e9f0c01581c2810aefeecc3a241276527fb97f9a3a2c48cb813162",
+    "rows": 34
+  },
+  "originalExternalLogs": {
+    "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-family-final.log": {
+      "sha256": "914dadb6acc8b1d3e2cdd6930226a18d7c6a0e010961099398d78348d26c03b7",
+      "size": 343069
+    },
+    "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-affected-isolated.log": {
+      "sha256": "b8ceb7009279d23ab5d4fa9ea98adffc15d13637a3da25bffac4baa1e6202d23",
+      "size": 309221
+    },
+    "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-baseline-journey-isolated.log": {
+      "sha256": "3bb1d387b43c9b33a23a6df64b242cecaba5ca355b8686cfd665cac863c8631b",
+      "size": 24840
+    },
+    "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-baseline-run.mjs": {
+      "sha256": "b9e5eeb620ffe37e4fe7a27cd0828759b2d5f010dc724aa3d9ec4935f92b1e0d",
+      "size": 622
+    },
+    "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-family-final-run.mjs": {
+      "sha256": "335003e70afbd2be1dabad491de5f761a0f9a8031b743e47d9b844a6f32c3dae",
+      "size": 640
+    }
+  }
+}

@@ -1,0 +1,1870 @@
+{
+  "purpose": "ONE_PAIRED_ASSESSMENT_NOT_SUITE_PASS",
+  "node": "v22.22.0",
+  "nodeExecutable": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+  "platform": "win32",
+  "release": "10.0.19045",
+  "arch": "x64",
+  "cpus": 4,
+  "environmentSha256": "402cf7ac46848fc249fd168df4b6fc462755beffee43ad5b0dc3b5fa64b1bf9e",
+  "environmentAllowlist": {
+    "CI": "1",
+    "TZ": null,
+    "NODE_OPTIONS": null
+  },
+  "roots": {
+    "baseline": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-main-20261115",
+    "candidate": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-setup-import-20261114"
+  },
+  "pins": {
+    "baseline": "7be559e06025d44341aac242fe4df488d2cc899a",
+    "candidate": "90d115f09ed9b7af7bee1998903a179d2b23d2b5"
+  },
+  "files": [
+    "src/tests/projectSetupLayeredWorkflow.test.tsx",
+    "src/tests/setupWizardContinuity.test.tsx",
+    "src/tests/smartImportOverlayAssurance.test.tsx"
+  ],
+  "order": "baseline then candidate; each arm uses three isolated one-file invocations in listed order; declaration test order; no retries, sleeps, timeout overrides, warning suppression or concurrent project jobs launched",
+  "limitations": [
+    "One pair cannot prove original environmental causality.",
+    "Baseline runs first; OS file cache and machine background load can differ.",
+    "No original-run CPU/memory telemetry was preserved."
+  ],
+  "arms": [
+    {
+      "arm": "baseline",
+      "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+      "runs": [
+        {
+          "file": "src/tests/projectSetupLayeredWorkflow.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-main-20261115",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/projectSetupLayeredWorkflow.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-1.json"
+          ],
+          "started": "2026-11-15T01:22:36.392Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:22:36.403Z",
+              "freeMemoryBytes": 8367366144,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189411030,
+                "nice": 0,
+                "sys": 39066279,
+                "idle": 519633515,
+                "irq": 1777404
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:37.416Z",
+              "freeMemoryBytes": 8333340672,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189411890,
+                "nice": 0,
+                "sys": 39066451,
+                "idle": 519636545,
+                "irq": 1777404
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:38.417Z",
+              "freeMemoryBytes": 8333877248,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189412701,
+                "nice": 0,
+                "sys": 39066624,
+                "idle": 519639561,
+                "irq": 1777435
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:39.429Z",
+              "freeMemoryBytes": 8304185344,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189414513,
+                "nice": 0,
+                "sys": 39066998,
+                "idle": 519641436,
+                "irq": 1777435
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:40.438Z",
+              "freeMemoryBytes": 8310009856,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189415546,
+                "nice": 0,
+                "sys": 39067264,
+                "idle": 519644139,
+                "irq": 1777451
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:41.452Z",
+              "freeMemoryBytes": 8307015680,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189416592,
+                "nice": 0,
+                "sys": 39067639,
+                "idle": 519646780,
+                "irq": 1777498
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:42.467Z",
+              "freeMemoryBytes": 8321359872,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189418107,
+                "nice": 0,
+                "sys": 39067951,
+                "idle": 519649014,
+                "irq": 1777529
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:43.469Z",
+              "freeMemoryBytes": 8321495040,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189418967,
+                "nice": 0,
+                "sys": 39068358,
+                "idle": 519651748,
+                "irq": 1777560
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:44.483Z",
+              "freeMemoryBytes": 8319942656,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189419420,
+                "nice": 0,
+                "sys": 39068499,
+                "idle": 519655218,
+                "irq": 1777576
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:45.485Z",
+              "freeMemoryBytes": 8136556544,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189421341,
+                "nice": 0,
+                "sys": 39069139,
+                "idle": 519656655,
+                "irq": 1777592
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:46.496Z",
+              "freeMemoryBytes": 8117276672,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189422061,
+                "nice": 0,
+                "sys": 39069497,
+                "idle": 519659639,
+                "irq": 1777623
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:47.496Z",
+              "freeMemoryBytes": 8112291840,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189423060,
+                "nice": 0,
+                "sys": 39069748,
+                "idle": 519662389,
+                "irq": 1777639
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:48.510Z",
+              "freeMemoryBytes": 8103989248,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189425138,
+                "nice": 0,
+                "sys": 39070201,
+                "idle": 519663920,
+                "irq": 1777670
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:49.517Z",
+              "freeMemoryBytes": 8196894720,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189426842,
+                "nice": 0,
+                "sys": 39070717,
+                "idle": 519665702,
+                "irq": 1777686
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:50.529Z",
+              "freeMemoryBytes": 8180457472,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189428202,
+                "nice": 0,
+                "sys": 39070951,
+                "idle": 519668171,
+                "irq": 1777717
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:51.531Z",
+              "freeMemoryBytes": 8170250240,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189428889,
+                "nice": 0,
+                "sys": 39071186,
+                "idle": 519671248,
+                "irq": 1777749
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:52.534Z",
+              "freeMemoryBytes": 8158920704,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189430872,
+                "nice": 0,
+                "sys": 39071420,
+                "idle": 519673030,
+                "irq": 1777765
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:53.535Z",
+              "freeMemoryBytes": 8154861568,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189432123,
+                "nice": 0,
+                "sys": 39071920,
+                "idle": 519675280,
+                "irq": 1777780
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:54.536Z",
+              "freeMemoryBytes": 8172650496,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189433122,
+                "nice": 0,
+                "sys": 39072248,
+                "idle": 519677952,
+                "irq": 1777811
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:55.549Z",
+              "freeMemoryBytes": 8190205952,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189433998,
+                "nice": 0,
+                "sys": 39072639,
+                "idle": 519680748,
+                "irq": 1777827
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:56.549Z",
+              "freeMemoryBytes": 8201211904,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189435077,
+                "nice": 0,
+                "sys": 39073014,
+                "idle": 519683295,
+                "irq": 1777873
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:57.553Z",
+              "freeMemoryBytes": 8217108480,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189436435,
+                "nice": 0,
+                "sys": 39073295,
+                "idle": 519685654,
+                "irq": 1777873
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:58.567Z",
+              "freeMemoryBytes": 8243027968,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189437826,
+                "nice": 0,
+                "sys": 39073498,
+                "idle": 519688123,
+                "irq": 1777873
+              }
+            },
+            {
+              "at": "2026-11-15T01:22:59.581Z",
+              "freeMemoryBytes": 8264028160,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189439514,
+                "nice": 0,
+                "sys": 39073701,
+                "idle": 519690295,
+                "irq": 1777873
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:00.584Z",
+              "freeMemoryBytes": 8259973120,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189440858,
+                "nice": 0,
+                "sys": 39073999,
+                "idle": 519692654,
+                "irq": 1777920
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:01.589Z",
+              "freeMemoryBytes": 8259592192,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189441780,
+                "nice": 0,
+                "sys": 39074154,
+                "idle": 519695639,
+                "irq": 1777952
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:02.603Z",
+              "freeMemoryBytes": 8248737792,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189442623,
+                "nice": 0,
+                "sys": 39074420,
+                "idle": 519698591,
+                "irq": 1777983
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:03.614Z",
+              "freeMemoryBytes": 8256094208,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189443295,
+                "nice": 0,
+                "sys": 39074639,
+                "idle": 519701702,
+                "irq": 1777998
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:04.627Z",
+              "freeMemoryBytes": 8256569344,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189444123,
+                "nice": 0,
+                "sys": 39074842,
+                "idle": 519704733,
+                "irq": 1777998
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:05.641Z",
+              "freeMemoryBytes": 8267010048,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189444983,
+                "nice": 0,
+                "sys": 39074951,
+                "idle": 519707826,
+                "irq": 1778014
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:06.645Z",
+              "freeMemoryBytes": 8272207872,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189445748,
+                "nice": 0,
+                "sys": 39075171,
+                "idle": 519710842,
+                "irq": 1778029
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:07.655Z",
+              "freeMemoryBytes": 8276373504,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189446671,
+                "nice": 0,
+                "sys": 39075326,
+                "idle": 519713827,
+                "irq": 1778045
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:08.656Z",
+              "freeMemoryBytes": 8279130112,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189447529,
+                "nice": 0,
+                "sys": 39075607,
+                "idle": 519716686,
+                "irq": 1778076
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:09.667Z",
+              "freeMemoryBytes": 8280797184,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189448515,
+                "nice": 0,
+                "sys": 39075733,
+                "idle": 519719639,
+                "irq": 1778076
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:10.667Z",
+              "freeMemoryBytes": 8276299776,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189449701,
+                "nice": 0,
+                "sys": 39076076,
+                "idle": 519722107,
+                "irq": 1778107
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:11.682Z",
+              "freeMemoryBytes": 8273977344,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189450904,
+                "nice": 0,
+                "sys": 39076233,
+                "idle": 519724811,
+                "irq": 1778107
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:12.697Z",
+              "freeMemoryBytes": 8278077440,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189452342,
+                "nice": 0,
+                "sys": 39076515,
+                "idle": 519727155,
+                "irq": 1778107
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:13.696Z",
+              "freeMemoryBytes": 8266321920,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189453623,
+                "nice": 0,
+                "sys": 39076811,
+                "idle": 519729576,
+                "irq": 1778155
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:14.703Z",
+              "freeMemoryBytes": 8248741888,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189454936,
+                "nice": 0,
+                "sys": 39077093,
+                "idle": 519731983,
+                "irq": 1778155
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:15.728Z",
+              "freeMemoryBytes": 8155037696,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189456873,
+                "nice": 0,
+                "sys": 39077515,
+                "idle": 519733749,
+                "irq": 1778155
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:16.741Z",
+              "freeMemoryBytes": 8044605440,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189459499,
+                "nice": 0,
+                "sys": 39077889,
+                "idle": 519734749,
+                "irq": 1778187
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:17.754Z",
+              "freeMemoryBytes": 8018436096,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189460999,
+                "nice": 0,
+                "sys": 39078170,
+                "idle": 519737029,
+                "irq": 1778187
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:18.766Z",
+              "freeMemoryBytes": 8040583168,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189462718,
+                "nice": 0,
+                "sys": 39078592,
+                "idle": 519738952,
+                "irq": 1778202
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:19.779Z",
+              "freeMemoryBytes": 8030994432,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189464154,
+                "nice": 0,
+                "sys": 39078858,
+                "idle": 519741311,
+                "irq": 1778202
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:20.792Z",
+              "freeMemoryBytes": 8030978048,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189465639,
+                "nice": 0,
+                "sys": 39079170,
+                "idle": 519743576,
+                "irq": 1778202
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:21.796Z",
+              "freeMemoryBytes": 8030666752,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189466873,
+                "nice": 0,
+                "sys": 39079467,
+                "idle": 519746045,
+                "irq": 1778202
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:22.812Z",
+              "freeMemoryBytes": 8025133056,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189468201,
+                "nice": 0,
+                "sys": 39079779,
+                "idle": 519748467,
+                "irq": 1778217
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:23.815Z",
+              "freeMemoryBytes": 8023179264,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189469264,
+                "nice": 0,
+                "sys": 39080015,
+                "idle": 519751170,
+                "irq": 1778263
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:24.816Z",
+              "freeMemoryBytes": 8024432640,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189470155,
+                "nice": 0,
+                "sys": 39080202,
+                "idle": 519754091,
+                "irq": 1778279
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:25.823Z",
+              "freeMemoryBytes": 8001134592,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189471419,
+                "nice": 0,
+                "sys": 39080419,
+                "idle": 519756671,
+                "irq": 1778295
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:26.830Z",
+              "freeMemoryBytes": 7989698560,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189472389,
+                "nice": 0,
+                "sys": 39080623,
+                "idle": 519759499,
+                "irq": 1778310
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:27.830Z",
+              "freeMemoryBytes": 7978983424,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189473249,
+                "nice": 0,
+                "sys": 39080842,
+                "idle": 519762420,
+                "irq": 1778373
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:28.848Z",
+              "freeMemoryBytes": 7973916672,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189474702,
+                "nice": 0,
+                "sys": 39081201,
+                "idle": 519764671,
+                "irq": 1778420
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:29.856Z",
+              "freeMemoryBytes": 7956865024,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189476545,
+                "nice": 0,
+                "sys": 39081358,
+                "idle": 519766732,
+                "irq": 1778420
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:30.860Z",
+              "freeMemoryBytes": 7963787264,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189478092,
+                "nice": 0,
+                "sys": 39081811,
+                "idle": 519768733,
+                "irq": 1778452
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:31.862Z",
+              "freeMemoryBytes": 7961096192,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189480030,
+                "nice": 0,
+                "sys": 39082170,
+                "idle": 519770436,
+                "irq": 1778483
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:32.893Z",
+              "freeMemoryBytes": 7887306752,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189481998,
+                "nice": 0,
+                "sys": 39083029,
+                "idle": 519771733,
+                "irq": 1778499
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:33.889Z",
+              "freeMemoryBytes": 7866695680,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189483779,
+                "nice": 0,
+                "sys": 39083311,
+                "idle": 519773671,
+                "irq": 1778529
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:34.891Z",
+              "freeMemoryBytes": 7851839488,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189485514,
+                "nice": 0,
+                "sys": 39083373,
+                "idle": 519775873,
+                "irq": 1778529
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:35.897Z",
+              "freeMemoryBytes": 7842340864,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189487202,
+                "nice": 0,
+                "sys": 39083561,
+                "idle": 519777999,
+                "irq": 1778545
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:36.127Z",
+              "freeMemoryBytes": 8331079680,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189487310,
+                "nice": 0,
+                "sys": 39083841,
+                "idle": 519778546,
+                "irq": 1778576
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-1.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-1.json",
+          "pid": 19988,
+          "status": 1,
+          "signal": null,
+          "finished": "2026-11-15T01:23:36.127Z",
+          "counts": {
+            "numTotalTests": 18,
+            "numPassedTests": 17,
+            "numFailedTests": 1,
+            "numPendingTests": 0
+          },
+          "failures": [
+            {
+              "file": "src/tests/projectSetupLayeredWorkflow.test.tsx",
+              "fullName": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode",
+              "error": [
+                "AssertionError: expected \"updateProject\" to be called with arguments: [ 'PRJ-RYD-101', …(2) ]\n\nReceived:\n\n  1st updateProject call:\n\n  [\n    \"PRJ-RYD-101\",\n-   ObjectContaining {\n+   {\n      \"clientName\": \"أمانة منطقة الرياض\",\n+     \"location\": {\n+       \"addressAr\": \"الرياض الملز\",\n+       \"geoFenceRadiusMeters\": 1000,\n+       \"lat\": 24.7136,\n+       \"lng\": 46.6753,\n+     },\n      \"nameAr\": \"مشروع البنية التحتية بالرياض\",\n+     \"settings\": {\n+       \"zatcaTaxNumber\": \"310101010101013\",\n+     },\n+     \"startDate\": \"2026-10-01\",\n    },\n    {\n      \"assignedProjectIds\": [],\n      \"displayName\": \"Super Admin\",\n      \"email\": \"superadmin@qsaudi.com\",\n      \"role\": \"SUPER_ADMIN\",\n      \"userId\": \"USR-SA-WIZ\",\n    },\n+   0,\n  ]\n\n\nNumber of calls: 1\n\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:2233:10)\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:1944:14)\n    at Proxy.methodWrapper (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/chai/index.js:1737:25)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115/src/tests/projectSetupLayeredWorkflow.test.tsx:618:23\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20"
+              ]
+            }
+          ],
+          "logSha256": "7b45941204f7fa18164b9a811b2903b762b2d91643abb7598b6be34b286c5c96",
+          "reportSha256": "f842ccee0446b732870ac39f93561367e0e324dcf5db69887b0acb061bc2707e"
+        },
+        {
+          "file": "src/tests/setupWizardContinuity.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-main-20261115",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/setupWizardContinuity.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-2.json"
+          ],
+          "started": "2026-11-15T01:23:36.155Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:23:36.162Z",
+              "freeMemoryBytes": 8330981376,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189487342,
+                "nice": 0,
+                "sys": 39083841,
+                "idle": 519778638,
+                "irq": 1778576
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:37.171Z",
+              "freeMemoryBytes": 8275038208,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189488638,
+                "nice": 0,
+                "sys": 39084280,
+                "idle": 519780966,
+                "irq": 1778607
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:38.171Z",
+              "freeMemoryBytes": 8229609472,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189489671,
+                "nice": 0,
+                "sys": 39084935,
+                "idle": 519783279,
+                "irq": 1778655
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:39.185Z",
+              "freeMemoryBytes": 8190226432,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189491170,
+                "nice": 0,
+                "sys": 39085358,
+                "idle": 519785420,
+                "irq": 1778686
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:40.199Z",
+              "freeMemoryBytes": 8131735552,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189492904,
+                "nice": 0,
+                "sys": 39085764,
+                "idle": 519787342,
+                "irq": 1778701
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:41.207Z",
+              "freeMemoryBytes": 8122359808,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189494124,
+                "nice": 0,
+                "sys": 39085998,
+                "idle": 519789888,
+                "irq": 1778732
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:42.220Z",
+              "freeMemoryBytes": 8087011328,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189495451,
+                "nice": 0,
+                "sys": 39086420,
+                "idle": 519792202,
+                "irq": 1778748
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:43.235Z",
+              "freeMemoryBytes": 8070103040,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189497014,
+                "nice": 0,
+                "sys": 39086779,
+                "idle": 519794343,
+                "irq": 1778748
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:44.250Z",
+              "freeMemoryBytes": 8087871488,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189498951,
+                "nice": 0,
+                "sys": 39087405,
+                "idle": 519795842,
+                "irq": 1778779
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:45.262Z",
+              "freeMemoryBytes": 8073306112,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189500358,
+                "nice": 0,
+                "sys": 39087702,
+                "idle": 519798201,
+                "irq": 1778779
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:46.262Z",
+              "freeMemoryBytes": 8064434176,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189502076,
+                "nice": 0,
+                "sys": 39087795,
+                "idle": 519800388,
+                "irq": 1778795
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:47.262Z",
+              "freeMemoryBytes": 8049242112,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189503670,
+                "nice": 0,
+                "sys": 39087952,
+                "idle": 519802640,
+                "irq": 1778827
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:48.278Z",
+              "freeMemoryBytes": 8030945280,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189505437,
+                "nice": 0,
+                "sys": 39088170,
+                "idle": 519804716,
+                "irq": 1778842
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:48.806Z",
+              "freeMemoryBytes": 8393224192,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189506170,
+                "nice": 0,
+                "sys": 39088437,
+                "idle": 519805842,
+                "irq": 1778858
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-2.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-2.json",
+          "pid": 23060,
+          "status": 0,
+          "signal": null,
+          "finished": "2026-11-15T01:23:48.807Z",
+          "counts": {
+            "numTotalTests": 10,
+            "numPassedTests": 10,
+            "numFailedTests": 0,
+            "numPendingTests": 0
+          },
+          "failures": [],
+          "logSha256": "127898611df6907be3c62beb66304017ce196df59a1618a787f3406e303868d9",
+          "reportSha256": "2701920fcdf0007607c1897dfe361b188a72618c38a560623d86c8191580d901"
+        },
+        {
+          "file": "src/tests/smartImportOverlayAssurance.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-main-20261115",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/smartImportOverlayAssurance.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-3.json"
+          ],
+          "started": "2026-11-15T01:23:48.826Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:23:48.834Z",
+              "freeMemoryBytes": 8393228288,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189506186,
+                "nice": 0,
+                "sys": 39088437,
+                "idle": 519805888,
+                "irq": 1778858
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:49.845Z",
+              "freeMemoryBytes": 8343195648,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189508342,
+                "nice": 0,
+                "sys": 39089717,
+                "idle": 519806515,
+                "irq": 1778889
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:50.856Z",
+              "freeMemoryBytes": 8303587328,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189510514,
+                "nice": 0,
+                "sys": 39090935,
+                "idle": 519807184,
+                "irq": 1778905
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:51.862Z",
+              "freeMemoryBytes": 8239099904,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189513608,
+                "nice": 0,
+                "sys": 39091842,
+                "idle": 519807184,
+                "irq": 1778952
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:52.861Z",
+              "freeMemoryBytes": 8270077952,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189516999,
+                "nice": 0,
+                "sys": 39092435,
+                "idle": 519807200,
+                "irq": 1778952
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:53.862Z",
+              "freeMemoryBytes": 8209420288,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189520218,
+                "nice": 0,
+                "sys": 39092842,
+                "idle": 519807576,
+                "irq": 1778967
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:54.862Z",
+              "freeMemoryBytes": 8188649472,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189521654,
+                "nice": 0,
+                "sys": 39093295,
+                "idle": 519809685,
+                "irq": 1778983
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:55.877Z",
+              "freeMemoryBytes": 8174493696,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189523592,
+                "nice": 0,
+                "sys": 39093451,
+                "idle": 519811655,
+                "irq": 1779030
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:56.371Z",
+              "freeMemoryBytes": 8410238976,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189524451,
+                "nice": 0,
+                "sys": 39093622,
+                "idle": 519812623,
+                "irq": 1779030
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-3.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\baseline-3.json",
+          "pid": 16200,
+          "status": 0,
+          "signal": null,
+          "finished": "2026-11-15T01:23:56.371Z",
+          "counts": {
+            "numTotalTests": 26,
+            "numPassedTests": 26,
+            "numFailedTests": 0,
+            "numPendingTests": 0
+          },
+          "failures": [],
+          "logSha256": "be1fb9a5a43f993be680b98598beb0c884690f3453193cb44c1b38610f3adb85",
+          "reportSha256": "afb604a05649ca9098dc44b11f0464a3a5f3f2b690bb780c63e4ffa6954bca9b"
+        }
+      ],
+      "cleanAfter": true,
+      "summary": {
+        "total": 54,
+        "passed": 53,
+        "failed": 1,
+        "skipped": 0
+      }
+    },
+    {
+      "arm": "candidate",
+      "head": "90d115f09ed9b7af7bee1998903a179d2b23d2b5",
+      "runs": [
+        {
+          "file": "src/tests/projectSetupLayeredWorkflow.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-setup-import-20261114",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/projectSetupLayeredWorkflow.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-1.json"
+          ],
+          "started": "2026-11-15T01:23:56.683Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:23:56.684Z",
+              "freeMemoryBytes": 8404561920,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189525091,
+                "nice": 0,
+                "sys": 39093796,
+                "idle": 519813061,
+                "irq": 1779045
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:57.690Z",
+              "freeMemoryBytes": 8348975104,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189526467,
+                "nice": 0,
+                "sys": 39094452,
+                "idle": 519815030,
+                "irq": 1779045
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:58.693Z",
+              "freeMemoryBytes": 8301723648,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189527544,
+                "nice": 0,
+                "sys": 39094983,
+                "idle": 519817421,
+                "irq": 1779045
+              }
+            },
+            {
+              "at": "2026-11-15T01:23:59.704Z",
+              "freeMemoryBytes": 8232099840,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189529061,
+                "nice": 0,
+                "sys": 39095202,
+                "idle": 519819749,
+                "irq": 1779061
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:00.718Z",
+              "freeMemoryBytes": 8131395584,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189530983,
+                "nice": 0,
+                "sys": 39095592,
+                "idle": 519821498,
+                "irq": 1779077
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:01.733Z",
+              "freeMemoryBytes": 7994265600,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189532561,
+                "nice": 0,
+                "sys": 39095936,
+                "idle": 519823639,
+                "irq": 1779077
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:02.747Z",
+              "freeMemoryBytes": 7986110464,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189534123,
+                "nice": 0,
+                "sys": 39096280,
+                "idle": 519825795,
+                "irq": 1779077
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:03.757Z",
+              "freeMemoryBytes": 8039448576,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189535123,
+                "nice": 0,
+                "sys": 39096483,
+                "idle": 519828654,
+                "irq": 1779108
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:04.768Z",
+              "freeMemoryBytes": 8046678016,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189536279,
+                "nice": 0,
+                "sys": 39096779,
+                "idle": 519831201,
+                "irq": 1779123
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:05.781Z",
+              "freeMemoryBytes": 8023621632,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189537482,
+                "nice": 0,
+                "sys": 39097186,
+                "idle": 519833655,
+                "irq": 1779139
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:06.782Z",
+              "freeMemoryBytes": 7993589760,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189538515,
+                "nice": 0,
+                "sys": 39097546,
+                "idle": 519836264,
+                "irq": 1779154
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:07.785Z",
+              "freeMemoryBytes": 7972982784,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189539670,
+                "nice": 0,
+                "sys": 39097780,
+                "idle": 519838874,
+                "irq": 1779186
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:08.798Z",
+              "freeMemoryBytes": 7967813632,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189540749,
+                "nice": 0,
+                "sys": 39098092,
+                "idle": 519841546,
+                "irq": 1779201
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:09.811Z",
+              "freeMemoryBytes": 7966924800,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189541749,
+                "nice": 0,
+                "sys": 39098499,
+                "idle": 519844200,
+                "irq": 1779248
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:10.824Z",
+              "freeMemoryBytes": 7954059264,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189543593,
+                "nice": 0,
+                "sys": 39098812,
+                "idle": 519846108,
+                "irq": 1779295
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:11.827Z",
+              "freeMemoryBytes": 7928115200,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189545545,
+                "nice": 0,
+                "sys": 39099124,
+                "idle": 519847842,
+                "irq": 1779342
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:12.831Z",
+              "freeMemoryBytes": 7883264000,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189547170,
+                "nice": 0,
+                "sys": 39099248,
+                "idle": 519850092,
+                "irq": 1779358
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:13.837Z",
+              "freeMemoryBytes": 7882657792,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189549123,
+                "nice": 0,
+                "sys": 39099498,
+                "idle": 519851952,
+                "irq": 1779373
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:14.072Z",
+              "freeMemoryBytes": 8428883968,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189549233,
+                "nice": 0,
+                "sys": 39099639,
+                "idle": 519852639,
+                "irq": 1779388
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-1.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-1.json",
+          "pid": 25900,
+          "status": 1,
+          "signal": null,
+          "finished": "2026-11-15T01:24:14.072Z",
+          "counts": {
+            "numTotalTests": 18,
+            "numPassedTests": 17,
+            "numFailedTests": 1,
+            "numPendingTests": 0
+          },
+          "failures": [
+            {
+              "file": "src/tests/projectSetupLayeredWorkflow.test.tsx",
+              "fullName": "Q-Saudi Project Setup Layered Workflow Test Suite O. Unit 2: Save validates draft, issues updateProject exactly ONCE, and exits edit mode",
+              "error": [
+                "AssertionError: expected \"updateProject\" to be called with arguments: [ 'PRJ-RYD-101', …(2) ]\n\nReceived:\n\n  1st updateProject call:\n\n  [\n    \"PRJ-RYD-101\",\n-   ObjectContaining {\n+   {\n      \"clientName\": \"أمانة منطقة الرياض\",\n+     \"location\": {\n+       \"addressAr\": \"الرياض الملز\",\n+       \"geoFenceRadiusMeters\": 1000,\n+       \"lat\": 24.7136,\n+       \"lng\": 46.6753,\n+     },\n      \"nameAr\": \"مشروع البنية التحتية بالرياض\",\n+     \"settings\": {\n+       \"zatcaTaxNumber\": \"310101010101013\",\n+     },\n+     \"startDate\": \"2026-10-01\",\n    },\n    {\n      \"assignedProjectIds\": [],\n      \"displayName\": \"Super Admin\",\n      \"email\": \"superadmin@qsaudi.com\",\n      \"role\": \"SUPER_ADMIN\",\n      \"userId\": \"USR-SA-WIZ\",\n    },\n+   0,\n  ]\n\n\nNumber of calls: 1\n\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:2233:10)\n    at Proxy.<anonymous> (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/index.C4tKZ0yW.js:1944:14)\n    at Proxy.methodWrapper (file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/chai/index.js:1737:25)\n    at C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114/src/tests/projectSetupLayeredWorkflow.test.tsx:618:23\n    at file:///C:/Users/Hp/Documents/ChatGPT/Promise%20of%20Planet%20%E2%80%94%20%D9%88%D8%B9%D8%AF%20%D8%A7%D9%84%D9%83%D9%88%D9%83%D8%A8/Q-Saudi-Work-Follow-App/node_modules/vitest/dist/chunks/run.BTlFXlnv.js:2783:20"
+              ]
+            }
+          ],
+          "logSha256": "ad843e9937f2eed4bbee3c7f26cc4ee10799718a76b59bca372c8a3de9d7c872",
+          "reportSha256": "0cbc8aa63e90763d0121ec14015f9965f8af8560ee253cd64f1a8ade245deea5"
+        },
+        {
+          "file": "src/tests/setupWizardContinuity.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-setup-import-20261114",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/setupWizardContinuity.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-2.json"
+          ],
+          "started": "2026-11-15T01:24:14.093Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:24:14.104Z",
+              "freeMemoryBytes": 8423948288,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189549280,
+                "nice": 0,
+                "sys": 39099670,
+                "idle": 519852685,
+                "irq": 1779388
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:15.115Z",
+              "freeMemoryBytes": 8368979968,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189551093,
+                "nice": 0,
+                "sys": 39100639,
+                "idle": 519853904,
+                "irq": 1779388
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:16.128Z",
+              "freeMemoryBytes": 8321384448,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189552702,
+                "nice": 0,
+                "sys": 39101561,
+                "idle": 519855436,
+                "irq": 1779404
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:17.141Z",
+              "freeMemoryBytes": 8277282816,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189554968,
+                "nice": 0,
+                "sys": 39102389,
+                "idle": 519856405,
+                "irq": 1779436
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:18.153Z",
+              "freeMemoryBytes": 8190930944,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189557732,
+                "nice": 0,
+                "sys": 39103029,
+                "idle": 519857060,
+                "irq": 1779436
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:19.163Z",
+              "freeMemoryBytes": 8199782400,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189559905,
+                "nice": 0,
+                "sys": 39103763,
+                "idle": 519858154,
+                "irq": 1779436
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:20.171Z",
+              "freeMemoryBytes": 8202285056,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189561624,
+                "nice": 0,
+                "sys": 39104796,
+                "idle": 519859467,
+                "irq": 1779436
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:21.180Z",
+              "freeMemoryBytes": 8244547584,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189563280,
+                "nice": 0,
+                "sys": 39106154,
+                "idle": 519860514,
+                "irq": 1779451
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:22.191Z",
+              "freeMemoryBytes": 8294850560,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189564858,
+                "nice": 0,
+                "sys": 39106890,
+                "idle": 519862201,
+                "irq": 1779467
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:23.201Z",
+              "freeMemoryBytes": 8382115840,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189566748,
+                "nice": 0,
+                "sys": 39107842,
+                "idle": 519863419,
+                "irq": 1779483
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:24.213Z",
+              "freeMemoryBytes": 8461885440,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189568607,
+                "nice": 0,
+                "sys": 39108795,
+                "idle": 519864670,
+                "irq": 1779513
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:25.224Z",
+              "freeMemoryBytes": 8536715264,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189570295,
+                "nice": 0,
+                "sys": 39109513,
+                "idle": 519866264,
+                "irq": 1779513
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:26.236Z",
+              "freeMemoryBytes": 8530350080,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189571905,
+                "nice": 0,
+                "sys": 39109718,
+                "idle": 519868514,
+                "irq": 1779529
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:27.236Z",
+              "freeMemoryBytes": 8497893376,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189573311,
+                "nice": 0,
+                "sys": 39110013,
+                "idle": 519870811,
+                "irq": 1779560
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:28.247Z",
+              "freeMemoryBytes": 8465616896,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189575466,
+                "nice": 0,
+                "sys": 39110435,
+                "idle": 519872295,
+                "irq": 1779607
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:28.549Z",
+              "freeMemoryBytes": 8880209920,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189576045,
+                "nice": 0,
+                "sys": 39110826,
+                "idle": 519872514,
+                "irq": 1779607
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-2.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-2.json",
+          "pid": 20120,
+          "status": 0,
+          "signal": null,
+          "finished": "2026-11-15T01:24:28.549Z",
+          "counts": {
+            "numTotalTests": 10,
+            "numPassedTests": 10,
+            "numFailedTests": 0,
+            "numPendingTests": 0
+          },
+          "failures": [],
+          "logSha256": "3304e01537f73a67aa32ffbe5ce478c455c77e0f03199bcb79eeb16e62e30e41",
+          "reportSha256": "84d73deaeffc6320f31f75cd319c204de8308a1558f70afcdc191cad560c8218"
+        },
+        {
+          "file": "src/tests/smartImportOverlayAssurance.test.tsx",
+          "cwd": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-setup-import-20261114",
+          "exe": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\.sg1-tools\\node_modules\\node\\bin\\node.exe",
+          "args": [
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "src/tests/smartImportOverlayAssurance.test.tsx",
+            "--maxWorkers=1",
+            "--no-file-parallelism",
+            "--reporter=verbose",
+            "--reporter=json",
+            "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-3.json"
+          ],
+          "started": "2026-11-15T01:24:28.570Z",
+          "samples": [
+            {
+              "at": "2026-11-15T01:24:28.602Z",
+              "freeMemoryBytes": 8878632960,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189576185,
+                "nice": 0,
+                "sys": 39110889,
+                "idle": 519872514,
+                "irq": 1779607
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:29.613Z",
+              "freeMemoryBytes": 8790351872,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189578310,
+                "nice": 0,
+                "sys": 39112498,
+                "idle": 519872827,
+                "irq": 1779639
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:30.613Z",
+              "freeMemoryBytes": 8742711296,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189581577,
+                "nice": 0,
+                "sys": 39113216,
+                "idle": 519872842,
+                "irq": 1779655
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:31.613Z",
+              "freeMemoryBytes": 8701358080,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189584498,
+                "nice": 0,
+                "sys": 39114232,
+                "idle": 519872904,
+                "irq": 1779701
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:32.615Z",
+              "freeMemoryBytes": 8613306368,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189587827,
+                "nice": 0,
+                "sys": 39114905,
+                "idle": 519872904,
+                "irq": 1779717
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:33.630Z",
+              "freeMemoryBytes": 8597401600,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189591202,
+                "nice": 0,
+                "sys": 39115529,
+                "idle": 519872968,
+                "irq": 1779733
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:34.645Z",
+              "freeMemoryBytes": 8553918464,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189594498,
+                "nice": 0,
+                "sys": 39116169,
+                "idle": 519873092,
+                "irq": 1779764
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:35.654Z",
+              "freeMemoryBytes": 8542961664,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189597124,
+                "nice": 0,
+                "sys": 39116576,
+                "idle": 519874123,
+                "irq": 1779764
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:36.663Z",
+              "freeMemoryBytes": 8661708800,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189599607,
+                "nice": 0,
+                "sys": 39117123,
+                "idle": 519875092,
+                "irq": 1779764
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:37.675Z",
+              "freeMemoryBytes": 8636006400,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189601561,
+                "nice": 0,
+                "sys": 39117342,
+                "idle": 519876983,
+                "irq": 1779780
+              }
+            },
+            {
+              "at": "2026-11-15T01:24:38.158Z",
+              "freeMemoryBytes": 8872480768,
+              "totalMemoryBytes": 25644593152,
+              "cpuTimes": {
+                "user": 189602373,
+                "nice": 0,
+                "sys": 39117592,
+                "idle": 519877857,
+                "irq": 1779780
+              }
+            }
+          ],
+          "log": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-3.log",
+          "json": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui3-rb1-forensic-20261115\\candidate-3.json",
+          "pid": 3064,
+          "status": 0,
+          "signal": null,
+          "finished": "2026-11-15T01:24:38.158Z",
+          "counts": {
+            "numTotalTests": 26,
+            "numPassedTests": 26,
+            "numFailedTests": 0,
+            "numPendingTests": 0
+          },
+          "failures": [],
+          "logSha256": "7703869e75b5994996638bdb0070de874a1fb58fada122246332aa39c3fd2e8d",
+          "reportSha256": "fe8e37c461f9291c37b4abae3d46f646baec30de3aaa9a8675de2c5f5f6e4db4"
+        }
+      ],
+      "cleanAfter": true,
+      "summary": {
+        "total": 54,
+        "passed": 53,
+        "failed": 1,
+        "skipped": 0
+      }
+    }
+  ],
+  "baselineIdentity": {
+    "nodeModulesRealpath": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\Q-Saudi-Work-Follow-App\\node_modules",
+    "files": {
+      "src/tests/projectSetupLayeredWorkflow.test.tsx": "efd4625e700499aa823c00c451b8c4c3852caa30346ee674e31c77dbf8a39a69",
+      "src/tests/setupWizardContinuity.test.tsx": "65427894d0eac021ddd0aff2f65d162ef678cdd335f0e25bda31e6f27c195eb4",
+      "src/tests/smartImportOverlayAssurance.test.tsx": "84a751aee35ca1c4cd321f9a6ffeab0e2a9c78baf5ec4a43b595cf63c293c69a",
+      "vitest.config.ts": "af67939299fba200de3753d37c487c37424cbcc38c386ea0c063e2a0e8cd6115",
+      "package.json": "e8421f80fe3d410694a95dba830fcc953c4c12e33b8bf8d5daabf9f47801c41f",
+      "package-lock.json": "af2c15194e71c13e96001a216b6e50432b088e01c7f267315b45b790d38a4c18"
+    }
+  },
+  "candidateIdentity": {
+    "nodeModulesRealpath": "C:\\Users\\Hp\\Documents\\ChatGPT\\Promise of Planet — وعد الكوكب\\Q-Saudi-Work-Follow-App\\node_modules",
+    "files": {
+      "src/tests/projectSetupLayeredWorkflow.test.tsx": "efd4625e700499aa823c00c451b8c4c3852caa30346ee674e31c77dbf8a39a69",
+      "src/tests/setupWizardContinuity.test.tsx": "65427894d0eac021ddd0aff2f65d162ef678cdd335f0e25bda31e6f27c195eb4",
+      "src/tests/smartImportOverlayAssurance.test.tsx": "84a751aee35ca1c4cd321f9a6ffeab0e2a9c78baf5ec4a43b595cf63c293c69a",
+      "vitest.config.ts": "af67939299fba200de3753d37c487c37424cbcc38c386ea0c063e2a0e8cd6115",
+      "package.json": "e8421f80fe3d410694a95dba830fcc953c4c12e33b8bf8d5daabf9f47801c41f",
+      "package-lock.json": "af2c15194e71c13e96001a216b6e50432b088e01c7f267315b45b790d38a4c18"
+    }
+  },
+  "dependencyVersions": {
+    "vitest": "5.0.3",
+    "happy-dom": "20.14.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "vite": "6.4.4",
+    "esbuild": "0.25.12",
+    "typescript": "5.8.3"
+  },
+  "nodeSha256": "bae898add4643fcf890a83ad8ae56e20dce7e781cab161a53991ceba70c99ffb",
+  "completed": "2026-11-15T01:24:38.296Z",
+  "assessmentCollected": true
+}

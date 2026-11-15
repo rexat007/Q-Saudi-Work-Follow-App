@@ -56,11 +56,16 @@
       "failed": 1,
       "total": 54
     },
-    "additionalBroadFailureIdentitiesPassedInSupplement": 14,
-    "newUnresolvedFailureIdentities": [],
+    "additionalBroadFailureIdentitiesPassedInSupplement": 15,
     "baselineDebtStillRecorded": 19,
     "fullHistoricalPassClaimed": false,
-    "details": "failure-comparison.json"
+    "details": "failure-comparison.json",
+    "sharedFailureIdentities": 18,
+    "baselineOnlyFailureIdentities": 1,
+    "candidateOnlyFailureIdentities": 15,
+    "unionFailureIdentities": 34,
+    "unresolvedHistoricalCausesOfCandidateOnlyIdentities": 15,
+    "confirmedNewSourceRegressions": 0
   },
   "typecheck": {
     "command": "npm run lint (tsc --noEmit)",
@@ -141,7 +146,7 @@
     "rb4NineDirtyFilesAnd013Preserved": true
   },
   "knownLimits": [
-    "19 baseline failure identities remain; broad focused run is non-green.",
+    "Original baseline19 identities preserved:18 also failed candidate,1 passed candidate. Broad candidate605/638 is non-green; historical causes of15 candidate-only failures remain unresolved.",
     "No physical-device or screen-reader certification.",
     "Component locale/viewport matrix uses synthetic fixtures; connected actual-App journeys are Arabic.",
     "No per-layer completion inferred where canonical readiness has no per-layer receipt.",
@@ -160,5 +165,12 @@
     "oldTestEdits": 0,
     "skipsAdded": 0,
     "diffCheck": "PASS"
+  },
+  "forensicReconciliation": {
+    "record": "../ui3-rb1/reconciliation.json",
+    "assessment": "One paired54-test assessment: main53/54 and UI3 53/54, same inherited Foundation argument assertion. All15 original candidate-only identities pass both arms.",
+    "sourceInventoryScopeCommit": "90d115f09ed9b7af7bee1998903a179d2b23d2b5",
+    "originalRawEvidenceUnchanged": true,
+    "publication": "NOT_PERFORMED; local corrective commit only"
   }
 }
