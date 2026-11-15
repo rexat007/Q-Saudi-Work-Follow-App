@@ -37,6 +37,8 @@ import type { GlobalKind } from '../../utils/globalIdentityPolicy';
 import { resolutionErrorKey } from '../../i18n/importResolution';
 import { validateRosterFile, RosterSourceError, rosterErrorKey } from '../../services/import/rosterSourceContract';
 import { SetupReadinessPanel } from './SetupReadinessPanel';
+import {SetupJourneySummary} from './SetupJourneySummary';
+import {RosterJourneyStatus} from '../import/RosterJourneyStatus';
 import { isEvaluatedReadiness, type EvaluatedReadinessView } from '../../i18n/readinessPresentation';
 import { FleetSetupWorkspace } from './FleetSetupWorkspace';
 import { SetupMutationSession, setupCommand, postSetupJson } from '../../services/setupOrchestration.service';
@@ -4268,6 +4270,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
 
             {project&&<OpenProjectOperations project={project} actor={authContext} ready={!isLoadingReadiness&&!readinessError&&!projectDataLoadError&&loadedProjectId===project.projectId} onOpen={id=>{if(projectContext.isCurrent(renderedContext,id))onOpenProjectOperations?.(id);}}/>}
             {project&&<ProjectMaintenancePanel key={`${project.projectId}:${renderedContext.generation}`} project={project} readiness={serverReadiness} canManage={canPresentProjectAction(authContext,project.projectId)} isCurrent={()=>projectContext.isCurrent(renderedContext,project.projectId)} apply={snapshot=>applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation)}/>}
+            <SetupJourneySummary current={activeSetupLayer} projectId={project?.projectId} statusLabel={project?t(PROJECT_STATUS_KEYS[project.status]):t('ui3.pending')} result={serverReadiness} pending={isProjectDataLoading||isLoadingReadiness||foundationNeedsRefresh||isSavingFoundation||loadedProjectId!==project?.projectId} unavailable={Boolean(projectDataLoadError||readinessError)} accessVisible={canPresentProjectAction(authContext,project?.projectId||'')}/>
             {/* Locked setup alert */}
             {isCoreSetupLocked && (
               <div className="p-3 bg-emerald-950/40 border border-emerald-800 rounded-xl text-emerald-400 text-[10px] font-bold flex items-center gap-2">
@@ -4281,11 +4284,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
               {PROJECT_SETUP_LAYERS.filter(layer=>layer.id!=='ACCESS'||canPresentProjectAction(authContext,project?.projectId||'')).map((layer) => {
                 const isActive = activeSetupLayer === layer.id;
                 const Icon = LAYER_ICONS[layer.id];
+                const waiting=Boolean(editingProjectId&&(isProjectDataLoading||loadedProjectId!==editingProjectId)&&['ROSTER','PRICING','REVIEW_ACTIVATION'].includes(layer.id));
+                const stepState=isActive?'current':waiting?'pending':!editingProjectId&&layer.id!=='FOUNDATION'?'blocked':'available';
                 return (
                   <button
                     key={layer.id}
+                    aria-current={isActive?'step':undefined}
+                    aria-label={batch4LayerLabel(t,layer.id,layer.labelAr)}
+                    aria-describedby={`ui3-layer-${layer.id}`}
+                    data-setup-state={stepState}
                     onClick={() => attemptProjectSetupLayerNavigation(layer.id)}
-                    className={`w-full p-3 rounded-xl text-start flex items-center gap-3 transition-all ${
+                    className={`w-full min-h-11 p-3 rounded-xl text-start flex items-center gap-3 transition-all ${
                       isActive 
                         ? 'bg-amber-600/10 border border-amber-500/20 text-white font-bold' 
                         : 'hover:bg-stone-850 text-stone-400 border border-transparent'
@@ -4293,8 +4302,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   >
                     <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-amber-500' : 'text-stone-500'}`} />
                     <div className="space-y-0.5">
-                      <span className="text-[11px] font-black block">{batch4LayerLabel(t, layer.id, layer.labelAr)}</span>
-                      <span className="text-[9px] text-stone-500 font-mono block">{t('projects.batch4.layer')} {layer.ordinal} • {layer.id}</span>
+                      <span className="text-sm font-semibold block">{batch4LayerLabel(t, layer.id, layer.labelAr)}</span>
+                      <span className="block text-[10px] text-stone-400 font-mono">{t('projects.batch4.layer')} {layer.ordinal} • {layer.id}</span>
+                      <span id={`ui3-layer-${layer.id}`} className="block text-xs leading-relaxed text-stone-300">{t(`ui3.nav.${stepState}`)}</span>
                     </div>
                   </button>
                 );
@@ -5138,7 +5148,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       </div>
                     </div>
                   ) : serverReadiness ? (
-                    <SetupReadinessPanel result={serverReadiness} onAction={action => {
+                    <SetupReadinessPanel result={serverReadiness} canAct={canPresentProjectAction(authContext,project.projectId)} busy={foundationNeedsRefresh||isSavingFoundation||Boolean(projectDataLoadError)} onAction={action => {
                       if (action === 'RETRY_READINESS') { void fetchServerReadiness(project.projectId); return; }
                       const layers = { OPEN_FOUNDATION: 'FOUNDATION', OPEN_CARRIERS: 'CARRIERS', OPEN_MATERIALS: 'MATERIALS', OPEN_ROSTER: 'ROSTER' } as const;
                       attemptProjectSetupLayerNavigation(layers[action]);
@@ -5245,9 +5255,9 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
       {isSmartImportOpen && rosterImportStage === 'MATERIAL_RESOLUTION' && project && importBatch && smartImportPendingMaterialGroup && projectRelationshipContext && isSmartImportMaterialModalOpen && (<ContextualCanonicalCreation key={`Material:${project.projectId}:${renderedContext.generation}:${importBatch?.importBatchId}`} projectId={project.projectId} batch={importBatch!} group={smartImportPendingMaterialGroup!} context={projectRelationshipContext!} receipts={contextualReceipts} canMutate={authContext.role==='PROJECT_ADMIN'||authContext.role==='SUPER_ADMIN'} isCurrent={() => isRosterCurrent(renderedContext, project.projectId)} onClose={()=>{setIsSmartImportMaterialModalOpen(false);setSmartImportPendingMaterialGroup(null);}} onVerified={async(fresh,id,prerequisite,snapshot)=>{if(snapshot)applyCanonicalSnapshot(project.projectId,snapshot,renderedContext.generation);if(smartImportPendingMaterialGroup?.normalizedSourceKey==='BATCH_MATERIAL')await confirmBatchMaterial(id);else await applyCanonicalImportChoice(smartImportPendingMaterialGroup!,fresh,id,prerequisite);}}/>)}
       {isSmartImportOpen && project && (
         <ImportOverlay level="WORKFLOW" label={t('projects.batch4.smart_roster_import')} className="bg-stone-950/90 md:p-8" onDismiss={() => void requestRosterCancellation()}>
-          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-5xl w-full mx-auto my-auto shadow-2xl p-6 space-y-6 flex flex-col max-h-[90dvh] overflow-hidden">
+          <div className="bg-stone-900 border border-stone-800 rounded-3xl max-w-5xl w-full min-w-0 mx-auto my-auto shadow-2xl p-3 sm:p-6 space-y-4 flex flex-col max-h-[92dvh] overflow-hidden">
             {/* Header & 7-Stage Orientation Stepper */}
-            <div className="space-y-4 shrink-0">
+            <div className="max-h-[45dvh] space-y-3 overflow-y-auto shrink-0 pe-1">
               <div className="flex justify-between items-center border-b border-stone-800 pb-3">
                 <div className="flex items-center gap-2">
                   <FileSpreadsheet className="w-5 h-5 text-amber-500" />
@@ -5363,14 +5373,17 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                   />
                 </label>
               ))}
+              <RosterJourneyStatus stage={rosterImportStage} discovering={isDiscoveringRoster||isImportingFile} processing={isProcessing} committing={isCommittingImport} recovering={rosterRecoveryVisible} awaiting={Boolean(pendingRosterCheckpoint.current||pendingRosterRestore.current)} blocked={Boolean(importError||smartImportCommitError||importSessionRecoveryError||rosterDiscoveryError)} receiptConfirmed={rosterExecution?.operation.state==='COMPLETED'||durableSessionRef.current?.lifecycleState==='COMMITTED'} sourceDetached={requiresRosterSourceReattach} sessionId={importSessionId}/>
               {/* C1 Layered Smart Import Stage Indicator Stepper (Orientation & Progress Indicator) */}
-              <div className="flex items-center justify-between gap-1 overflow-x-auto pb-2 border-b border-stone-800">
+              <div aria-label={t('ui3.import.steps')} className="grid grid-cols-2 gap-1 pb-2 border-b border-stone-800 sm:grid-cols-4 lg:grid-cols-7">
                 {ROSTER_STAGE_DEFINITIONS.map((def, idx) => {
                   const isCurrent = rosterImportStage === def.stage;
                   return (
                     <div
                       key={def.stage}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-[11px] font-bold shrink-0 transition-all ${
+                      aria-current={isCurrent?'step':undefined}
+                      data-import-stage={def.stage}
+                      className={`flex min-w-0 items-center gap-2 px-2 py-1.5 rounded-xl text-xs leading-relaxed font-semibold transition-all ${
                         isCurrent
                           ? 'bg-amber-500/20 border border-amber-500/40 text-amber-300'
                           : 'bg-stone-950/60 text-stone-500 border border-stone-850'
@@ -5397,7 +5410,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                           className="hidden"
                         />
             {/* Stage Body - Exactly one stage active */}
-            <div className="flex-1 overflow-y-auto pr-1">
+            <div className="min-h-0 flex-1 overflow-y-auto ps-1 pe-1">
               {/* STAGE 1: SOURCE_DISCOVERY */}
               {rosterImportStage === 'SOURCE_DISCOVERY' && (
                 <div className="space-y-6 py-4">
@@ -5455,6 +5468,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                         <label className="text-stone-400 font-bold block">{t('entityResolution.labels.worksheet')}</label>
                         <select
                           value={rosterSelectedSheet}
+                          aria-label={t('entityResolution.labels.worksheet')}
                           disabled={isProcessing || isDiscoveringRoster}
                           onChange={(e) => handleRosterSheetChange(e.target.value)}
                           className="w-full bg-stone-900 border border-stone-800 text-white px-3 py-2 rounded-xl focus:outline-hidden font-bold"
@@ -5501,6 +5515,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                               <td className="p-2.5">
                                 <select
                                   value={rosterCustomMappings[header] || 'unmapped'}
+                                  aria-label={`${t('projects.batch4.matched_canonical_field')}: ${rosterDiscoveryResult.sourceColumns?.find(c=>c.key===header)?.label||header}`}
                                   disabled={isProcessing || isDiscoveringRoster}
                                   onChange={(e) => handleRosterMappingChange(header, e.target.value as any)}
                                   className="w-full bg-stone-900 border border-stone-800 text-amber-400 px-3 py-1.5 rounded-lg text-xs font-bold focus:outline-hidden"
@@ -5779,7 +5794,7 @@ export const ProjectSetupWizard: React.FC<ProjectSetupWizardProps> = ({
                       }}
                       className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-stone-950 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                     >
-                      {t('entityResolution.labels.finish_import')}
+                      {t(['COMPLETED','CANCELLED'].includes(rosterExecution?.operation.state||'')||['COMMITTED','CANCELLED'].includes(durableSessionRef.current?.lifecycleState||'')?'entityResolution.labels.finish_import':'ui3.inspect_original')}
                     </button>
                   </div>
                 </section>

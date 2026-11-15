@@ -28,6 +28,8 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
   const counts = ['PREPARE_NEW', 'REUSE', 'ASSIGN', 'REASSIGN', 'ALLOCATE', 'REALLOCATE', 'NO_CHANGE'].map(action => ({ action, count: intent.entityConsequences.filter(c => c.action === action).length + intent.assignmentIntents.filter(a => a.action === action).length + intent.allocationIntents.filter(a => a.action === action).length })).filter(item => item.count > 0);
   return <section className="space-y-4 rounded-2xl border border-stone-700 bg-stone-900 p-4 text-stone-100 min-w-0" aria-label={t('intent.title')}>
     <h3 className="text-lg font-bold">{t('intent.title')}</h3>
+    <p className="text-sm leading-relaxed text-stone-300">{t('ui3.review_help')}</p>
+    <p role="status" className="text-sm text-stone-300">{t(busy?'ui3.import.submitting':intent.blockers.length?'ui3.import.blocked':'ui3.import.review')}</p>
     <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-stone-950/80 p-3 rounded-xl border border-stone-850">
       {(['read', 'contributing', 'excluded', 'blocked'] as const).map((key, index) => <div key={key} className="space-y-0.5"><dt className="text-stone-400 text-xs font-medium">{t(`intent.count.${key}`)}</dt><dd className="font-mono text-base font-bold text-white">{index === 0 ? intent.rowDecisions.length : intent.rowDecisions.filter(r => r.status === ['', 'CONTRIBUTING', 'EXCLUDED', 'BLOCKED'][index]).length}</dd></div>)}
     </dl>
@@ -49,12 +51,13 @@ export function RosterSemanticReview({ intent, onAccept, onBack, busy = false, e
       </section>
     </div>
     {intent.blockers.length > 0 && <div role="alert" className="rounded-xl border border-rose-800/80 bg-rose-950/40 p-4 space-y-2 text-rose-300 text-xs"><h4 className="font-bold text-rose-200 text-sm">{t('intent.blockers')}</h4>{intent.blockers.map((b, i) => <p key={i} className="font-mono">{t(intentIssueKey(b.code))} · {rows(b.rowNumbers)}</p>)}</div>}
+    {intent.warnings.length>0&&<section aria-label={t('ui3.review_warnings')} className="rounded-xl border border-amber-800 p-3 text-sm text-amber-200"><h4 className="font-semibold">{t('ui3.review_warnings')}</h4><ul className="mt-2 space-y-2">{intent.warnings.map((w,i)=><li key={i}>{t('ui3.warning_review')} · {rows(w.rowNumbers)}</li>)}</ul></section>}
     {intent.requiresDisplacementApproval && <label className="flex items-start gap-2.5 p-3.5 border border-amber-600/70 bg-amber-950/30 rounded-xl cursor-pointer text-amber-200 text-xs font-medium"><input type="checkbox" checked={approved === intent.signature} disabled={busy || intent.blockers.length > 0} onChange={e => setApproved(e.target.checked ? intent.signature : undefined)} className="w-4 h-4 rounded-sm border-amber-600 bg-stone-900 text-amber-500 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-500 mt-0.5" /><span>{t('intent.confirm')}</span></label>}
     {error && <p role="alert" className="p-3 rounded-xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs font-mono">{t(intentIssueKey(error))}</p>}
     <p className="text-xs text-stone-400">{t('intent.handoff')}</p>
     <div className="flex flex-wrap gap-2 justify-end pt-2 border-t border-stone-800">
-      {onBack && <button type="button" disabled={busy} onClick={onBack} className="rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white px-4 py-2 text-xs font-bold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-stone-400">{t('entityResolution.labels.return_to_correction')}</button>}
-      <button type="button" disabled={busy || !ready} onClick={() => void onAccept(intent.signature, approved)} className="rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black px-5 py-2 text-xs disabled:bg-stone-800 disabled:text-stone-400 disabled:opacity-40 transition-colors shadow-md shadow-amber-950/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400">{t('intent.accept')}</button>
+      {onBack && <button type="button" disabled={busy} onClick={onBack} className="rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white min-h-11 px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-stone-400">{t('entityResolution.labels.return_to_correction')}</button>}
+      <button type="button" disabled={busy || !ready} onClick={() => void onAccept(intent.signature, approved)} className="rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-black min-h-11 px-5 py-2 text-sm disabled:bg-stone-800 disabled:text-stone-400 disabled:opacity-40 transition-colors shadow-md shadow-amber-950/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-amber-400">{t('intent.accept')}</button>
     </div>
   </section>;
 }

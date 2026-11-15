@@ -1,0 +1,649 @@
+{
+  "result": "PASS",
+  "reportTrips": 1,
+  "projectId": "Q-PRJ-002",
+  "tripId": "TRP-e8ade51d-82ce-4b9d-b747-c0d494335075",
+  "import": "COMMITTED",
+  "status": "COMPLETED",
+  "totalAmountSAR": 273.13,
+  "eventsBefore": 9,
+  "postsBefore": 9,
+  "receiptLookups": 3,
+  "calls": [
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/GmKbPJyYeoomDEcMk8V2msfXDs4k/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/operational-configuration/assess",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/operational-configuration",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/setup-material",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/setup-carrier",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/intake-preview",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/intake/canonical",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/import-sessions",
+      "status": 201
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/relationship-context",
+      "status": 200
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0/commit-reviewed-intent",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions/SESSION-b8df985a-0638-4bce-846b-80fa49713fd0/execution",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/lifecycle-transition",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/lifecycle-transition",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/activate",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/import-sessions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands/receipt",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/style.css",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/client.js",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/workspace",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/pricing-rules",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/foundation-snapshot",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands/receipt",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/projects/Q-PRJ-002/trips/commands/receipt",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/projects/Q-PRJ-002/fleet-read-model",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/users/GmKbPJyYeoomDEcMk8V2msfXDs4k/commands",
+      "status": 200
+    }
+  ]
+}
