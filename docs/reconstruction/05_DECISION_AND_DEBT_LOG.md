@@ -1,3 +1,22 @@
+## UI4-RB1 — Confirmed XLSX row-integrity blocker corrected — 2026-11-15
+
+CSV physical-line splitting corrupted quoted CRLF cells. The existing reports service now owns one structured export table consumed directly by CSV and XLSX. All values and fallbacks remain; header quoting is corrected. Red/green, real workbook cells and authenticated multiline download are verified in [RB1 evidence](ui4/rb1-recovery.json). Original 14 broad-suite failure identities, original connected 16/17 and corrected 1/1, initial enhanced-journey timeout and fixture type errors are retained. No blanket PASS or environmental explanation for the timeout is asserted. Operational language, live provider, devices and assistive-technology acceptance remain open. Scope 49; original RB4/migration 013 untouched; owner source review only, publication HOLD.
+
+## UI4 bounded reporting decisions — 2026-11-15
+
+Owner amendments are binding and recorded in MASTER_PROJECT_HANDOFF.md. Existing calculations, Rules, server authorization/Google refresh, export services and App routes remain authoritative. Report-local composition retires hidden reads and fences stale scopes; no second read, calculation or refresh authority is introduced. Legacy quick table search is explicitly viewport-only. Source-read completion uses the client clock after a successful server read and is distinct from local generation and server-returned Google refresh time. Unregistered print previews have no synthetic official reference. Existing XLSX Arabic metadata/branding is retained shared-service debt; localized UI4 table headers do not imply complete export-language acceptance. Final verification and remaining acceptance boundaries: [UI4 record](UI4_OPERATIONAL_REPORTS.md). Original historical failures/logs remain immutable; no broad aggregate is promoted to PASS by a focused rerun.
+
+## 2026-11-15 — Post-merge UI3 / UI3-RB1 source closure, debt unchanged
+
+- PR #104 merged on exact main `800434f634fb7ea5099fc12e4ec064dfb05d6df2`; exact main Secret-free foundation CI succeeded (`43666983421`). Source closure is verified; physical-device/screen-reader/live operational owner acceptance not performed.
+- Original broad UI3 candidate `605/638` remains NOT PASS; original baseline `584/603` remains NOT PASS. Exact failure identities: 18 shared, 15 candidate-only, 1 baseline-only, union 34. The earlier 14 count represents net failures difference only.
+- The additional 15 passed in the bounded three-file pair and supplement; main/UI3 pair each 53/54 with the same pre-existing Foundation `updateProject` argument assertion. No confirmed source regression or environment cause. Historical original mechanism for the 15 = `CAUSE_UNRESOLVED`; DO NOT mark `CONFIRMED_TRANSIENT` or dismiss non-timeout TypeError/assertion evidence.
+- Preserve inherited Foundation expected-version argument assertion separately from the UI3 broad-run alternate failure form. Neither test expectation nor source was changed in RB1.
+- UI3 is source-closed; remaining native-device/assistive/live acceptance, non-green historical broad suites, SQL/RB4, legacy offline/provider readiness and Beta 2 release certification retain their independent gates.
+- UI4 is NEXT_FOR_DISCOVERY_ONLY. Exact scope/title must be derived from current code/product journey; no production change before target-contract review and owner authorization.
+
+Current-state owner: [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md). The records below retain their original dates and evidence.
+
 ## 2026-11-09 — AR2-U08 source implemented / independent review required
 
 - Firestore remains active operational authority. Preserve canonical command/outbox composition; freeze minimized source facts and bounded master/report snapshots in the existing server path.

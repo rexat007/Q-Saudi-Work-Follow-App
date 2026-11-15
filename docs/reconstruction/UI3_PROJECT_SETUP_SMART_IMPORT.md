@@ -1,5 +1,15 @@
 # UI3 — Project Setup, Readiness and Smart Roster Import
 
+## Post-merge disposition (2026-11-15)
+
+[PR #104](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/104) merged at2026-11-15T02:16:13Z into exact GitHub main `800434f634fb7ea5099fc12e4ec064dfb05d6df2`. [Exact-main Secret-free foundation CI43666983421](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666983421) succeeded on that merge; [PR-head CI43666452218](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666452218) succeeded on `39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1`. UI3 is MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED and its documentation-only RB1 is MERGED / EVIDENCE_RECONCILED. The [phase ledger](02_PHASE_LEDGER.md#current-post-merge-override--ui3--pr-104--2026-11-15) alone owns current state.
+
+Source closure does not certify physical devices, screen readers, production live operations or global Beta2 acceptance; those remain NOT_PERFORMED/open. Original broad584/603 and605/638 remain NOT_PASS. Failure sets remain19 baseline,33 candidate,18 shared,15 candidate-only,1 baseline-only,34 union; pair53/54 each retains the same inherited Foundation argument assertion. Original15 causes remain CAUSE_UNRESOLVED / NOT_REPRODUCED in bounded evidence, not confirmed environmental/transient. All original raw reports and denominators below remain historical evidence.
+
+The merged50-file scope is9 production/UI/locales,4 tests/fixtures and37 docs/evidence; RB1 changed documentation only. UI4 implementation is NOT_STARTED and its target contract requires owner review. SQL/U09 production routing, RB4/013 activation and deployment remain NOT_AUTHORIZED. No new tests/build or live acceptance was performed by this documentation-only reconciliation.
+
+**Historical original authoring-time disposition (preserved verbatim below):** “Local commit only,” earlier no-publication/review-pending wording and the original implementation baseline describe their authoring dates; they no longer describe PR#104's publication/merge status.
+
 Bounded presentation convergence on main `7be559e06025d44341aac242fe4df488d2cc899a`, isolated branch `ui/ui3-setup-import-20261114`. Local commit only. Verification and final disposition are recorded in [verification](ui3/verification.json); every reviewed path is recorded in [inventory](ui3/changed-file-inventory.json). This record does not authorize publication, deployment, SQL activation or UI4.
 
 ## Active workflow and boundaries

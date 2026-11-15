@@ -1,0 +1,259 @@
+{
+  "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+  "branch": "ui/ui4-operational-reports-20261115",
+  "counts": {
+    "production": 9,
+    "testsAndFixtures": 8,
+    "documentationAndEvidence": 32,
+    "total": 49
+  },
+  "beforeCount": 45,
+  "beforeInventory": "rb1-recovery.json::EXACT_CHANGED_FILES_BEFORE_AND_AFTER.beforeFiles",
+  "files": [
+    {
+      "file": "docs/reconstruction/00_WORK_START_HERE.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI3_PROJECT_SETUP_SMART_IMPORT.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/README.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/doc-links.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/evidence-sha256.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/exact-file-inventory.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/failure-comparison.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/history.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/inherited-five-docs.patch",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/ar-1.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/ar-2.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/en-1.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/en-2.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/ur-1.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/pdf-qa/ur-2.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/preflight.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/rb1-recovery.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/rb1-verification-raw.zip",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/ar-mobile.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/ar-print.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/en-desktop.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/en-print.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/ur-print.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/screenshots/ur-tablet.png",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/secret-scan.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/source-contract.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/verification-raw.zip",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/verification.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "classification": "PRODUCTION",
+      "sha256": "cbfd6cc697fecb614aa55a88cf07ccb23c931c783c52a6aebf87c23c62a15a97"
+    },
+    {
+      "file": "src/components/reports/PrintableReportModal.tsx",
+      "classification": "PRODUCTION",
+      "sha256": "3db3953c8b86988b850ca81f079ceea1353c84486cf8db546d3491d25667d51f"
+    },
+    {
+      "file": "src/components/reports/ReportsEngineView.tsx",
+      "classification": "PRODUCTION",
+      "sha256": "45ef3af16cab3657d652fb0e7b049c706fb53441d9a49be7d9cde60ea10db035"
+    },
+    {
+      "file": "src/components/reports/operationalReportPresentation.ts",
+      "classification": "PRODUCTION",
+      "sha256": "dbf44c36a6f26665332ee251944df22aa61b0d9dfe719d0de2f5d74029c32634"
+    },
+    {
+      "file": "src/components/reports/useReportScope.ts",
+      "classification": "PRODUCTION",
+      "sha256": "9561030a887dff56db62b1e567c32b2692dcbb9e16ec29781e9c32eed318ddd5"
+    },
+    {
+      "file": "src/locales/ar/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "b24ab5d056b587e8af669173c4e51496a79a1f417b69bbd99bf4ec5201b65452"
+    },
+    {
+      "file": "src/locales/en/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "35b9e53076821cd60b4f0d56a9db6d11dee479fcb3ac8b7cfa46a32358fbbf53"
+    },
+    {
+      "file": "src/locales/ur/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "cfbbd5ae0a702d9eb2a010ad0f77bc17efb0f9c6b1753a20871c625c282fab8d"
+    },
+    {
+      "file": "src/services/reportsEngine.service.ts",
+      "classification": "PRODUCTION",
+      "sha256": "17004ee89914f91a2d17ef8d8ade154d608e16595462a4da41a01ae484915cf8"
+    },
+    {
+      "file": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "314bf8a39b255955f355baf3783c2b5c4dc4eeafaba3eb745b8096f529f79417"
+    },
+    {
+      "file": "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "2bb3e86b40b5984b3d198e1a181d2726b14bd903f7da57fc6ad5d7dd65c7a05d"
+    },
+    {
+      "file": "src/tests/helpers/ui4ReportFixture.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "76bd73de224f98f5b785ba4dffb77941d3a7b37485fe1a2a666208c791912fb8"
+    },
+    {
+      "file": "src/tests/ui4ExportIntegrity.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "0fdc13b2de38554a912f76fab6c3f361bdb26707635c03c453645424a1a60204"
+    },
+    {
+      "file": "src/tests/ui4ReportBrowser.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "2fcb47e539e334a6d81438aec20cbb0b8957be6cb7b77ccf69340a3b1ffe36f1"
+    },
+    {
+      "file": "src/tests/ui4ReportConnectedJourney.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "38b876955074aaf836e33d64789cd91f540d48ad35d58cdff455c1c98fefe610"
+    },
+    {
+      "file": "src/tests/ui4ReportPresentation.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "bddf0deb3a11fe269f9aec872e21f0ea44ceffcc6532f6137841e3fe2c152d4e"
+    },
+    {
+      "file": "src/tests/ui4ReportScope.test.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "8af32832aa9fdc2fc797bf4891e8264f447abd2a19037a9c8f32c991536fcbbf"
+    }
+  ]
+}

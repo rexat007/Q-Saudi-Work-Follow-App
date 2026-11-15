@@ -1,0 +1,276 @@
+{
+  "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+  "branch": "ui/ui4-operational-reports-20261115",
+  "unexpected": [],
+  "protectedChanges": [],
+  "hookProblems": [],
+  "originalGoogleTestAssertionsPreserved": true,
+  "otherWorktrees": [
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true
+    }
+  ],
+  "rb4Files": [
+    {
+      "file": "server/workspaceProjectionDelivery.ts",
+      "sha256": "6e2de083d64939792463e8c35b9958687a677c1e2d7ac4ddcdfa6d72a046d917",
+      "unchanged": true
+    },
+    {
+      "file": "docs/reconstruction/20_AR2_U09_RB4_WORKSPACE_JOURNAL.md",
+      "sha256": "4214dd0fa88d7f381cdf511a9f70b791532f61976e311fe2d2ff512e5708a7f2",
+      "unchanged": true
+    },
+    {
+      "file": "server/sqlWorkspaceDelivery.ts",
+      "sha256": "abd6bdaf7cba2a96b3ff7ecd521740243a48d559c61bb6c0a0b554b2f9d518ac",
+      "unchanged": true
+    },
+    {
+      "file": "server/workspaceDeliveryJournal.ts",
+      "sha256": "4937ce73ae7e7b7626d4578134efa26801b3579fedaec02c9d9facd2408ca1b0",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/013_workspace_delivery_journal.sql",
+      "sha256": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/workspaceBindingAuthority.ts",
+      "sha256": "adee0db02f2ad1e878670ad3d75247620c70cb281350ca40368fb059bcf634de",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/workspaceDeliveryJournal.ts",
+      "sha256": "c2031e414589f15712cff4429c38f46e364b403b09d135f05853711c81ef6d3d",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/workspaceGrantAuthority.ts",
+      "sha256": "22db6d8b8baf7064d5a2c556cdc9394c24745b4c4b2eed23a45e46612f6afaf2",
+      "unchanged": true
+    },
+    {
+      "file": "src/tests/ar2U09Rb4Workspace.test.ts",
+      "sha256": "451be2507a1fb02d28e17553c6b73891bd083e2947ddf5932f24e561663f972d",
+      "unchanged": true
+    }
+  ],
+  "migrations": [
+    {
+      "file": "src/db/migrations/001_canonical_schema.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/002_roles_and_rls.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/003_runtime_authority_hardening.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/004_canonical_identity_membership_authority.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/005_temporal_relationship_authority.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/006_foundation_bounded_reads.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/007_durable_import_execution.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/008_trips_weighbridge_pricing_authority.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/009_u06_event_read_security_gate.sql",
+      "unchanged": true
+    },
+    {
+      "file": "src/db/migrations/010_inactive_offline_epoch_fence.sql",
+      "unchanged": true
+    }
+  ],
+  "sourceFiles": [
+    {
+      "file": "src/components/reports/AdaptiveOperationalReports.tsx",
+      "sha256": "cbfd6cc697fecb614aa55a88cf07ccb23c931c783c52a6aebf87c23c62a15a97",
+      "gitBlob": "42eb3199d36dd48646151cea19b7150b4699bb6a"
+    },
+    {
+      "file": "src/components/reports/PrintableReportModal.tsx",
+      "sha256": "3db3953c8b86988b850ca81f079ceea1353c84486cf8db546d3491d25667d51f",
+      "gitBlob": "8b9fedba44fe08fec8f3530bd6c10cf8a77d6e64"
+    },
+    {
+      "file": "src/components/reports/ReportsEngineView.tsx",
+      "sha256": "45ef3af16cab3657d652fb0e7b049c706fb53441d9a49be7d9cde60ea10db035",
+      "gitBlob": "eaa19270fc035aff4083c982686d0120c37ef05d"
+    },
+    {
+      "file": "src/components/reports/operationalReportPresentation.ts",
+      "sha256": "dbf44c36a6f26665332ee251944df22aa61b0d9dfe719d0de2f5d74029c32634",
+      "gitBlob": "8e2067aca83e110e309a4581eb84d9fa86861200"
+    },
+    {
+      "file": "src/components/reports/useReportScope.ts",
+      "sha256": "9561030a887dff56db62b1e567c32b2692dcbb9e16ec29781e9c32eed318ddd5",
+      "gitBlob": "fd6f9d6a3790afb144775dcf15e9a13c2c43501e"
+    },
+    {
+      "file": "src/locales/ar/index.ts",
+      "sha256": "b24ab5d056b587e8af669173c4e51496a79a1f417b69bbd99bf4ec5201b65452",
+      "gitBlob": "d8359e67b080281f2c3ccd4ce0958230ca6c5660"
+    },
+    {
+      "file": "src/locales/en/index.ts",
+      "sha256": "35b9e53076821cd60b4f0d56a9db6d11dee479fcb3ac8b7cfa46a32358fbbf53",
+      "gitBlob": "74ab6c39c1752c4a517134ae15aab69a0f02e044"
+    },
+    {
+      "file": "src/locales/ur/index.ts",
+      "sha256": "cfbbd5ae0a702d9eb2a010ad0f77bc17efb0f9c6b1753a20871c625c282fab8d",
+      "gitBlob": "d49be2f0ebee53790a5a83b59157a33aa783b4dc"
+    },
+    {
+      "file": "src/tests/googleDerivedReportRefreshUi.test.tsx",
+      "sha256": "314bf8a39b255955f355baf3783c2b5c4dc4eeafaba3eb745b8096f529f79417",
+      "gitBlob": "a021f3ab3499675b350863dad5a9674a912da71d"
+    },
+    {
+      "file": "src/tests/helpers/ui4ReportBrowserEntry.tsx",
+      "sha256": "2bb3e86b40b5984b3d198e1a181d2726b14bd903f7da57fc6ad5d7dd65c7a05d",
+      "gitBlob": "b1cbf02f1d27c124d543e42015cf5f865f6a738f"
+    },
+    {
+      "file": "src/tests/helpers/ui4ReportFixture.ts",
+      "sha256": "76bd73de224f98f5b785ba4dffb77941d3a7b37485fe1a2a666208c791912fb8",
+      "gitBlob": "9829230c9015360ed517a3ab22bfbbc26250d8b1"
+    },
+    {
+      "file": "src/tests/ui4ReportBrowser.test.ts",
+      "sha256": "2fcb47e539e334a6d81438aec20cbb0b8957be6cb7b77ccf69340a3b1ffe36f1",
+      "gitBlob": "7d32feceb227c7d262411f1c0a3b703e137ec6bd"
+    },
+    {
+      "file": "src/tests/ui4ReportConnectedJourney.test.ts",
+      "sha256": "d4312613ba02f08759b86fbe7fd4ff8bb4f343727c759537d58d3cf1cc1feed5",
+      "gitBlob": "51b2119523ca7581d6765d3e2297dad38a978d91"
+    },
+    {
+      "file": "src/tests/ui4ReportPresentation.test.ts",
+      "sha256": "bddf0deb3a11fe269f9aec872e21f0ea44ceffcc6532f6137841e3fe2c152d4e",
+      "gitBlob": "832dfb7cd299624377c4ce2ed91008501bc59c3a"
+    },
+    {
+      "file": "src/tests/ui4ReportScope.test.tsx",
+      "sha256": "8af32832aa9fdc2fc797bf4891e8264f447abd2a19037a9c8f32c991536fcbbf",
+      "gitBlob": "7c3648f7d9f74650d22477ed83386e13a8c99259"
+    }
+  ]
+}

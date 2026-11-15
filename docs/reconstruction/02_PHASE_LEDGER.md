@@ -1,4 +1,32 @@
+## CURRENT UI4-RB1 CORRECTIVE OWNER-REVIEW GATE — 2026-11-15
+
+XLSX multiline row blocker resolved and verified; scope 49 files (9 production / 8 tests-fixtures / 32 docs-evidence). Red 10/12 → green 12/12; affected 168/168, Edge 9/9, enhanced connected 1/1. Matched broad baseline 310/324 and candidate 394/408 retain identical 14 failures: NOT PASS. Typecheck/lint/build exit 0. Original connected 16/17 and corrected 1/1 remain historical. [Current RB1 record](ui4/rb1-recovery.json). Stop at owner review; publication HOLD, no commit/push/PR/merge/deploy/RB4/SQL action. Earlier UI4 source evidence below remains historical.
+
+## CURRENT UI4 OWNER-AUTHORIZED LOCAL IMPLEMENTATION — 2026-11-15
+
+**UI4: SOURCE_IMPLEMENTED / LOCALLY_VERIFIED_WITH_INHERITED_DEBT / OWNER_REVIEW_REQUIRED.** Starting main and branch HEAD `800434f634fb7ea5099fc12e4ec064dfb05d6df2`; implementation branch `ui/ui4-operational-reports-20261115`. The owner explicitly authorized the bounded UI4 source changes and eight contract amendments after the proposal recorded below. This entry supersedes proposal-only next-step wording; older entries retain their historical meaning. See [UI4 implementation and evidence](UI4_OPERATIONAL_REPORTS.md). No commit, push, PR, merge, deployment, SQL/RB4 activation or subsequent UI unit is authorized. UI3 remains source-closed/merged, with its original non-PASS broad evidence and unresolved original failure causes preserved. No product/live acceptance is implied.
+
 # PHASE LEDGER
+
+## CURRENT POST-MERGE OVERRIDE — UI3 / PR #104 — 2026-11-15
+
+- `CURRENT_CODE_BASELINE = 800434f634fb7ea5099fc12e4ec064dfb05d6df2` (verified GitHub `main`, merged PR #104).
+- `PR_104 = MERGED`; merge recorded at `2026-11-15T02:16:13Z`; source ancestry `7be559e06025d44341aac242fe4df488d2cc899a → 90d115f09ed9b7af7bee1998903a179d2b23d2b5 → 39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1 → merge 800434f634fb7ea5099fc12e4ec064dfb05d6df2`.
+- `MAIN_GIT_HISTORY = 3 ahead / 0 behind` relative to UI3 base; `PR_104_CHANGED_FILES = 50` (9 production/UI/locales + 4 tests/fixtures + 37 docs/evidence).
+- `CI_EXACT_MAIN = SUCCESS`, GitHub Actions `Secret-free foundation CI`, push run `43666983421` on merge SHA. `PR_HEAD_CI = SUCCESS`, run `43666452218` on `39433a8`.
+- `UI3 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED`; `UI3_RB1 = MERGED / EVIDENCE_RECONCILED` (documentation-only correction); product acceptance on real devices/assistive technologies/production = `NOT_PERFORMED`, not CLOSED.
+- `UI3_FOCUSED_NEW = 35/35 PASS`; `NATIVE_BROWSER = 11/11 PASS`; `CONNECTED_EMULATOR_JOURNEYS = 2/2 PASS` (bounded evidence only).
+- `HISTORICAL_BROAD_BASELINE = 584/603 / NOT_PASS`; `HISTORICAL_BROAD_UI3 = 605/638 / NOT_PASS`; failure sets: baseline19, UI3 33, shared18, UI3-only15, baseline-only1, union34; `NET_FAILURE_COUNT_DELTA=14` is not the UI3-only identity count. Controlled main/UI3 contrast = 53/54 both, same inherited Foundation expected-arguments failure. `UI3_ONLY_15_CAUSE = CAUSE_UNRESOLVED`, `NOT_REPRODUCED` in bounded supplement/pair; zero confirmed source regression, zero confirmed environmental cause.
+- `NEXT_ACTION = UI4_TARGET_CONTRACT_AND_AREA_WIDE_SOURCE_DISCOVERY`; `UI4_IMPLEMENTATION = NOT_STARTED`; no approved UI4 title/scope has been established in current repository. `UI5_UI6 = NOT_STARTED`.
+- `ACTIVE_OPERATIONAL_AUTHORITY = FIRESTORE`; Google Sheets downstream only. SQL / U09 production cutover, migrations, RB4 activation, dual writes, deployments, new authoritative data routes: `NOT_AUTHORIZED`. Preserve original RB4 nine dirty files and unpublished 013 in their separate worktree.
+- Prior Nov 9 / Nov 14 / pre-merge Nov 15 review states elsewhere in this ledger are `HISTORICAL_AS_OF_THEIR_DATE` and do not override this newer GitHub-verified status. Do not silently re-open earlier closed units or claim Beta 2 release certification.
+- References: [UI3 source contract](UI3_PROJECT_SETUP_SMART_IMPORT.md); [UI3-RB1 forensic record](ui3-rb1/README.md); [product acceptance contract](PRODUCT_RECONSTRUCTION_ACCEPTANCE_GOVERNANCE.md); [decisions and debt](05_DECISION_AND_DEBT_LOG.md).
+
+Verified GitHub evidence: [merged PR #104](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/104), [exact-main CI43666983421](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666983421), [PR-head CI43666452218](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43666452218).
+
+### UI4 discovery disposition — 2026-11-15 (proposal pending owner review)
+
+The documentation-only post-merge reconciliation and one area-wide current-source discovery are complete locally. Proposed single-scope target: **Operational Reports: Scoped Reading, Freshness & Export Clarity**; [exact proposed contract and gates](MASTER_PROJECT_HANDOFF.md#ui4-proposed-target-contract--2026-11-15). `UI4_TARGET_CONTRACT = PROPOSED / NOT_OWNER_APPROVED`; `UI4_IMPLEMENTATION = NOT_STARTED`. The override’s NEXT_ACTION names the enclosing target-contract/discovery gate: its source-discovery part is now complete locally, while the gate remains pending owner review. The only next authorized action is owner review of that target contract, not implementation. Current browser/emulator/device execution for this discovery = NOT_PERFORMED; no UI4 product acceptance or release gate is promoted. Existing UI1–UI3 source closure and all historical evidence remain preserved. This ledger alone owns the disposition; the handoff contains proposal detail only.
 
 ### AR2-U08 — Source implemented / independent review required — 2026-11-09
 

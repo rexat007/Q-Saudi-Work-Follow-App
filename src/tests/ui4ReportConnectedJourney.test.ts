@@ -1,0 +1,42 @@
+import {it,expect} from 'vitest';
+import * as XLSX from 'xlsx';
+import {initializeApp,deleteApp} from 'firebase-admin/app';
+import {setTestDbOverride,setTestAuthOverride} from '../firebase/admin';
+import {getAuth} from 'firebase-admin/auth';import {build} from 'esbuild';import express from 'express';import fs from 'node:fs';import {resolve} from 'node:path';import {createRequire} from 'node:module';
+import {emulatorFixture} from './helpers/convergence2Firestore';import {reportTrips} from './helpers/ui4ReportFixture';import {operationConfig} from './helpers/operationalProfileFixture';import {arTranslations as ar} from '../locales/ar';
+it('UI4 authenticated loopback App: canonical report read, export, project and principal isolation, live role revocation',async()=>{
+ if(process.env.FIRESTORE_EMULATOR_HOST!=='127.0.0.1:8085'||process.env.FIREBASE_AUTH_EMULATOR_HOST!=='127.0.0.1:9099')throw Error('EXPLICIT_LOCAL_EMULATORS_REQUIRED');
+ console.log('UI4_CONNECTED_STAGE START');
+ const first=await emulatorFixture(),second=await emulatorFixture(),fixtures=[first,second],authApp=initializeApp({projectId:'demo-convergence2'},'ui4-auth-'+first.actorId),auth=getAuth(authApp);let server:any,browser:any;
+ const password='SyntheticOnly-UI4-2026!',email=(id:string)=>id+'@example.invalid',evidence=resolve('../ui4-evidence-20261115/connected');fs.mkdirSync(evidence,{recursive:true});
+ try{
+  for(const f of fixtures){await auth.createUser({uid:f.actorId,email:email(f.actorId),password});await f.raw.doc('projects/'+f.projectId).update({operationalConfiguration:operationConfig('WEIGHBRIDGE','WEIGHBRIDGE')});const batch=f.raw.batch();for(const trip of reportTrips('WEIGHBRIDGE','WEIGHBRIDGE',f.projectId))batch.set(f.raw.doc('projects/'+f.projectId+'/trips/'+trip.tripId),{...trip,operationalSnapshot:{...trip.operationalSnapshot!,configuration:{...trip.operationalSnapshot!.configuration,routeConfiguration:{...trip.operationalSnapshot!.configuration.routeConfiguration,loadingLocation:'Origin\r\nGate A'}}},sourceMetadata:{syntheticAcceptance:true}});await batch.commit();}
+  console.log('UI4_CONNECTED_STAGE SEEDED');
+  await first.raw.doc('users/'+first.actorId).update({assignedProjectIds:[first.projectId,second.projectId]});
+  const env={VITE_FIREBASE_PROJECT_ID:'demo-convergence2',VITE_FIREBASE_APP_ID:'demo-convergence2',VITE_FIREBASE_API_KEY:'synthetic-emulator-key',VITE_FIREBASE_AUTH_DOMAIN:'demo-convergence2.firebaseapp.com',VITE_FIREBASE_FIRESTORE_DATABASE_ID:'(default)'};
+  const bundle=await build({entryPoints:['src/tests/helpers/convergence2BrowserEntry.tsx'],bundle:true,write:false,platform:'browser',format:'esm',define:{'process.env.NODE_ENV':'"test"','import.meta.env':JSON.stringify(env),__APP_BUILD_ID__:JSON.stringify('ui4-local-emulator')}});
+  setTestDbOverride(first.raw);setTestAuthOverride(auth);const {app:serverApp}=await import('../../server/app');
+  const app=express(),css=fs.readdirSync('dist/assets').find(p=>p.endsWith('.css'))!;app.get('/',(_q,r)=>r.type('html').send('<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/style.css"></head><body><div id="root"></div><script type="module" src="/client.js"></script></body></html>'));app.get('/client.js',(_q,r)=>r.type('js').send(bundle.outputFiles[0].text));app.get('/style.css',(_q,r)=>r.sendFile(resolve('dist/assets',css)));app.use(serverApp);server=app.listen(0,'127.0.0.1');await new Promise<void>(r=>server.once('listening',r));
+  const {chromium}=createRequire(resolve(process.env.QSA_BROWSER_TOOL_ROOT!,'loader.cjs'))('playwright-core');browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true,args:['--disable-background-networking']});const page=await browser.newPage({viewport:{width:1440,height:1000}});page.setDefaultTimeout(10000);console.log('UI4_CONNECTED_STAGE BROWSER_READY');await page.route('**/*',(r:any)=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());await page.goto('http://127.0.0.1:'+server.address().port);
+  const login=async(f:typeof first)=>{await page.evaluate(async({email,password}:any)=>{await(window as any).c2.login(email,password);},{email:email(f.actorId),password});await page.locator('#sidebar-project-quick-selector').waitFor();await page.locator('#sidebar-project-quick-selector').selectOption(f.projectId);await page.locator('#sidebar-tab-field-operations').click();await page.getByRole('button').filter({hasText:ar['navigation.tabs.reports_engine']}).first().click();await page.getByLabel(ar['op.family'],{exact:false}).waitFor();};
+  console.log('UI4_CONNECTED_STAGE LOGIN');await login(first);console.log('UI4_CONNECTED_STAGE REPORT_READY');await page.getByLabel(ar['op.family'],{exact:false}).selectOption('LIVE');expect(await page.locator('main tbody tr').count()).toBe(2);expect(await page.getByRole('button',{name:ar['op.refresh_google_reports'],exact:true}).count()).toBe(1);
+  const download=page.waitForEvent('download');await page.locator('#btn-export-csv').click();expect(fs.readFileSync(await(await download).path(),'utf8')).toContain('T1');
+  console.log('UI4_CONNECTED_STAGE CSV_DOWNLOADED');
+  // Exercise the real authenticated XLSX download with valid multiline snapshot text.
+  const excelDownload=page.waitForEvent('download');await page.locator('#btn-export-xlsx').click();
+  const excelFile=resolve(evidence,'multiline-route.xlsx');await(await excelDownload).saveAs(excelFile);
+  console.log('UI4_CONNECTED_STAGE XLSX_DOWNLOADED');
+  const workbook=XLSX.readFile(excelFile,{cellFormula:true}),sheet=workbook.Sheets[workbook.SheetNames[0]];
+  const exportRows=XLSX.utils.sheet_to_json<unknown[]>(sheet,{header:1,range:5,defval:'',raw:true});
+  expect(exportRows).toHaveLength(2);for(const row of exportRows)expect(row).toContain('Origin\r\nGate A');
+  for(const cell of Object.values(sheet))if(cell&&typeof cell==='object')expect(cell).not.toHaveProperty('f');
+  fs.writeFileSync(resolve(evidence,'multiline-export-cells.json'),JSON.stringify(exportRows,null,2));
+  console.log('UI4_CONNECTED_STAGE XLSX_VERIFIED');
+  await page.locator('#sidebar-project-quick-selector').selectOption(second.projectId);await page.getByTestId('ui4-report').waitFor({state:'hidden'});await page.locator('#sidebar-tab-field-operations').click();await page.getByRole('button').filter({hasText:ar['navigation.tabs.reports_engine']}).first().click();await page.getByLabel(ar['op.family'],{exact:false}).waitFor();expect(await page.getByTestId('ui4-report').innerText()).toContain(second.projectId);expect(await page.getByTestId('ui4-report').innerText()).not.toContain(first.projectId);
+  await first.raw.doc('users/'+first.actorId).update({role:'VIEWER',assignedProjectIds:[second.projectId]});await page.getByText(ar['ui4.refresh_admin_only'],{exact:true}).waitFor();expect(await page.getByRole('button',{name:ar['op.refresh_google_reports'],exact:true}).count()).toBe(0);
+  await page.evaluate(async()=>{await(window as any).c2.logout();});await login(second);expect(await page.evaluate(()=>(window as any).c2.principal())).toBe(second.actorId);
+  const denial=await page.evaluate(async(id:string)=>{try{await(window as any).c2.readAll(id);return 'UNEXPECTED_ALLOW';}catch(e:any){return e.code||e.message;}},first.projectId);expect(denial).toMatch(/permission-denied|PERMISSION_DENIED/);
+  await second.raw.doc('users/'+second.actorId).update({status:'SUSPENDED',isActive:false});await page.getByTestId('ui4-report').waitFor({state:'hidden'});expect(await page.locator('#btn-export-csv').count()).toBe(0);
+  await page.screenshot({path:resolve(evidence,'revoked.png'),fullPage:true});fs.writeFileSync(resolve(evidence,'result.json'),JSON.stringify({mode:'AUTHENTICATED_LOOPBACK_EMULATORS',syntheticReportRecords:true,googleProviderCalled:false,projectSwitch:true,principalSwitch:true,crossProjectDenial:denial,revocation:true},null,2));
+ }catch(error){if(browser)for(const context of browser.contexts())for(const page of context.pages())if(!page.isClosed())fs.writeFileSync(resolve(evidence,'failure.json'),JSON.stringify({text:await page.locator('body').innerText()},null,2));throw error;}finally{await browser?.close();if(server)await new Promise<void>(r=>server.close(()=>r()));setTestDbOverride(null);setTestAuthOverride(null);for(const f of fixtures){await auth.deleteUser(f.actorId).catch(()=>{});await f.close();}await deleteApp(authApp);}
+},90000);

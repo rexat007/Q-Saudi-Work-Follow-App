@@ -1,8 +1,10 @@
+import {completeReportExportColumns} from './operationalReportPresentation';
+import {useReportScope} from './useReportScope';
 import {AdaptiveOperationalReports} from './AdaptiveOperationalReports';
 import { hasProjectScope, filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText, presentReportCell } from '../../i18n/analyticsPresentation';
 import { useI18n } from '../../i18n';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   FileText, 
   Calendar, 
@@ -90,11 +92,23 @@ export function computeMergedExceptionsFromProjects(exceptionsByProject: Record<
   return deduplicated;
 }
 
-export const ReportsEngineView: React.FC<{operationalProjectId?:string;operationalConfiguration?:import('../../types/operationalProfile').OperationalConfiguration}> = ({operationalProjectId,operationalConfiguration}) => {
+type ReportsViewProps={operationalProjectId?:string;operationalConfiguration?:import('../../types/operationalProfile').OperationalConfiguration};
+export const ReportsEngineView: React.FC<ReportsViewProps> = props => {
+  const scope=useReportScope(props.operationalProjectId),{t}=useI18n();
+  if(!scope.allowed)return <section role={scope.verifying?'status':'alert'}>{t(scope.verifying?'ui4.verifying':scope.unavailable?'ui4.authority_unavailable':'ui4.denied')}</section>;
+  return <ActiveReportSurface key={scope.key} {...props} scope={scope}/>;
+};
+function ActiveReportSurface(props:ReportsViewProps&{scope:ReturnType<typeof useReportScope>}){
+  const [financial,setFinancial]=useState(false),{t}=useI18n();
+  if(props.operationalProjectId&&!financial)return <div className="space-y-4"><button type="button" className="min-h-11 rounded-lg border border-stone-600 px-4 py-2" onClick={()=>setFinancial(true)}>{t('op.financial_reports')}</button><AdaptiveOperationalReports projectId={props.operationalProjectId} configuration={props.operationalConfiguration}/></div>;
+  return <><div>{props.operationalProjectId&&<button type="button" className="min-h-11 rounded-lg border border-stone-600 px-4 py-2" onClick={()=>setFinancial(false)}>{t('ui4.return_operational')}</button>}</div><LegacyReportsEngineView {...props} initialCategory={props.operationalProjectId?'PRICING':'OPERATIONAL'} initialReportType={props.operationalProjectId?'SETTLEMENT_BY_CARRIER':'DAILY_OPERATIONS'} onOperationalRequested={()=>setFinancial(false)}/></>;
+}
+const LegacyReportsEngineView: React.FC<ReportsViewProps&{scope:ReturnType<typeof useReportScope>;initialCategory:ReportCategory;initialReportType:ReportType;onOperationalRequested:()=>void}> = ({operationalProjectId,scope,initialCategory,initialReportType,onOperationalRequested}) => {
   const { t: translate, isRTL } = useI18n();
   // Navigation
-  const [activeCategory, setActiveCategory] = useState<ReportCategory>('OPERATIONAL');
-  const [selectedReportType, setSelectedReportType] = useState<ReportType>('DAILY_OPERATIONS');
+  const [activeCategory, setCategory] = useState<ReportCategory>(initialCategory);
+  const setActiveCategory=(category:ReportCategory)=>{if(operationalProjectId&&!['PRICING','SETTLEMENT'].includes(category)){onOperationalRequested();return;}setCategory(category);};
+  const [selectedReportType, setSelectedReportType] = useState<ReportType>(initialReportType);
   
   // Filter state (BLOCK 39: multi-criteria filter parameters)
   const [filters, setFilters] = useState<ReportFilterParams>({
@@ -135,8 +149,11 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
   // Real-time exception database mapping: projectId -> TripExceptionEntity[]
   const [exceptionsByProject, setExceptionsByProject] = useState<Record<string, TripExceptionEntity[]>>({});
 
-  const dataScope=JSON.stringify([userProfile?.userId,userProfile?.role,userProfile?.status,[...(userProfile?.assignedProjectIds||[])].sort(),filters.projectId,selectedReportType]);
+  const [readRevision,setReadRevision]=useState(0),[sourceReadAt,setSourceReadAt]=useState<string|null>(null);
+  const readGeneration=useRef(0);
+  const dataScope=JSON.stringify([readRevision,userProfile?.userId,userProfile?.role,userProfile?.status,[...(userProfile?.assignedProjectIds||[])].sort(),filters.projectId,selectedReportType]);
   const [loadedScope,setLoadedScope]=useState<string|null>(null);
+  const currentDataScope=useRef(dataScope);currentDataScope.current=dataScope;
 
   // Combined data loading effect (Retire to one-shot for Idle Quiescence)
   useEffect(() => {
@@ -146,7 +163,9 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
     setAuthorizedProjectIds([]);
     if (!isAuthReady || !userProfile) { setIsDataLoading(false); return; }
 
-    let active = true;
+    let active = true;const request=++readGeneration.current;
+    const current=()=>active&&request===readGeneration.current&&currentDataScope.current===dataScope&&scope.isCurrent();
+    setSourceReadAt(null);setIsPrintModalOpen(false);
     const isSuperAdmin = userProfile.role === 'SUPER_ADMIN';
     const assignedIds = userProfile.assignedProjectIds || [];
 
@@ -157,7 +176,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
       try {
         // 1. Projects
         const projects = await projectRepository.listAll(assignedIds, isSuperAdmin);
-        if (!active) return;
+        if (!current()) return;
         const filtered = projects.filter(p => p.status !== 'ARCHIVED' && (isSuperAdmin || assignedIds.includes(p.projectId)));
         const formatted = filtered.map(p => ({ id: p.projectId, nameAr: p.nameAr || p.projectId }));
         setAuthorizedProjects(formatted);
@@ -165,6 +184,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         setAuthorizedProjectIds(ids);
 
         if (ids.length === 0) {
+          setLoadedScope(dataScope);setSourceReadAt(new Date().toISOString());
           setIsDataLoading(false);
           return;
         }
@@ -172,13 +192,14 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         // 2. Trips
         const targetIds = filters.projectId === 'ALL' ? ids : (ids.includes(filters.projectId) ? [filters.projectId] : []);
         if (targetIds.length === 0) {
+          setDataError("analytics.ui.data_loading_failed");
           setTripsByProject({});
           setIsDataLoading(false);
           return;
         }
 
         const tripResults = await Promise.all(targetIds.map(pId => tripRepository.listCompleteByProject(pId)));
-        if (!active) return;
+        if (!current()) return;
         const tripsMap: Record<string, TripRecord[]> = {};
         tripResults.forEach((trips, idx) => {
           tripsMap[targetIds[idx]] = trips.map(t => reportsEngineService.adaptTripEntityToRecord(t));
@@ -187,7 +208,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         // 3. Exceptions
         if (selectedReportType === 'EXCEPTION_REPORT') {
           const exceptionResults = await Promise.all(targetIds.map(pId => exceptionRepository.listByProject(pId)));
-          if (!active) return;
+          if (!current()) return;
           const exceptionsMap: Record<string, TripExceptionEntity[]> = {};
           exceptionResults.forEach((excs, idx) => {
             exceptionsMap[targetIds[idx]] = excs;
@@ -196,13 +217,13 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         }
 
         // Publish a complete successful generation only after all required reads.
-        if (!active) return;
+        if (!current()) return;
         setTripsByProject(tripsMap);
-        setLoadedScope(dataScope);
+        setLoadedScope(dataScope);setSourceReadAt(new Date().toISOString());
         setIsDataLoading(false);
       } catch (err) {
         console.error('Failed to load report data:', err);
-        if (active) {
+        if (current()) {
           setTripsByProject({});
           setExceptionsByProject({});
           setDataError("analytics.ui.data_loading_failed");
@@ -212,8 +233,8 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
     };
 
     loadData();
-    return () => { active = false; };
-  }, [userProfile, isAuthReady, filters.projectId, selectedReportType]);
+    return () => { active = false;readGeneration.current++; };
+  }, [userProfile, isAuthReady, filters.projectId, selectedReportType,readRevision]);
 
   // Merged & Deduplicated canonical datasets
   const allTrips = useMemo(() => {
@@ -279,13 +300,13 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
 
   // Generate current active dataset
   const currentDataset = useMemo(() => {
-    return reportsEngineService.generateReport(
+    return completeReportExportColumns(reportsEngineService.generateReport(
       selectedReportType, 
       filters, 
       allTrips, 
       selectedReportType === 'EXCEPTION_REPORT' ? allExceptions : undefined
-    );
-  }, [selectedReportType, filters, allTrips, allExceptions]);
+    ),translate);
+  }, [selectedReportType, filters, allTrips, allExceptions,translate]);
 
   // Filter rows by table search
   const filteredRows = useMemo(() => {
@@ -335,11 +356,11 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
   };
 
   const handleExportCSV = () => {
-    reportsEngineService.exportToCSV(currentDataset);
+    if(readReady&&scope.isCurrent())reportsEngineService.exportToCSV(currentDataset);
   };
 
   const handleExportXLSX = () => {
-    reportsEngineService.exportToXLSX(currentDataset);
+    if(readReady&&scope.isCurrent())reportsEngineService.exportToXLSX(currentDataset);
   };
 
   // Icon mapping helper
@@ -363,10 +384,11 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
     }
   };
 
-  if(operationalProjectId&&!['PRICING','SETTLEMENT'].includes(activeCategory))return <div className="space-y-4"><button type="button" onClick={()=>{setActiveCategory('PRICING');setSelectedReportType('SETTLEMENT_BY_CARRIER');}}>{translate('op.financial_reports')}</button><AdaptiveOperationalReports key={operationalProjectId} projectId={operationalProjectId} configuration={operationalConfiguration}/></div>;
+  const readReady=!isDataLoading&&!dataError&&loadedScope===dataScope&&scope.isCurrent();
 
   return (
     <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+      <button type="button" className="min-h-11 rounded-lg border border-stone-600 px-4 py-2" disabled={isDataLoading} onClick={()=>{if(!scope.isCurrent())return;readGeneration.current++;setLoadedScope(null);setIsDataLoading(true);setIsPrintModalOpen(false);setReadRevision(v=>v+1);}}>{translate('ui4.reload_source')}</button>
       
       {/* 1. Header Banner & Authoritative Invariance Guarantee */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
@@ -795,7 +817,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         </div>
       </div>
 
-      {isDataLoading && (
+      {(isDataLoading||!dataError&&loadedScope!==dataScope) && (
         <div className="bg-white rounded-2xl border border-stone-200 p-12 text-center shadow-xs">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-600 mx-auto mb-4"></div>
           <h3 className="text-sm font-bold text-stone-900">{translate("analytics.ui.loading_authorized_trip_data")}</h3>
@@ -812,7 +834,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
         </div>
       )}
 
-      {!isDataLoading && !dataError && (
+      {readReady && (
         <>
           {/* 3. Authoritative Financial KPI Cards (Gross, Adjustments, Exceptions, Net) */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -928,7 +950,7 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
 
             <button
               id="btn-print-pdf"
-              onClick={() => setIsPrintModalOpen(true)}
+              onClick={() => {if(readReady&&scope.isCurrent())setIsPrintModalOpen(true);}}
               className="flex items-center gap-1.5 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-stone-950 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
               title={translate("analytics.ui.preview_and_print_the_official_document_or_save_it_as_pdf")}
             >
@@ -938,12 +960,16 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
           </div>
         </div>
 
+        <p id="ui4-table-search-scope" className="text-sm text-stone-600">{translate('ui4.table_search_scope')}</p>
+        {sourceReadAt&&<p className="text-xs text-stone-600">{translate('ui4.source_read_at')}: <bdi dir="ltr">{sourceReadAt}</bdi> · {translate('ui4.generated_at')}: <bdi dir="ltr">{currentDataset.generatedAt}</bdi></p>}
         {/* Quick Search Within Current Table */}
         <div className="flex items-center justify-between gap-3 border-t border-stone-100 pt-3">
           <div className="relative w-full max-w-xs">
             <Search className="w-3.5 h-3.5 absolute right-3 rtl:right-3 ltr:left-3 ltr:right-auto top-2.5 text-stone-400" />
             <input
               type="text"
+              aria-label={translate("analytics.ui.search_current_report_results")}
+              aria-describedby="ui4-table-search-scope"
               placeholder={translate("analytics.ui.search_current_report_results")}
               value={tableSearch}
               onChange={(e) => setTableSearch(e.target.value)}
@@ -1044,9 +1070,10 @@ export const ReportsEngineView: React.FC<{operationalProjectId?:string;operation
   )}
 
       {/* 5. Printable PDF Modal */}
-      {isPrintModalOpen && (
+      {isPrintModalOpen && readReady && (
         <PrintableReportModal
           dataset={currentDataset}
+          sourceReadAt={sourceReadAt||undefined}
           onClose={() => setIsPrintModalOpen(false)}
         />
       )}

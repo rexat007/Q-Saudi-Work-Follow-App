@@ -1,0 +1,131 @@
+{
+  "status": "PASS",
+  "scope": "Current UI4 implementation/evidence and new RB1 ledger/debt entries; historical sections retained.",
+  "checked": [
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/exact-file-inventory.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/verification.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/failure-comparison.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/verification-raw.zip",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/rb1-recovery.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/rb1-verification-raw.zip",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "target": "ui4/exact-file-inventory.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "rb1-recovery.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "exact-file-inventory.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "rb1-verification-raw.zip",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "verification.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "exact-file-inventory.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "source-contract.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "failure-comparison.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "history.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "verification-raw.zip",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "inherited-five-docs.patch",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "preflight.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "screenshots/ar-mobile.png",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "screenshots/en-desktop.png",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "screenshots/ur-tablet.png",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "../02_PHASE_LEDGER.md",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/ui4/README.md",
+      "target": "../UI4_OPERATIONAL_REPORTS.md",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "target": "ui4/rb1-recovery.json",
+      "exists": true
+    },
+    {
+      "source": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "target": "ui4/rb1-recovery.json",
+      "exists": true
+    }
+  ]
+}
