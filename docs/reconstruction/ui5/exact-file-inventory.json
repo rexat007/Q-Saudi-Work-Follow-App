@@ -1,0 +1,258 @@
+{
+  "head": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+  "branch": "ui/ui5-account-review-20261120",
+  "total": 33,
+  "counts": {
+    "DOCUMENTATION_OR_EVIDENCE": 17,
+    "PRODUCTION": 8,
+    "TEST_OR_FIXTURE": 8
+  },
+  "beforePub01Count": 30,
+  "addedByPub01": [
+    "src/tests/ui5Pub01Retirement.test.tsx",
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+    "docs/reconstruction/ui5/pub01-raw.zip"
+  ],
+  "inheritedSevenDocs": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+    "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+    "docs/reconstruction/ui4/postmerge-closure.json"
+  ],
+  "files": [
+    {
+      "file": "docs/reconstruction/00_WORK_START_HERE.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui4/postmerge-closure.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/README.md",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/evidence-sha256.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/exact-file-inventory.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/failure-comparison.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/pub01-raw.zip",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/source-contract.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/verification-raw.zip",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "docs/reconstruction/ui5/verification.json",
+      "classification": "DOCUMENTATION_OR_EVIDENCE",
+      "sha256": null
+    },
+    {
+      "file": "src/components/admin/AdminConsoleView.tsx",
+      "classification": "PRODUCTION",
+      "sha256": "529ddd47edcf207310fa96b0352cd41ad267bb77258bee201d29254ce70dfc83",
+      "gitBlobSha1": "787289e5bfd8cb41b7e6d7887cc4b44e828f8f58",
+      "canonicalSha256": "3093a0882fbb6e4586b52e9cb2d86cf73f13af8a3233a0ba8cf869e7826e831a",
+      "reviewWorkspaceSha256": "529ddd47edcf207310fa96b0352cd41ad267bb77258bee201d29254ce70dfc83",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/components/admin/DriverAccountBindingControl.tsx",
+      "classification": "PRODUCTION",
+      "sha256": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+      "gitBlobSha1": "1872243b2dc359ead7e419f840a09231821f9904",
+      "canonicalSha256": "80901e365ced0b4271f1ed644e13ff913ffd6770d38505e36eaa49d164763793",
+      "reviewWorkspaceSha256": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/components/admin/adminDecisionReadback.ts",
+      "classification": "PRODUCTION",
+      "sha256": "2773e696dd5aa0622ea7029e104c263526d3ae4181335ffc3fb5d8accb7ec904",
+      "gitBlobSha1": "2927970f3faf6412c24d67ac3098641e54a4a022",
+      "canonicalSha256": "cb9cd99b96175e873816d44249abea8c09cae3900ed80d2ef8179b25c69bb3f7",
+      "reviewWorkspaceSha256": "2773e696dd5aa0622ea7029e104c263526d3ae4181335ffc3fb5d8accb7ec904",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/locales/ar/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+      "gitBlobSha1": "82d943d96b56842e599f6fa3bddf0a9f7eba8f2d",
+      "canonicalSha256": "955b9dc554e9c1854e06f856091af88955f3882e3d58d4fb10b9af5ef2e91d97",
+      "reviewWorkspaceSha256": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/locales/en/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+      "gitBlobSha1": "c8dfd6871b99b2fade21d27588e619baa407345b",
+      "canonicalSha256": "6ead231cf0f2f79bc28f5bd05bcfa518dd6ad54c442797f068ef2072ba4cc424",
+      "reviewWorkspaceSha256": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/locales/ur/index.ts",
+      "classification": "PRODUCTION",
+      "sha256": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+      "gitBlobSha1": "1234bf2014a3dfd6413c981700751cfb9a8c09db",
+      "canonicalSha256": "271693d02a20e15e7ae3ee3a7d53bb3629bd23c446bc12faf258254a355f98b5",
+      "reviewWorkspaceSha256": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/repositories/user.repository.ts",
+      "classification": "PRODUCTION",
+      "sha256": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+      "gitBlobSha1": "7810d789617db044d83a899ce8cbf3f530638d37",
+      "canonicalSha256": "22411322ffbe1b0ccd984804b781c99cd67607aeab66d444862c2985090197ed",
+      "reviewWorkspaceSha256": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/services/adminAccountClient.service.ts",
+      "classification": "PRODUCTION",
+      "sha256": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+      "gitBlobSha1": "dae36310da8e8550b991b96cc896081d3449d0e0",
+      "canonicalSha256": "75bc1697571a51dbdc03b421f0aa9dbc1eb2f93a116d370497ee8a9a4365f472",
+      "reviewWorkspaceSha256": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/helpers/ui5AccountBrowserEntry.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+      "gitBlobSha1": "d18d6f06baf49db3d7e43646e9a6bab1c88c3380",
+      "canonicalSha256": "a28452e01ae420f523edc4f5d47f2dcc5e47b865e28147038102fb7d34de0f3e",
+      "reviewWorkspaceSha256": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/helpers/ui5ConnectedBrowserEntry.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad",
+      "gitBlobSha1": "19d40713d36b7ffeb5170e6b72e1f77d03690313",
+      "canonicalSha256": "1608f02cd8f6209779401fbc06b66c3698a4bac687ef12159c5a2f283fd2a22e",
+      "reviewWorkspaceSha256": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5AccountBrowser.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+      "gitBlobSha1": "d1a6c0a97f3099fbc193d9f8d541e5ebba99b63e",
+      "canonicalSha256": "ca559ae173451898c933458ebe4aaf7b4a78458e3c6c5df52ff5c87c1afcb6da",
+      "reviewWorkspaceSha256": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5AccountConnectedJourney.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "7eedef47b639edbeef736eea76d68805240126c7c1bd1685b092c88423eb2942",
+      "gitBlobSha1": "4a044f7f1b4f62dc68af63758a837125c86948a4",
+      "canonicalSha256": "8c3272c99ee0fb509569a00fede77199ff4b9b4b424573f235122fcf8b44560d",
+      "reviewWorkspaceSha256": "7eedef47b639edbeef736eea76d68805240126c7c1bd1685b092c88423eb2942",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5AccountReadback.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+      "gitBlobSha1": "c70bfd5161fbccf1382130f27100be761e3499ae",
+      "canonicalSha256": "ebbe87899d5dafd15b28c949d259d3a849fc6c860c62f6886aa291343945ba19",
+      "reviewWorkspaceSha256": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5AccountReview.test.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "0cfb3caf62b18b39b999aac5d649cf90358f9fcdf9c37a8bb676e16ea1e76f88",
+      "gitBlobSha1": "1c67508de3b3400754fdb782ccf9508a559742e0",
+      "canonicalSha256": "c06e2086ce22e7818366d23f8dcd1e41097accf9065997d5f37d0eb1f8182146",
+      "reviewWorkspaceSha256": "0cfb3caf62b18b39b999aac5d649cf90358f9fcdf9c37a8bb676e16ea1e76f88",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5AccountTransport.test.ts",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+      "gitBlobSha1": "f7cd4d2b4d618e4d48ea4e3f6fc6d200016317ea",
+      "canonicalSha256": "c6cfd95922ad0b8baa3a21af893ad7dc7dd884bea383bb104f766c3773c4278b",
+      "reviewWorkspaceSha256": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    {
+      "file": "src/tests/ui5Pub01Retirement.test.tsx",
+      "classification": "TEST_OR_FIXTURE",
+      "sha256": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89",
+      "gitBlobSha1": "d8a84c4129cf0041b0a1d3a157f86cb47d4aaded",
+      "canonicalSha256": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89",
+      "reviewWorkspaceSha256": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89",
+      "normalization": "IDENTICAL"
+    }
+  ],
+  "baseSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+  "headMeaning": "Review baseline before single implementation commit; exact resulting commit is recorded by the draft PR and publication receipt."
+}

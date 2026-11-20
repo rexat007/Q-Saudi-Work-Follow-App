@@ -1,0 +1,58 @@
+{
+  "baseline": {
+    "numTotalTests": 243,
+    "numPassedTests": 240,
+    "numFailedTests": 3,
+    "numPendingTests": 0
+  },
+  "candidate": {
+    "numTotalTests": 319,
+    "numPassedTests": 316,
+    "numFailedTests": 3,
+    "numPendingTests": 0
+  },
+  "baselineNativeExit": 1,
+  "candidateNativeExit": 1,
+  "identities": [
+    {
+      "file": "adminConsoleConvergence.test.ts",
+      "identity": "Phase 6 — AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin",
+      "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+    },
+    {
+      "file": "adminConsoleConvergence.test.ts",
+      "identity": "Phase 6 — AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository",
+      "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+    },
+    {
+      "file": "adminConsoleConvergence.test.ts",
+      "identity": "Phase 6 — AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService",
+      "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+    }
+  ],
+  "newFailureIdentities": [],
+  "removedFailureIdentities": [],
+  "newUI5Cases": 76,
+  "allNewUI5CasesPass": true,
+  "aggregate": "NOT_PASS",
+  "oldUI4FourteenIdentities": "Preserved separately in unchanged docs/reconstruction/ui4/failure-comparison.json; not rerun or combined with this different family.",
+  "originalUI5Candidate": {
+    "numTotalTests": 291,
+    "numPassedTests": 288,
+    "numFailedTests": 3,
+    "numPendingTests": 0
+  },
+  "publicationRetirementCase": {
+    "historicalAudit": "1/1 FAIL",
+    "preCorrectionReproduction": "1/1 FAIL",
+    "unchangedOriginalAfterCorrection": "1/1 PASS",
+    "copiedCaseInAffectedFamily": "1/1 PASS; separately identified, not historical debt",
+    "assertionsChanged": false
+  },
+  "pub01NewBoundaryCases": {
+    "total": 27,
+    "passed": 27,
+    "fixtureCorrections": "Two initial new-test fixture errors retained in focused-r1; correct rejection button label and retain old draft while asserting committed server-role effect."
+  },
+  "noNewFailureIdentities": true
+}

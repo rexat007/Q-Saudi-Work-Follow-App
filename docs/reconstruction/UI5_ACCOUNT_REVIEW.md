@@ -1,0 +1,53 @@
+## CURRENT UI5 CONTROLLED PUBLICATION CANDIDATE — 2026-11-20
+
+UI5 = SOURCE_IMPLEMENTED / AWAITING_INDEPENDENT_REVIEW. UI5-PUB-01 is corrected and its permanent-retirement review passed. UI4 = MERGED / SOURCE_CLOSED. UI6 = NOT_STARTED. The owner has now authorized one implementation commit, normal push to `ui/ui5-account-review-20261120` and a draft PR against main, conditional on the final gates. This candidate record precedes remote publication; remote SHA, draft PR and CI conclusions must be verified from GitHub and the publication receipt, not inferred from this text. Merge, deployment, SQL cutover and RB4 activation remain unauthorized.
+
+Final scope remains33 paths:8 production/8 tests-fixtures/17 docs-evidence. Seven inherited document bodies and original failed publication evidence remain preserved. The final publication recheck reports316/319 with the same three inherited failures, all76 UI5 cases and27 retirement cases passing, unchanged original regression1/1 passing, and runtime16/16 passing. Exact production/test hashes match the previously successful TypeScript/lint/build, Edge9/9 and authenticated emulator1/1 evidence. Broad aggregate remains NOT PASS; physical-device, screen-reader, live operational/provider and product/Beta2 acceptance remain separate. See [current inventory](ui5/exact-file-inventory.json), [verification including new raw recheck output](ui5/verification.json) and [retirement audit](UI5_PUB01_RETIREMENT.md). Earlier dated gates below are preserved historical snapshots and do not override this publication authorization or the owner merge gate.
+
+## CURRENT UI5-PUB-01 CORRECTION — 2026-11-20
+
+UI5 = SOURCE_IMPLEMENTED / UI5-PUB-01_CORRECTED_LOCALLY / OWNER_REVIEW_PENDING. See [permanent retirement and post-correction audit](UI5_PUB01_RETIREMENT.md). Original audit FAIL is retained; its unchanged reproduction is now1/1 PASS. All27 new boundary cases and all76 UI5 cases pass. Affected316/319 retains the same three inherited failures: aggregate NOT PASS. Fresh Edge9/9, authenticated local emulator1/1, runtime16/16 and TypeScript/lint/build pass. Final scope33 files:8 production/8 tests/17 docs. Original30-path bytes and historical evidence are preserved in the new raw archive. UI4 remains MERGED / SOURCE_CLOSED; protected22/RB4 nine/migration013 preserved. No commit/push/PR/merge/deployment/SQL/RB4/UI6 or product/Beta2 authorization. Earlier local records below are historical, not the current publication decision.
+
+# UI5 — Account Review & Access Decisions
+
+## Current local source-review gate
+
+Owner-authorized implementation on main 08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551, in the existing isolated discovery checkout. All seven inherited documentation changes were inspected and their exact bytes preserved before editing. The [phase ledger](02_PHASE_LEDGER.md) alone owns current state. [Amended contract](UI5_TARGET_DISCOVERY.md), [verification](ui5/verification.json), [exact files](ui5/exact-file-inventory.json), [source boundary](ui5/source-contract.json), [failure identities](ui5/failure-comparison.json) and [raw evidence](ui5/verification-raw.zip).
+
+UI5 = IMPLEMENTED_LOCALLY / VERIFIED_WITH_INHERITED_DEBT / OWNER_REVIEW_PENDING. It is not source-closed, published, deployed, product-accepted or Beta 2 ready. No staging, commit, push, PR, merge, SQL cutover, RB4 activation or live provider/account operation is authorized/performed.
+
+## Source reading, selection and authority
+
+USERS and PROJECTS have independent initial/loading/ready/error states and explicit reloads. AUDIT reads only on its active section, retaining the latest-100 limit. A failed source does not erase another. Retained values are labeled as a previous unavailable view; unavailable metrics show unknown and dependent decisions are disabled. Project evidence is required for approval/project assignment and combined access save; unrelated permitted lifecycle decisions remain available with valid user evidence.
+
+Stable selected identity survives filtering; editable drafts copy source data/project arrays. Actor UID, profile authority/status/role/projects and target/request generations retire stale state. Late results cannot populate a different selected person. A synchronous ref prevents duplicate submissions and existing driver binding shares the same verified decision lifecycle.
+
+Active SUPER_ADMIN alone retains account-command controls. PROJECT_ADMIN remains read-only under the unchanged Firestore read authorization. Self/last-admin/driver uniqueness decisions stay server-owned. No server, Rules, middleware, role policy, bulk endpoint, command schema, route, dependency, Outbox, Workspace, pricing or SQL changes. Existing UserRepository default find/list bodies remain unchanged.
+
+## ACK, readback and uncertain outcomes
+
+A successful HTTP response is an ACK, not final-view certification. One additive method in the existing repository uses getDocFromServer and the existing decoder, with no cache fallback and the same Rules. Relevant changed fields are compared after every ACK, cumulatively for role/project sequences, including project-set semantics and role-related driver unlink. Completion, canonical mismatch/conflict, partial ACK, explicit rejection, ACK/readback failure and unknown submission are separate states. There is no optimistic permission publication, invented receipt or fabricated rollback.
+
+The existing client gains only optional context/failure-kind callbacks, preserving legacy two-argument error/result shapes. Generic ADMIN_UPDATE_CONFLICT and ADMIN_UPDATE_FAILED remain unconfirmed because existing server code also uses generic errors for unknown transaction outcomes. Only allowlisted unambiguous rejections are marked rejected. Each existing server command remains independent; the next step is not sent after mismatch, rejected/unconfirmed outcome or unavailable readback.
+
+Unknown commands are never automatically replayed. A state-only read does not certify execution of the original submission. Unresolved outcomes continue blocking decisions for that selected account in this review session and remain held when revisiting it. This is local UI state, not a durable command journal or idempotency guarantee. Backend protocol expansion was explicitly excluded.
+
+## UX and verification
+
+Existing ImportOverlay owns stacking, background inertness, keyboard/Escape/focus return and busy dismissal. Native labeled checkboxes replace div-only project toggles. AR/EN/UR carry the same 30 UI5 labels. Identifiers are preserved and isolated where displayed. Tables have readable minimum width within contained scrolling, visible focus and stronger local action/label contrast. No global font/framework change.
+
+Unchanged baseline administration/authority/UI4/runtime family: 240/243, exit 1. Final candidate: 288/291, exit 1. The same exact three pre-existing adminConsoleConvergence subscription-string failures remain, with zero new/removed identities and zero skips. Aggregate: NOT PASS. All 48 new cases pass: 22 actual component/state/locale, 18 decision/readback and eight server-read/transport cases. All historical tests and assertions are byte-unchanged; subscriptions were not restored merely to satisfy stale source expectations.
+
+Final native Edge: 9/9, exit 0, AR/EN/UR at 390/768/1440. These use actual components/I18nProvider/ImportOverlay and explicitly synthetic presentation reads/transport. They verify partial project/audit failures, blocked dependent decisions, approval/readback, independent drafts, read-only role, checkbox keyboard operation, dialog focus/Escape/return, document direction and no body overflow. Initial smoke artifacts remain distinct from final layout/unknown-outcome refinements. Final samples were visually inspected; screenshots are not device or screen-reader certification.
+
+Final authenticated loopback emulator: 1/1, exit 0, actual App/Auth/Firestore/server endpoints. Real transactions verify approval/readback/audit, driver link/unlink and uniqueness rejection, role success followed by explicit missing-project rejection (one role audit and no rejected-project audit), persisted-role revocation to PROJECT_ADMIN with direct command denial, self-action denial and last-SUPER_ADMIN protection. Only owned demo-convergence2 fixtures/example.invalid addresses are used. Both owned runs clean all listeners with zero cleanup errors. Earlier emulator 1/1 remains pre-refinement smoke evidence, not final-source acceptance.
+
+Final npm run test:i18n-runtime: 16/16, exit 0. Final npm run lint (tsc --noEmit) and client/PWA/server production build: exit 0; existing chunk-size warning retained. Tested production/test hashes are retained. Final diff checking removed only one trailing space from the edited repository import after gates; the TypeScript scanner verified identical non-trivia tokens. Current and tested hashes are explicitly reconciled, with no semantic test rerun for formatting. No UI5 remote CI was run and no dirty build identity is a deployed artifact identity.
+
+Initial JSX/type errors and two additional intermediate source-shape assertion failures were retained and corrected without changing historical tests. Original UI4 fourteen-failure history, connected 16/17 and separate 1/1, RB1/CI1 red/green and earlier interruptions remain unchanged. This different administration family is not combined with those historical suites or relabeled green.
+
+## Exact scope and stop
+
+30 changed files: 8 production, 7 new tests/fixtures, 15 documentation/evidence. Seven documentation paths were inherited; complete original byte bodies remain preserved. Only the two admin components, one local readback helper, existing UserRepository/account client and AR/EN/UR dictionaries are production changes. All 22 protected worktrees, original nine RB4 dirty-file hashes and unpublished migration 013 are unchanged.
+
+GO to owner source review with inherited non-green debt; publication HOLD. Real-device, screen-reader, live operational/Workspace and Beta 2 acceptance remain separate. Review the conservative unknown-outcome hold, per-step readback, role boundaries and frontend read/client exceptions before any publication authorization. No UI6 implementation.

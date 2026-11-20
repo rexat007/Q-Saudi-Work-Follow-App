@@ -1,6 +1,10 @@
 import { DriverAccountBindingControl } from './DriverAccountBindingControl';
 import { executeAdminAccountCommand, adminErrorKey } from '../../services/adminAccountClient.service';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import {auth} from '../../firebase/config';
+import {ImportOverlay} from '../import/ImportOverlay';
+import {runAccountDecision, accountFieldsMatch, type DecisionResult} from './adminDecisionReadback';
+import type {AdminAccountCommand} from '../../services/adminAccountClient.service';
 import { 
   ProjectEntity, 
   AuditLogEntity,
@@ -34,8 +38,34 @@ type AdminSection =
   | 'AUDIT_LOGS';
 
 export function AdminConsoleView() {
+  const context=useAuth(),{t}=useI18n();
+  const key=JSON.stringify([context.user?.uid,context.profileAuthority,context.isProfileLoading,context.userProfile?.userId,context.userProfile?.role,context.userProfile?.status,context.userProfile?.isActive,[...(context.userProfile?.assignedProjectIds||[])].sort()]);
+  // Equal role/scope values never restore a previously retired authorization generation.
+  const scope=useRef({key,generation:0});
+  if(scope.current.key!==key)scope.current={key,generation:scope.current.generation+1};
+  const authorization=scope.current;
+  const available=Boolean(context.user&&context.userProfile?.status==='ACTIVE'&&context.userProfile.isActive!==false&&!context.isProfileLoading&&(!context.profileAuthority||context.profileAuthority==='AVAILABLE')&&['SUPER_ADMIN','PROJECT_ADMIN'].includes(context.userProfile.role));
+  if(!available)return <p role="alert">{t('ui5.denied')}</p>;
+  return <AdminAccountWorkspace key={authorization.generation} isCurrent={()=>scope.current===authorization&&auth.currentUser?.uid===context.user?.uid}/>;
+}
+
+type ReadStatus='idle'|'loading'|'ready'|'error';
+const readKeys={idle:'ui5.not_loaded',loading:'ui5.loading',ready:'ui5.loaded',error:'ui5.read_error'} as const;
+const outcomeKeys={confirmed:'ui5.confirmed',conflict:'ui5.conflict',partial:'ui5.partial',unresolved:'ui5.unresolved',failed:'ui5.failed',readback:'ui5.readback'} as const;
+const commandLabelKeys={approveAccount:'admin_console.btn_approve',rejectAccount:'admin_console.btn_reject',suspendAccount:'admin_console.btn_suspend',reactivateAccount:'admin_console.btn_reactivate',changeUserRole:'admin_console.role_assignment',replaceAssignedProjects:'admin_console.explicit_project_whitelist',linkDriverIdentity:'admin_console.driver_link',unlinkDriverIdentity:'admin_console.driver_unlink'} as const;
+function AdminAccountWorkspace({isCurrent}:{isCurrent:()=>boolean}) {
   const { t, direction, locale } = useI18n();
   const { user: currentUser, userProfile } = useAuth();
+  const lifetime=useRef<{retired:boolean}|null>(null);
+  useLayoutEffect(()=>{
+    const lease={retired:false};lifetime.current=lease;
+    return()=>{lease.retired=true;};
+  },[]);
+  // Every async operation captures its own lease, including across StrictMode effect replay.
+  const captureContext=()=>{
+    const lease=lifetime.current;
+    return()=>Boolean(lease&&!lease.retired&&isCurrent());
+  };
   
   const [activeSection, setActiveSection] = useState<AdminSection>('USERS');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('ALL');
@@ -75,39 +105,44 @@ export function AdminConsoleView() {
   // General banner notifications
   const [banner, setBanner] = useState<{ type: 'success' | 'warning' | 'info'; message: string } | null>(null);
 
-  const showBanner = (message: string, type: 'success' | 'warning' | 'info' = 'success') => {
-    setBanner({ type, message });
-    setTimeout(() => setBanner(null), 5000);
+  const [readState,setReadState]=useState<{users:ReadStatus;projects:ReadStatus;audit:ReadStatus}>({users:'idle',projects:'idle',audit:'idle'});
+  const [selectedId,setSelectedId]=useState('');
+  const [busy,setBusy]=useState(false);
+  const [outcome,setOutcome]=useState<DecisionResult|null>(null);
+  const [reviewed,setReviewed]=useState(false);
+  const uncertain=useRef(new Map<string,DecisionResult>());
+  const selected=useRef({id:selectedUserForSecurity?.userId||'',generation:0});
+  const commandLock=useRef(false),requests=useRef({users:0,projects:0,audit:0});
+  const canDecide=readState.users==='ready'&&!busy&&(!outcome||outcome.status==='confirmed'||outcome.status==='failed'||reviewed&&outcome.status!=='unresolved');
+  const copyDraft=(user:UserEntity)=>({...user,assignedProjectIds:[...(user.assignedProjectIds||[])]});
+  const chooseUser=(user:UserEntity)=>{
+    if(selected.current.id!==user.userId){selected.current={id:user.userId,generation:selected.current.generation+1};setOutcome(uncertain.current.get(user.userId)||null);setReviewed(false);setBanner(null);setUserApprovalModal(null);setUserRejectionModal(null);}
+    setSelectedId(user.userId);setSelectedUserForSecurity(copyDraft(user));
   };
-
-  // Subscribe to canonical collections (Retire to one-shot for Idle Quiescence)
-  useEffect(() => {
-    let active = true;
-    const isSuperAdmin = userProfile?.role === 'SUPER_ADMIN';
-    const assignedProjectIds = userProfile?.assignedProjectIds || [];
-
-    const loadData = async () => {
-      try {
-        const [realUsers, realLogs, realProjects] = await Promise.all([
-          userRepository.listAll(),
-          auditLogService.getRecentAuditLogs(100),
-          projectRepository.listAll(assignedProjectIds, isSuperAdmin)
-        ]);
-        if (!active) return;
-        setUsers(realUsers);
-        // Auto-select first user if none selected
-        if (realUsers.length > 0 && !selectedUserForSecurity) {
-          setSelectedUserForSecurity(realUsers[0]);
-        }
-        setAuditLogs(realLogs);
-        setProjects(realProjects);
-      } catch (err) {
-        console.error('Error loading admin console data:', err);
-      }
-    };
-    loadData();
-    return () => { active = false; };
-  }, [userProfile]);
+  const showBanner = (message: string, type: 'success' | 'warning' | 'info' = 'success') => setBanner({ type, message });
+  const setRead=(kind:keyof typeof requests.current,value:ReadStatus)=>setReadState(previous=>({...previous,[kind]:value}));
+  const loadUsers=async()=>{
+    const current=captureContext();if(!current())return;
+    const request=++requests.current.users;setRead('users','loading');
+    try {const next=await userRepository.listAll();if(!current()||request!==requests.current.users)return;
+      setUsers(next);setRead('users','ready');
+      if(selected.current.id){const target=next.find(user=>user.userId===selected.current.id);if(target){setSelectedUserForSecurity(copyDraft(target));}else{selected.current={id:'',generation:selected.current.generation+1};setSelectedId('');setSelectedUserForSecurity(null);setUserApprovalModal(null);setUserRejectionModal(null);setOutcome(null);}}
+    }catch{if(current()&&request===requests.current.users)setRead('users','error');}
+  };
+  const loadProjects=async()=>{
+    const current=captureContext();if(!current())return;
+    const request=++requests.current.projects;setRead('projects','loading');
+    try {const next=await projectRepository.listAll(userProfile?.assignedProjectIds||[],userProfile?.role==='SUPER_ADMIN');if(current()&&request===requests.current.projects){setProjects(next);setRead('projects','ready');}}
+    catch{if(current()&&request===requests.current.projects)setRead('projects','error');}
+  };
+  const loadAudit=async()=>{
+    const current=captureContext();if(!current())return;
+    const request=++requests.current.audit;setRead('audit','loading');
+    try {const next=await auditLogService.getRecentAuditLogs(100);if(current()&&request===requests.current.audit){setAuditLogs(next);setRead('audit','ready');}}
+    catch{if(current()&&request===requests.current.audit)setRead('audit','error');}
+  };
+  useEffect(()=>{void loadUsers();void loadProjects();},[]);
+  useEffect(()=>{if(activeSection==='AUDIT_LOGS')void loadAudit();return()=>{requests.current.audit++;};},[activeSection]);
 
   // Filtered Users List
   const filteredUsers = useMemo(() => {
@@ -175,58 +210,79 @@ export function AdminConsoleView() {
     return Array.from(set);
   }, [auditLogs]);
 
-  const refreshTarget = async (userId: string) => {
-    const fresh = await userRepository.findById(userId);
-    if (!fresh) return;
-    setUsers(previous => previous.map(value => value.userId === userId ? fresh : value));
-    setSelectedUserForSecurity(previous => previous?.userId === userId ? fresh : previous);
+  const refreshTarget = async (userId: string) => userRepository.findByIdFromServer(userId);
+  const applyReadback=(fresh:UserEntity|null,id:string)=>{
+    setUsers(previous=>fresh?previous.map(user=>user.userId===id?fresh:user):previous.filter(user=>user.userId!==id));
+    if(selected.current.id===id)setSelectedUserForSecurity(fresh?copyDraft(fresh):null);
   };
-  const handleApproveUserConfirm = async () => {
-    if (!canManageUsers || !userApprovalModal) return;
+  const decide=async(targetId:string,commands:AdminAccountCommand[],send?:(observation:NonNullable<Parameters<typeof executeAdminAccountCommand>[2]>)=>ReturnType<typeof executeAdminAccountCommand>)=>{
+    const workspaceCurrent=captureContext();
+    if (!canManageUsers || !canDecide || !workspaceCurrent() || commandLock.current || !commands.length || targetId===currentUser?.uid || !users.some(user=>user.userId===targetId))return;
+    if(commands.some(command=>command.command==='approveAccount'||command.command==='replaceAssignedProjects')&&readState.projects!=='ready')return;
+    if(selected.current.id!==targetId)return;
+    const generation=selected.current.generation;
+    const current=()=>workspaceCurrent()&&selected.current.id===targetId&&selected.current.generation===generation;
+    commandLock.current=true;setBusy(true);setOutcome(null);setReviewed(false);setBanner(null);
     try {
-      await executeAdminAccountCommand(userApprovalModal.userId, { command: 'approveAccount', approvedRole: approvalRole, assignedProjectIds: approvalProjectIds });
-      await refreshTarget(userApprovalModal.userId);
-      showBanner(t('admin_console.user_approved', { role: approvalRole })); setUserApprovalModal(null);
-    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
+      const result=await runAccountDecision(targetId,commands,{
+        isCurrent:current,
+        execute:(command,onFailure)=>send?send({isCurrent:current,onFailure}):executeAdminAccountCommand(targetId,command,{isCurrent:current,onFailure}),
+        read:async()=>await refreshTarget(targetId),
+        onRead:fresh=>{if(current())applyReadback(fresh,targetId);}
+      });
+      if(current()&&result){if(result.status==='unresolved')uncertain.current.set(targetId,result);setOutcome(result);if(result.status==='confirmed'){setUserApprovalModal(null);setUserRejectionModal(null);}if(result.status==='failed'&&result.error){const error=result.error;showBanner(t(adminErrorKey(error)), 'warning');}}
+    }finally{commandLock.current=false;if(workspaceCurrent())setBusy(false);}
   };
-  const handleRejectUserConfirm = async () => {
-    if (!canManageUsers || !userRejectionModal || !rejectionReason.trim()) return;
-    try {
-      await executeAdminAccountCommand(userRejectionModal.userId, { command: 'rejectAccount', rejectionReason });
-      await refreshTarget(userRejectionModal.userId);
-      showBanner(t('admin_console.user_rejected')); setUserRejectionModal(null); setRejectionReason('');
-    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
+  const reviewReadback=async()=>{
+    const workspaceCurrent=captureContext();
+    if(!outcome||busy||!workspaceCurrent()||commandLock.current)return;
+    const captured=outcome,generation=selected.current.generation;commandLock.current=true;setBusy(true);
+    const current=()=>workspaceCurrent()&&selected.current.generation===generation&&selected.current.id===captured.targetId;
+    try{const fresh=await refreshTarget(captured.targetId);if(!current())return;
+      applyReadback(fresh,captured.targetId);setReviewed(true);
+      // A read can prove current fields, never prove execution of a transport-unknown command.
+      if(captured.acknowledged===captured.total){const status=accountFieldsMatch(fresh,captured.expected)?'confirmed':'conflict';setOutcome({...captured,status});if(status==='confirmed'){setUserApprovalModal(null);setUserRejectionModal(null);}}
+    }catch{if(current())setReviewed(false);}
+    finally{commandLock.current=false;if(workspaceCurrent())setBusy(false);}
   };
-  const handleSuspendUser = async (target: UserEntity) => {
-    if (!canManageUsers) return;
-    try {
-      await executeAdminAccountCommand(target.userId, { command: 'suspendAccount' }); await refreshTarget(target.userId);
-      showBanner(t('admin_console.user_suspended'));
-    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
+  const handleApproveUserConfirm=async()=>{
+    if (!canManageUsers || !userApprovalModal)return;
+    await decide(userApprovalModal.userId,[{ command: 'approveAccount',approvedRole:approvalRole,assignedProjectIds:[...approvalProjectIds]}],observation=>executeAdminAccountCommand(userApprovalModal.userId, { command: 'approveAccount', approvedRole:approvalRole,assignedProjectIds:[...approvalProjectIds]},observation));
   };
-  const handleReactivateUser = async (target: UserEntity) => {
-    if (!canManageUsers) return;
-    try {
-      await executeAdminAccountCommand(target.userId, { command: 'reactivateAccount' }); await refreshTarget(target.userId);
-      showBanner(t('admin_console.user_reactivated'));
-    } catch (error) { showBanner(t(adminErrorKey(error)), 'warning'); }
+  const handleRejectUserConfirm=async()=>{
+    if (!canManageUsers || !userRejectionModal || !rejectionReason.trim())return;
+    await decide(userRejectionModal.userId,[{ command: 'rejectAccount',rejectionReason}],observation=>executeAdminAccountCommand(userRejectionModal.userId, { command: 'rejectAccount', rejectionReason},observation));
   };
-  const handleSaveSecurityPolicy = async () => {
-    if (!canManageUsers || !selectedUserForSecurity) return;
-    const target = selectedUserForSecurity;
-    const original = users.find(value => value.userId === target.userId);
-    try {
-      if (original?.role !== target.role) await executeAdminAccountCommand(target.userId, { command: 'changeUserRole', newRole: target.role });
-      if (JSON.stringify(original?.assignedProjectIds) !== JSON.stringify(target.assignedProjectIds)) await executeAdminAccountCommand(target.userId, { command: 'replaceAssignedProjects', assignedProjectIds: target.assignedProjectIds });
-      await refreshTarget(target.userId); showBanner(t('admin_console.security_updated', { email: target.email }));
-    } catch (error) {
-      // Each explicit command is atomic; refresh also exposes any earlier successful command.
-      await refreshTarget(target.userId).catch(() => {}); showBanner(t(adminErrorKey(error)), 'warning');
-    }
+  const handleSuspendUser=async(target:UserEntity)=>{chooseUser(target);await decide(target.userId,[{ command: 'suspendAccount' }]);};
+  const handleReactivateUser=async(target:UserEntity)=>{chooseUser(target);await decide(target.userId,[{ command: 'reactivateAccount' }]);};
+  const handleSaveSecurityPolicy=async()=>{
+    if (!canManageUsers || !selectedUserForSecurity || readState.projects!=='ready')return;
+    const target=selectedUserForSecurity,original=users.find(user=>user.userId===target.userId);if(!original)return;
+    const commands:AdminAccountCommand[]=[];
+    if(original.role!==target.role)commands.push({ command: 'changeUserRole',newRole:target.role});
+    if(JSON.stringify([...original.assignedProjectIds].sort())!==JSON.stringify([...target.assignedProjectIds].sort()))commands.push({ command: 'replaceAssignedProjects',assignedProjectIds:[...target.assignedProjectIds]});
+    await decide(target.userId,commands);
   };
+  const bindingDecision=async(command:AdminAccountCommand)=>{if(selectedUserForSecurity)await decide(selectedUserForSecurity.userId,[command]);};
+
+  const feedback=(outcome&&<section role="status" aria-live="polite" className="rounded-xl border bg-white p-4 text-stone-900" data-decision-status={outcome.status}>
+       <h2>{t(outcomeKeys[outcome.status])}</h2><p><bdi>{outcome.targetId}</bdi> · {t('ui5.acknowledged',{count:outcome.acknowledged,total:outcome.total})}</p><p>{t('ui5.no_replay')}</p><ol>{outcome.steps.map((step,index)=><li key={index}>{t(commandLabelKeys[step.command])}: {t(step.acknowledged?'ui5.step_ack':'ui5.step_not_ack')}</li>)}</ol>
+       {Boolean(outcome.error)&&<p>{t(adminErrorKey(outcome.error))}</p>}
+       {outcome.status!=='confirmed'&&<button disabled={busy} onClick={()=>void reviewReadback()}>{t('ui5.review_state')}</button>}{reviewed&&<p>{t('ui5.state_reviewed')}</p>}
+      </section>);
 
   return (
-    <div className="space-y-6" dir={direction}>
+    <div className="space-y-6 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-emerald-700 [&_input:focus-visible]:ring-2 [&_select:focus-visible]:ring-2" dir={direction} data-testid="ui5-account-review">
+      <header><h1 className="text-xl font-bold">{t('ui5.title')}</h1><p>{t('ui5.read_help')}</p>{!canManageUsers&&<p>{t('ui5.read_only')}</p>}</header>
+      <div className="grid gap-3 sm:grid-cols-3">
+       {(['users','projects',...(activeSection==='AUDIT_LOGS'?['audit']:[])] as ('users'|'projects'|'audit')[]).map(kind=><section key={kind} className="rounded-xl border bg-white p-3 text-stone-900" aria-busy={readState[kind]==='loading'} data-read-source={kind}>
+        <h2>{t(kind==='users'?'ui5.users':kind==='projects'?'ui5.projects':'ui5.audit')}</h2><p role={readState[kind]==='error'?'alert':'status'}>{t(readKeys[readState[kind]])}</p>
+        <button className="mt-2 rounded-lg border px-3 py-2 font-semibold text-emerald-800" type="button" disabled={busy||readState[kind]==='loading'} onClick={()=>void (kind==='users'?loadUsers():kind==='projects'?loadProjects():loadAudit())}>{t('ui5.reload')}</button>
+       </section>)}
+      </div>
+      {busy&&<p role="status">{t('ui5.pending')}</p>}
+      {!userApprovalModal&&!userRejectionModal&&feedback}
+
       
       {/* ================= BANNER & STATUS NOTIFICATIONS ================= */}
       {banner && (
@@ -248,9 +304,9 @@ export function AdminConsoleView() {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.pending_approval_requests')}</span>
+            <span className="text-xs text-stone-600 block font-bold">{t('admin_console.pending_approval_requests')}</span>
             <span className="text-2xl font-black text-stone-900">
-              {users.filter(u => u.status === 'PENDING_APPROVAL').length}
+              {readState.users==='ready'?users.filter(u => u.status === 'PENDING_APPROVAL').length:'—'}
             </span>
           </div>
         </div>
@@ -260,9 +316,9 @@ export function AdminConsoleView() {
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.active_users_stat')}</span>
+            <span className="text-xs text-stone-600 block font-bold">{t('admin_console.active_users_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
-              {users.filter(u => u.status === 'ACTIVE' || (u.isActive && !u.status)).length}
+              {readState.users==='ready'?users.filter(u => u.status === 'ACTIVE' || (u.isActive && !u.status)).length:'—'}
             </span>
           </div>
         </div>
@@ -272,9 +328,9 @@ export function AdminConsoleView() {
             <FolderKanban className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.available_projects_stat')}</span>
+            <span className="text-xs text-stone-600 block font-bold">{t('admin_console.available_projects_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
-              {projects.length}
+              {readState.projects==='ready'?projects.length:'—'}
             </span>
           </div>
         </div>
@@ -284,9 +340,9 @@ export function AdminConsoleView() {
             <History className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs text-stone-400 block font-bold">{t('admin_console.audit_records_stat')}</span>
+            <span className="text-xs text-stone-600 block font-bold">{t('admin_console.audit_records_stat')}</span>
             <span className="text-2xl font-black text-stone-900">
-              {auditLogs.length}
+              {readState.audit==='ready'?auditLogs.length:'—'}
             </span>
           </div>
         </div>
@@ -330,7 +386,7 @@ export function AdminConsoleView() {
             <span>{t('admin_console.tab_audit')}</span>
           </button>
         </div>
-        <div className="px-3 py-1 bg-stone-800 border border-stone-700 rounded-lg text-[11px] font-mono font-bold text-stone-400">
+        <div className="px-3 py-1 bg-stone-800 border border-stone-700 rounded-lg text-[11px] font-mono font-bold text-stone-300">
           {t('admin_console.project_admin_console')}
         </div>
       </div>
@@ -344,7 +400,7 @@ export function AdminConsoleView() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-stone-100">
               <div>
                 <h2 className="text-base font-bold text-stone-900">{t('admin_console.users_section_title')}</h2>
-                <p className="text-xs text-stone-400 mt-1">{t('admin_console.users_section_desc')}</p>
+                <p className="text-xs text-stone-600 mt-1">{t('admin_console.users_section_desc')}</p>
               </div>
               
               <div className="flex flex-wrap gap-2">
@@ -369,19 +425,19 @@ export function AdminConsoleView() {
 
             {/* Sub-search */}
             <div className="mt-4 flex items-center gap-3 bg-stone-50 border border-stone-200/80 rounded-xl px-4 py-2">
-              <Search className="w-4 h-4 text-stone-400" />
+              <Search className="w-4 h-4 text-stone-600" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('admin_console.search_users_placeholder')}
+                aria-label={t('admin_console.search_users_placeholder')} placeholder={t('admin_console.search_users_placeholder')}
                 className="w-full bg-transparent text-sm text-stone-900 placeholder-stone-400 focus:outline-none"
               />
             </div>
 
             {/* Users table */}
-            <div className="mt-4 border border-stone-200/80 rounded-xl overflow-hidden">
-              <table className="w-full text-right border-collapse text-xs">
+            <div className="mt-4 border border-stone-200/80 rounded-xl overflow-x-auto">
+              <table className="w-full min-w-[52rem] text-start border-collapse text-xs">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
                     <th className="py-3 px-4">{t('admin_console.col_user')}</th>
@@ -395,18 +451,18 @@ export function AdminConsoleView() {
                 <tbody className="divide-y divide-stone-100">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-stone-400 font-medium">
-                        {t('admin_console.no_users_match')}
+                      <td colSpan={6} className="py-8 text-center text-stone-600 font-medium">
+                        {t(readState.users==='ready'?(users.length?'ui5.filtered_empty':'ui5.empty'):readKeys[readState.users])}
                       </td>
                     </tr>
                   ) : (
                     filteredUsers.map(u => (
                       <tr key={u.userId} className="hover:bg-stone-50/60">
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-stone-900 block">{u.fullName || t('admin_console.new_user')}</span>
-                          <span className="font-mono text-[10px] text-stone-400">{u.userId}</span>
+                          <span className="font-bold text-stone-900 block">{u.fullName || t('admin_console.new_user')}</span><button type="button" className="my-1 block rounded-lg border border-emerald-800 px-3 py-2 font-semibold text-emerald-800" data-review-user={u.userId} onClick={()=>{chooseUser(u);setActiveSection('SECURITY_ACCESS');}}>{t('ui5.select')}</button>
+                          <span className="font-mono text-[10px] text-stone-600"><bdi>{u.userId}</bdi></span>
                         </td>
-                        <td className="py-3.5 px-4 font-mono text-stone-600">{u.email}</td>
+                        <td className="py-3.5 px-4 font-mono text-stone-600"><bdi>{u.email}</bdi></td>
                         <td className="py-3.5 px-4 font-mono font-bold text-stone-700">{u.role || 'PENDING'}</td>
                         <td className="py-3.5 px-4 text-stone-600">
                           {u.assignedProjectIds && u.assignedProjectIds.length > 0 
@@ -429,18 +485,18 @@ export function AdminConsoleView() {
                           {canManageUsers && u.userId !== currentUser?.uid && u.status === 'PENDING_APPROVAL' && (
                             <>
                               <button
-                                onClick={() => {
-                                  setApprovalRole(u.role || 'SUPERVISOR');
+                                disabled={!canDecide} onClick={() => {
+                                  chooseUser(u);setApprovalRole(u.requestedRole || u.role || 'SUPERVISOR');
                                   setApprovalProjectIds(u.assignedProjectIds || []);
                                   setUserApprovalModal(u);
                                 }}
-                                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                                className="px-3 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
                               >
                                 {t('admin_console.btn_approve')}
                               </button>
                               <button
-                                onClick={() => {
-                                  setRejectionReason('');
+                                disabled={!canDecide} onClick={() => {
+                                  chooseUser(u);setRejectionReason('');
                                   setUserRejectionModal(u);
                                 }}
                                 className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
@@ -452,7 +508,7 @@ export function AdminConsoleView() {
                           
                           {canManageUsers && u.userId !== currentUser?.uid && u.status === 'ACTIVE' && (
                             <button
-                              onClick={() => handleSuspendUser(u)}
+                              disabled={!canDecide} onClick={() => handleSuspendUser(u)}
                               className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold cursor-pointer"
                             >
                               {t('admin_console.btn_suspend')}
@@ -461,7 +517,7 @@ export function AdminConsoleView() {
 
                           {canManageUsers && u.userId !== currentUser?.uid && (u.status === 'SUSPENDED' || u.status === 'REJECTED') && (
                             <button
-                              onClick={() => handleReactivateUser(u)}
+                              disabled={!canDecide} onClick={() => handleReactivateUser(u)}
                               className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-lg text-[11px] font-bold cursor-pointer"
                             >
                               {t('admin_console.btn_reactivate')}
@@ -488,27 +544,25 @@ export function AdminConsoleView() {
           <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs lg:col-span-1 space-y-4">
             <div>
               <h3 className="text-sm font-bold text-stone-900">{t('admin_console.security_entities')}</h3>
-              <p className="text-[11px] text-stone-400 mt-0.5">{t('admin_console.select_authorization_user')}</p>
+              <p className="text-[11px] text-stone-600 mt-0.5">{t('admin_console.select_authorization_user')}</p>
             </div>
             
             <div className="flex items-center gap-2 bg-stone-50 border border-stone-200/60 rounded-xl px-3 py-1.5 text-xs">
-              <Search className="w-3.5 h-3.5 text-stone-400" />
+              <Search className="w-3.5 h-3.5 text-stone-600" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t('admin_console.search_employee')}
+                aria-label={t('admin_console.search_employee')} placeholder={t('admin_console.search_employee')}
                 className="bg-transparent w-full focus:outline-none"
               />
             </div>
 
             <div className="divide-y divide-stone-100 max-h-[450px] overflow-y-auto pr-1">
-              {users
-                .filter(u => !searchQuery || u.fullName?.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map(u => (
+              {filteredUsers.map(u => (
                   <button
                     key={u.userId}
-                    onClick={() => setSelectedUserForSecurity(u)}
+                    onClick={() => chooseUser(u)}
                     className={`w-full text-right p-3 rounded-xl transition-all cursor-pointer flex flex-col gap-1 ${
                       selectedUserForSecurity?.userId === u.userId
                         ? 'bg-stone-900 text-white'
@@ -522,7 +576,7 @@ export function AdminConsoleView() {
                         {u.role || 'VIEWER'}
                       </span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-                        u.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'
+                        u.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'
                       }`}>
                         {u.status || 'PENDING'}
                       </span>
@@ -535,11 +589,11 @@ export function AdminConsoleView() {
           {/* Right panel: Security document policy modifier */}
           <div className="bg-white border border-stone-200/80 rounded-2xl p-6 shadow-xs lg:col-span-2">
             {selectedUserForSecurity ? (
-              <div className="space-y-6">
-                <div className="pb-4 border-b border-stone-100 flex items-start justify-between">
+              <div className="space-y-6" data-selected-user={selectedId||selectedUserForSecurity.userId}>
+                <p>{t('ui5.draft')}</p><div className="pb-4 border-b border-stone-100 flex items-start justify-between">
                   <div>
                     <h3 className="text-base font-bold text-stone-900">{t('admin_console.security_policy_editor')}</h3>
-                    <p className="text-xs text-stone-400 mt-1">{t('admin_console.selected_user')} <strong className="text-stone-700">{selectedUserForSecurity.fullName}</strong> ({selectedUserForSecurity.email})</p>
+                    <p className="text-xs text-stone-600 mt-1">{t('admin_console.selected_user')} <strong className="text-stone-700">{selectedUserForSecurity.fullName}</strong> ({selectedUserForSecurity.email})</p>
                   </div>
                   <span className="px-3 py-1 bg-stone-100 border border-stone-200 text-stone-800 font-mono font-bold text-[11px] rounded-lg">
                     {selectedUserForSecurity.userId}
@@ -548,14 +602,14 @@ export function AdminConsoleView() {
 
                 {canManageUsers && selectedUserForSecurity.userId !== currentUser?.uid ? <>
                 {selectedUserForSecurity.role === 'DRIVER' && users.find(user => user.userId === selectedUserForSecurity.userId)?.role === 'DRIVER' && (
-                  <DriverAccountBindingControl key={selectedUserForSecurity.userId} target={selectedUserForSecurity} onChanged={() => refreshTarget(selectedUserForSecurity.userId)} />
+                  <DriverAccountBindingControl key={selectedUserForSecurity.userId} target={users.find(user=>user.userId===selectedUserForSecurity.userId)!} isCurrent={isCurrent} disabled={!canDecide} onDecision={bindingDecision} />
                 )}
                 {/* 1. RBAC Selection */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-stone-700 block">{t('admin_console.role_assignment')}</label>
-                  <p className="text-[11px] text-stone-400">{t('admin_console.role_assignment_description')}</p>
+                  <p className="text-[11px] text-stone-600">{t('admin_console.role_assignment_description')}</p>
                   <select
-                    value={selectedUserForSecurity.role}
+                    disabled={!canDecide} aria-label={t('admin_console.role_assignment')} value={selectedUserForSecurity.role}
                     onChange={(e) => {
                       const updatedRole = e.target.value as any;
                       setSelectedUserForSecurity(prev => prev ? { ...prev, role: updatedRole } : null);
@@ -577,38 +631,26 @@ export function AdminConsoleView() {
                 {/* 2. Project Whitelist Assignment */}
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-stone-700 block">{t('admin_console.explicit_project_whitelist')}</label>
-                  <p className="text-[11px] text-stone-400">{t('admin_console.explicit_project_whitelist_description')}</p>
+                  <p className="text-[11px] text-stone-600">{t('admin_console.explicit_project_whitelist_description')}</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                     {projects.map(proj => {
                       const isChecked = selectedUserForSecurity.assignedProjectIds?.includes(proj.projectId);
                       return (
-                        <div 
-                          key={proj.projectId} 
-                          onClick={() => {
+                        <label className="flex items-start gap-3 rounded-xl border p-3" key={proj.projectId}>
+                        <input type="checkbox" checked={Boolean(isChecked)} disabled={!canDecide||readState.projects!=='ready'} onChange={() => {
                             const currentList = selectedUserForSecurity.assignedProjectIds || [];
                             const newList = currentList.includes(proj.projectId)
                               ? currentList.filter(id => id !== proj.projectId)
                               : [...currentList, proj.projectId];
                             setSelectedUserForSecurity(prev => prev ? { ...prev, assignedProjectIds: newList } : null);
                           }}
-                          className={`flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer ${
-                            isChecked 
-                              ? 'bg-stone-50 border-stone-800 shadow-3xs' 
-                              : 'bg-white border-stone-200/80 hover:bg-stone-50'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            readOnly
-                            className="mt-0.5"
-                          />
+                        />
                           <div>
                             <span className="font-bold text-xs text-stone-900 block">{proj.nameAr || proj.nameEn}</span>
-                            <span className="font-mono text-[10px] text-stone-400 block mt-0.5">{proj.projectId} | {proj.clientName}</span>
+                            <span className="font-mono text-[10px] text-stone-600 block mt-0.5">{proj.projectId} | {proj.clientName}</span>
                           </div>
-                        </div>
+                        </label>
                       );
                     })}
                   </div>
@@ -617,7 +659,7 @@ export function AdminConsoleView() {
                 {/* Save button */}
                 <div className="pt-4 border-t border-stone-100 flex items-center justify-end">
                   <button
-                    onClick={handleSaveSecurityPolicy}
+                    disabled={!canDecide||readState.projects!=='ready'} onClick={handleSaveSecurityPolicy}
                     className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-2"
                   >
                     <ShieldCheck className="w-4 h-4 text-emerald-400" />
@@ -629,7 +671,7 @@ export function AdminConsoleView() {
 
               </div>
             ) : (
-              <div className="py-24 text-center text-stone-400 flex flex-col items-center justify-center gap-3">
+              <div className="py-24 text-center text-stone-600 flex flex-col items-center justify-center gap-3">
                 <Info className="w-8 h-8 text-stone-300" />
                 <span className="text-sm font-bold">{t('admin_console.select_user_prompt')}</span>
               </div>
@@ -647,7 +689,7 @@ export function AdminConsoleView() {
           <div className="bg-white border border-stone-200/80 rounded-2xl p-5 shadow-xs space-y-4">
             <div>
               <h2 className="text-base font-bold text-stone-900">{t('admin_console.immutable_audit_title')}</h2>
-              <p className="text-xs text-stone-400 mt-1">{t('admin_console.immutable_audit_description')}</p>
+              <p className="text-xs text-stone-600 mt-1">{t('admin_console.immutable_audit_description')}</p>
             </div>
 
             {/* Advanced Multi-Filter controls */}
@@ -734,8 +776,8 @@ export function AdminConsoleView() {
             </div>
 
             {/* Audit Logs Table */}
-            <div className="border border-stone-200 rounded-xl overflow-hidden">
-              <table className="w-full text-right border-collapse text-xs">
+            <div className="border border-stone-200 rounded-xl overflow-x-auto">
+              <table className="w-full min-w-[52rem] text-start border-collapse text-xs">
                 <thead>
                   <tr className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold">
                     <th className="py-3 px-4">{t('admin_console.entry_number_date')}</th>
@@ -749,8 +791,8 @@ export function AdminConsoleView() {
                 <tbody className="divide-y divide-stone-100">
                   {filteredAuditLogs.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-stone-400 font-medium">
-                        {t('admin_console.no_audit_matches')}
+                      <td colSpan={6} className="py-12 text-center text-stone-600 font-medium">
+                        {t(readState.audit==='ready'?'admin_console.no_audit_matches':readKeys[readState.audit])}
                       </td>
                     </tr>
                   ) : (
@@ -761,13 +803,13 @@ export function AdminConsoleView() {
                           <tr className="hover:bg-stone-50/50">
                             <td className="py-3.5 px-4">
                               <span className="font-mono font-bold text-stone-900 block">{log.auditLogId}</span>
-                              <span className="text-[10px] text-stone-400 font-mono block mt-0.5">
+                              <span className="text-[10px] text-stone-600 font-mono block mt-0.5">
                                 {log.createdAt ? new Date(log.createdAt as any).toLocaleString(locale, { calendar: 'islamic-umalqura' }) : '—'}
                               </span>
                             </td>
                             <td className="py-3.5 px-4">
                               <span className="font-bold text-stone-800 block">{log.actor.email || log.actor.userId}</span>
-                              <span className="text-[10px] text-stone-400 font-mono">{log.actor.role}</span>
+                              <span className="text-[10px] text-stone-600 font-mono">{log.actor.role}</span>
                             </td>
                             <td className="py-3.5 px-4 font-semibold text-stone-700">
                               {log.entityType} ({log.entityId})
@@ -799,7 +841,7 @@ export function AdminConsoleView() {
                             <tr className="bg-stone-50">
                               <td colSpan={6} className="p-4">
                                 <div className="bg-stone-900 text-stone-100 rounded-xl p-4 font-mono text-[11px] space-y-3 shadow-inner">
-                                  <div className="flex justify-between items-center text-stone-400 border-b border-stone-800 pb-2">
+                                  <div className="flex justify-between items-center text-stone-600 border-b border-stone-800 pb-2">
                                     <span>{t('admin_console.payload_inspector')}</span>
                                     <span>{t('shared.labels.identifier')} {log.auditLogId}</span>
                                   </div>
@@ -837,16 +879,17 @@ export function AdminConsoleView() {
       {/* APPROVAL CONFIG MODAL */}
       {/* ==================================================================== */}
       {canManageUsers && userApprovalModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
+        <ImportOverlay label={t('admin_console.approve_account_request')} busy={busy} onDismiss={()=>setUserApprovalModal(null)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[calc(100dvh-2rem)] overflow-y-auto p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
+            {feedback}{busy&&<p role="status">{t('ui5.pending')}</p>}
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
               <div>
                 <h3 className="text-base font-bold text-stone-900">{t('admin_console.approve_account_request')}</h3>
-                <p className="text-xs text-stone-400 mt-1">{t('admin_console.approve_account_description')}</p>
+                <p className="text-xs text-stone-600 mt-1">{t('admin_console.approve_account_description')}</p>
               </div>
               <button 
-                onClick={() => setUserApprovalModal(null)}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700 shrink-0"
+                disabled={busy} aria-label={t('ui5.close')} onClick={() => setUserApprovalModal(null)}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-600 hover:text-stone-700 shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -854,7 +897,7 @@ export function AdminConsoleView() {
 
             <div className="space-y-4">
               <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">{t('admin_console.employee_to_approve')}</span>
+                <span className="text-stone-600 text-[10px] block font-bold">{t('admin_console.employee_to_approve')}</span>
                 <span className="font-bold text-sm text-stone-900 block mt-0.5">{userApprovalModal.fullName}</span>
                 <span className="font-mono text-[11px] text-stone-500 block">{userApprovalModal.email}</span>
               </div>
@@ -863,19 +906,19 @@ export function AdminConsoleView() {
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-stone-700 block">{t('admin_console.assign_security_role')}</label>
                 <select
-                  value={approvalRole}
+                  disabled={!canDecide||readState.projects!=='ready'} aria-label={t('admin_console.assign_security_role')} value={approvalRole}
                   onChange={(e) => setApprovalRole(e.target.value as any)}
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-bold text-stone-800 focus:outline-none"
                 >
-                  <option value="SUPER_ADMIN">SUPER_ADMIN</option>
-                  <option value="PROJECT_ADMIN">PROJECT_ADMIN</option>
-                  <option value="SUPERVISOR">SUPERVISOR</option>
-                  <option value="SITE_SUPERVISOR">SITE_SUPERVISOR</option>
-                  <option value="DISPATCHER">DISPATCHER</option>
+                  <option value="SUPER_ADMIN">{t('navigation.roles.super_admin')}</option>
+                  <option value="PROJECT_ADMIN">{t('navigation.roles.project_admin')}</option>
+                  <option value="SUPERVISOR">{t('navigation.roles.supervisor')}</option>
+                  <option value="SITE_SUPERVISOR">{t('navigation.roles.site_supervisor')}</option>
+                  <option value="DISPATCHER">{t('navigation.roles.dispatcher')}</option>
                   <option value="SCALE_OPERATOR">{t('navigation.roles.scale_operator')}</option>
                   <option value="DRIVER">{t('navigation.roles.driver')}</option>
-                  <option value="FINANCE_AUDITOR">FINANCE_AUDITOR</option>
-                  <option value="VIEWER">VIEWER</option>
+                  <option value="FINANCE_AUDITOR">{t('navigation.roles.finance_auditor')}</option>
+                  <option value="VIEWER">{t('navigation.roles.viewer')}</option>
                 </select>
               </div>
 
@@ -886,28 +929,19 @@ export function AdminConsoleView() {
                   {projects.map(p => {
                     const checked = approvalProjectIds.includes(p.projectId);
                     return (
-                      <div 
-                        key={p.projectId}
-                        onClick={() => {
+                      <label className="flex items-center gap-3 rounded-xl border p-3" key={p.projectId}>
+                        <input type="checkbox" checked={checked} disabled={!canDecide||readState.projects!=='ready'} onChange={() => {
                           const newList = checked
                             ? approvalProjectIds.filter(id => id !== p.projectId)
                             : [...approvalProjectIds, p.projectId];
                           setApprovalProjectIds(newList);
                         }}
-                        className={`p-2.5 rounded-lg border flex items-center gap-2.5 cursor-pointer text-xs transition-all ${
-                          checked ? 'bg-stone-50 border-stone-900' : 'bg-white border-stone-200'
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          readOnly
                         />
                         <div>
                           <strong className="text-stone-800 font-bold block">{p.nameAr || p.nameEn}</strong>
-                          <span className="text-[10px] text-stone-400 font-mono block">{p.projectId}</span>
+                          <span className="text-[10px] text-stone-600 font-mono block">{p.projectId}</span>
                         </div>
-                      </div>
+                      </label>
                     );
                   })}
                 </div>
@@ -916,37 +950,38 @@ export function AdminConsoleView() {
 
             <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2.5">
               <button
-                onClick={() => setUserApprovalModal(null)}
+                disabled={busy} aria-label={t('ui5.close')} onClick={() => setUserApprovalModal(null)}
                 className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
               >
                 {t('shared.actions.cancel')}
               </button>
               <button
-                onClick={handleApproveUserConfirm}
-                className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+                disabled={!canDecide||readState.projects!=='ready'} onClick={handleApproveUserConfirm}
+                className="px-5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <Check className="w-4 h-4" />
                 <span>{t('admin_console.approve_activate_user')}</span>
               </button>
             </div>
           </div>
-        </div>
+        </ImportOverlay>
       )}
 
       {/* ==================================================================== */}
       {/* REJECTION CONFIG MODAL */}
       {/* ==================================================================== */}
       {canManageUsers && userRejectionModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-250">
+        <ImportOverlay label={t('admin_console.reject_account_request')} busy={busy} onDismiss={()=>setUserRejectionModal(null)}>
           <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 border border-stone-200 shadow-2xl animate-in slide-in-from-bottom-8 duration-300">
+            {feedback}{busy&&<p role="status">{t('ui5.pending')}</p>}
             <div className="pb-3 border-b border-stone-100 flex items-start justify-between">
               <div>
                 <h3 className="text-base font-bold text-stone-900">{t('admin_console.reject_account_request')}</h3>
-                <p className="text-xs text-stone-400 mt-1">{t('admin_console.reject_account_description')}</p>
+                <p className="text-xs text-stone-600 mt-1">{t('admin_console.reject_account_description')}</p>
               </div>
               <button 
-                onClick={() => setUserRejectionModal(null)}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-400 hover:text-stone-700 shrink-0"
+                disabled={busy} aria-label={t('ui5.close')} onClick={() => setUserRejectionModal(null)}
+                className="w-8 h-8 rounded-full hover:bg-stone-100 flex items-center justify-center text-stone-600 hover:text-stone-700 shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -954,15 +989,15 @@ export function AdminConsoleView() {
 
             <div className="space-y-3 text-xs">
               <div className="p-3 bg-stone-50 border border-stone-200/60 rounded-xl">
-                <span className="text-stone-400 text-[10px] block font-bold">{t('admin_console.col_user')}</span>
+                <span className="text-stone-600 text-[10px] block font-bold">{t('admin_console.col_user')}</span>
                 <span className="font-bold text-stone-800">{userRejectionModal.fullName}</span>
-                <span className="font-mono text-stone-400 block mt-0.5">{userRejectionModal.email}</span>
+                <span className="font-mono text-stone-600 block mt-0.5">{userRejectionModal.email}</span>
               </div>
 
               <div className="space-y-1.5">
                 <label className="font-bold text-stone-700 block">{t('admin_console.rejection_reason_required')}</label>
                 <textarea
-                  value={rejectionReason}
+                  disabled={busy} aria-label={t('admin_console.rejection_reason_required')} value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                   placeholder={t('admin_console.rejection_reason_example')}
                   rows={4}
@@ -973,14 +1008,14 @@ export function AdminConsoleView() {
 
             <div className="pt-3 border-t border-stone-100 flex items-center justify-end gap-2.5">
               <button
-                onClick={() => setUserRejectionModal(null)}
+                disabled={busy} aria-label={t('ui5.close')} onClick={() => setUserRejectionModal(null)}
                 className="px-4 py-2 hover:bg-stone-100 border border-stone-200 text-stone-700 rounded-xl text-xs font-bold cursor-pointer"
               >
                 {t('shared.actions.cancel')}
               </button>
               <button
                 onClick={handleRejectUserConfirm}
-                disabled={!rejectionReason.trim()}
+                disabled={!canDecide||!rejectionReason.trim()}
                 className="px-5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
               >
                 <XCircle className="w-4 h-4" />
@@ -988,7 +1023,7 @@ export function AdminConsoleView() {
               </button>
             </div>
           </div>
-        </div>
+        </ImportOverlay>
       )}
 
     </div>

@@ -1,3 +1,54 @@
+## CURRENT UI5 CONTROLLED PUBLICATION CANDIDATE — 2026-11-20
+
+UI5 = SOURCE_IMPLEMENTED / AWAITING_INDEPENDENT_REVIEW. UI5-PUB-01 is corrected and its permanent-retirement review passed. UI4 = MERGED / SOURCE_CLOSED. UI6 = NOT_STARTED. The owner has now authorized one implementation commit, normal push to `ui/ui5-account-review-20261120` and a draft PR against main, conditional on the final gates. This candidate record precedes remote publication; remote SHA, draft PR and CI conclusions must be verified from GitHub and the publication receipt, not inferred from this text. Merge, deployment, SQL cutover and RB4 activation remain unauthorized.
+
+Final scope remains33 paths:8 production/8 tests-fixtures/17 docs-evidence. Seven inherited document bodies and original failed publication evidence remain preserved. The final publication recheck reports316/319 with the same three inherited failures, all76 UI5 cases and27 retirement cases passing, unchanged original regression1/1 passing, and runtime16/16 passing. Exact production/test hashes match the previously successful TypeScript/lint/build, Edge9/9 and authenticated emulator1/1 evidence. Broad aggregate remains NOT PASS; physical-device, screen-reader, live operational/provider and product/Beta2 acceptance remain separate. See [current inventory](ui5/exact-file-inventory.json), [verification including new raw recheck output](ui5/verification.json) and [retirement audit](UI5_PUB01_RETIREMENT.md). Earlier dated gates below are preserved historical snapshots and do not override this publication authorization or the owner merge gate.
+
+## CURRENT UI5-PUB-01 CORRECTION — 2026-11-20
+
+UI5 = SOURCE_IMPLEMENTED / UI5-PUB-01_CORRECTED_LOCALLY / OWNER_REVIEW_PENDING. See [permanent retirement and post-correction audit](UI5_PUB01_RETIREMENT.md). Original audit FAIL is retained; its unchanged reproduction is now1/1 PASS. All27 new boundary cases and all76 UI5 cases pass. Affected316/319 retains the same three inherited failures: aggregate NOT PASS. Fresh Edge9/9, authenticated local emulator1/1, runtime16/16 and TypeScript/lint/build pass. Final scope33 files:8 production/8 tests/17 docs. Original30-path bytes and historical evidence are preserved in the new raw archive. UI4 remains MERGED / SOURCE_CLOSED; protected22/RB4 nine/migration013 preserved. No commit/push/PR/merge/deployment/SQL/RB4/UI6 or product/Beta2 authorization. Earlier local records below are historical, not the current publication decision.
+
+## UI5 decisions and retained local debt — 2026-11-15
+
+Owner-authorized UI5 is ready for source review; [current ledger](02_PHASE_LEDGER.md) and [implementation/evidence](UI5_ACCOUNT_REVIEW.md) apply. Source failures never become confirmed empty data. ACK is distinct from server-only field readback. Role/project updates remain separate commands; partial/unknown outcomes never imply rollback or auto-replay. Generic server conflict errors remain unresolved; current-session unknown decisions fail closed. No durable receipt, idempotency protocol or combined endpoint was invented.
+
+Additive server-only target read in existing UserRepository and optional observation/context callbacks in existing account client satisfy owner requirements without changing default reads, legacy client shapes, server authority or Rules. All historical tests are byte-unchanged. Baseline 240/243 vs final 288/291 retains exactly three pre-existing subscription-string failures, exit 1/1: NOT PASS. This is measured source-expectation debt, not an environmental excuse. No subscriptions or weakened assertions were added to obtain green. All 48 new cases, Edge 9/9, real local emulator 1/1, runtime 16/16 and lint/TypeScript/build pass.
+
+Original fourteen UI4 identities, connected red/green history and timestamps remain separate and unchanged. Earlier UI5 red iterations are retained. Devices, screen readers, live Workspace/operational and Beta 2 gates remain open. Firestore remains active; no SQL, dual writes, RB4, deployment or publication authorization.
+
+## UI4 post-merge source closure; historical debt retained — 2026-11-15
+
+Current state is owned only by [02_PHASE_LEDGER.md](02_PHASE_LEDGER.md).
+
+Verified source: [PR #105](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/105) merged at `08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551` on `2026-11-15T14:59:09Z` (17:59:09 Asia/Riyadh), candidate head `f6a4cded84651c8a904da640886ff02b9746c0f9`. [Post-merge CI 43727306098](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43727306098) completed **success** on the merge SHA itself: Required foundation, PostgreSQL 17 authority regressions and Typecheck debt observability all succeeded. Merged scope: **52 files — 9 production, 9 tests/fixtures, 34 documentation/evidence**. Local Git confirms parents `800434f634fb7ea5099fc12e4ec064dfb05d6df2` + `f6a4cded84651c8a904da640886ff02b9746c0f9`, candidate ancestry and an identical candidate/merge tree.
+
+UI4/RB1/CI1 are source-closed, with XLSX integrity corrected and required CI passed. This closes the source blocker, not operational acceptance. The original runtime audit failure (11/16, extracted `ui4.`) and its five failing cases remain preserved; its later 16/16 and successful PR/merge CI are red-to-green evidence, not a rewrite. Original raw archives and their source hashes remain unchanged.
+
+The historical broad aggregate remains **NOT PASS**: baseline 310/324; RB1 candidate 394/408; same 14 identities and native exits 1/1. Twelve retain their recorded explicit-emulator precondition classification and bounded supplemental emulator evidence; two retain the unchanged translation assertions. Neither classification makes the original aggregate PASS. All exact identities are retained in [the original record](ui4/failure-comparison.json) and copied here verbatim for closure:
+
+- Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations
+- Residual offline and PWA translation construction protects message boundaries and preserves installation and conflict action wiring
+- canonical exception decisions are current-role scoped, atomic and idempotent
+- current persisted roles fence receipt reads for all nine roles with no business effects
+- import net-only and zero evidence never fabricates gross/tare or finalized missing pricing
+- real Firestore lifecycle reconciles snapshots, settlement, receipt replay and rollback
+- real Firestore rejects stale concurrent revisions and cross-Project scope
+- real Firestore write failure rolls back the full compound command
+- real measurement provenance and settlement: ACCEPT_ORIGIN_NET
+- real measurement provenance and settlement: DIRECT
+- real measurement provenance and settlement: WEIGHT
+- rejects invalid origin tare -1 without a mutation
+- rejects invalid origin tare Infinity without a mutation
+- rejects invalid origin tare NaN without a mutation
+
+Original connected 16/17, separate corrected 1/1, earlier browser interruptions/deadlines, the enhanced connected timeout and final 1/1 remain separate evidence with their existing causal limits. Unresolved timeout causes remain unresolved; no new environmental explanation is asserted. Historical timestamps are unchanged.
+
+This is **source closure**, not product/live acceptance, device or screen-reader certification, real Google Workspace acceptance, deployment or Beta 2 release authorization. Firestore remains the active operational authority; Google Workspace remains derived projection/continuity. SQL cutover, dual writes, deployment and RB4 activation remain unauthorized. Original non-green results, failed/interrupted attempts, timestamps and raw archives remain historical evidence; later success does not rewrite them.
+
+Open acceptance: retained shared Arabic XLSX metadata/branding and operational language review; real devices and screen readers; live Google credentials/refresh/freshness and owner operational acceptance; independent Beta 2 release gates. Old UI3/AR2 debt is not closed by UI4 CI.
+
+UI5 is discovery only. Source evidence supports proposing the account-review/access-decision workflow ahead of offline recovery and legacy-dashboard alternatives, without changing current account authority or merging multiple areas. [Comparison and bounded contract](UI5_TARGET_DISCOVERY.md). This proposal does not establish a production leak, failed permission boundary, measured clipping or observed user confusion. Owner contract review is the next gate.
+
 ## UI4-RB1 — Confirmed XLSX row-integrity blocker corrected — 2026-11-15
 
 CSV physical-line splitting corrupted quoted CRLF cells. The existing reports service now owns one structured export table consumed directly by CSV and XLSX. All values and fallbacks remain; header quoting is corrected. Red/green, real workbook cells and authenticated multiline download are verified in [RB1 evidence](ui4/rb1-recovery.json). Original 14 broad-suite failure identities, original connected 16/17 and corrected 1/1, initial enhanced-journey timeout and fixture type errors are retained. No blanket PASS or environmental explanation for the timeout is asserted. Operational language, live provider, devices and assistive-technology acceptance remain open. Scope 49; original RB4/migration 013 untouched; owner source review only, publication HOLD.

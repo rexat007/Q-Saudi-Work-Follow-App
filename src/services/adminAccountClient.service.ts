@@ -23,17 +23,25 @@ export function adminErrorKey(error: unknown): string {
   return typeof code === 'string' && Object.hasOwn(ADMIN_ERROR_KEYS, code)
     ? ADMIN_ERROR_KEYS[code as keyof typeof ADMIN_ERROR_KEYS] : ADMIN_ERROR_KEYS.ADMIN_UPDATE_FAILED;
 }
-export async function executeAdminAccountCommand(userId: string, command: AdminAccountCommand) {
-  if (!auth.currentUser) throw { code: 'FORBIDDEN_ADMIN_ACTION' };
+export async function executeAdminAccountCommand(userId: string, command: AdminAccountCommand, observation?: {isCurrent?:()=>boolean;onFailure?:(kind:'rejected'|'unknown'|'not-sent')=>void}) {
+  if (!auth.currentUser) { observation?.onFailure?.('not-sent'); throw { code: 'FORBIDDEN_ADMIN_ACTION' }; }
+  const principal = auth.currentUser;
+  let failureKind: 'rejected'|'unknown'|'not-sent' = 'unknown';
   try {
-    const token = await auth.currentUser.getIdToken();
+    if (observation?.isCurrent && !observation.isCurrent()) { failureKind='not-sent'; throw {code:'FORBIDDEN_ADMIN_ACTION'}; }
+    const token = await principal.getIdToken();
+    if (auth.currentUser?.uid !== principal.uid || observation?.isCurrent && !observation.isCurrent()) { failureKind='not-sent'; throw {code:'FORBIDDEN_ADMIN_ACTION'}; }
     const response = await fetch(`/api/admin/users/${encodeURIComponent(userId)}/commands`, {
       method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(command),
     });
     const result = await response.json();
-    if (!response.ok || !result.success) throw { code: result.code };
+    if (!response.ok || !result.success) {
+      if (!response.ok && result.success === false && Object.hasOwn(ADMIN_ERROR_KEYS, result.code) && !['ADMIN_UPDATE_CONFLICT','ADMIN_UPDATE_FAILED'].includes(result.code)) failureKind='rejected';
+      throw { code: result.code };
+    }
     return result.user;
   } catch (error) {
+    observation?.onFailure?.(failureKind);
     const key = adminErrorKey(error);
     const code = Object.keys(ADMIN_ERROR_KEYS).find(value => ADMIN_ERROR_KEYS[value as keyof typeof ADMIN_ERROR_KEYS] === key) || 'ADMIN_UPDATE_FAILED';
     throw { code };
