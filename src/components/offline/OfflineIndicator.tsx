@@ -10,7 +10,7 @@ interface OfflineIndicatorProps {
 }
 
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ pendingCount = 0, onOpenOutbox }) => {
-  const { t } = useI18n();
+  const { t, direction } = useI18n();
   const { isOnline, isSimulatedOffline } = useOnlineStatus();
 
   if (isOnline) return null;
@@ -18,7 +18,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({ pendingCount
   return (
     <div 
       className="fixed bottom-4 left-4 z-50 flex items-center gap-3 rounded-xl bg-stone-900/95 text-white px-4 py-2.5 shadow-xl border border-amber-500/40 backdrop-blur-md transition-all text-xs font-medium"
-      dir="rtl"
+      dir={direction}
     >
       <div className="flex items-center gap-2">
         <span className="relative flex h-2.5 w-2.5">

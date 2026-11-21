@@ -1,6 +1,9 @@
 import { presentBatch4Message } from '../../i18n/batch4Messages';
 import { batch4ConflictValueLabel } from '../../i18n/batch4Presentation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
+import {useAuth} from '../../firebase/authContext';
+import {auth} from '../../firebase/config';
+import {hasOutboxAck, outboxStatusLabels, outboxStatusHelp} from './outboxPresentation';
 import { 
   X, 
   Wifi, 
@@ -44,128 +47,159 @@ interface OutboxDrawerProps {
   onNotification?: (notif: { type: 'SUCCESS' | 'ERROR' | 'SECURITY'; message: string }) => void;
 }
 
-export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
-  isOpen,
-  onClose,
-  onNotification
-}) => {
-  const { t, direction } = useI18n();
-  const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
+type Capture = () => () => boolean;
+type ReadState<T> = {state: 'loading' | 'ready' | 'error'; data?: T; observedAt?: string};
+function useSourceRead<T>(reader: () => Promise<T>, capture: Capture) {
+  const [view, setView] = useState<ReadState<T>>({state: 'loading'});
+  const sequence = useRef(0), read = useRef(reader);
+  read.current = reader;
+  const load = useCallback(async () => {
+    const current = capture(), request = ++sequence.current;
+    if (!current()) return;
+    setView(old => ({...old, state: 'loading'}));
+    try {
+      const data = await read.current();
+      if (current() && request === sequence.current) setView({state: 'ready', data, observedAt: new Date().toISOString()});
+    } catch {
+      if (current() && request === sequence.current) setView(old => ({...old, state: 'error'}));
+    }
+  }, [capture]);
+  return {view, load};
+}
 
+export const OutboxDrawer: React.FC<OutboxDrawerProps> = props => {
+  const context = useAuth();
+  const key = JSON.stringify([context.user?.uid, context.profileAuthority, context.isProfileLoading,
+    context.userProfile?.role, context.userProfile?.status, context.userProfile?.isActive,
+    [...(context.userProfile?.assignedProjectIds || [])].sort()]);
+  const scope = useRef({key, generation: 0});
+  if (scope.current.key !== key) scope.current = {key, generation: scope.current.generation + 1};
+  const authorization = scope.current;
+  const isCurrent = useCallback(() => scope.current === authorization, [authorization]);
+  // A closed drawer owns no reads. Each actor/context and reopen gets a fresh lifetime.
+  return props.isOpen && context.user ? <OutboxWorkspace {...props} key={authorization.generation}
+    actorId={context.user.uid} contextCurrent={isCurrent}/> : null;
+};
+
+const OutboxWorkspace: React.FC<OutboxDrawerProps & {actorId: string; contextCurrent: () => boolean}> = ({
+  isOpen, onClose, onNotification, actorId, contextCurrent,
+}) => {
+  const { t, direction, locale } = useI18n();
+  const { isOnline, isSimulatedOffline, toggleSimulatedOffline } = useOnlineStatus();
+  const lifetime = useRef({retired: false}), dialog = useRef<HTMLDivElement>(null);
+  const actionLock = useRef(false);
+  const [feedback, setFeedback] = useState('');
+  const capture = useCallback(() => {
+    const lease = lifetime.current;
+    return () => !lease.retired && lifetime.current === lease && contextCurrent() && auth.currentUser?.uid === actorId;
+  }, [actorId, contextCurrent]);
+  useLayoutEffect(() => {
+    const lease = {retired: false}; lifetime.current = lease;
+    const previous = document.activeElement as HTMLElement | null;
+    dialog.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => {lease.retired = true; if (previous?.isConnected) previous.focus();};
+  }, []);
+  const operationRead = useSourceRead(() => outboxService.getOperations(), capture);
+  const statsRead = useSourceRead(() => outboxService.getStats(), capture);
+  const cacheRead = useSourceRead(() => offlineCacheService.getCacheMetadata(), capture);
+  const conflictRead = useSourceRead(() => conflictResolutionService.getConflicts(), capture);
+  const operations = (operationRead.view.data || []).filter(op => op.userId === actorId);
+  const stats = statsRead.view.data || {total: 0, pending: 0, sending: 0, synced: 0, failed: 0, conflict: 0};
+  const cacheMeta = cacheRead.view.data || [];
+  const conflicts = conflictRead.view.data || [];
+  const operationsReady = operationRead.view.state === 'ready';
+  const conflictsReady = conflictRead.view.state === 'ready';
   const [activeTab, setActiveTab] = useState<'OUTBOX' | 'CONFLICTS' | 'CACHE'>('OUTBOX');
   const [statusFilter, setStatusFilter] = useState<OutboxStatus | 'ALL'>('ALL');
-  const [operations, setOperations] = useState<OutboxOperation[]>([]);
-  const [stats, setStats] = useState<OutboxStats>({ total: 0, pending: 0, sending: 0, synced: 0, failed: 0, conflict: 0 });
-  const [cacheMeta, setCacheMeta] = useState<CacheStoreMetadata[]>([]);
-  const [conflicts, setConflicts] = useState<ConflictRecord[]>([]);
   const [selectedConflict, setSelectedConflict] = useState<ConflictRecord | null>(null);
   const [isConflictModalOpen, setIsConflictModalOpen] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [isRefreshingCache, setIsRefreshingCache] = useState<boolean>(false);
   const [expandedOpId, setExpandedOpId] = useState<string | null>(null);
-  const loadData = async () => {
-    try {
-      const [ops, st, meta, confs] = await Promise.all([
-        outboxService.getOperations(),
-        outboxService.getStats(),
-        offlineCacheService.getCacheMetadata(),
-        conflictResolutionService.getConflicts(),
-      ]);
-      setOperations(ops);
-      setStats(st);
-      setCacheMeta(meta);
-      setConflicts(confs);
-    } catch (err) {
-      console.error('Failed to load outbox/cache state:', err);
-    }
-  };
-
+  const loadData = useCallback(() => {
+    const operationsLoaded = operationRead.load();
+    void statsRead.load(); void cacheRead.load(); void conflictRead.load();
+    // Auxiliary providers cannot hold an otherwise completed queue action open.
+    return operationsLoaded;
+  }, [operationRead.load, statsRead.load, cacheRead.load, conflictRead.load]);
   useEffect(() => {
-    if (isOpen) {
-      loadData();
-    }
-    const unsubOutbox = outboxService.subscribe(() => {
-      loadData();
-    });
-    const unsubConflicts = conflictResolutionService.subscribe(() => {
-      loadData();
-    });
-    return () => {
-      unsubOutbox();
-      unsubConflicts();
+    void loadData();
+    let live = true, scheduled = false;
+    const changed = () => {
+      if (scheduled || !live) return;
+      scheduled = true;
+      queueMicrotask(() => {scheduled = false; if (live) void loadData();});
     };
-  }, [isOpen]);
+    const unsubOutbox = outboxService.subscribe(changed);
+    const unsubConflicts = conflictResolutionService.subscribe(changed);
+    return () => {live = false; unsubOutbox(); unsubConflicts();};
+  }, [loadData]);
 
-  if (!isOpen) return null;
-
-  const handleSyncAll = async () => {
-    if (!isOnline) {
-      onNotification?.({
-        type: 'ERROR',
-        message: t('offline.messages.txt_36ec7e')
-      });
-      return;
-    }
-
-    setIsSyncing(true);
-    try {
-      const res = await outboxService.syncAll(isSimulatedOffline);
-      await loadData();
-      onNotification?.({
-        type: 'SUCCESS',
-        message: `اكتملت المزامنة: تمت معالجة ${res.processedCount} عملية (نجاح: ${res.syncedCount}، فشل: ${res.failedCount}، تعارض: ${res.conflictCount})`
-      });
-    } catch (err: any) {
-      onNotification?.({
-        type: 'ERROR',
-        message: err.message || 'فشلت المزامنة'
-      });
-    } finally {
-      setIsSyncing(false);
-    }
+  const publish = (current: () => boolean, message: string, type?: 'SUCCESS' | 'ERROR') => {
+    if (!current()) return;
+    setFeedback(message);
+    if (type) onNotification?.({type, message});
   };
-
-  const handleRetryOp = async (opId: string) => {
-    await outboxService.retryOperation(opId);
-    if (isOnline) {
-      handleSyncAll();
-    } else {
-      onNotification?.({
-        type: 'SUCCESS',
-        message: t('offline.messages.txt_2165a5')
-      });
-    }
+  // Local busy admission does not replace the unchanged service/server authorization.
+  const runAction = async (work: (current: () => boolean) => Promise<void>) => {
+    const current = capture();
+    if (!current() || actionLock.current) return;
+    actionLock.current = true; setIsSyncing(true); setFeedback('');
+    try { await work(current); }
+    catch { publish(current, t('ui6.action_unknown'), 'ERROR'); }
+    finally { if (current()) {actionLock.current = false; setIsSyncing(false);} }
   };
-
-  const handleClearSynced = async () => {
-    await outboxService.clearSynced();
+  const sync = async (current: () => boolean) => {
+    if (!current()) return;
+    const res = await outboxService.syncAll(isSimulatedOffline);
+    if (!current()) return;
     await loadData();
-    onNotification?.({
-      type: 'SUCCESS',
-      message: t('offline.status.success')
+    if (!res.processedCount) publish(current, t('ui6.zero_processed'));
+    else if (res.failedCount || res.conflictCount || res.syncedCount !== res.processedCount)
+      publish(current, t('ui6.batch_review') + ' ' + t('ui6.batch_counts', {processed: res.processedCount, synced: res.syncedCount, failed: res.failedCount, conflicts: res.conflictCount}), 'ERROR');
+    else publish(current, t('ui6.batch_counts', {processed: res.processedCount, synced: res.syncedCount, failed: res.failedCount, conflicts: res.conflictCount}), 'SUCCESS');
+  };
+  const handleSyncAll = () => {
+    if (!operationsReady || !isOnline) return;
+    return runAction(sync);
+  };
+  const handleRetryOp = (opId: string) => {
+    if (!operationsReady || !operations.some(op => op.operationId === opId && op.userId === actorId)) return;
+    return runAction(async current => {
+      await outboxService.retryOperation(opId);
+      if (!current()) return;
+      if (isOnline) await sync(current);
+      else {await loadData(); publish(current, t('ui6.prepared'));}
     });
   };
-
-  const handleRefreshCache = async () => {
-    setIsRefreshingCache(true);
-    try {
-      const res = await offlineCacheService.refreshCacheWithBump();
-      await loadData();
-      onNotification?.({
-        type: 'SUCCESS',
-        message: `تم تحديث وتخزين البيانات المحلية في IndexedDB بنجاح (الإصدار: v${res.newVersion})`
-      });
-    } catch (err: any) {
-      onNotification?.({
-        type: 'ERROR',
-        message: err.message || 'فشل تحديث الذاكرة المحلية'
-      });
-    } finally {
-      setIsRefreshingCache(false);
-    }
+  const handleClearSynced = () => {
+    if (!operationsReady || !operations.some(hasOutboxAck) || operations.some(op => op.status === 'SYNCED' && !hasOutboxAck(op))) return;
+    return runAction(async current => {await outboxService.clearSynced(); if (!current()) return; await loadData(); publish(current, t('ui6.cleared'));});
   };
+  const handleRefreshCache = () => {
+    if (cacheRead.view.state !== 'ready') return;
+    return runAction(async current => {
+      setIsRefreshingCache(true);
+      try {
+        const res = await offlineCacheService.refreshCacheWithBump();
+        if (!current()) return;
+        await loadData(); publish(current, t('ui6.cache_refreshed', {version: res.newVersion}));
+      } finally {if (current()) setIsRefreshingCache(false);}
+    });
+  };
+  const sourceView = (id: string, name: string, source: {view: ReadState<unknown>; load: () => Promise<void>}) => (
+    <section data-ui6-source={id} data-read-state={source.view.state} aria-label={name} className="rounded-lg border border-stone-300 p-3 min-w-0 space-y-1">
+      <strong>{name}</strong>
+      <p role={source.view.state === 'error' ? 'alert' : 'status'}>{source.view.state === 'loading' ? t('ui6.loading') : source.view.state === 'error' ? t('ui6.read_error') : t('ui6.loaded')}</p>
+      {source.view.data !== undefined && source.view.state !== 'ready' && <p>{t('ui6.stale')}</p>}
+      {source.view.observedAt && <p>{t('ui6.observed')} <bdi dir="ltr">{new Date(source.view.observedAt).toLocaleString(locale)}</bdi></p>}
+      <button type="button" className="rounded border px-3 py-2" onClick={() => void source.load()}>{t('ui6.refresh')}</button>
+    </section>
+  );
 
   const handleOpenConflictForOp = async (op: OutboxOperation) => {
+    const current = capture();
+    if (!current() || !operationsReady || !conflictsReady || op.userId !== actorId) return;
     const confId = op.conflictDetails?.conflictId;
     let found = conflicts.find(c => c.conflictId === confId || c.operationId === op.operationId);
     if (!found) {
@@ -175,13 +209,14 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         found = detected;
       }
     }
-    if (found) {
+    if (found && current()) {
       setSelectedConflict(found);
       setIsConflictModalOpen(true);
     }
   };
 
   const handleOpenConflictModal = (conflict: ConflictRecord) => {
+    if (!capture()() || !conflictsReady) return;
     setSelectedConflict(conflict);
     setIsConflictModalOpen(true);
   };
@@ -191,45 +226,20 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
     return op.status === statusFilter;
   });
 
-  const getStatusBadge = (status: OutboxStatus) => {
-    switch (status) {
-      case 'PENDING':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-300 text-[11px] font-bold">
-            <Clock className="w-3 h-3" />
-            <span>{t("offline.labels.txt_7eabcf")}</span>
-          </span>
-        );
-      case 'SENDING':
-      case 'AWAITING_RECEIPT':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-300 text-[11px] font-bold animate-pulse">
-            <RotateCw className="w-3 h-3 animate-spin" />
-            <span>{t(status==='AWAITING_RECEIPT'?'offline.recovery.awaiting_receipt':'offline.labels.txt_3bb240')}</span>
-          </span>
-        );
-      case 'SYNCED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold">
-            <CheckCircle2 className="w-3 h-3" />
-            <span>{t("offline.labels.txt_731fc0")}</span>
-          </span>
-        );
-      case 'FAILED':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-800 border border-rose-300 text-[11px] font-bold">
-            <XCircle className="w-3 h-3" />
-            <span>{t("offline.status.txt_177559")}</span>
-          </span>
-        );
-      case 'CONFLICT':
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-800 border border-purple-300 text-[11px] font-bold">
-            <AlertTriangle className="w-3 h-3" />
-            <span>{t("offline.labels.txt_751d01")}</span>
-          </span>
-        );
-    }
+  const getStatusBadge = (status: OutboxStatus) => (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-bold ${status === 'AWAITING_RECEIPT' ? 'bg-amber-50 text-amber-950 border-amber-300' : 'bg-stone-100 text-stone-800 border-stone-300'}`}>
+      {status === 'SENDING' ? <RotateCw className="w-3 h-3 animate-spin"/> : <Info className="w-3 h-3"/>}
+      {t(outboxStatusLabels[status])}
+    </span>
+  );
+  const keyDown = (event: React.KeyboardEvent) => {
+    if (isConflictModalOpen) return; // Existing resolution modal owns its own interaction.
+    if (event.key === 'Escape') {event.preventDefault(); onClose();}
+    if (event.key !== 'Tab') return;
+    const nodes = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled),select:not(:disabled),input:not(:disabled),[tabindex="0"]') || []);
+    const first = nodes[0], last = nodes[nodes.length - 1];
+    if (event.shiftKey && document.activeElement === first) {event.preventDefault(); last?.focus();}
+    else if (!event.shiftKey && document.activeElement === last) {event.preventDefault(); first?.focus();}
   };
 
   const STORE_LABELS: Record<string, string> = {
@@ -242,8 +252,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-start bg-black/50 backdrop-blur-xs transition-opacity" dir={direction}>
-      <div className="w-full max-w-2xl h-full bg-stone-50 border-r rtl:border-l ltr:border-r border-stone-200 shadow-2xl flex flex-col overflow-hidden text-right rtl:text-right ltr:text-left">
+    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="ui6-title" onKeyDown={keyDown} className="fixed inset-0 z-50 flex items-center justify-start bg-black/50 backdrop-blur-xs transition-opacity" dir={direction}>
+      <div className="w-full max-w-2xl h-full bg-stone-50 border-r rtl:border-l ltr:border-r border-stone-200 shadow-2xl flex flex-col overflow-hidden min-w-0 text-start">
         
         {/* Header */}
         <div className="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between">
@@ -252,19 +262,22 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-stone-900">{t("offline.labels.txt_5542eb")}</h2>
+              <h2 id="ui6-title" className="text-base font-bold text-stone-900">{t("offline.labels.txt_5542eb")}</h2>
               <p className="text-xs text-stone-500">{t("offline.labels.txt_140117")}</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
+            aria-label={t("shared.actions.close")}
             className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
+        <div className="px-4 py-2 text-xs bg-amber-50 text-amber-950">{t('ui6.connectivity_help')}</div>
+        {feedback && <p role="status" className="p-3 text-sm border-b break-words" data-ui6-feedback>{feedback}</p>}
         {/* Network State & Offline Simulation Banner */}
         <div className="bg-stone-900 text-white px-6 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
@@ -289,7 +302,8 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           <div className="flex items-center gap-2">
             <span className="text-stone-300 text-[11px]">{t("offline.labels.txt_31f297")}</span>
             <button
-              onClick={toggleSimulatedOffline}
+              onClick={() => {if (capture()()) toggleSimulatedOffline();}}
+              title={t("ui6.simulation_help")}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${
                 isSimulatedOffline
                   ? 'bg-rose-600 text-white shadow-xs'
@@ -300,7 +314,16 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             </button>
           </div>
         </div>
+        <p className="bg-stone-100 px-4 py-2 text-xs">{t('ui6.simulation_help')}</p>
 
+        <details className="bg-white px-4 py-2 text-xs max-h-[35vh] overflow-y-auto shrink-0"><summary>{t('ui6.source_availability')}</summary>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 py-2">
+            {sourceView('operations', t('ui6.operations_source'), operationRead)}
+            {sourceView('stats', t('ui6.stats_source'), statsRead)}
+            {sourceView('conflicts', t('ui6.conflicts_source'), conflictRead)}
+            {sourceView('cache', t('ui6.cache_source'), cacheRead)}
+          </div>
+        </details>
         {/* Tab Selection */}
         <div className="flex border-b border-stone-200 bg-white px-6 pt-2 gap-2">
           <button
@@ -313,7 +336,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           >
             <Send className="w-4 h-4" />
             <span>{t("offline.labels.txt_66c55e")}</span>
-            {stats.pending > 0 && (
+            {statsRead.view.state === 'ready' && stats.pending > 0 && (
               <span className="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 text-[10px]">
                 {stats.pending}
               </span>
@@ -351,9 +374,11 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 break-words">
           {activeTab === 'OUTBOX' && (
             <div className="space-y-4">
+              <p className="text-xs">{t('ui6.sync_help')}</p>
+              {operationRead.view.state !== 'ready' && <p role="status">{operationRead.view.state === 'loading' ? t('ui6.loading') : t('ui6.read_error')} {operationRead.view.data !== undefined ? t('ui6.stale') : ''}</p>}
               {/* Quick Actions & Stats Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-stone-200 shadow-2xs">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -361,6 +386,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   {(['ALL', 'PENDING', 'SENDING', 'AWAITING_RECEIPT', 'SYNCED', 'FAILED', 'CONFLICT'] as const).map(st => (
                     <button
                       key={st}
+                      aria-label={st === 'ALL' ? t('admin_console.filter_all') : t(outboxStatusLabels[st])}
                       onClick={() => setStatusFilter(st)}
                       className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
                         statusFilter === st
@@ -368,17 +394,18 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           : 'bg-stone-100 hover:bg-stone-200 text-stone-600'
                       }`}
                     >
-                      {st === 'ALL' ? `${t("admin_console.filter_all")} (${stats.total})` : `${st==='AWAITING_RECEIPT'?t('offline.recovery.awaiting_receipt'):st} (${stats[st.toLowerCase() as keyof OutboxStats] || 0})`}
+                      {st === 'ALL' ? t('admin_console.filter_all') : t(outboxStatusLabels[st])} {statsRead.view.state === 'ready' ? `(${st === 'ALL' ? stats.total : stats[st.toLowerCase() as keyof OutboxStats] || 0})` : '—'}
                     </button>
                   ))}
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {stats.synced > 0 && (
+                  {operations.some(hasOutboxAck) && (
                     <button
                       onClick={handleClearSynced}
+                      disabled={!operationsReady || isSyncing || operations.some(op => op.status === "SYNCED" && !hasOutboxAck(op))}
                       className="px-2.5 py-1.5 rounded-lg border border-stone-300 hover:bg-stone-100 text-stone-700 text-xs font-medium flex items-center gap-1 transition-colors"
-                      title={t("offline.labels.txt_4043c4")}
+                      title={t("ui6.clear_help")}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>{t("offline.labels.txt_8b427e")}</span>
@@ -386,7 +413,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                   )}
                   <button
                     onClick={handleSyncAll}
-                    disabled={isSyncing || !isOnline}
+                    disabled={isSyncing || !isOnline || !operationsReady}
                     className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
@@ -395,13 +422,14 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                 </div>
               </div>
 
+              <p className="text-xs">{t('ui6.retry_help')} {t('ui6.clear_help')}</p>
               {/* Operations Cards List */}
-              {filteredOps.length === 0 ? (
+              {filteredOps.length === 0 && operationsReady ? (
                 <div className="bg-white rounded-xl border border-dashed border-stone-300 p-8 text-center space-y-2">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-                  <p className="text-sm font-bold text-stone-800">{t("offline.labels.txt_9b46da")}</p>
+                  <p className="text-sm font-bold text-stone-800">{t(operations.length === 0 ? 'ui6.empty' : 'ui6.filtered_empty')}</p>
                   <p className="text-xs text-stone-500">
-                    {t("offline.labels.createTrip_2")}</p>
+                    {t("ui6.empty_help")}</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -410,11 +438,12 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                     return (
                       <div
                         key={op.operationId}
+                        data-ui6-operation={op.operationId}
                         className="bg-white rounded-xl border border-stone-200 shadow-2xs hover:border-amber-300 transition-all p-4 space-y-3"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-2.5">
                           <div className="flex items-center gap-2">
-                            {getStatusBadge(op.status)}
+                            {getStatusBadge(op.status)}<p className="text-xs">{t(outboxStatusHelp[op.status])}</p><bdi dir="ltr" className="text-xs break-all">{op.operationId}</bdi>
                             <span className="font-mono text-xs font-bold text-stone-800">{op.operationId}</span>
                             <span className="text-stone-300">|</span>
                             <span className="text-xs text-stone-600 font-medium">{t("residual.ui.operation_type_label")}{op.operationType}</span>
@@ -422,7 +451,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                           <div className="flex items-center gap-2 text-xs text-stone-500">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{new Date(op.createdAt).toLocaleTimeString('ar-SA')} - {new Date(op.createdAt).toLocaleDateString('ar-SA')}</span>
+                            <bdi dir="ltr">{new Date(op.createdAt).toLocaleTimeString(locale)} - {new Date(op.createdAt).toLocaleDateString(locale)}</bdi>
                           </div>
                         </div>
 
@@ -471,23 +500,24 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           </div>
                         )}
 
+                        {op.status === 'SYNCED' && !hasOutboxAck(op) && <p className="text-xs text-amber-950">{t('ui6.no_ack')}</p>}
                         {/* Feedback / Error / ACK */}
-                        {op.serverAck && (
-                          <div className="text-xs bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-emerald-900 flex items-start gap-2">
+                        {hasOutboxAck(op) && (
+                          <div data-ui6-confirmed className="text-xs bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-emerald-900 flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{t("offline.labels.txt_292ade")}</div>
-                              <div>{presentBatch4Message(op.serverAck.messageAr, t)} {t("residual.ui.server_trip_number", { number: op.serverAck.tripSerial })}</div>
+                              <div>{presentBatch4Message(op.serverAck!.messageAr || '', t)} {t("residual.ui.server_trip_number", { number: op.serverAck!.tripSerial })}</div>
                             </div>
                           </div>
                         )}
 
-                        {op.errorReason && (
-                          <div className="text-xs bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-rose-900 flex items-start gap-2">
-                            <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                        {op.errorReason && (op.status === 'AWAITING_RECEIPT' || op.status === 'FAILED' || op.status === 'CONFLICT') && (
+                          <div data-ui6-diagnostic={op.status} role={op.status === 'FAILED' ? 'alert' : 'status'} className={`text-xs border rounded-lg p-2.5 flex items-start gap-2 ${op.status === 'AWAITING_RECEIPT' ? 'bg-amber-50 border-amber-200 text-amber-950' : op.status === 'CONFLICT' ? 'bg-purple-50 border-purple-200 text-purple-900' : 'bg-rose-50 border-rose-200 text-rose-900'}`}>
+                            {op.status === 'AWAITING_RECEIPT' ? <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" /> : op.status === 'CONFLICT' ? <ShieldAlert className="w-4 h-4 text-purple-700 shrink-0 mt-0.5" /> : <XCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />}
                             <div>
-                              <div className="font-bold">{t("legacyMigration.status.failed_2")}</div>
-                              <div>{op.errorReason==='RECEIPT_REQUIRED'?t('offline.recovery.awaiting_receipt'):presentBatch4Message(op.errorReason, t)}</div>
+                              <div className="font-bold">{t(op.status === 'AWAITING_RECEIPT' ? 'ui6.status_awaiting_receipt' : op.status === 'CONFLICT' ? 'ui6.status_conflict' : 'ui6.status_failed')}</div>
+                              <div>{op.status === 'AWAITING_RECEIPT' && op.errorReason === 'RECEIPT_REQUIRED' ? t('offline.recovery.awaiting_receipt') : presentBatch4Message(op.errorReason, t)}</div>
                             </div>
                           </div>
                         )}
@@ -515,6 +545,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                           <div className="flex items-center gap-2">
                             {op.status === 'CONFLICT' && (
                               <button
+                                disabled={!operationsReady || !conflictsReady || isSyncing}
                                 onClick={() => handleOpenConflictForOp(op)}
                                 className="px-3.5 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-colors"
                               >
@@ -525,11 +556,13 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                             {(op.status === 'FAILED' || op.status === 'CONFLICT' || op.status === 'AWAITING_RECEIPT') && (
                               <button
+                                disabled={!operationsReady || isSyncing}
+                                title={t("ui6.retry_help")}
                                 onClick={() => handleRetryOp(op.operationId)}
                                 className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-stone-200 text-xs font-bold flex items-center gap-1 shadow-2xs transition-colors"
                               >
                                 <RotateCw className="w-3 h-3" />
-                                <span>{t("offline.labels.txt_a748f4")}</span>
+                                <span>{t(isOnline ? "ui6.retry_online" : "ui6.retry_offline")}</span>
                               </button>
                             )}
                           </div>
@@ -549,7 +582,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           )}
 
           {activeTab === 'CONFLICTS' && (
-            <div className="space-y-4">
+            <div className="space-y-4">{sourceView('conflicts-panel', t('ui6.conflicts_source'), conflictRead)}
               {/* Mandatory Anti-LWW Rules & Pricing Invariance Banner */}
               <div className="bg-stone-900 text-white p-4.5 rounded-xl border border-stone-800 space-y-2 shadow-xs">
                 <div className="flex items-center justify-between">
@@ -581,7 +614,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
               </div>
 
               {/* Conflicts List */}
-              {conflicts.length === 0 ? (
+              {conflicts.length === 0 && conflictsReady ? (
                 <div className="bg-white rounded-xl border border-stone-200 p-8 text-center space-y-2">
                   <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
@@ -625,6 +658,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
 
                           {isOpen && (
                             <button
+                              disabled={!conflictsReady || isSyncing}
                               onClick={() => handleOpenConflictModal(conf)}
                               className="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors shrink-0"
                             >
@@ -697,7 +731,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
           )}
 
           {activeTab === 'CACHE' && (
-            <div className="space-y-4">
+            <div className="space-y-4">{sourceView('cache-panel', t('ui6.cache_source'), cacheRead)}<p className="text-xs">{t('ui6.cache_help')}</p>
               <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-xs font-bold text-stone-900">{t("offline.labels.txt_6fc0d8")}</h3>
@@ -706,7 +740,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                 </div>
                 <button
                   onClick={handleRefreshCache}
-                  disabled={isRefreshingCache}
+                  disabled={isRefreshingCache || isSyncing || cacheRead.view.state !== "ready"}
                   className="px-3 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingCache ? 'animate-spin' : ''}`} />
@@ -738,7 +772,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
                       <div>
                         <span className="text-stone-400 block text-[10px]">{t("offline.labels.txt_7490af")}</span>
                         <span className="font-mono text-stone-700 text-[10px]">
-                          {new Date(meta.timestamp).toLocaleTimeString('ar-SA')}
+                          {new Date(meta.timestamp).toLocaleTimeString(locale)}
                         </span>
                       </div>
                     </div>
@@ -770,9 +804,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         {/* Footer */}
         <div className="bg-white border-t border-stone-200 px-6 py-3 flex items-center justify-between">
           <span className="text-xs text-stone-500">
-            {stats.pending > 0 
-              ? t("residual.ui.pending_sync_count", { count: stats.pending })
-              : t("residual.ui.all_synchronized")}
+            {t('ui6.local_view_only')}
           </span>
 
           <button
@@ -783,7 +815,7 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
         </div>
 
         {/* Explicit Conflict Resolution Modal */}
-        <ConflictResolutionModal
+        {conflictsReady && <ConflictResolutionModal
           isOpen={isConflictModalOpen}
           conflict={selectedConflict}
           onClose={() => {
@@ -791,13 +823,14 @@ export const OutboxDrawer: React.FC<OutboxDrawerProps> = ({
             setSelectedConflict(null);
           }}
           onResolved={(confId, msg) => {
+            if (!capture()()) return;
             onNotification?.({
               type: 'SUCCESS',
               message: msg,
             });
-            loadData();
+            if (capture()()) void loadData();
           }}
-        />
+        />}
 
       </div>
     </div>
