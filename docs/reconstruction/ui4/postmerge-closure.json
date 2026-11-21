@@ -1,0 +1,333 @@
+{
+  "VERIFIED_MAIN_SHA": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+  "PR105_MERGE_AND_CI_STATUS": {
+    "repository": "rexat007/Q-Saudi-Work-Follow-App",
+    "mainSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+    "prNumber": 105,
+    "merged": true,
+    "mergedAtUTC": "2026-11-15T14:59:09Z",
+    "mergeSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+    "candidateHead": "f6a4cded84651c8a904da640886ff02b9746c0f9",
+    "baseBeforeMerge": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+    "commits": 2,
+    "changedFiles": 52,
+    "scopeCounts": {
+      "production": 9,
+      "testsAndFixtures": 9,
+      "documentationAndEvidence": 34
+    },
+    "ci": {
+      "id": 43727306098,
+      "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43727306098",
+      "headSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 132851960778,
+          "name": "Typecheck debt observability",
+          "headSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132851960931,
+          "name": "PostgreSQL 17 authority regressions",
+          "headSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 132851960986,
+          "name": "Required foundation",
+          "headSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    "evidenceBoundary": "Read-only GitHub connector observations plus local real Git verification. No product/browser/device/live Workspace acceptance implied."
+  },
+  "DOCUMENT_RECONCILIATION_RESULT": {
+    "status": "CURRENT_ENTRIES_RECONCILED_HISTORY_PRESERVED",
+    "currentStateOwner": "docs/reconstruction/02_PHASE_LEDGER.md",
+    "states": {
+      "UI4": "MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED",
+      "UI4-RB1": "MERGED / XLSX_INTEGRITY_CORRECTED",
+      "UI4-CI1": "MERGED / REQUIRED_CI_PASSED",
+      "UI5": "NOT_STARTED / TARGET_DISCOVERY_ONLY"
+    },
+    "historicalDocumentBodies": [
+      {
+        "file": "docs/reconstruction/00_WORK_START_HERE.md",
+        "originalRawBodySha256": "b2e107698038ae377c5334ee695b7ae90c0f8195961d4b7364d0177ec5a2df61",
+        "entireOriginalRawBodyPreservedAsSuffix": true
+      },
+      {
+        "file": "docs/reconstruction/02_PHASE_LEDGER.md",
+        "originalRawBodySha256": "69dc3c2007a4ca95b6dc5841a87f4c92a0de612d8abcc8e1c1025909dfc615a7",
+        "entireOriginalRawBodyPreservedAsSuffix": true
+      },
+      {
+        "file": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+        "originalRawBodySha256": "4f15e9e8f0f26dbf32824987c4ca56fd2b96f34123f38ff197ad8c89cea91113",
+        "entireOriginalRawBodyPreservedAsSuffix": true
+      },
+      {
+        "file": "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+        "originalRawBodySha256": "487988eceb7f01859f8409526705ddded2afe75b187feda510c9b828e304bc06",
+        "entireOriginalRawBodyPreservedAsSuffix": true
+      },
+      {
+        "file": "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+        "originalRawBodySha256": "7acff03f285daee1c0be69c517b279eaf57b0ccd4fde9f7b8bbe1808a89bede8",
+        "entireOriginalRawBodyPreservedAsSuffix": true
+      }
+    ]
+  },
+  "EXACT_CHANGED_DOC_PATHS": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+    "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+    "docs/reconstruction/ui4/postmerge-closure.json"
+  ],
+  "PROTECTED_WORKTREES": {
+    "existingCount": 22,
+    "boundary": "The previous 21 protected worktrees plus the original clean UI4 candidate workspace are all preserved; this isolated documentation checkout is additional.",
+    "checks": [
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+        "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+        "head": "365134064ad790377cd0bc2c2b58c0044ce7952a",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+        "head": "a5cc9f552d71317cc0db20b367d7612b10075132",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+        "head": "bd390ad4fd31076e53bddfc154b22b338e4a8aff",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+        "head": "c36c3854ab45ca375ebb4ba2ab688d8aacbfa463",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+        "head": "e9f3cc63406523c44db9eb42965b01a258312fa2",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+        "head": "7ce8f7827e6e9a037a8010791c4ee69170d868ff",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+        "head": "bb468587c90c9a76956579057cb68de1fc5bd0be",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+        "head": "311794c8b5c168ca34249855a5c7be8347350f7d",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+        "head": "1db763ca6a5423f3855c1be251f4270a7e12048e",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+        "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+        "head": "545507c70c7e4861e9f732b7f9cdce613d1b3e58",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+        "head": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+        "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+        "head": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+        "head": "419459d870294f41a0948de15a576db9ddd2249e",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+        "head": "018a593e2d027dddc860799b996ffb2f323abeb8",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+        "head": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+        "head": "f6a4cded84651c8a904da640886ff02b9746c0f9",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+        "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+        "head": "39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+        "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+        "headUnchanged": true,
+        "statusUnchanged": true,
+        "dirtyRawHashesUnchanged": true
+      }
+    ],
+    "originalRb4NineDirtyFiles": "UNCHANGED",
+    "migration013": "UNTRACKED_UNPUBLISHED_UNCHANGED"
+  },
+  "HISTORICAL_DEBT_PRESERVATION": {
+    "aggregate": "NOT_PASS",
+    "baseline": "310/324",
+    "candidate": "394/408",
+    "baselineCandidateNativeExits": [
+      1,
+      1
+    ],
+    "identities": [
+      "Batch-2 translation-by-construction TBC-B4: the eleven approved import anchors consume canonical translations",
+      "Residual offline and PWA translation construction protects message boundaries and preserves installation and conflict action wiring",
+      "canonical exception decisions are current-role scoped, atomic and idempotent",
+      "current persisted roles fence receipt reads for all nine roles with no business effects",
+      "import net-only and zero evidence never fabricates gross/tare or finalized missing pricing",
+      "real Firestore lifecycle reconciles snapshots, settlement, receipt replay and rollback",
+      "real Firestore rejects stale concurrent revisions and cross-Project scope",
+      "real Firestore write failure rolls back the full compound command",
+      "real measurement provenance and settlement: ACCEPT_ORIGIN_NET",
+      "real measurement provenance and settlement: DIRECT",
+      "real measurement provenance and settlement: WEIGHT",
+      "rejects invalid origin tare -1 without a mutation",
+      "rejects invalid origin tare Infinity without a mutation",
+      "rejects invalid origin tare NaN without a mutation"
+    ],
+    "originalFailureComparisonSha256": "cf23117e251711704bffa7fe4b0b2d220f9a9bc48dd584e07a5f0f7729c194fd",
+    "originalRawArchivesUnchanged": true,
+    "oldLocalPrSnapshotsAndTimestampsPreserved": true,
+    "broadTestsRerun": false,
+    "connectedHistory": "16/17 and separate corrected 1/1, plus enhanced timeout then 1/1; not synthesized as 17/17"
+  },
+  "UI5_CANDIDATE_COMPARISON": {
+    "document": "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+    "ranked": [
+      "Account review/access decisions",
+      "Offline queue/recovery",
+      "Unconfigured legacy dashboard",
+      "Workspace continuity/action clarity",
+      "Fleet governance",
+      "Governance/diagnostic wording and shell"
+    ],
+    "basis": "One static area-wide route, workflow, control and authority pass; no live UI/incident claims."
+  },
+  "UI5_PROPOSED_CONTRACT": {
+    "name": "Administrator Account Review & Access Decisions",
+    "document": "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+    "selection": "PROPOSED_FOR_OWNER_REVIEW",
+    "authority": "Keep existing Firestore users/profile reads and SUPER_ADMIN-only audited account commands; PROJECT_ADMIN remains read-only.",
+    "scope": "Local account selection/read state, explicit lifecycle/access decisions, acknowledgement/partial/unknown/readback feedback, existing driver linkage presentation, multilingual/mobile/dialog clarity.",
+    "exclusions": "No backend, Rules, repository, command/receipt/idempotency protocol, audit redesign, fleet/import, offline replay, Workspace/provider, global shell, SQL/RB4, dependency or CI change."
+  },
+  "UI5_IMPLEMENTATION_STATUS": "NOT_STARTED / TARGET_DISCOVERY_ONLY",
+  "NEXT_OWNER_DECISION": "Approve or revise the one proposed UI5 contract and exclusions; no implementation before authorization.",
+  "verificationBoundary": {
+    "remoteMergeCiObserved": true,
+    "localDiscoveryTests": "NOT_RUN",
+    "browser": "NOT_RUN",
+    "emulator": "NOT_RUN",
+    "deviceScreenReaderLiveWorkspace": "NOT_PERFORMED",
+    "productAcceptance": "SEPARATE_OWNER_GATE",
+    "beta2ReleaseAuthorization": false,
+    "operationalAuthority": "FIRESTORE",
+    "sqlCutoverDualWritesDeploymentRb4": "UNAUTHORIZED"
+  },
+  "execution": {
+    "branch": "docs/ui4-postmerge-ui5-discovery-20261115",
+    "head": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+    "initialWorktree": "CLEAN",
+    "productionChanges": 0,
+    "testChanges": 0,
+    "commits": 0,
+    "pushes": 0,
+    "prsOrMerges": 0
+  }
+}

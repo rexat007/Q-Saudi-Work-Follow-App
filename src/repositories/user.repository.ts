@@ -2,7 +2,7 @@ import { decodeUser } from '../utils/persistenceBoundary';
 import { 
   collection, 
   doc, 
-  getDoc, 
+  getDoc, getDocFromServer,
   getDocs, 
   setDoc, 
   updateDoc, 
@@ -30,6 +30,15 @@ export class UserRepository {
       if ((error as any)?.code === 'PERSISTENCE_BOUNDARY_INVALID') throw error;
       handleFirestoreError(error, OperationType.GET, path);
     }
+  }
+
+  /** Explicit server-only read for account-command verification; never falls back to cache. */
+  async findByIdFromServer(userId: string): Promise<UserEntity | null> {
+    const principal = auth.currentUser?.uid;
+    if (!principal) throw new Error('AUTH_CONTEXT_CHANGED');
+    const snap = await getDocFromServer(doc(db, this.collectionName, userId));
+    if (auth.currentUser?.uid !== principal) throw new Error('AUTH_CONTEXT_CHANGED');
+    return snap.exists() ? decodeUser<UserEntity>(snap.data(), userId) : null;
   }
 
   async listAll(): Promise<UserEntity[]> {

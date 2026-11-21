@@ -1,3 +1,19 @@
+## Post-merge source closure — 2026-11-15
+
+The [phase ledger](02_PHASE_LEDGER.md) is the sole current-state owner. This entry supersedes earlier local-review, publication-HOLD and remote-CI-PENDING wording **as current state only**; all earlier source snapshots, timestamps, failures, raw artifacts and authoring-time instructions below remain intact.
+
+Verified source: [PR #105](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/105) merged at `08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551` on `2026-11-15T14:59:09Z` (17:59:09 Asia/Riyadh), candidate head `f6a4cded84651c8a904da640886ff02b9746c0f9`. [Post-merge CI 43727306098](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/43727306098) completed **success** on the merge SHA itself: Required foundation, PostgreSQL 17 authority regressions and Typecheck debt observability all succeeded. Merged scope: **52 files — 9 production, 9 tests/fixtures, 34 documentation/evidence**. Local Git confirms parents `800434f634fb7ea5099fc12e4ec064dfb05d6df2` + `f6a4cded84651c8a904da640886ff02b9746c0f9`, candidate ancestry and an identical candidate/merge tree.
+
+Disposition: **UI4 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED**; **UI4-RB1 = MERGED / XLSX_INTEGRITY_CORRECTED**; **UI4-CI1 = MERGED / REQUIRED_CI_PASSED**. The merge tree equals the accepted f6a4cde candidate tree. [Exact merge/CI/local preservation record](ui4/postmerge-closure.json). The source-closed scope is reports/read freshness/export-print convergence, the structured CSV/XLSX row-integrity correction and the explicit four-key translation mapping.
+
+Evidence boundaries: initial required foundation workflow 43715381498 failed on 85c6480; corrected PR workflow 43722154983 succeeded on f6a4cde; the independently verified post-merge push workflow 43727306098 succeeded on 08f67b6. They are separate observations. Earlier red 10/12 → green 12/12 workbook tests, affected 168/168, Edge 9/9, enhanced emulator 1/1 and CI1 runtime 11/16 → 16/16 / focused 87/87 are preserved local/PR evidence, not new executions here. Original connected 16/17 and separate corrected 1/1 remain uncombined.
+
+Historical broad baseline 310/324 and candidate 394/408 remain **NOT PASS**, with the same [14 exact failure identities](ui4/failure-comparison.json), zero historical additions and native exits 1/1. This task did not rerun that broad comparison or classify old interruptions as resolved. Original source-contract, verification, RB1/CI1 manifests and raw archives keep their pre-publication/pre-correction identities; this post-merge record provides the new closure observation without rewriting those snapshots.
+
+This is **source closure**, not product/live acceptance, device or screen-reader certification, real Google Workspace acceptance, deployment or Beta 2 release authorization. Firestore remains the active operational authority; Google Workspace remains derived projection/continuity. SQL cutover, dual writes, deployment and RB4 activation remain unauthorized. Original non-green results, failed/interrupted attempts, timestamps and raw archives remain historical evidence; later success does not rewrite them.
+
+UI5 remains **NOT_STARTED / TARGET_DISCOVERY_ONLY**. The [proposed account-review/access-decision contract](UI5_TARGET_DISCOVERY.md) is for owner review; no UI5 production/test/locale change was made. This task changes only current documentation and discovery evidence, with no commit/push/PR/merge.
+
 # UI4 — Operational Reports: Scoped Reading, Freshness & Export Clarity
 
 ## Authority and scope

@@ -1,0 +1,456 @@
+{
+  "head": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+  "branch": "docs/ui4-postmerge-ui5-discovery-20261115",
+  "productionAllowlist": [
+    "src/components/admin/AdminConsoleView.tsx",
+    "src/components/admin/DriverAccountBindingControl.tsx",
+    "src/components/admin/adminDecisionReadback.ts",
+    "src/services/adminAccountClient.service.ts",
+    "src/repositories/user.repository.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts"
+  ],
+  "testAllowlist": [
+    "src/tests/ui5AccountReview.test.tsx",
+    "src/tests/ui5AccountReadback.test.ts",
+    "src/tests/ui5AccountBrowser.test.ts",
+    "src/tests/ui5AccountConnectedJourney.test.ts",
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx",
+    "src/tests/ui5AccountTransport.test.ts",
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx",
+    "src/tests/ui5Pub01Retirement.test.tsx"
+  ],
+  "sourceFiles": {
+    "src/components/admin/AdminConsoleView.tsx": "529ddd47edcf207310fa96b0352cd41ad267bb77258bee201d29254ce70dfc83",
+    "src/components/admin/DriverAccountBindingControl.tsx": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+    "src/components/admin/adminDecisionReadback.ts": "2773e696dd5aa0622ea7029e104c263526d3ae4181335ffc3fb5d8accb7ec904",
+    "src/services/adminAccountClient.service.ts": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+    "src/repositories/user.repository.ts": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+    "src/locales/ar/index.ts": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+    "src/locales/en/index.ts": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+    "src/locales/ur/index.ts": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+    "src/tests/ui5AccountReview.test.tsx": "0cfb3caf62b18b39b999aac5d649cf90358f9fcdf9c37a8bb676e16ea1e76f88",
+    "src/tests/ui5AccountReadback.test.ts": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+    "src/tests/ui5AccountBrowser.test.ts": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+    "src/tests/ui5AccountConnectedJourney.test.ts": "7eedef47b639edbeef736eea76d68805240126c7c1bd1685b092c88423eb2942",
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+    "src/tests/ui5AccountTransport.test.ts": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad",
+    "src/tests/ui5Pub01Retirement.test.tsx": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89"
+  },
+  "changedOriginalSourceFiles": [
+    "src/repositories/user.repository.ts",
+    "src/services/adminAccountClient.service.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/components/admin/AdminConsoleView.tsx",
+    "src/components/admin/DriverAccountBindingControl.tsx"
+  ],
+  "allOriginalTestsByteUnchanged": true,
+  "allBackendRulesAndRootConfigurationUnchanged": true,
+  "defaultUserRepositoryMethodsUnchanged": true,
+  "frontendExceptions": [
+    "Additive getDocFromServer target reader in existing repository; same decoder and permissions",
+    "Optional context/failure-kind observation in existing account client; legacy two-argument shapes retained"
+  ],
+  "dependencyClassification": {
+    "productionAllowlist": [
+      "src/components/admin/AdminConsoleView.tsx",
+      "src/components/admin/DriverAccountBindingControl.tsx",
+      "src/components/admin/adminDecisionReadback.ts",
+      "src/services/adminAccountClient.service.ts",
+      "src/repositories/user.repository.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts"
+    ],
+    "testAllowlist": [
+      "src/tests/ui5AccountReview.test.tsx",
+      "src/tests/ui5AccountReadback.test.ts",
+      "src/tests/ui5AccountBrowser.test.ts",
+      "src/tests/ui5AccountConnectedJourney.test.ts",
+      "src/tests/helpers/ui5AccountBrowserEntry.tsx",
+      "src/tests/ui5AccountTransport.test.ts",
+      "src/tests/helpers/ui5ConnectedBrowserEntry.tsx"
+    ],
+    "existingTestChangeBoundary": "Fixture adaptation only if required by the new read-state model; retain every original test and assertion.",
+    "KEEP": [
+      "server account commands and middleware",
+      "Firestore Rules and canonical permission policy",
+      "principal/account status gates",
+      "existing project/audit repository contracts",
+      "ImportOverlay manager",
+      "UI1–UI4 reports/XLSX",
+      "SQL/RB4/Outbox/Workspace/dependencies/CI"
+    ],
+    "HARDEN": [
+      "UserRepository: additive explicit server-only target read; default findById/listAll untouched",
+      "existing account client: optional local context/failure-kind callbacks; default two-argument result/error shapes retained",
+      "principal/target/request fencing and decision guard"
+    ],
+    "CONVERGE": [
+      "account list and security selection/drafts",
+      "independent source states",
+      "decision ACK/field readback outcomes and existing driver binding feedback"
+    ],
+    "RETIRE": [
+      "Promise.all coupling of users/projects/audit",
+      "hidden audit reads",
+      "unowned modal layers and project-card click duplication"
+    ],
+    "DEFER": [
+      "new commands, combined transaction, receipts/idempotency API, bulk endpoints",
+      "audit redesign and every excluded product area"
+    ],
+    "scopeRefinement": "Existing tests remain byte-unchanged. Add independent transport/server-read tests and a separate real-App emulator entry so the presentation fixture cannot stand in for authenticated verification."
+  },
+  "protectedWorktrees": [
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    },
+    {
+      "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+      "headUnchanged": true,
+      "statusUnchanged": true,
+      "rawDirtyHashesUnchanged": true
+    }
+  ],
+  "rb4OriginalNineAndMigration013": "UNCHANGED",
+  "ui4XlsxAndOriginalEvidence": "UNCHANGED",
+  "gateSourceFiles": {
+    "src/components/admin/AdminConsoleView.tsx": "529ddd47edcf207310fa96b0352cd41ad267bb77258bee201d29254ce70dfc83",
+    "src/components/admin/DriverAccountBindingControl.tsx": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+    "src/components/admin/adminDecisionReadback.ts": "2773e696dd5aa0622ea7029e104c263526d3ae4181335ffc3fb5d8accb7ec904",
+    "src/services/adminAccountClient.service.ts": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+    "src/repositories/user.repository.ts": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+    "src/locales/ar/index.ts": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+    "src/locales/en/index.ts": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+    "src/locales/ur/index.ts": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+    "src/tests/ui5AccountReview.test.tsx": "0cfb3caf62b18b39b999aac5d649cf90358f9fcdf9c37a8bb676e16ea1e76f88",
+    "src/tests/ui5AccountReadback.test.ts": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+    "src/tests/ui5AccountBrowser.test.ts": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+    "src/tests/ui5AccountConnectedJourney.test.ts": "7eedef47b639edbeef736eea76d68805240126c7c1bd1685b092c88423eb2942",
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+    "src/tests/ui5AccountTransport.test.ts": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad",
+    "src/tests/ui5Pub01Retirement.test.tsx": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89"
+  },
+  "postGateWhitespaceReconciliation": {
+    "currentState": "Final production bytes unchanged after gates; connected-only seed placement correction and its latest TypeScript/emulator runs explicitly reconciled."
+  },
+  "beforePub01SourceFiles": {
+    "src/components/admin/AdminConsoleView.tsx": "5ede10ba6923ffc21d40fde88f33fa1ba5033376e3bd5a672c01f2032deb13bc",
+    "src/components/admin/DriverAccountBindingControl.tsx": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+    "src/components/admin/adminDecisionReadback.ts": "272562ebdd733de6a306edd72c6bec3a49338c73b85203b4b66f9b0bc00631c9",
+    "src/services/adminAccountClient.service.ts": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+    "src/repositories/user.repository.ts": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+    "src/locales/ar/index.ts": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+    "src/locales/en/index.ts": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+    "src/locales/ur/index.ts": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+    "src/tests/ui5AccountReview.test.tsx": "86841ae0a5839e469c7dbbd0f7c4b1c92a0b5cecf004ffc56d03c2c337aeac6c",
+    "src/tests/ui5AccountReadback.test.ts": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+    "src/tests/ui5AccountBrowser.test.ts": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+    "src/tests/ui5AccountConnectedJourney.test.ts": "b30f02dd2df7fe07db5d89bc561387af41e4b8007e4ce9c9898c24fde9514215",
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+    "src/tests/ui5AccountTransport.test.ts": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad"
+  },
+  "beforePub01GateSourceFiles": {
+    "src/components/admin/AdminConsoleView.tsx": "5ede10ba6923ffc21d40fde88f33fa1ba5033376e3bd5a672c01f2032deb13bc",
+    "src/components/admin/DriverAccountBindingControl.tsx": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+    "src/components/admin/adminDecisionReadback.ts": "272562ebdd733de6a306edd72c6bec3a49338c73b85203b4b66f9b0bc00631c9",
+    "src/services/adminAccountClient.service.ts": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+    "src/repositories/user.repository.ts": "5e0a35f43c7c38cdd1d84164be14704a22158950e88557c371c090d4a1618bd2",
+    "src/locales/ar/index.ts": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+    "src/locales/en/index.ts": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+    "src/locales/ur/index.ts": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+    "src/tests/ui5AccountReview.test.tsx": "86841ae0a5839e469c7dbbd0f7c4b1c92a0b5cecf004ffc56d03c2c337aeac6c",
+    "src/tests/ui5AccountReadback.test.ts": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+    "src/tests/ui5AccountBrowser.test.ts": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+    "src/tests/ui5AccountConnectedJourney.test.ts": "b30f02dd2df7fe07db5d89bc561387af41e4b8007e4ce9c9898c24fde9514215",
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+    "src/tests/ui5AccountTransport.test.ts": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad"
+  },
+  "pub01ProductionChanges": [
+    "src/components/admin/AdminConsoleView.tsx",
+    "src/components/admin/adminDecisionReadback.ts"
+  ],
+  "asyncBoundaryCoverage": [
+    {
+      "boundary": "Initiation",
+      "guard": "decide/reviewReadback capture the current immutable workspace lifetime and authorization generation; synchronous command lock"
+    },
+    {
+      "boundary": "After token / immediately before HTTP",
+      "guard": "Existing executeAdminAccountCommand checks captured isCurrent and UID after getIdToken, immediately before fetch; service bytes unchanged"
+    },
+    {
+      "boundary": "ACK and error",
+      "guard": "runAccountDecision checks the captured operation after execute resolves or rejects; late responses do not publish state"
+    },
+    {
+      "boundary": "Next command",
+      "guard": "Every iteration checks the same captured lease; retired role change cannot dispatch replaceAssignedProjects"
+    },
+    {
+      "boundary": "Authoritative readback",
+      "guard": "Explicit checks before read, after read, before onRead via caller, and after onRead; manual review also captures lifetime and target generation"
+    },
+    {
+      "boundary": "UI publication",
+      "guard": "onRead/outcome/banner/drafts guarded by current operation; pending-flag cleanup only in the captured live workspace"
+    },
+    {
+      "boundary": "Independent sources",
+      "guard": "USERS/PROJECTS/AUDIT capture lifetime plus request sequence before await and verify both before publishing"
+    },
+    {
+      "boundary": "Unmount/StrictMode/target switching",
+      "guard": "Layout cleanup permanently retires its own lease; replay creates a new lease. Target generation increments on every identity switch, including X-Y-X."
+    }
+  ],
+  "currentTestAddition": "src/tests/ui5Pub01Retirement.test.tsx",
+  "serverRulesAndClientServiceUnchangedFromReviewedUI5": true,
+  "originalMainTestsUnchanged": true,
+  "historicalPostGateWhitespaceReconciliation": {
+    "change": {
+      "file": "src/repositories/user.repository.ts",
+      "kind": "IMPORT_LINE_TRAILING_SPACE_ONLY",
+      "beforeSha256": "5e0a35f43c7c38cdd1d84164be14704a22158950e88557c371c090d4a1618bd2",
+      "afterSha256": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+      "line": 5,
+      "reason": "Final diff --check detected a trailing space on the edited import line. No tokens or behavior changed.",
+      "testsNotRerun": "Whitespace-only reconciliation; successful semantic gates retained."
+    },
+    "tokenEquivalence": {
+      "status": "PASS",
+      "nonTriviaTokens": 163,
+      "identical": true
+    }
+  },
+  "controlledPublicationSourceBlobs": {
+    "src/components/admin/AdminConsoleView.tsx": {
+      "gitBlobSha1": "787289e5bfd8cb41b7e6d7887cc4b44e828f8f58",
+      "canonicalSha256": "3093a0882fbb6e4586b52e9cb2d86cf73f13af8a3233a0ba8cf869e7826e831a",
+      "reviewWorkspaceSha256": "529ddd47edcf207310fa96b0352cd41ad267bb77258bee201d29254ce70dfc83",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/components/admin/DriverAccountBindingControl.tsx": {
+      "gitBlobSha1": "1872243b2dc359ead7e419f840a09231821f9904",
+      "canonicalSha256": "80901e365ced0b4271f1ed644e13ff913ffd6770d38505e36eaa49d164763793",
+      "reviewWorkspaceSha256": "8ec54c26d51c616457dba48cd234e13deedafd389718b395b6589df14f87e958",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/components/admin/adminDecisionReadback.ts": {
+      "gitBlobSha1": "2927970f3faf6412c24d67ac3098641e54a4a022",
+      "canonicalSha256": "cb9cd99b96175e873816d44249abea8c09cae3900ed80d2ef8179b25c69bb3f7",
+      "reviewWorkspaceSha256": "2773e696dd5aa0622ea7029e104c263526d3ae4181335ffc3fb5d8accb7ec904",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/services/adminAccountClient.service.ts": {
+      "gitBlobSha1": "dae36310da8e8550b991b96cc896081d3449d0e0",
+      "canonicalSha256": "75bc1697571a51dbdc03b421f0aa9dbc1eb2f93a116d370497ee8a9a4365f472",
+      "reviewWorkspaceSha256": "0395b1e84a0b16962a3ffbccfe8ea7120dec7c3922268ec2571cb47b36c5ce36",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/repositories/user.repository.ts": {
+      "gitBlobSha1": "7810d789617db044d83a899ce8cbf3f530638d37",
+      "canonicalSha256": "22411322ffbe1b0ccd984804b781c99cd67607aeab66d444862c2985090197ed",
+      "reviewWorkspaceSha256": "69bd0e4f5bb55b321b4a6e375332d605a446547c689690aaed4af989d7bdbc37",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/locales/ar/index.ts": {
+      "gitBlobSha1": "82d943d96b56842e599f6fa3bddf0a9f7eba8f2d",
+      "canonicalSha256": "955b9dc554e9c1854e06f856091af88955f3882e3d58d4fb10b9af5ef2e91d97",
+      "reviewWorkspaceSha256": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/locales/en/index.ts": {
+      "gitBlobSha1": "c8dfd6871b99b2fade21d27588e619baa407345b",
+      "canonicalSha256": "6ead231cf0f2f79bc28f5bd05bcfa518dd6ad54c442797f068ef2072ba4cc424",
+      "reviewWorkspaceSha256": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/locales/ur/index.ts": {
+      "gitBlobSha1": "1234bf2014a3dfd6413c981700751cfb9a8c09db",
+      "canonicalSha256": "271693d02a20e15e7ae3ee3a7d53bb3629bd23c446bc12faf258254a355f98b5",
+      "reviewWorkspaceSha256": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5AccountReview.test.tsx": {
+      "gitBlobSha1": "1c67508de3b3400754fdb782ccf9508a559742e0",
+      "canonicalSha256": "c06e2086ce22e7818366d23f8dcd1e41097accf9065997d5f37d0eb1f8182146",
+      "reviewWorkspaceSha256": "0cfb3caf62b18b39b999aac5d649cf90358f9fcdf9c37a8bb676e16ea1e76f88",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5AccountReadback.test.ts": {
+      "gitBlobSha1": "c70bfd5161fbccf1382130f27100be761e3499ae",
+      "canonicalSha256": "ebbe87899d5dafd15b28c949d259d3a849fc6c860c62f6886aa291343945ba19",
+      "reviewWorkspaceSha256": "036af7f082ecc36c3934c3b59be7e4b43f75669b7bab4cfcbd7e4e6271da89a2",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5AccountBrowser.test.ts": {
+      "gitBlobSha1": "d1a6c0a97f3099fbc193d9f8d541e5ebba99b63e",
+      "canonicalSha256": "ca559ae173451898c933458ebe4aaf7b4a78458e3c6c5df52ff5c87c1afcb6da",
+      "reviewWorkspaceSha256": "236061e3faa7b55432f0b5023adaf1e120a2c0da63e62e7c09a1fb25fb24bbae",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5AccountConnectedJourney.test.ts": {
+      "gitBlobSha1": "4a044f7f1b4f62dc68af63758a837125c86948a4",
+      "canonicalSha256": "8c3272c99ee0fb509569a00fede77199ff4b9b4b424573f235122fcf8b44560d",
+      "reviewWorkspaceSha256": "7eedef47b639edbeef736eea76d68805240126c7c1bd1685b092c88423eb2942",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/helpers/ui5AccountBrowserEntry.tsx": {
+      "gitBlobSha1": "d18d6f06baf49db3d7e43646e9a6bab1c88c3380",
+      "canonicalSha256": "a28452e01ae420f523edc4f5d47f2dcc5e47b865e28147038102fb7d34de0f3e",
+      "reviewWorkspaceSha256": "b271ce92f02c55d44cd4ae3e9bb0fedcfe4dcce7b9a4895ce4a1f2c801dda896",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5AccountTransport.test.ts": {
+      "gitBlobSha1": "f7cd4d2b4d618e4d48ea4e3f6fc6d200016317ea",
+      "canonicalSha256": "c6cfd95922ad0b8baa3a21af893ad7dc7dd884bea383bb104f766c3773c4278b",
+      "reviewWorkspaceSha256": "9db311fa7869608ff3e5c71e324f4733ac757712c0db242498854b97b7144660",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/helpers/ui5ConnectedBrowserEntry.tsx": {
+      "gitBlobSha1": "19d40713d36b7ffeb5170e6b72e1f77d03690313",
+      "canonicalSha256": "1608f02cd8f6209779401fbc06b66c3698a4bac687ef12159c5a2f283fd2a22e",
+      "reviewWorkspaceSha256": "36d058d8b7cdbeca81ad4bcf42980aa46f3c229773114431821b900568fd2cad",
+      "normalization": "CRLF_TO_LF_ONLY"
+    },
+    "src/tests/ui5Pub01Retirement.test.tsx": {
+      "gitBlobSha1": "d8a84c4129cf0041b0a1d3a157f86cb47d4aaded",
+      "canonicalSha256": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89",
+      "reviewWorkspaceSha256": "e726206e3bff97565e5a11db2233d05a98aa307519671c28b55dab3e5cd33a89",
+      "normalization": "IDENTICAL"
+    }
+  },
+  "currentAuthorization": "One commit/normal push/draft PR authorized after local gates; merge/deployment/SQL/RB4 remain unauthorized."
+}
