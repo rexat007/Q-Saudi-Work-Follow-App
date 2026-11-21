@@ -217,6 +217,8 @@ function AdminAccountWorkspace({isCurrent}:{isCurrent:()=>boolean}) {
   };
   const decide=async(targetId:string,commands:AdminAccountCommand[],send?:(observation:NonNullable<Parameters<typeof executeAdminAccountCommand>[2]>)=>ReturnType<typeof executeAdminAccountCommand>)=>{
     const workspaceCurrent=captureContext();
+    // Selection state may still be scheduled; admit no command for a synchronously held target.
+    if(uncertain.current.get(targetId)?.status==='unresolved')return;
     if (!canManageUsers || !canDecide || !workspaceCurrent() || commandLock.current || !commands.length || targetId===currentUser?.uid || !users.some(user=>user.userId===targetId))return;
     if(commands.some(command=>command.command==='approveAccount'||command.command==='replaceAssignedProjects')&&readState.projects!=='ready')return;
     if(selected.current.id!==targetId)return;
