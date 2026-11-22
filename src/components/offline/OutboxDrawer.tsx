@@ -507,7 +507,7 @@ const OutboxWorkspace: React.FC<OutboxDrawerProps & {actorId: string; contextCur
                             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                             <div>
                               <div className="font-bold">{t("offline.labels.txt_292ade")}</div>
-                              <div>{presentBatch4Message(op.serverAck!.messageAr || '', t)} {t("residual.ui.server_trip_number", { number: op.serverAck!.tripSerial })}</div>
+                              <div>{presentBatch4Message(op.serverAck!.messageAr || '', t)} {op.serverAck!.tripSerial && t("residual.ui.server_trip_number", { number: op.serverAck!.tripSerial })}</div>
                             </div>
                           </div>
                         )}
