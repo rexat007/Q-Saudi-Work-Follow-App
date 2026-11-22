@@ -1,0 +1,567 @@
+{
+  "status": "UI5_SOURCE_CLOSED_POSTMERGE",
+  "verifiedAtUtc": "2026-11-21T06:48:10.913990+00:00",
+  "source": {
+    "gateA": "PASS",
+    "merge": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+    "parents": [
+      "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+      "689cff352aeb8927f30757fc31bae4f901dd38b1"
+    ],
+    "candidate": "689cff352aeb8927f30757fc31bae4f901dd38b1",
+    "tree": "26d930a9f1c03508461a54c53a73e0e266319cac",
+    "changedPaths": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+      "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+      "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+      "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui4/postmerge-closure.json",
+      "docs/reconstruction/ui5/README.md",
+      "docs/reconstruction/ui5/evidence-sha256.json",
+      "docs/reconstruction/ui5/exact-file-inventory.json",
+      "docs/reconstruction/ui5/failure-comparison.json",
+      "docs/reconstruction/ui5/ir01-raw.zip",
+      "docs/reconstruction/ui5/ir01-verification.json",
+      "docs/reconstruction/ui5/pub01-raw.zip",
+      "docs/reconstruction/ui5/source-contract.json",
+      "docs/reconstruction/ui5/verification-raw.zip",
+      "docs/reconstruction/ui5/verification.json",
+      "src/components/admin/AdminConsoleView.tsx",
+      "src/components/admin/DriverAccountBindingControl.tsx",
+      "src/components/admin/adminDecisionReadback.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/repositories/user.repository.ts",
+      "src/services/adminAccountClient.service.ts",
+      "src/tests/helpers/ui5AccountBrowserEntry.tsx",
+      "src/tests/helpers/ui5ConnectedBrowserEntry.tsx",
+      "src/tests/ui5AccountBrowser.test.ts",
+      "src/tests/ui5AccountConnectedJourney.test.ts",
+      "src/tests/ui5AccountReadback.test.ts",
+      "src/tests/ui5AccountReview.test.tsx",
+      "src/tests/ui5AccountTransport.test.ts",
+      "src/tests/ui5Ir01DecisionAdmission.test.tsx",
+      "src/tests/ui5Pub01Retirement.test.tsx"
+    ],
+    "count": 37,
+    "candidateAncestor": true,
+    "treesExactlyEqual": true,
+    "IR01Blob": "b978d4d37911f28db3b793aa18a7946cce6cbe4b",
+    "originalFeatureCheckout": "CLEAN_UNCHANGED",
+    "protected22": "HEAD_STATUS_DIRTY_HASHES_UNCHANGED",
+    "rb4NineMigration013": "UNCHANGED_UNPUBLISHED",
+    "currentBranch": "ui/ui5-account-review-20261120"
+  },
+  "github": {
+    "PR106": {
+      "number": 106,
+      "merged": true,
+      "merged_at": "2026-11-21T06:36:58Z",
+      "mergeSha": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+      "candidateSha": "689cff352aeb8927f30757fc31bae4f901dd38b1",
+      "baseSha": "08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551",
+      "changedFiles": 37,
+      "commits": 2
+    },
+    "paths": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI4_OPERATIONAL_REPORTS.md",
+      "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+      "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+      "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+      "docs/reconstruction/UI5_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui4/postmerge-closure.json",
+      "docs/reconstruction/ui5/README.md",
+      "docs/reconstruction/ui5/evidence-sha256.json",
+      "docs/reconstruction/ui5/exact-file-inventory.json",
+      "docs/reconstruction/ui5/failure-comparison.json",
+      "docs/reconstruction/ui5/ir01-raw.zip",
+      "docs/reconstruction/ui5/ir01-verification.json",
+      "docs/reconstruction/ui5/pub01-raw.zip",
+      "docs/reconstruction/ui5/source-contract.json",
+      "docs/reconstruction/ui5/verification-raw.zip",
+      "docs/reconstruction/ui5/verification.json",
+      "src/components/admin/AdminConsoleView.tsx",
+      "src/components/admin/DriverAccountBindingControl.tsx",
+      "src/components/admin/adminDecisionReadback.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/repositories/user.repository.ts",
+      "src/services/adminAccountClient.service.ts",
+      "src/tests/helpers/ui5AccountBrowserEntry.tsx",
+      "src/tests/helpers/ui5ConnectedBrowserEntry.tsx",
+      "src/tests/ui5AccountBrowser.test.ts",
+      "src/tests/ui5AccountConnectedJourney.test.ts",
+      "src/tests/ui5AccountReadback.test.ts",
+      "src/tests/ui5AccountReview.test.tsx",
+      "src/tests/ui5AccountTransport.test.ts",
+      "src/tests/ui5Ir01DecisionAdmission.test.tsx",
+      "src/tests/ui5Pub01Retirement.test.tsx"
+    ],
+    "required": {
+      "id": 44876381349,
+      "name": "Secret-free foundation CI",
+      "head_sha": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+      "head_branch": "main",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-21T06:37:01Z",
+      "updated_at": "2026-11-21T06:38:24Z",
+      "html_url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876381349",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 136761882332,
+          "name": "PostgreSQL 17 authority regressions",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44876381349,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Provision separated isolated database owner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify native SQL authorities without skipped cases",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify explicit 148 authority bundle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 136761882525,
+          "name": "Required foundation",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44876381349,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Confirm Node and npm authority",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify runtime translation keys",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify authentication trust boundary",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Verify repository cleanliness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 136761882535,
+          "name": "Typecheck debt observability",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44876381349,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Confirm Node and npm authority",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Full-repository typecheck (non-blocking debt observation)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Report typecheck outcome",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify repository cleanliness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ]
+    },
+    "dynamic": {
+      "id": 44876380867,
+      "name": "Push on main",
+      "head_sha": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+      "head_branch": "main",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-11-21T06:37:00Z",
+      "updated_at": "2026-11-21T06:37:57Z",
+      "html_url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876380867",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 136761883302,
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44876380867,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 136761883512,
+          "name": "Analyze (actions)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44876380867,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "recordedLocalResults": {
+    "affected": "326/329 NOT PASS, native exit1",
+    "inheritedFailureIdentities": [
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin",
+        "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+      },
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository",
+        "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+      },
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService",
+        "classification": "PRE_EXISTING_SOURCE_STRING_SUBSCRIPTION_EXPECTATION_DEBT"
+      }
+    ],
+    "previousAffected": "316/319 NOT PASS; unchanged historical record",
+    "IR01": "10/10 PASS; original red4 FAIL/6 PASS preserved; unchanged green assertions",
+    "previousUI5": "76/76 PASS",
+    "PUB01": "27/27 PASS; subset of76",
+    "runtimeI18n": "16/16 PASS",
+    "typecheckLintBuild": "PASS; historical local results, not rerun"
+  },
+  "historicalAcceptance": {
+    "Edge": "9/9 pre-IR01/pre-merge",
+    "authenticatedEmulator": "1/1 pre-IR01/pre-merge"
+  },
+  "notAccepted": [
+    "physical-device",
+    "screen-reader",
+    "live operational/Google Workspace",
+    "product",
+    "Beta2 release"
+  ],
+  "authority": {
+    "canonical": "Firestore",
+    "SQLCutover": false,
+    "dualWrites": false,
+    "RB4Activation": false,
+    "migration013Activation": false
+  },
+  "taskBoundary": "Documentation-only reconciliation and read-only discovery; no commit/push/PR/merge/deployment/source/test change. Original inventories, raw evidence and historical timestamps unchanged."
+}

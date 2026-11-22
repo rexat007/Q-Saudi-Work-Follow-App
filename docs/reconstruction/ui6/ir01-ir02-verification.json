@@ -1,0 +1,1484 @@
+{
+  "clientDate": "2026-11-22",
+  "status": "UI6_PUBLISHED_SOURCE_REVIEW_PENDING / IR01_IR02_AUDITED_FOR_CONTROLLED_PUBLICATION",
+  "ownerPublicationDecision": "AUTHORIZED by current owner instruction only if exact staged/parent/remote gates pass; owner merge HOLD",
+  "commitCreated": false,
+  "pushed": false,
+  "prMutated": false,
+  "merged": false,
+  "deployed": false,
+  "sourcePreflight": {
+    "head": "2c2d8613d8b091f35db9254de37673ebaf7d40aa",
+    "tree": "70fa24cfc8d32f07d40dbf92567d683ae268881d",
+    "branch": "fix/ui6-ir01-ir02-20261122",
+    "stagedPaths": []
+  },
+  "githubPublishedObservation": {
+    "clientDate": "2026-11-22",
+    "observedAt": "2026-11-22T05:27:01.028Z",
+    "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/107",
+    "head": "2c2d8613d8b091f35db9254de37673ebaf7d40aa",
+    "base": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+    "draft": true,
+    "merged": false,
+    "changedFiles": 30,
+    "filenames": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+      "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+      "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md",
+      "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+      "docs/reconstruction/UI6_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui5/postmerge-closure.json",
+      "docs/reconstruction/ui6/pub01-raw.zip",
+      "docs/reconstruction/ui6/pub01-verification.json",
+      "docs/reconstruction/ui6/verification-raw.zip",
+      "docs/reconstruction/ui6/verification.json",
+      "src/App.tsx",
+      "src/components/offline/OfflineIndicator.tsx",
+      "src/components/offline/OutboxDrawer.tsx",
+      "src/components/offline/outboxPresentation.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/tests/helpers/ui6OutboxBrowserEntry.tsx",
+      "src/tests/helpers/ui6OutboxConnectedEntry.tsx",
+      "src/tests/ui6OutboxBrowser.test.ts",
+      "src/tests/ui6OutboxConnectedJourney.test.ts",
+      "src/tests/ui6OutboxPresentation.test.tsx",
+      "src/tests/ui6OutboxTransport.test.tsx",
+      "src/tests/ui6Pub01ReceiptTruth.test.tsx"
+    ],
+    "mutation": false,
+    "localCorrectionPublished": false
+  },
+  "exactChangedFileCount": 18,
+  "fileInventory": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI6_IR01_IR02.md",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+    "docs/reconstruction/ui6/ir01-ir02-raw.zip",
+    "docs/reconstruction/ui6/ir01-ir02-verification.json",
+    "src/components/offline/OutboxDrawer.tsx",
+    "src/components/offline/outboxPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/tests/helpers/ui6IrBrowserEntry.tsx",
+    "src/tests/ui6Ir01AckRecognition.test.tsx",
+    "src/tests/ui6Ir01Ir02Transport.test.tsx",
+    "src/tests/ui6Ir02BatchTruth.test.tsx",
+    "src/tests/ui6IrBrowser.test.ts"
+  ],
+  "scope": {
+    "modifiedProduction": 5,
+    "newTestsAndFixtures": 5,
+    "modifiedCurrentGuides": 5,
+    "newDocumentationAndEvidence": 3
+  },
+  "sourceHashes": {
+    "src/components/offline/OutboxDrawer.tsx": {
+      "rawSha256": "4dfe6b2411fe03705f833ad964960e3bb38ebb9fc69fec55fd160e7517bd4f71",
+      "canonicalLfSha256": "9805a6c7514eab2d89b1ddd01e4f090fcfecca9d08a71fd54d6bc999a691b272",
+      "gitBlob": "34079bfadb25c32fc1c26908ff01469b32ca970e",
+      "beforeRawSha256": "7267a67d45447805987f0136a59b233822732d7ff8c6dd69176757e1d4dbd5e8",
+      "status": "modified"
+    },
+    "src/components/offline/outboxPresentation.ts": {
+      "rawSha256": "96a3796d421c7cdbf14810fff1bd0fec85c10ba1dd50ed1bcb62e79fda64cc06",
+      "canonicalLfSha256": "1adb56a53add0ccb37470cb0cd5c91d3ee73fb0d2e4bb242ee12fbe759d6ad25",
+      "gitBlob": "d06cbb5f9308f9391e6cec3ad7576d2468fe6834",
+      "beforeRawSha256": "251789fa21cb0284f4fd241b27d0d89e7387133dcaa3e8337b859b02e0ab5ea4",
+      "status": "modified"
+    },
+    "src/locales/ar/index.ts": {
+      "rawSha256": "dc93baa2440f4d333595062e84c83359a2ed9a026e7eccbfb265d8de0e2bc570",
+      "canonicalLfSha256": "66aa2776eef299b28b9d9425a6d3a094d60352d558d8d966c6a2910f7aa3bd39",
+      "gitBlob": "0ed0d69ab9d333f21cdd5820c8b6a07d7ef17c66",
+      "beforeRawSha256": "69f5cbaa0cb097bbb7c098a99d6dcc170626deefdb5af4e59d736cd5b061b433",
+      "status": "modified"
+    },
+    "src/locales/en/index.ts": {
+      "rawSha256": "55a7d0dd51afa9cbfab01d1c587b344e4ab8612947f13b31c13345982ab9fe45",
+      "canonicalLfSha256": "7f960ae349f4b4c7e34db232ad63619fcf2bd1115c99390bdc59af0db1eabe02",
+      "gitBlob": "e5bd83ee2ae4fb6f23a1cc3a9822146a37bd69cc",
+      "beforeRawSha256": "9311cfd6c97d1895b043eec4a88753654fc63081e8afcf204bb75e470213c520",
+      "status": "modified"
+    },
+    "src/locales/ur/index.ts": {
+      "rawSha256": "20fd14c1479470d13582096d34416d12f834046939c092878bc6524d357b5d78",
+      "canonicalLfSha256": "0f69d8e6b00c7b1c737fa3af4baf93472a1338bd587c35f6954cf1822670337b",
+      "gitBlob": "385a9e2ba34073e8c67bcb9a58a1c41723723f40",
+      "beforeRawSha256": "e6f66bd8464e0d49c623dd24e3587801a0ed2ed88237575f03415435e393c877",
+      "status": "modified"
+    },
+    "src/tests/ui6Ir01AckRecognition.test.tsx": {
+      "rawSha256": "64feba71b25f5fb26d3751c735b956bee89eefa233593cd241ce5f7d4930726a",
+      "canonicalLfSha256": "0cb90254f9839817c1e1bcb36690a8a89327025dc4ca9446f1ca4ce688b67c26",
+      "gitBlob": "de8592f2dad063b9c586c3355596ae4a957cdd79",
+      "beforeRawSha256": null,
+      "status": "new"
+    },
+    "src/tests/ui6Ir01Ir02Transport.test.tsx": {
+      "rawSha256": "a673a4825921f83be4896f74f1d9c54592183051f58c6353a9b9e1caaafec35a",
+      "canonicalLfSha256": "a352cc1803b386fa0f63a41685721025f0ee66b61226eb299d3595951b530f57",
+      "gitBlob": "252766ba7b77d01a402bd1c5712166745c00e8b4",
+      "beforeRawSha256": null,
+      "status": "new"
+    },
+    "src/tests/ui6Ir02BatchTruth.test.tsx": {
+      "rawSha256": "1dd1cc0a32bcbe01c1cc489ec140559b4b2ff9f71013a08ef1b34444c780d176",
+      "canonicalLfSha256": "39744ae188775af2d5423b83f2d065a76cf923fe25ce12f5b8ba14313053f068",
+      "gitBlob": "d1166ec8308ec7edd90ae2955ac7db45327d3f8d",
+      "beforeRawSha256": null,
+      "status": "new"
+    },
+    "src/tests/ui6IrBrowser.test.ts": {
+      "rawSha256": "9662e14ad166221dc88c73ec917f7c406caf7df5b77ed89429dc2b28553dde65",
+      "canonicalLfSha256": "9cb9bb92f49cab7cca08970466295e23332084bd03d10b0645373cd88d21f310",
+      "gitBlob": "f26c51200de2bf5d3ce847100d081242ed1ac3de",
+      "beforeRawSha256": null,
+      "status": "new"
+    },
+    "src/tests/helpers/ui6IrBrowserEntry.tsx": {
+      "rawSha256": "25f1f969628fd9f448df9c53c84897994b1237c5a89335dcb570901025ca8199",
+      "canonicalLfSha256": "891fd9eff9c2fa2e9e22df23b3f0cbf97cd7d1d86b9a77eec5d99ac74cefde9c",
+      "gitBlob": "3e2232ceebd131cc64e4b499a0412b7d27746a7a",
+      "beforeRawSha256": null,
+      "status": "new"
+    }
+  },
+  "otherChangedTextHashes": {
+    "docs/reconstruction/00_WORK_START_HERE.md": "8e4fb56971d3ff8d9b645e6bc3edc394fee25f0e464ae1867c97baadfb3311c6",
+    "docs/reconstruction/02_PHASE_LEDGER.md": "2991a01e905bcc577205b058fcdfa534904ce9820514f518425ea4d4f0a2dba1",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "7e036db8f73288daf3bb4945827abae6ab3939de07913342a2e12df53676132e",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "93b7a6310383a68f2e821af569b44e0ecea516427c80edfb419a4d3c9f0863c6",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "6797c8c00f28b72e225e4495b431e3e25630e3e3b897da042f3ecc8eebfd7b41",
+    "docs/reconstruction/UI6_IR01_IR02.md": "fd0ae61b27487f8102ffc75b2a19f7a96532070249a6e0b82b6bbd4915eec63e"
+  },
+  "hashBoundary": "Raw tested Windows bytes and Git LF canonical bytes/blobs distinguished; no new commit. Manifest excludes its own recursive hash; raw archive hash is separate.",
+  "IR01": {
+    "componentOriginal": {
+      "passed": 29,
+      "failed": 11,
+      "total": 40
+    },
+    "componentCorrected": {
+      "passed": 40,
+      "total": 40
+    },
+    "realHttpOriginal": {
+      "passed": 0,
+      "failed": 2
+    },
+    "realHttpCorrected": {
+      "passed": 2,
+      "total": 2
+    },
+    "policy": "SYNCED only; four trip-bearing operation types require nonblank tripId + tripSerial. REPORT_EXCEPTION requires queued tripId+exceptionId, parseable committedAt and exact existing engine ACK marker, no invented trip identifiers. Other/incomplete/uncertain states rejected. This recognizes recorded local ACK shape, not independent cryptographic authority."
+  },
+  "IR02": {
+    "componentOriginal": {
+      "passed": 5,
+      "failed": 15,
+      "total": 20
+    },
+    "componentCorrected": {
+      "passed": 20,
+      "total": 20
+    },
+    "realHttpOriginal": {
+      "passed": 0,
+      "failed": 3
+    },
+    "realHttpCorrected": {
+      "passed": 3,
+      "total": 3
+    },
+    "realCommitLostResponse": "Canonical trip AT_DESTINATION, local AWAITING_RECEIPT / RECEIPT_REQUIRED, counters remain1/0/1/0. Same original command + one receipt; no replacement command.",
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "unchangedPlaceholders": [
+      "processed",
+      "synced",
+      "failed",
+      "conflicts"
+    ],
+    "batchCases": [
+      "unknown",
+      "confirmed failed",
+      "conflict",
+      "success",
+      "mixed",
+      "zero processed"
+    ]
+  },
+  "redToGreen": {
+    "red": {
+      "passed": 34,
+      "failed": 31,
+      "total": 65
+    },
+    "green": {
+      "passed": 65,
+      "failed": 0,
+      "total": 65
+    },
+    "same65Assertions": true,
+    "unchangedRedGreenTestBytes": true,
+    "sameTestsSha256": {
+      "src/tests/ui6Ir01AckRecognition.test.tsx": "64feba71b25f5fb26d3751c735b956bee89eefa233593cd241ce5f7d4930726a",
+      "src/tests/ui6Ir01Ir02Transport.test.tsx": "a673a4825921f83be4896f74f1d9c54592183051f58c6353a9b9e1caaafec35a",
+      "src/tests/ui6Ir02BatchTruth.test.tsx": "1dd1cc0a32bcbe01c1cc489ec140559b4b2ff9f71013a08ef1b34444c780d176"
+    }
+  },
+  "regressionIdentityReconciliation": {
+    "identityBoundary": "relative test filename + fullName + occurrence (one inherited duplicate title preserved)",
+    "historical": {
+      "passed": 613,
+      "total": 638,
+      "aggregate": "NOT PASS"
+    },
+    "fresh": {
+      "passed": 678,
+      "total": 703,
+      "aggregate": "NOT PASS"
+    },
+    "unchanged638Identities": true,
+    "unchangedThreeFailed": [
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService",
+        1
+      ]
+    ],
+    "unchanged22SetupUnexecuted": [
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-01",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-02",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-03",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-04",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-05",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-06",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-07",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-08",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-09",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-10",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 1. Verifies ConflictResolutionService runs fully on canonical local cache without legacy tripEngineService",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 2. Verifies legacy fallback mutation path in OutboxService is strictly prohibited",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 3. Verifies OutboxService network failure marks operation as FAILED without reporting false success",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 4. Verifies OutboxService detects state conflict against canonical local cache",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 5. Positive Canonical Replay Proof: Outbox PENDING -> syncAll() -> HTTP replay -> authoritative server response -> authoritative Trip cached -> Outbox SYNCED",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 6. A local ledger cannot bypass server reauthorization before idempotent acknowledgement",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 7. Conflict False-Success Remediation Proof: Mutating Resolution (OVERRIDE_TO_NEW_PRICING) re-queues Outbox as PENDING with sanitized payload and does not write local Trip",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 1. UPDATE_TRIP_STATUS Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 2. RECORD_RECEIPT Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 3. REPORT_EXCEPTION Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 4. Negative Replay: Server returns 500 error, marks Outbox FAILED and increments retryCount",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 5. Revoked server authority wins over a cached processed ledger record",
+        1
+      ]
+    ],
+    "setupCause": "canonicalReplayHarmonizationBlock132 beforeAll AUTH_CONTEXT_CHANGED; inherited setup-unexecuted, not new skips",
+    "new65Passed": [
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: genuine persisted trip ACK",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: rejects absent",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: rejects trip only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: rejects number only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: rejects blank identities",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "TRIP_COMMAND: receipt-unknown never con…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: genuine persisted …",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: rejects absent",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: rejects trip only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: rejects number only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: rejects blank iden…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "CREATE_TRIP_LOADING: receipt-unknown ne…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: genuine persisted t…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: rejects absent",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: rejects trip only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: rejects number only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: rejects blank ident…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "UPDATE_TRIP_STATUS: receipt-unknown nev…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: genuine persisted trip …",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: rejects absent",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: rejects trip only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: rejects number only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: rejects blank identities",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "RECORD_RECEIPT: receipt-unknown never c…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: genuine recorded exce…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects absent",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects timestamp only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects message only",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects unrecognized …",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects invalid time",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: rejects trip identifi…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: missing queued tripId…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: missing queued except…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "REPORT_EXCEPTION: uncertain status cann…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "Unknown operation type cannot borrow tr…",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "ar: actual exception confirmation has no invented trip number",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "en: actual exception confirmation has no invented trip number",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "ur: actual exception confirmation has no invented trip number",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "valid trip and exception records do not deadlock Clear Synced; an uncertain row remains intact",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01AckRecognition.test.tsx",
+          "an insufficiently acknowledged synchronized exception still fences global Clear Synced",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01Ir02Transport.test.tsx",
+          "IR01: actual successful REPORT_EXCEPTION is acknowledged without invented trip ACK identifiers",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01Ir02Transport.test.tsx",
+          "IR01: a real trip ACK and exception ACK do not deadlock existing Clear Synced or delete server truth",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01Ir02Transport.test.tsx",
+          "IR02 ar: actual committed command with lost ACK is unconfirmed and batch counter is not called definitively failed",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01Ir02Transport.test.tsx",
+          "IR02 en: actual committed command with lost ACK is unconfirmed and batch counter is not called definitively failed",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir01Ir02Transport.test.tsx",
+          "IR02 ur: actual committed command with lost ACK is unconfirmed and batch counter is not called definitively failed",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful unknown batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful failed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful conflict batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful success batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful mixed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ar: truthful zero batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful unknown batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful failed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful conflict batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful success batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful mixed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "en: truthful zero batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful unknown batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful failed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful conflict batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful success batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful mixed batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "ur: truthful zero batch keeps original counters and individual outcomes",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "retry online=true keeps retry then optional queue sync with no extra invocation",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui6Ir02BatchTruth.test.tsx",
+          "retry online=false keeps retry then optional queue sync with no extra invocation",
+          1
+        ],
+        "status": "passed"
+      }
+    ],
+    "red": {
+      "passed": 34,
+      "failed": 31,
+      "total": 65
+    },
+    "green": {
+      "passed": 65,
+      "failed": 0,
+      "total": 65
+    },
+    "same65Assertions": true,
+    "unchangedRedGreenTestBytes": true,
+    "sameTestsSha256": {
+      "src/tests/ui6Ir01AckRecognition.test.tsx": "64feba71b25f5fb26d3751c735b956bee89eefa233593cd241ce5f7d4930726a",
+      "src/tests/ui6Ir01Ir02Transport.test.tsx": "a673a4825921f83be4896f74f1d9c54592183051f58c6353a9b9e1caaafec35a",
+      "src/tests/ui6Ir02BatchTruth.test.tsx": "1dd1cc0a32bcbe01c1cc489ec140559b4b2ff9f71013a08ef1b34444c780d176"
+    }
+  },
+  "focusedResults": {
+    "UI6": "33/33 PASS",
+    "UI6_PUB01": "26/26 PASS",
+    "UI5": "76/76 PASS; includes PUB01",
+    "UI5_PUB01": "27/27 PASS included in76",
+    "UI5_IR01": "10/10 PASS separate",
+    "newIRCases": "65/65 PASS",
+    "broad": "678/703 NOT PASS;3 inherited failed,22 inherited setup-unexecuted",
+    "historicalBroad": "613/638 NOT PASS, unchanged",
+    "offlineContinuity": "53/53 PASS; owned isolated PostgreSQL17 stopped; no operational activation",
+    "runtimeI18n": "npm run test:i18n-runtime:16/16 PASS",
+    "typecheckLint": "npm run lint (tsc --noEmit) PASS; final fixture checked again PASS",
+    "build": "npm run build PASS; client/PWA/server; retained chunk/dynamic-import warnings"
+  },
+  "browser": {
+    "native": "Edge157.0.4341.60",
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "widths": [
+      320,
+      768,
+      1440
+    ],
+    "final": "9/9 PASS",
+    "initialNewFixture": "0/9 PASS,9 timeouts preserved; same-trip unknown fenced later exception by existing policy. Only new fixture changed to independent T2; same assertions retained.",
+    "boundary": "Actual component, IndexedDB, engine, HTTP, canonical server over explicit owned identity/staged transaction fixture; not authenticated Firebase emulator",
+    "visualInspection": "AR/EN/UR narrow320 screenshots reviewed for message wrapping and direction; DOM assertions verify exception ACK and unknown distinction"
+  },
+  "authenticatedEmulator": {
+    "historical": "1/1",
+    "fresh": false,
+    "status": "NOT_RERUN; no fresh authenticated acceptance claim"
+  },
+  "preservation": {
+    "protectedWorktrees": {
+      "protectedCount": 22,
+      "allPassed": true,
+      "rows": [
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+          "headMatches": true,
+          "statusMatches": true,
+          "dirtyHashesMatch": true,
+          "mismatch": []
+        }
+      ],
+      "publishedHead": "2c2d8613d8b091f35db9254de37673ebaf7d40aa",
+      "publishedStatus": "",
+      "RB4DirtyFiles": 9,
+      "migration013Sha256": "0a4488e505effe054067c0c69498dfbf68ba174c1cc866ac8fcb5a44bec7adf7"
+    },
+    "allOther1877TrackedBytesUnchanged": true,
+    "allOldTestsUnchanged": true,
+    "guideHistoricalBodiesPreservedAsExactSuffix": true,
+    "originalPublished30BaselineGitBlobs": {
+      "docs/reconstruction/00_WORK_START_HERE.md": "0e962ada882c38c510e8bf6159d0f4e99de62cf0",
+      "docs/reconstruction/02_PHASE_LEDGER.md": "6c01d67aca3113c963f2b19dfda6e7af44976343",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "478097defd741462e7dafd0272f35bebbc8b7cc8",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "7ecec6ebfdc9a991ae73c50e6849d4a8074b7a4a",
+      "docs/reconstruction/UI5_ACCOUNT_REVIEW.md": "1d7e79943342cb0fc74e458d3288e296ced6191e",
+      "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md": "092de88583318ea36e391ed260e898f70754f220",
+      "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md": "c149417cbc3d80a0c4aabcb13775adf18c37f292",
+      "docs/reconstruction/UI5_PUB01_RETIREMENT.md": "f6eec05b182dce1d320d808f74a16ed2ae80f705",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "cc7dbbef715ebeac9cb517038dd3973270b4c654",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md": "79d746aa5df46a4ca8ddd274cdfd4a0e0bec11bd",
+      "docs/reconstruction/UI6_TARGET_DISCOVERY.md": "7c3948068ff192096c528d5719952dac7c847e67",
+      "docs/reconstruction/ui5/postmerge-closure.json": "01ab621c20bc2d9db71ed7e8ea416a9567fe2cb5",
+      "docs/reconstruction/ui6/pub01-raw.zip": "f34789b099e7a10e9552a94be862cf270e4fcff4",
+      "docs/reconstruction/ui6/pub01-verification.json": "85bdcfd4f48c760ef8ff61ca34da5cc64ca04ed5",
+      "docs/reconstruction/ui6/verification-raw.zip": "a85eba6dad078de067cd5a1d74ec2fc1618f898b",
+      "docs/reconstruction/ui6/verification.json": "52f1571023c764e1dfabe3aea01b482cead6b333",
+      "src/App.tsx": "59509ad0abd06139bebe19d6b425d4f1136e8784",
+      "src/components/offline/OfflineIndicator.tsx": "3b4d677d7acdefdbdebd8fa16c345d88b5301414",
+      "src/components/offline/OutboxDrawer.tsx": "286bba0800be569472724e060312e024985b351b",
+      "src/components/offline/outboxPresentation.ts": "b4a6275fffe67ea31b550bde47363244ec71d5e1",
+      "src/locales/ar/index.ts": "7e657ccd777fe2554f3d81844c10c9a59abb9326",
+      "src/locales/en/index.ts": "41ddc5d1fcc041207a8c63033fe0cfb54ed53216",
+      "src/locales/ur/index.ts": "6bd8c66ee41867ae85ad0f43c616b4adbdee3c47",
+      "src/tests/helpers/ui6OutboxBrowserEntry.tsx": "c19871d66a8498a5796c8c9f723f952b9ca78bd4",
+      "src/tests/helpers/ui6OutboxConnectedEntry.tsx": "0ae0b658b4f4196e430348792a5b7d92d01a5d99",
+      "src/tests/ui6OutboxBrowser.test.ts": "d711be79181f5a719047e95a11f9abdc240dd70e",
+      "src/tests/ui6OutboxConnectedJourney.test.ts": "9cf470498b59f0935f79f66235eac83f2d36e48b",
+      "src/tests/ui6OutboxPresentation.test.tsx": "2f303890846a49f36d2220aa4012d3053273ff1b",
+      "src/tests/ui6OutboxTransport.test.tsx": "3588ad8b116efd7edd76f7ffea88a7f987056c5c",
+      "src/tests/ui6Pub01ReceiptTruth.test.tsx": "44c3f83bde0fc2cc038821e0f88ed6cd675d4140"
+    },
+    "oldUI6EvidenceUnchanged": {
+      "docs/reconstruction/ui6/pub01-raw.zip": {
+        "before": "b47f7e0e4760fe87224cbbaa3f094fe47211ef54da7e2a9b314f65a432346192",
+        "after": "b47f7e0e4760fe87224cbbaa3f094fe47211ef54da7e2a9b314f65a432346192",
+        "same": true
+      },
+      "docs/reconstruction/ui6/pub01-verification.json": {
+        "before": "931b31766806eee630cc3d5d4e5cdbf34b5c54bf6493c45601cd0dafea139707",
+        "after": "931b31766806eee630cc3d5d4e5cdbf34b5c54bf6493c45601cd0dafea139707",
+        "same": true
+      },
+      "docs/reconstruction/ui6/verification-raw.zip": {
+        "before": "c23cb53d05fda3981c1f647596f8c27feec9ee70ad33bbcf077f02caa5a7f44f",
+        "after": "c23cb53d05fda3981c1f647596f8c27feec9ee70ad33bbcf077f02caa5a7f44f",
+        "same": true
+      },
+      "docs/reconstruction/ui6/verification.json": {
+        "before": "d9bdfa54919bc338839dbee4ba28b457d7a5731f0318320713d249df28b95769",
+        "after": "d9bdfa54919bc338839dbee4ba28b457d7a5731f0318320713d249df28b95769",
+        "same": true
+      }
+    },
+    "UI5SourceClosureUnchanged": true,
+    "authority": "Firestore canonical; server, Rules, engine, schema, transport, authorization, retries, receipts, idempotency, counters unchanged"
+  },
+  "diffCheckExit": 0,
+  "secretScan": {
+    "knownPrivateKeyTokenPatterns": "NONE",
+    "fixtureData": "Owned synthetic actor/P1/T1/T2/EX-1 only; no private operational data",
+    "excluded": "pgdata,generated builds,node_modules,executables,old raw ZIP duplicates"
+  },
+  "rawArchive": {
+    "path": "docs/reconstruction/ui6/ir01-ir02-raw.zip",
+    "sha256": "3867d3213ac5455f760e80225e8ab57163eed35c43d79da05ec4bebb91f8780b",
+    "entries": 99,
+    "zipIntegrity": "PASS; every entry hash verified"
+  },
+  "remainingAcceptance": [
+    "owner independent source/evidence review",
+    "separate publication authorization",
+    "inherited3 assertion failures +22 setup-unexecuted debt",
+    "fresh authenticated integration acceptance not claimed",
+    "physical-device",
+    "screen-reader",
+    "live operational/Google Workspace",
+    "product/Beta2 release authorization"
+  ],
+  "prePublicationLocalGate": {
+    "status": "UI6_IR01_IR02_CORRECTED_LOCALLY_AWAITING_OWNER_REVIEW",
+    "ownerPublicationDecision": "HOLD; review local source and red-to-green evidence before a separate publication instruction",
+    "manifestSha256": "3e7d682cdf4c928ddef55eda89c38adc14c22728697408f20f73e7714d3750fa",
+    "documentationHashes": {
+      "docs/reconstruction/00_WORK_START_HERE.md": "8e6047ec1f1305a0cacdc666cc6d4cc69588c798954944e6ce87fcf000997430",
+      "docs/reconstruction/02_PHASE_LEDGER.md": "e7c018c6ae9fe92b936b0fe4b07a5b0c14d6298e36091dca9b0fe612440c1bab",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "376e1f79039ebbc14b05ce22ab81bc55c18deb48e9edbaf6c21830a2a2632e0e",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "8be28fcdf0d0114830d37ac01c90ed93886623266c3ad4f640b9b123473d4b34",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "e4231cd6392357568379036ba670ab87c19b7e57ce52793512f5c47ca700f9b9",
+      "docs/reconstruction/UI6_IR01_IR02.md": "41385f66507ca99689bbf610717b83d665948c5bc7c2758b798d799c725102d4"
+    },
+    "rawArchiveSha256": "3867d3213ac5455f760e80225e8ab57163eed35c43d79da05ec4bebb91f8780b",
+    "preserved": "Original manifest copy retained in external publication audit; all prior document bodies remain byte-identical suffixes; raw correction archive unchanged."
+  },
+  "publicationAudit": {
+    "clientDate": "2026-11-22",
+    "gatesAtoG": "PASS; conditional final staging/remote recheck required",
+    "sourceAndTestBytesChanged": false,
+    "testedHashesStillExact": true,
+    "all99ArchiveEntriesReadAndVerified": true,
+    "redGreenTestAssertionsByteIdentical": true,
+    "all638HistoricalOutcomesPreserved": true,
+    "mandatoryAdditionalAckStatusChecks": {
+      "passed": 37,
+      "total": 37,
+      "rows": [
+        {
+          "type": "TRIP_COMMAND",
+          "status": "SYNCED",
+          "actual": true
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "AWAITING_RECEIPT",
+          "actual": false
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "FAILED",
+          "actual": false
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "CONFLICT",
+          "actual": false
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "PENDING",
+          "actual": false
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "SENDING",
+          "actual": false
+        },
+        {
+          "type": "TRIP_COMMAND",
+          "status": "SYNCED",
+          "ack": "missing",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "SYNCED",
+          "actual": true
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "AWAITING_RECEIPT",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "FAILED",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "CONFLICT",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "PENDING",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "SENDING",
+          "actual": false
+        },
+        {
+          "type": "CREATE_TRIP_LOADING",
+          "status": "SYNCED",
+          "ack": "missing",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "SYNCED",
+          "actual": true
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "AWAITING_RECEIPT",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "FAILED",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "CONFLICT",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "PENDING",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "SENDING",
+          "actual": false
+        },
+        {
+          "type": "UPDATE_TRIP_STATUS",
+          "status": "SYNCED",
+          "ack": "missing",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "SYNCED",
+          "actual": true
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "AWAITING_RECEIPT",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "FAILED",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "CONFLICT",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "PENDING",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "SENDING",
+          "actual": false
+        },
+        {
+          "type": "RECORD_RECEIPT",
+          "status": "SYNCED",
+          "ack": "missing",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "SYNCED",
+          "actual": true
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "AWAITING_RECEIPT",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "FAILED",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "CONFLICT",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "PENDING",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "SENDING",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "status": "SYNCED",
+          "ack": "missing",
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "ack": {
+            "committedAt": "2026-11-22T00:00:00.000Z"
+          },
+          "actual": false
+        },
+        {
+          "type": "REPORT_EXCEPTION",
+          "ack": {
+            "messageAr": "تم تسجيل الاستثناء التشغيلي بنجاح خادومياً (ACK Confirmed)"
+          },
+          "actual": false
+        }
+      ]
+    },
+    "expectedCombinedPRChangedFileCount": 38,
+    "exactCombinedPRPathUnion": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+      "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+      "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md",
+      "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+      "docs/reconstruction/UI6_IR01_IR02.md",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+      "docs/reconstruction/UI6_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui5/postmerge-closure.json",
+      "docs/reconstruction/ui6/ir01-ir02-raw.zip",
+      "docs/reconstruction/ui6/ir01-ir02-verification.json",
+      "docs/reconstruction/ui6/pub01-raw.zip",
+      "docs/reconstruction/ui6/pub01-verification.json",
+      "docs/reconstruction/ui6/verification-raw.zip",
+      "docs/reconstruction/ui6/verification.json",
+      "src/App.tsx",
+      "src/components/offline/OfflineIndicator.tsx",
+      "src/components/offline/OutboxDrawer.tsx",
+      "src/components/offline/outboxPresentation.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts",
+      "src/tests/helpers/ui6IrBrowserEntry.tsx",
+      "src/tests/helpers/ui6OutboxBrowserEntry.tsx",
+      "src/tests/helpers/ui6OutboxConnectedEntry.tsx",
+      "src/tests/ui6Ir01AckRecognition.test.tsx",
+      "src/tests/ui6Ir01Ir02Transport.test.tsx",
+      "src/tests/ui6Ir02BatchTruth.test.tsx",
+      "src/tests/ui6IrBrowser.test.ts",
+      "src/tests/ui6OutboxBrowser.test.ts",
+      "src/tests/ui6OutboxConnectedJourney.test.ts",
+      "src/tests/ui6OutboxPresentation.test.tsx",
+      "src/tests/ui6OutboxTransport.test.tsx",
+      "src/tests/ui6Pub01ReceiptTruth.test.tsx"
+    ],
+    "combinedCountMethod": "set union:30 published +18 correction -10 overlaps =38",
+    "protected22Worktrees": "HEAD/status/dirty hashes reverified; RB4 original9/013 unchanged",
+    "emulator": "Historical2026-11-21 1/1 NOT_RERUN",
+    "browser": "Correction2026-11-22 native Edge157.0.4341.60 9/9; earlier browser attempts preserved",
+    "historicalAggregates": "678/703 and613/638 remain NOT PASS",
+    "githubCi": "MUST_OBSERVE_EXACT_NEW_SHA_AFTER_PUBLICATION; local tests are not CI",
+    "noMergeDeploymentAuthority": true
+  }
+}

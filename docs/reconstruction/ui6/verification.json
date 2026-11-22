@@ -1,0 +1,783 @@
+{
+  "status": "UI6_IMPLEMENTED_LOCALLY / OWNER_SOURCE_REVIEW_PENDING / PUBLICATION_HOLD",
+  "verifiedAtUtc": "2026-11-21T12:41:18.248192+00:00",
+  "baseline": {
+    "head": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+    "tree": "26d930a9f1c03508461a54c53a73e0e266319cac",
+    "branch": "docs/ui5-postmerge-ui6-discovery-20261121"
+  },
+  "exactChangedFiles": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+    "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+    "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md",
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+    "docs/reconstruction/UI6_TARGET_DISCOVERY.md",
+    "docs/reconstruction/ui5/postmerge-closure.json",
+    "docs/reconstruction/ui6/verification-raw.zip",
+    "docs/reconstruction/ui6/verification.json",
+    "src/App.tsx",
+    "src/components/offline/OfflineIndicator.tsx",
+    "src/components/offline/OutboxDrawer.tsx",
+    "src/components/offline/outboxPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/tests/helpers/ui6OutboxBrowserEntry.tsx",
+    "src/tests/helpers/ui6OutboxConnectedEntry.tsx",
+    "src/tests/ui6OutboxBrowser.test.ts",
+    "src/tests/ui6OutboxConnectedJourney.test.ts",
+    "src/tests/ui6OutboxPresentation.test.tsx",
+    "src/tests/ui6OutboxTransport.test.tsx"
+  ],
+  "counts": {
+    "inheritedDocs": 10,
+    "UI6Production": 7,
+    "newTestsFixtures": 6,
+    "newDocsEvidence": 3,
+    "total": 26
+  },
+  "sourceFiles": {
+    "production": [
+      "src/App.tsx",
+      "src/components/offline/OfflineIndicator.tsx",
+      "src/components/offline/OutboxDrawer.tsx",
+      "src/components/offline/outboxPresentation.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts"
+    ],
+    "tests": [
+      "src/tests/ui6OutboxPresentation.test.tsx",
+      "src/tests/ui6OutboxTransport.test.tsx",
+      "src/tests/ui6OutboxBrowser.test.ts",
+      "src/tests/ui6OutboxConnectedJourney.test.ts",
+      "src/tests/helpers/ui6OutboxBrowserEntry.tsx",
+      "src/tests/helpers/ui6OutboxConnectedEntry.tsx"
+    ],
+    "hashes": {
+      "src/App.tsx": "9bb06af7e60fd51f6bb5089253d85ca4e6a60aa2161614ae15d49c92ce8267ed",
+      "src/components/offline/OfflineIndicator.tsx": "1ff7242c60d814b9e56e816c85e241add86212cee2aa8abbf5421e2bc1afdb52",
+      "src/components/offline/OutboxDrawer.tsx": "e9e8e3a9041efe43a152db2b5df40dc62f8bc06f7993eb5664edd28bdf910e6b",
+      "src/components/offline/outboxPresentation.ts": "d228af76cb1c8426ef8668021d5756b67c2c0acc5760ad203f6f958e6c8892ee",
+      "src/locales/ar/index.ts": "69f5cbaa0cb097bbb7c098a99d6dcc170626deefdb5af4e59d736cd5b061b433",
+      "src/locales/en/index.ts": "9311cfd6c97d1895b043eec4a88753654fc63081e8afcf204bb75e470213c520",
+      "src/locales/ur/index.ts": "e6f66bd8464e0d49c623dd24e3587801a0ed2ed88237575f03415435e393c877",
+      "src/tests/ui6OutboxPresentation.test.tsx": "802ab7d8e06b075228f4187d572e6399837f45164e1d154bd0edf66590194a3f",
+      "src/tests/ui6OutboxTransport.test.tsx": "1054085eb12ff576481c3e0f9cc0e5d93206856eff5916185e6694af4599f765",
+      "src/tests/ui6OutboxBrowser.test.ts": "de6e88187f1033a81cf0967df78256c7ae4bbbe9af856a3c59ef1a58ea8f8480",
+      "src/tests/ui6OutboxConnectedJourney.test.ts": "6553ba56bfe030ea51971da50d208d0eb822a14aeb96d1dd81db45723ae5a553",
+      "src/tests/helpers/ui6OutboxBrowserEntry.tsx": "6b553d0c2a63ea4a7ad4afcd3ba160c94df463529bf7ee434f9662c7cac5a84e",
+      "src/tests/helpers/ui6OutboxConnectedEntry.tsx": "3da23b48fe1477ed35e6e7385501d3ef4059fe19aa67c6fcc50ef04cf7a9de4c"
+    }
+  },
+  "inheritedTenInitialHashes": {
+    "docs/reconstruction/00_WORK_START_HERE.md": "e96c491bd4952fb2628c8512afd90c1b6e6f6950188c89a378a63a9d0bcfa5e1",
+    "docs/reconstruction/02_PHASE_LEDGER.md": "e437f98f70f7eb2c3be8b9c6951a5ebb3b9572bcef66f44424af4e8b7acddf58",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "19e5a51b35edecb13c565e9fefde808eee45c07b8e6e80bc988e95a2f7078d09",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "71bdb3017bbbf3673f034b8724b066c1bd436ab091b4d9af73be3c00c24af20d",
+    "docs/reconstruction/UI5_ACCOUNT_REVIEW.md": "121b181ff913691d14956078adc61b2db175e7c6a1f4269b12be1175bf1a3f4a",
+    "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md": "485db8f4144d57fc585076d7db4a25082497c8ae8de14120b986e5afdbb49c79",
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md": "9bd49010435227827c7a603fbd2073e33a3a26c5fbe73bba43594dc40f8f183b",
+    "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md": "2d94c6d412dcc046b560dec2a435f19ba4212cdc83e1afd673f425be2ee4d655",
+    "docs/reconstruction/UI6_TARGET_DISCOVERY.md": "eb93b8bc85f941cef055d4a072f4eb4f251e273cb2706e8e36b2d221d65223cf",
+    "docs/reconstruction/ui5/postmerge-closure.json": "22021c81e103cd33ba0ccbde02d8d81c2ce7d3ada0087faecdf90e314cf352aa"
+  },
+  "inheritedTenPreservation": "Four current-state guides prefixed; complete initial bytes retained. Six initial files byte-identical. Raw backups contain all ten originals.",
+  "dependencyAudit": {
+    "src/components/offline/OutboxDrawer.tsx": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "474475ac63d9429aebcd1e1e8a05e8eb615330e6c1978ad8a131d35569f8c031"
+    },
+    "src/components/offline/OfflineIndicator.tsx": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "43c09f44f21e9bebc75fab804a09813643afcf1b49c144bae0a0e832d01357f3"
+    },
+    "src/components/offline/ConflictResolutionModal.tsx": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "0d98e7583ee504180dd909ac3960b136ea0356ea37783b652c831064a9483408"
+    },
+    "src/services/offline/outbox.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "9798f965955d49682235c20bf7ce32ad1a83d73e21d38d6422d1324fec59c543"
+    },
+    "src/services/offline/networkStatus.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "27b892547329e4fd3eac833333c2f023cc71199a041f193baefa61ccb20af570"
+    },
+    "src/services/offline/offlineCache.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "670bfd17ca00419c845c81fcdbe920e91b3a555b4b944490fcb9b3c5af5e2db3"
+    },
+    "src/services/offline/conflictResolution.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "43c947fd75b7b8ce1965913145b550feeb04c59377aa799a55f0df735855196f"
+    },
+    "src/services/offline/indexedDB.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "cb528a8e32e9eb8b713beb5d270d7921c66e185bafc769f4bf64e8af2892de85"
+    },
+    "src/types/offline.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "c123b10bbdbe9fe88fa83b11df34771e4df60eddfab70778d14da1be70389406"
+    },
+    "src/hooks/useOnlineStatus.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "6fef314a0e217d3c3cc63a2458a7504eba80ca60fc80be7ec47ebde49895e426"
+    },
+    "src/firebase/authContext.tsx": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "fe6b67b3711b9679f456437d5bb5f8f5e1ce61a5ea01ca8de7f009d32e24fd66"
+    },
+    "src/services/tripCommandClient.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "cbf071048280f24e2644da560a7d8586ebff8219fa99bbeaed06d8d6dbb6160c"
+    },
+    "src/services/tripCommands.server.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "f79a5747d01e1d5b3c2a68f8121633f300d6d9508e58313fce604c507da419f8"
+    },
+    "src/services/navigation.service.ts": {
+      "classification": "READ_ONLY",
+      "baselineSha256": "046fe811005104a14db2afc616a528ee800468882132cb83503913ce3567cee6"
+    },
+    "src/App.tsx": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "a5d70febcff783ff5be08ed8d42785046c1682b3628ec0af35d701a738b54462"
+    },
+    "src/locales/ar/index.ts": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "96a8bbf7e261974509653e487605ccd572822488d5ee4586d60cb1c0eabe9dd7"
+    },
+    "src/locales/en/index.ts": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "264927205fa93b04355d9ab3393cb8ec3412236c5b53826732a788381e8f658b"
+    },
+    "src/locales/ur/index.ts": {
+      "classification": "PRESENTATION_TARGET",
+      "baselineSha256": "65dc5ee4e84a28e395561d162ee65215e563743fda3f89c1828f7db19912ac27"
+    },
+    "sourceConsequences": {
+      "manualSync": "syncAll(isSimulatedOffline), queue-wide eligibility",
+      "retry": "retryOperation(originalId) THEN syncAll if online; same order",
+      "receipt": "sendTripCommand recoverFirst; receipt before fresh command",
+      "clear": "clearSynced local records; canonical trips untouched",
+      "cache": "refreshCacheWithBump seeds canonical master reference cache; no delivery ACK",
+      "connectivity": "networkStatusService online event and simulated-offline exit invoke existing syncAll; no new UI auto-replay",
+      "reads": "getCacheMetadata can initialize local master cache; state refresh does not explicitly call business commands; not claimed globally network-free",
+      "conflict": "Existing ConflictResolutionModal and conflictResolutionService remain READ_ONLY; no new resolution authority"
+    },
+    "src/components/offline/outboxPresentation.ts": {
+      "classification": "PRESENTATION_TARGET",
+      "boundary": "New pure explicit status/help maps and recorded-ACK predicate; no IO or storage mutations"
+    },
+    "src/tests/ui6OutboxPresentation.test.tsx": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "src/tests/ui6OutboxTransport.test.tsx": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "src/tests/ui6OutboxBrowser.test.ts": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "src/tests/ui6OutboxConnectedJourney.test.ts": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "src/tests/helpers/ui6OutboxBrowserEntry.tsx": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "src/tests/helpers/ui6OutboxConnectedEntry.tsx": {
+      "classification": "TEST_TARGET",
+      "historical": false
+    },
+    "docs/reconstruction/00_WORK_START_HERE.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "e96c491bd4952fb2628c8512afd90c1b6e6f6950188c89a378a63a9d0bcfa5e1"
+    },
+    "docs/reconstruction/02_PHASE_LEDGER.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "e437f98f70f7eb2c3be8b9c6951a5ebb3b9572bcef66f44424af4e8b7acddf58"
+    },
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "19e5a51b35edecb13c565e9fefde808eee45c07b8e6e80bc988e95a2f7078d09"
+    },
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "71bdb3017bbbf3673f034b8724b066c1bd436ab091b4d9af73be3c00c24af20d"
+    },
+    "docs/reconstruction/UI5_ACCOUNT_REVIEW.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "121b181ff913691d14956078adc61b2db175e7c6a1f4269b12be1175bf1a3f4a"
+    },
+    "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "485db8f4144d57fc585076d7db4a25082497c8ae8de14120b986e5afdbb49c79"
+    },
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "9bd49010435227827c7a603fbd2073e33a3a26c5fbe73bba43594dc40f8f183b"
+    },
+    "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "2d94c6d412dcc046b560dec2a435f19ba4212cdc83e1afd673f425be2ee4d655"
+    },
+    "docs/reconstruction/UI6_TARGET_DISCOVERY.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "eb93b8bc85f941cef055d4a072f4eb4f251e273cb2706e8e36b2d221d65223cf"
+    },
+    "docs/reconstruction/ui5/postmerge-closure.json": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": "22021c81e103cd33ba0ccbde02d8d81c2ce7d3ada0087faecdf90e314cf352aa"
+    },
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": null
+    },
+    "docs/reconstruction/ui6/verification.json": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": null
+    },
+    "docs/reconstruction/ui6/verification-raw.zip": {
+      "classification": "DOCUMENTATION_TARGET",
+      "initialInheritedHash": null
+    }
+  },
+  "testComparison": {
+    "baseline": {
+      "numTotalTests": 579,
+      "numPassedTests": 554,
+      "numFailedTests": 3,
+      "numPendingTests": 22
+    },
+    "candidate": {
+      "numTotalTests": 612,
+      "numPassedTests": 587,
+      "numFailedTests": 3,
+      "numPendingTests": 22
+    },
+    "aggregate": "NOT_PASS",
+    "nativeExits": {
+      "baseline": 1,
+      "candidate": 1
+    },
+    "unchangedFailures": [
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin"
+      },
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository"
+      },
+      {
+        "file": "adminConsoleConvergence.test.ts",
+        "identity": "Phase 6 \u2014 AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService"
+      }
+    ],
+    "unchangedUnexecuted": [
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-01"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-02"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-03"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-04"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-05"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-06"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-07"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-08"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-09"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "CONF-TEST-10"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 1. Verifies ConflictResolutionService runs fully on canonical local cache without legacy tripEngineService"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 2. Verifies legacy fallback mutation path in OutboxService is strictly prohibited"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 3. Verifies OutboxService network failure marks operation as FAILED without reporting false success"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 4. Verifies OutboxService detects state conflict against canonical local cache"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 5. Positive Canonical Replay Proof: Outbox PENDING -> syncAll() -> HTTP replay -> authoritative server response -> authoritative Trip cached -> Outbox SYNCED"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 6. A local ledger cannot bypass server reauthorization before idempotent acknowledgement"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization 7. Conflict False-Success Remediation Proof: Mutating Resolution (OVERRIDE_TO_NEW_PRICING) re-queues Outbox as PENDING with sanitized payload and does not write local Trip"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 \u2014 Focused Tests (Positive, Failure, and Durable Idempotency) 1. UPDATE_TRIP_STATUS Positive Replay and Local Cache Convergence"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 \u2014 Focused Tests (Positive, Failure, and Durable Idempotency) 2. RECORD_RECEIPT Positive Replay and Local Cache Convergence"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 \u2014 Focused Tests (Positive, Failure, and Durable Idempotency) 3. REPORT_EXCEPTION Positive Replay and Local Cache Convergence"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 \u2014 Focused Tests (Positive, Failure, and Durable Idempotency) 4. Negative Replay: Server returns 500 error, marks Outbox FAILED and increments retryCount"
+      },
+      {
+        "file": "canonicalReplayHarmonizationBlock132.test.ts",
+        "identity": "BLOCK 132 \u2014 LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 \u2014 Focused Tests (Positive, Failure, and Durable Idempotency) 5. Revoked server authority wins over a cached processed ledger record"
+      }
+    ],
+    "inheritedSetupFailure": {
+      "file": "canonicalReplayHarmonizationBlock132.test.ts",
+      "message": "AUTH_CONTEXT_CHANGED",
+      "cause": "Imported conflictResolution.test.ts registers a beforeAll that queues TESTER-01 under canonicalReplay mocked auth actor. Existing queueOperation rejects identity mismatch before tests execute. All22 remain unexecuted on both baseline and candidate; no test/guard changes authorized."
+    },
+    "addedUI6": [
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "cache failure leaves valid operations independently available",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "conflicts failure leaves valid operations independently available",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "stats failure leaves valid operations independently available",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "failed operations read is unavailable, never confirmed empty",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "loading is distinct from empty and no action is enabled",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "empty filtered view is distinct from truly empty source",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "failed refresh retains stale snapshot and disables dependent actions",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "PENDING has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "SENDING has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "AWAITING_RECEIPT has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "SYNCED has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "FAILED has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "CONFLICT has an actual translated status and explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "local SYNCED without ACK is not authoritative confirmation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "server ACK is the only confirmed evidence",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "zero processed sync is neutral rather than delivery success",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "partial or failed batch cannot produce a delivery success claim",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "ambiguous transport error is visible and never success",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "online retry keeps original retry -> syncAll call order and queue-wide explanation",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "offline retry prepares original operation without calling sync",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "state refresh and filters never invoke business commands",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "actor A -> B retires pending A read and never displays it",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "actor A -> B -> A never revives an earlier read lifetime",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "close/reopen retires delayed snapshot",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "out-of-order refresh cannot overwrite a newer snapshot",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "offline/online does not turn unresolved delivery into confirmed",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "ar uses real dictionary, direction and accessible owned dialog",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "en uses real dictionary, direction and accessible owned dialog",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "ur uses real dictionary, direction and accessible owned dialog",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxPresentation.test.tsx",
+        "identity": "an outstanding auxiliary provider cannot hold completed queue feedback or controls",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxTransport.test.tsx",
+        "identity": "reading the actual queue sends no command; confirmed display requires a real server ACK",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxTransport.test.tsx",
+        "identity": "a committed command with lost HTTP ACK remains uncertain; retry recovers original receipt without duplicate command",
+        "status": "passed"
+      },
+      {
+        "file": "ui6OutboxTransport.test.tsx",
+        "identity": "current canonical role revocation prevents delivery and false acknowledgement",
+        "status": "passed"
+      }
+    ],
+    "newFailureIdentities": [],
+    "removedHistoricalFailures": [],
+    "unchangedBaselineCaseStatuses": true,
+    "preProductionRed": "29/29 FAIL on original production bytes; red-native.json and red-source-proof.json",
+    "finalSameTestControl": {
+      "red": "30/30 FAIL against pinned original Outbox component, import paths normalized only; current additive dictionaries retained",
+      "green": "30 presentation cases plus3 real-engine HTTP cases PASS",
+      "testSha256": "802ab7d8e06b075228f4187d572e6399837f45164e1d154bd0edf66590194a3f"
+    },
+    "testFixtureEvolution": "Added accessible-name lookup alongside text to handle status-count filter buttons; original red runs retained. Added one auxiliary-pending regression after detecting presentation action wait coupling. Final control and green use identical final assertion bytes. No historical tests modified."
+  },
+  "newRegression": "33/33 PASS;30 actual-component +3 real queue/HTTP/server-command cases",
+  "browser": {
+    "passed": 9,
+    "total": 9,
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "viewports": [
+      320,
+      768,
+      1440
+    ],
+    "browserVersion": "157.0.4341.60",
+    "mode": "REAL_COMPONENT_INDEXEDDB_QUEUE_HTTP_WITH_BOUNDARY_IDENTITY_AND_STAGED_CANONICAL_SERVER",
+    "originalAttempt": "2/9 PASS;7 awaiting-receipt observation timeouts preserved, not relabeled green"
+  },
+  "authenticatedEmulator": {
+    "passed": 1,
+    "total": 1,
+    "mode": "REAL_AUTH_PROVIDER_FIREBASE_AUTH_FIRESTORE_PRODUCTION_SERVER_COMPONENT_NATIVE_EDGE",
+    "result": {
+      "mode": "REAL_FIREBASE_AUTH_FIRESTORE_PRODUCTION_SERVER_COMPONENT_BROWSER",
+      "calls": [
+        "/api/projects/P4debdddfacb14f1f9625b1f4305d10dc/trips/commands",
+        "/api/projects/P4debdddfacb14f1f9625b1f4305d10dc/trips/commands/receipt",
+        "/api/projects/P4debdddfacb14f1f9625b1f4305d10dc/trips/commands"
+      ],
+      "lostAckRecovered": true,
+      "actorIsolation": true,
+      "currentRoleDenial": true,
+      "project": "P4debdddfacb14f1f9625b1f4305d10dc"
+    },
+    "exit": {
+      "status": 0,
+      "cleanupErrors": [],
+      "remainingListeners": [],
+      "node": "v22.22.0",
+      "emulatorProject": "demo-convergence2"
+    },
+    "initialStartup": "NOT_RUN on first attempt; EMULATOR_NOT_READY_9099; original failure/cleanup-race evidence retained"
+  },
+  "inactiveBackendContinuity": {
+    "passed": 53,
+    "total": 53,
+    "operationalActivation": false,
+    "execution": {
+      "port": 55461,
+      "data": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui6-evidence-20261121\\pgdata",
+      "ownedCluster": true,
+      "pg-init": {
+        "exit": 0
+      },
+      "pg-start": {
+        "exit": 0
+      },
+      "sql-migrate": {
+        "exit": 0
+      },
+      "offline-continuity": {
+        "exit": 0
+      },
+      "testExit": 0,
+      "pg-stop": {
+        "exit": 1
+      },
+      "stopExit": 1
+    },
+    "finalCleanup": {
+      "ownedCluster": "ui6-evidence-20261121/pgdata",
+      "port": 55461,
+      "initialStopWaitExit": 1,
+      "cause": "Shutdown checkpoint completed in82.526s (sync78.875s), longer than pg_ctl default wait; original log retained.",
+      "finalNativePgCtlStatus": "no server running, exit3",
+      "postmasterPidAbsent": true,
+      "shutdownLog": "database system is shut down at2026-11-21 15:34:30.528+03",
+      "status": "OWNED_CLUSTER_STOPPED"
+    }
+  },
+  "runtimeI18n": "16/16 PASS",
+  "TypeScriptLintBuild": "PASS",
+  "finalCommands": [
+    {
+      "name": "candidate-verified",
+      "args": [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "src/tests/adminAccountCommands.test.ts",
+        "src/tests/adminAccountRules.test.ts",
+        "src/tests/adminAccountPresentation.test.ts",
+        "src/tests/adminConsoleConvergence.test.ts",
+        "src/tests/serverAuthenticationTrustBoundary.test.ts",
+        "src/tests/firebaseAdminPersistenceBoundary.test.ts",
+        "src/tests/ui4ReportPresentation.test.ts",
+        "src/tests/ui4ReportScope.test.tsx",
+        "src/tests/ui4ExportIntegrity.test.ts",
+        "src/tests/ui4Ci1ExportLabels.test.ts",
+        "src/tests/runtimeKeyAudit.test.ts",
+        "src/tests/ui5AccountReview.test.tsx",
+        "src/tests/ui5AccountReadback.test.ts",
+        "src/tests/ui5AccountTransport.test.ts",
+        "src/tests/ui5Pub01Retirement.test.tsx",
+        "src/tests/ui5Ir01DecisionAdmission.test.tsx",
+        "src/tests/tripOperationalOutbox.test.ts",
+        "src/tests/canonicalReplayHarmonizationBlock132.test.ts",
+        "src/tests/conflictResolution.test.ts",
+        "src/tests/conflictEngine.test.ts",
+        "src/tests/secureTripNumberingOffline89B.test.ts",
+        "src/tests/currentPrincipalRules.test.ts",
+        "src/tests/principalAuthorityRevocation.test.ts",
+        "src/tests/authSessionPrincipalRefresh.test.ts",
+        "src/tests/ui1TripEntry.test.tsx",
+        "src/tests/ui2TripTimeline.test.tsx",
+        "src/tests/roleBasedNavigationSystemAssemblyBlock81.test.ts",
+        "src/tests/ui6OutboxPresentation.test.tsx",
+        "src/tests/ui6OutboxTransport.test.tsx",
+        "--maxWorkers=1",
+        "--reporter=json",
+        "--outputFile=C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui6-evidence-20261121\\candidate-verified.json"
+      ],
+      "status": 1,
+      "signal": null,
+      "node": "v22.22.0",
+      "start": "2026-11-21T12:36:20.932Z",
+      "end": "2026-11-21T12:37:26.368Z"
+    },
+    {
+      "name": "runtime-verified",
+      "args": [
+        "C:/Users/Hp/Documents/ChatGPT/Promise of Planet \u2014 \u0648\u0639\u062f \u0627\u0644\u0643\u0648\u0643\u0628/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "test:i18n-runtime"
+      ],
+      "status": 0,
+      "signal": null,
+      "node": "v22.22.0",
+      "start": "2026-11-21T12:37:26.371Z",
+      "end": "2026-11-21T12:37:29.902Z"
+    },
+    {
+      "name": "lint-verified",
+      "args": [
+        "C:/Users/Hp/Documents/ChatGPT/Promise of Planet \u2014 \u0648\u0639\u062f \u0627\u0644\u0643\u0648\u0643\u0628/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "status": 0,
+      "signal": null,
+      "node": "v22.22.0",
+      "start": "2026-11-21T12:37:29.904Z",
+      "end": "2026-11-21T12:38:39.797Z"
+    },
+    {
+      "name": "build-verified",
+      "args": [
+        "C:/Users/Hp/Documents/ChatGPT/Promise of Planet \u2014 \u0648\u0639\u062f \u0627\u0644\u0643\u0648\u0643\u0628/.sg1-tools/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "status": 0,
+      "signal": null,
+      "node": "v22.22.0",
+      "start": "2026-11-21T12:38:39.800Z",
+      "end": "2026-11-21T12:39:03.206Z"
+    }
+  ],
+  "authority": {
+    "canonical": "Firestore",
+    "commandRetryReceiptEngine": "UNCHANGED",
+    "RulesServerIndexedDBSchema": "UNCHANGED",
+    "SQLCutover": false,
+    "RB4Activation": false,
+    "migration013ChangeOrActivation": false
+  },
+  "notAccepted": [
+    "physical-device",
+    "screen-reader",
+    "live operational/Google Workspace",
+    "independent product acceptance",
+    "Beta2",
+    "publication",
+    "source closure"
+  ],
+  "publication": {
+    "staged": false,
+    "commit": false,
+    "push": false,
+    "PR": false,
+    "merge": false,
+    "deployment": false,
+    "UI7": false
+  },
+  "rawArchive": "verification-raw.zip",
+  "rawArchiveSha256": "c23cb53d05fda3981c1f647596f8c27feec9ee70ad33bbcf077f02caa5a7f44f",
+  "preservation": {
+    "status": "PASS",
+    "timestamp": "2026-11-21T12:41:54.648993+00:00",
+    "head": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+    "branch": "docs/ui5-postmerge-ui6-discovery-20261121",
+    "sourceAndTestsMatchTestedSnapshot": true,
+    "otherTrackedFilesAndAllHistoricalTests": "BYTE_IDENTICAL",
+    "inheritedTen": "Four additive prefixes with exact initial byte suffixes; six byte-identical; all initial hashes/backups match",
+    "protected22": "HEAD/status/dirty hashes unchanged",
+    "RB4NineAndUnpublished013": "UNCHANGED",
+    "originalUI5Feature": "689cff CLEAN unchanged",
+    "dictionaryOldEntries": "UNCHANGED;43 explicit new keys per language",
+    "stagedPaths": 0,
+    "diffCheck": "PASS",
+    "preArchiveChangedPaths": 25,
+    "expectedFinalPaths": 26,
+    "linksChecked": 2
+  },
+  "rawArchiveEntries": 134,
+  "sourceGitBlobs": {
+    "src/App.tsx": "59509ad0abd06139bebe19d6b425d4f1136e8784",
+    "src/components/offline/OfflineIndicator.tsx": "3b4d677d7acdefdbdebd8fa16c345d88b5301414",
+    "src/components/offline/OutboxDrawer.tsx": "c0682c526c7336995fc51da5d84ad7d024606dce",
+    "src/components/offline/outboxPresentation.ts": "b4a6275fffe67ea31b550bde47363244ec71d5e1",
+    "src/locales/ar/index.ts": "7e657ccd777fe2554f3d81844c10c9a59abb9326",
+    "src/locales/en/index.ts": "41ddc5d1fcc041207a8c63033fe0cfb54ed53216",
+    "src/locales/ur/index.ts": "6bd8c66ee41867ae85ad0f43c616b4adbdee3c47"
+  }
+}

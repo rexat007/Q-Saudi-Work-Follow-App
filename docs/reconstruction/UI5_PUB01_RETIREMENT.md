@@ -1,3 +1,17 @@
+## CURRENT SOURCE CLOSURE — 2026-11-21
+
+UI5 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED. UI5-PUB-01 = MERGED / PERMANENT_CONTEXT_RETIREMENT_VERIFIED / SOURCE_CLOSED. UI5-IR01 = MERGED / TARGET_ADMISSION_VERIFIED / SOURCE_CLOSED. UI6 = NOT_STARTED / TARGET_DISCOVERY_ONLY / OWNER_REVIEW_PENDING.
+
+PR [#106](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/106) merged at 2026-11-21T06:36:58Z. Verified main `9fda05f22888e97cd9538c7c32cb8c225c893376`; parents `08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551` and final feature `689cff352aeb8927f30757fc31bae4f901dd38b1`. Merge/candidate tree `26d930a9f1c03508461a54c53a73e0e266319cac`; all37 PR paths verified. Required post-merge CI [44876381349](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876381349) completed SUCCESS on the exact merge SHA: Required foundation, Typecheck debt observability and PostgreSQL 17 authority regressions all SUCCESS. Dynamic CI [44876380867](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876380867) completed SUCCESS on that SHA: Analyze (python) and Analyze (actions). The previously pending PostgreSQL gate is now completed, directly observed.
+
+The permanent authorization leases and synchronous unresolved-target admission guard remain intact. Final recorded affected326/329 is **NOT PASS**, with exactly three unchanged inherited failures. IR01 10/10, previous UI5 76/76 and PUB01 27/27 pass (PUB01 is included in76). Historical316/319, original failed/interrupted attempts and raw red-to-green evidence remain unchanged. Prior Edge9/9 and authenticated emulator1/1 are historical **pre-IR01/pre-merge**, not fresh post-merge acceptance. No tests/browser/emulator journeys were rerun in this documentation-only task.
+
+This closes source only. Physical-device, screen-reader, live operational/Google Workspace, product and Beta2 acceptance remain separate and unaccepted. Firestore remains canonical operational authority. SQL cutover, dual writes, deployment, RB4/migration013 activation and UI6 implementation remain unauthorized. All22 protected worktrees and RB4 original nine dirty files/unpublished013 are preserved. No commit, push, PR or merge occurs in this task.
+
+Current authority: [UI5 post-merge closure](UI5_POSTMERGE_CLOSURE.md), [source/CI evidence](ui5/postmerge-closure.json). All earlier sections below are preserved verbatim historical snapshots; their earlier HOLD/publication gates and timestamps do not override this verified source closure.
+
+---
+
 ## CURRENT UI5 CONTROLLED PUBLICATION CANDIDATE — 2026-11-20
 
 UI5 = SOURCE_IMPLEMENTED / AWAITING_INDEPENDENT_REVIEW. UI5-PUB-01 is corrected and its permanent-retirement review passed. UI4 = MERGED / SOURCE_CLOSED. UI6 = NOT_STARTED. The owner has now authorized one implementation commit, normal push to `ui/ui5-account-review-20261120` and a draft PR against main, conditional on the final gates. This candidate record precedes remote publication; remote SHA, draft PR and CI conclusions must be verified from GitHub and the publication receipt, not inferred from this text. Merge, deployment, SQL cutover and RB4 activation remain unauthorized.

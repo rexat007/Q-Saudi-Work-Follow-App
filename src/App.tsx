@@ -987,7 +987,7 @@ export default function App() {
       </div>
 
       {/* Floating Offline Status Pill & Sync Banner */}
-      <OfflineIndicator onOpenOutbox={() => setIsOutboxOpen(true)} />
+      <OfflineIndicator pendingCount={pendingCount} onOpenOutbox={() => setIsOutboxOpen(true)} />
 
       {/* Outbox Drawer (Operations Queue, Manual Sync, Network Simulator) */}
       <OutboxDrawer isOpen={isOutboxOpen} onClose={() => setIsOutboxOpen(false)} />

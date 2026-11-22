@@ -1,3 +1,73 @@
+## CURRENT CONTROLLED PUBLICATION AUDIT — 2026-11-22
+
+UI1–UI5 = MERGED / SOURCE_CLOSED. UI6 = PUBLISHED / SOURCE_REVIEW_PENDING (existing Draft PR #107); UI7 = NOT_STARTED. Original UI6 published head `2c2d8613d8b091f35db9254de37673ebaf7d40aa`, unchanged main `9fda05f22888e97cd9538c7c32cb8c225c893376`. IR01/IR02 = INDEPENDENT_PUBLICATION_AUDIT_PASSED / CONTROLLED_CORRECTIVE_PUBLICATION_AUTHORIZED, conditional on exact staged-source identity and fast-forward remote checks. Owner merge remains HOLD; no source closure or deployment authorization.
+
+The independent audit verified all18 correction paths (5 production,5 tests/fixtures,8 documentation/evidence), all tested source hashes, all99 raw-archive entries, byte-identical65 red-to-green tests, and the complete638-instance historical outcome reconciliation. Combined PR scope is the exact union of30 published paths and18 correction paths: **38 files**, with10 overlapping paths. Five operation types retain their actual recorded ACK contracts; additional all-status/insufficient-evidence probes37/37 PASS are separate audit checks, not added to the703-case aggregate. No source/test bytes changed during this audit, so completed matching test gates are retained without unnecessary reruns.
+
+Current affected **678/703 — NOT PASS** retains exactly3 inherited failures and22 inherited setup-unexecuted instances. UI6 33/33, UI6-PUB01 26/26, UI5 76/76 (including PUB01 27/27), UI5-IR01 10/10, new corrections65/65, offline continuity53/53, runtime i18n16/16, TypeScript/lint/build and final native Edge9/9 remain verified. Edge157.0.4341.60 AR/EN/UR ×320/768/1440 was executed on2026-11-22; original UI6 browser/authenticated-emulator evidence is2026-11-21, and authenticated emulator1/1 remains historical NOT_RERUN. Initial new-browser fixture9 timeouts, all red/green attempts, prior timestamps and original UI6-PUB01 raw evidence remain preserved.
+
+All22 protected worktrees, RB4 original nine dirty files and unpublished013 retain exact HEAD/status/dirty hashes. The published checkout remains unchanged. Firestore remains canonical; no engine, transport, storage/schema, server, Rules, principal fencing, retry/receipt/idempotency, reconnect, conflict or SQL authority change. No RB4/013 activation, UI7, deployment or physical-device/screen-reader/live operational/Workspace/product/Beta2 acceptance.
+
+[Current correction and audit](UI6_IR01_IR02.md) · [reviewed hashes and exact38-path union](ui6/ir01-ir02-verification.json). The complete prior local-review sections below are historical snapshots preserved unchanged. The corrective commit, remote SHA and actual new-head CI conclusions must be verified after publication and recorded in the publication receipt; local tests do not establish GitHub CI success. Stop at independent owner review.
+
+---
+
+## CURRENT UI6 IR01 + IR02 LOCAL CORRECTION — 2026-11-22
+
+UI6 = DRAFT_PR_107 / INDEPENDENT_REVIEW_HOLD. Published head `2c2d8613d8b091f35db9254de37673ebaf7d40aa`, main `9fda05f22888e97cd9538c7c32cb8c225c893376`. UI6-IR01 + IR02 = CORRECTED_LOCALLY / AWAITING_OWNER_REVIEW / PUBLICATION_HOLD. UI1–UI5 source closure remains unchanged; UI7 NOT_STARTED. No commit/push/PR mutation/merge/deployment in this correction task.
+
+IR01 recognizes the existing operation-specific recorded ACK: four trip-bearing types keep tripId + tripSerial; REPORT_EXCEPTION uses its existing committedAt + exact engine marker with queued trip/exception identity. No trip number is invented. A timestamp alone, incomplete evidence or an uncertain status cannot confirm a row. IR02 relabels the unchanged failedCount aggregate in AR/EN/UR as requiring review or recovery, including possible unknown server outcomes; individual FAILED/CONFLICT/SYNCED/AWAITING_RECEIPT states and numeric counters remain intact. Engine/storage/schema/transport/server/Rules/authorization/receipt/retry/idempotency code is unchanged.
+
+The same65 original regression assertions:34 PASS/31 FAIL on pinned production source, then65/65 PASS after the bounded five-file presentation correction; test bytes unchanged. Fresh existing UI6 33/33, UI6-PUB01 26/26, UI5 76/76 (includes PUB01 27/27), UI5-IR01 10/10, offline continuity53/53, runtime i18n16/16 and TypeScript/lint/build PASS. Native Edge AR/EN/UR ×320/768/1440 final9/9 PASS; the first new mixed-browser fixture's9 timeouts remain separately preserved and explained. Historical authenticated emulator1/1 is NOT_RERUN, not fresh acceptance.
+
+Fresh affected678/703 is **NOT PASS**: the historical613/638 retains exactly the same638 instance outcomes, three failed identities and22 inherited setup-unexecuted identities;65 new cases pass independently. No old tests or raw evidence were changed or weakened. Historical UI5 and UI6 non-green aggregates and timestamps remain intact. All22 protected worktrees, RB4 nine dirty files and unpublished013 remain unchanged; published UI6 checkout stays clean. Firestore remains canonical; SQL cutover/dual writes/RB4/013 activation and UI7 remain unauthorized. Physical-device/screen-reader/live operational/Google Workspace/product/Beta2 acceptance is separate and outstanding.
+
+[Correction, contract matrices and evidence boundaries](UI6_IR01_IR02.md) · [exact local delta and source seal](ui6/ir01-ir02-verification.json) · [new red/green raw evidence](ui6/ir01-ir02-raw.zip). This additive current section supersedes only the current review gate; the complete published historical body follows unchanged. Owner source/evidence review is required before any separate publication instruction; merge remains HOLD.
+
+---
+
+## CURRENT UI6-PUB-01 LOCAL CORRECTION — 2026-11-21
+
+UI6-PUB-01 = CORRECTED_LOCALLY / AWAITING_OWNER_REVIEW / PUBLICATION_HOLD. UI6 remains IMPLEMENTED_LOCALLY, uncommitted, unpublished and not source-closed. UI1–UI5 remain MERGED / SOURCE_CLOSED; UI7 NOT_STARTED.
+
+The independent publication audit's receipt-truth blocker was reproduced unchanged before this correction:2/3 PASS,1/3 FAIL. The same original test bytes now pass3/3. A small canonical-status branch changes only OutboxDrawer's diagnostic panel: uncertain receipts use cautionary text/icon and no failure/success/sending indicator; FAILED keeps useful alert diagnostics; CONFLICT keeps its distinct presentation; stale diagnostics do not imply failure during PENDING/SENDING or contradict a SYNCED record's existing ACK. Existing AR/EN/UR keys are reused; locales and every command/read/admission/lifetime/ACK handler outside the panel are byte-identical.
+
+Fresh results: new correction26/26, existing UI6 33/33, UI5 76/76 (includes PUB01 27/27), IR01 10/10; native Edge AR/EN/UR x320/768/1440 9/9; inactive SQL offline-continuity53/53; runtime16/16 and TypeScript/lint/build PASS. Historical authenticated emulator1/1 is **carried forward, not rerun**, under exact unchanged non-presentation integration/authority code and fresh actual-engine HTTP3-case coverage. No physical-device/screen-reader/live operational/Google Workspace or Beta2 acceptance.
+
+Fresh affected613/638 remains **NOT PASS**: exactly the same three inherited failed identities and22 beforeAll-unexecuted identities. Historical554/579 and587/612 remain separate dated results. Matched pre-correction component control with the same26 new assertions:24 FAIL/2 PASS; corrected26/26 PASS. Original UI6 chronology remains29 red cases before first production edit, followed later by the30-case original-component control; no history is relabeled. Original26 candidate-path snapshots, UI6 manifests/raw ZIP and independent failed audit remain unchanged in their historical scope.
+
+Current corrected30-path inventory, tested hashes and evidence: [UI6-PUB-01 correction](UI6_PUB01_RECEIPT_TRUTH.md), [correction verification](ui6/pub01-verification.json). The older26-path UI6 verification below owns the pre-correction snapshot and must not be used as the final source seal. All22 protected worktrees, RB4 nine dirty files and unpublished013 remain preserved. Firestore is canonical; no engine/Rules/server/storage/retry-policy/SQL/RB4 activation or deployment changes. No commit/push/PR/merge. Owner review is the next gate; publication remains unauthorized.
+
+---
+
+## CURRENT UI6 LOCAL IMPLEMENTATION — 2026-11-21
+
+UI5 remains MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED, including PUB01 and IR01. UI6 = IMPLEMENTED_LOCALLY / OWNER_SOURCE_REVIEW_PENDING / PUBLICATION_HOLD. The owner approved Outbox Status & Recovery Clarity after the discovery snapshot below. This supersedes only the earlier UI6 NOT_STARTED/discovery gate; all ten inherited document bodies and initial hashes remain preserved.
+
+UI6 is bounded to seven presentation/locale roots and six new test/fixture roots. Canonical command, retry/receipt, IndexedDB, conflict, network reconnect, server, Rules, SQL and Workspace authorities remain unchanged. Recorded local results: UI6 33/33, native Edge AR/EN/UR x320/768/1440 9/9, authenticated Auth/Firestore emulator component/production-server journey1/1, inactive-backend PostgreSQL offline continuity53/53, runtime16/16 and final TypeScript/lint/build PASS. Browser and emulator are new UI6 evidence, separate from the historical pre-IR01 UI5 journeys.
+
+Expanded matched family: baseline554/579 versus candidate587/612; both have exactly three inherited failed assertions plus22 unchanged unexecuted cases after an inherited Canonical Replay beforeAll AUTH_CONTEXT_CHANGED error. Aggregate **NOT PASS**; no new failure identity. Existing UI5 76/76 (includes PUB01 27/27) and IR01 10/10 pass. Historical UI5 326/329 and316/319, UI4 fourteen inherited identities and all raw historical evidence are unchanged.
+
+Current implementation, action/read-state contract, exact inventory, tested hashes and limitations: [UI6 implementation](UI6_OUTBOX_STATUS_RECOVERY.md), [verification](ui6/verification.json). All22 protected worktrees/RB4 original nine dirty files/unpublished013 remain preserved. Firestore stays canonical; SQL/RB4/013 activation remains unauthorized. No commit/push/PR/merge/deployment or UI7. Physical-device, screen-reader, live operational/Google Workspace, product and Beta2 acceptance remain outstanding. Stop at owner source review.
+
+---
+
+## CURRENT SOURCE CLOSURE — 2026-11-21
+
+UI5 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED. UI5-PUB-01 = MERGED / PERMANENT_CONTEXT_RETIREMENT_VERIFIED / SOURCE_CLOSED. UI5-IR01 = MERGED / TARGET_ADMISSION_VERIFIED / SOURCE_CLOSED. UI6 = NOT_STARTED / TARGET_DISCOVERY_ONLY / OWNER_REVIEW_PENDING.
+
+PR [#106](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/106) merged at 2026-11-21T06:36:58Z. Verified main `9fda05f22888e97cd9538c7c32cb8c225c893376`; parents `08f67b6046cc10e2ee6f3cd8387bcf7bffcaf551` and final feature `689cff352aeb8927f30757fc31bae4f901dd38b1`. Merge/candidate tree `26d930a9f1c03508461a54c53a73e0e266319cac`; all37 PR paths verified. Required post-merge CI [44876381349](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876381349) completed SUCCESS on the exact merge SHA: Required foundation, Typecheck debt observability and PostgreSQL 17 authority regressions all SUCCESS. Dynamic CI [44876380867](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44876380867) completed SUCCESS on that SHA: Analyze (python) and Analyze (actions). The previously pending PostgreSQL gate is now completed, directly observed.
+
+The permanent authorization leases and synchronous unresolved-target admission guard remain intact. Final recorded affected326/329 is **NOT PASS**, with exactly three unchanged inherited failures. IR01 10/10, previous UI5 76/76 and PUB01 27/27 pass (PUB01 is included in76). Historical316/319, original failed/interrupted attempts and raw red-to-green evidence remain unchanged. Prior Edge9/9 and authenticated emulator1/1 are historical **pre-IR01/pre-merge**, not fresh post-merge acceptance. No tests/browser/emulator journeys were rerun in this documentation-only task.
+
+This closes source only. Physical-device, screen-reader, live operational/Google Workspace, product and Beta2 acceptance remain separate and unaccepted. Firestore remains canonical operational authority. SQL cutover, dual writes, deployment, RB4/migration013 activation and UI6 implementation remain unauthorized. All22 protected worktrees and RB4 original nine dirty files/unpublished013 are preserved. No commit, push, PR or merge occurs in this task.
+
+Current authority: [UI5 post-merge closure](UI5_POSTMERGE_CLOSURE.md), [source/CI evidence](ui5/postmerge-closure.json). All earlier sections below are preserved verbatim historical snapshots; their earlier HOLD/publication gates and timestamps do not override this verified source closure.
+
+UI6 owner-review proposal: [Outbox Delivery Status & Recovery Guidance](UI6_TARGET_DISCOVERY.md). Discovery only; no implementation. Alternatives, source paths, authority boundaries and planned regression/browser/emulator acceptance are recorded there.
+
+---
+
 ## CURRENT UI5 CONTROLLED PUBLICATION CANDIDATE — 2026-11-20
 
 UI5 = SOURCE_IMPLEMENTED / AWAITING_INDEPENDENT_REVIEW. UI5-PUB-01 is corrected and its permanent-retirement review passed. UI4 = MERGED / SOURCE_CLOSED. UI6 = NOT_STARTED. The owner has now authorized one implementation commit, normal push to `ui/ui5-account-review-20261120` and a draft PR against main, conditional on the final gates. This candidate record precedes remote publication; remote SHA, draft PR and CI conclusions must be verified from GitHub and the publication receipt, not inferred from this text. Merge, deployment, SQL cutover and RB4 activation remain unauthorized.
