@@ -1,0 +1,33 @@
+// @vitest-environment happy-dom
+import React,{act,StrictMode} from 'react';
+import {createRoot,type Root} from 'react-dom/client';
+import {it,expect,vi,beforeEach,afterEach} from 'vitest';
+const f=vi.hoisted(()=>({uid:'A',projects:vi.fn(),cache:vi.fn(),carriers:vi.fn(),materials:vi.fn(),fleet:vi.fn(),trips:vi.fn(),cachedCarriers:vi.fn(),cachedMaterials:vi.fn(),cachedTrucks:vi.fn(),cachedDrivers:vi.fn(),fetch:vi.fn()}));
+vi.mock('../firebase/config',()=>({auth:{get currentUser(){return f.uid?{uid:f.uid}:null}},db:{}}));
+vi.mock('../repositories/project.repository',()=>({projectRepository:{listAll:(...a:any[])=>f.projects(...a)}}));
+vi.mock('../services/projectProvisioning.service',()=>({projectProvisioningService:{listProjectCarriers:(id:string)=>f.carriers(id),listProjectMaterials:(id:string)=>f.materials(id)}}));
+vi.mock('../services/projectFleetReadModel.service',()=>({projectFleetReadModelService:{getProjectFleetReadModel:(id:string)=>f.fleet(id)}}));
+vi.mock('../services/offline/offlineCache.service',()=>({offlineCacheService:{getProjects:()=>f.cache(),getCarriers:()=>f.cachedCarriers(),getMaterials:()=>f.cachedMaterials(),getTrucks:()=>f.cachedTrucks(),getDrivers:()=>f.cachedDrivers()}}));
+vi.mock('../services/offline/indexedDB.service',()=>({indexedDBService:{getAll:(store:string)=>{expect(store).toBe('trips');return f.trips()}}}));
+// Readiness is a separate existing server read; this suite isolates only that sibling UI.
+vi.mock('../components/wizard/ProjectOperationalReadiness',()=>({ProjectOperationalReadiness:()=>null}));
+import {OperationsDashboardView} from '../components/dashboard/OperationsDashboardView';
+import {I18nProvider,resolveTranslation,type Locale} from '../i18n';
+import {dashboardService} from '../services/dashboard.service';
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;
+const project=(id='P1',name='Owned project')=>({projectId:id,nameAr:name,projectCode:id,status:'ACTIVE'});
+const trip=(id='P1')=>({tripId:'T-'+id,projectId:id,tripSerial:'OWNED-'+id,ticketId:'WB-1',truckId:'TK-1',driverId:'D-1',carrierId:'C-1',materialId:'M-1',shiftDate:'2026-11-22',netWeight:20000,tareWeight:10000,grossWeight:30000,destNetWeight:19900,varianceWeight:-100,pricingType:'PER_TON',agreedRate:10,currency:'SAR',settlementBase:20,settlementAmount:200,status:'IN_TRANSIT',createdAt:'2026-11-22T00:00:00Z',loadTime:'2026-11-22T00:00:00Z',pricingSnapshot:{settlementAmount:200,agreedRate:10,pricingType:'PER_TON'}});
+const context=(uid='A',role='PROJECT_ADMIN',scope=['P1'])=>({userId:uid,role,assignedProjectIds:scope,email:'owned@example.invalid',displayName:uid});
+const deferred=()=>{let resolve!:(x:any)=>void,reject!:(e:any)=>void;const promise=new Promise<any>((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}};
+let host:HTMLDivElement,root:Root;
+const settle=()=>act(async()=>{for(let i=0;i<12;i++)await Promise.resolve()});
+const render=async(ctx:any=context(),extra:any={},lang:Locale='en',strict=false)=>{const node=<I18nProvider initialLocale={lang}><OperationsDashboardView {...{authContext:ctx,...extra}}/></I18nProvider>;await act(async()=>root.render(strict?<StrictMode>{node}</StrictMode>:node));await settle()};
+const source=(key:string)=>{const node=host.querySelector<HTMLElement>(`[data-ui7-source="${key}"]`);expect(node,'actual source '+key).not.toBeNull();return node!};
+const widget=(key='tripsCard')=>{const node=host.querySelector<HTMLElement>(`[data-ui7-widget="${key}"]`);expect(node,'actual widget '+key).not.toBeNull();return node!};
+const retry=async()=>{const button=host.querySelector<HTMLButtonElement>('[data-ui7-refresh]');expect(button).not.toBeNull();await act(async()=>button!.click());await settle()};
+beforeEach(()=>{f.uid='A';for(const value of Object.values(f))if(typeof value==='function'&&'mockReset'in value)(value as any).mockReset();f.projects.mockResolvedValue([project()]);f.cache.mockResolvedValue([]);f.carriers.mockResolvedValue([{carrierId:'C-1',name:'Owned carrier'}]);f.materials.mockResolvedValue([{materialId:'M-1',name:'Owned material'}]);f.fleet.mockResolvedValue({rows:[{truckId:'TK-1',plateNumber:'OWNED-PLATE',carrierId:'C-1',driverId:'D-1',driverName:'Owned driver'}]});f.trips.mockResolvedValue([trip()]);for(const mock of [f.cachedCarriers,f.cachedMaterials,f.cachedTrucks,f.cachedDrivers])mock.mockResolvedValue([]);vi.stubGlobal('fetch',f.fetch);host=document.createElement('div');document.body.append(host);root=createRoot(host)});
+afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.unstubAllGlobals();vi.restoreAllMocks()});
+it('failed canonical projects plus cache rows outside current scope stays unavailable',async()=>{f.projects.mockRejectedValue(Error('owned-project'));f.cache.mockResolvedValue([project('P2','FORBIDDEN CACHE')]);await render();expect(source('PROJECTS').dataset.state).toBe('UNAVAILABLE');expect(host.textContent).not.toContain('FORBIDDEN CACHE');expect(f.carriers).not.toHaveBeenCalled()});
+it('malformed master-cache fallback cannot invalidate a successful projects read',async()=>{f.fleet.mockResolvedValue({rows:null});f.cachedCarriers.mockResolvedValue(null);await render();expect(source('PROJECTS').dataset.state).toBe('READY_WITH_DATA');expect(source('CARRIERS').dataset.state).toBe('UNAVAILABLE')});
+it('confirmed empty project result survives unavailable optional cache fallback',async()=>{f.projects.mockResolvedValue([]);f.cache.mockRejectedValue(Error('owned-cache'));await render();expect(source('PROJECTS').dataset.state).toBe('READY_EMPTY')});
+it('authority generation changes retire an otherwise identical actor profile',async()=>{const old=deferred();f.projects.mockReturnValueOnce(old.promise);await render(context(),{authorityKey:'first'});f.projects.mockResolvedValue([project('P1','Current authority')]);await render(context(),{authorityKey:'next'});old.resolve([project('P1','RETIRED AUTHORITY')]);await settle();expect(host.textContent).not.toContain('RETIRED AUTHORITY');expect(host.textContent).toContain('Current authority')});

@@ -1,3 +1,17 @@
+## CURRENT UI6 POSTMERGE SOURCE CLOSURE — 2026-11-22
+
+UI1–UI6 = MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED. UI6-PUB-01 = MERGED / RECEIPT_TRUTH_VERIFIED / SOURCE_CLOSED. UI6-IR01 = MERGED / OPERATION_TYPE_ACK_VERIFIED / SOURCE_CLOSED. UI6-IR02 = MERGED / BATCH_OUTCOME_TRUTH_VERIFIED / SOURCE_CLOSED. UI7 = NOT_STARTED / TARGET_DISCOVERY_ONLY / OWNER_REVIEW_PENDING; UI8 NOT_STARTED.
+
+PR [#107](https://github.com/rexat007/Q-Saudi-Work-Follow-App/pull/107) merged2026-11-22T05:49:27Z. Verified origin/main and isolated local HEAD `9721022418b58ff917f967519f281e9332e21cc5`; parents `9fda05f22888e97cd9538c7c32cb8c225c893376` and final candidate `ea96d895960b0ef93397f363cbf650756e2ed9ae`. Merge/candidate tree `ba107bf64fb4562eaf04c46638667a6ee27be92e`, all38 merged paths and their candidate blobs match. Required postmerge CI [44991047286](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44991047286) and dynamic/CodeQL [44991047322](https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44991047322) completed SUCCESS on the merge SHA itself. Required foundation, PostgreSQL17 authority regressions, Typecheck debt observability, Analyze(python) and Analyze(actions) all SUCCESS. Typecheck observability is configured non-blocking; independently inspecting its log confirms the underlying `npm run lint`/`tsc --noEmit` outcome was success. Job success alone is not used as compiler proof. No fresh local full-typecheck or product test rerun in this documentation task.
+
+Retained premerge evidence: UI6 original33/33, UI6-PUB01 26/26, IR01/IR02 additional65/65, previous Edge AR/EN/UR ×320/768/1440 9/9 (Edge157.0.4341.60, correction execution2026-11-22). Authenticated emulator1/1 is historical2026-11-21, NOT_RERUN after corrections or merge. Broad affected678/703 remains **NOT PASS**, with exactly3 inherited failed identities and22 inherited setup-unexecuted identities. Historical613/638 and earlier non-green populations, all red-to-green assertions, failed/interrupted attempts and raw archives remain unchanged; source closure does not waive this debt.
+
+[UI6 postmerge closure](UI6_POSTMERGE_CLOSURE.md) and [machine verification](ui6/postmerge-closure.json) own the exact merge,38-path inventory, CI outcomes and evidence boundaries. [UI7 discovery](UI7_TARGET_DISCOVERY.md) recommends one bounded legacy-dashboard source/cache-provenance unit, subject to owner approval; no UI7 source/test implementation is authorized or performed. Foundational Phase0–18 numbering remains distinct from UI-unit numbering.
+
+This closes source only. No physical-device, screen-reader, live operational/Google Workspace, product or Beta2 acceptance. Firestore remains operational authority. No SQL cutover, dual writes, RB4 activation, migration013 publication or deployment. All22 protected worktrees and RB4 original nine dirty files/unpublished013 are preserved. This task changes documentation only, retains each complete merged document below as an exact byte suffix, and performs no commit/push/PR/merge. Documentation and UI7 proposal remain local for owner review.
+
+---
+
 # UI6-PUB-01 — Receipt truth presentation correction
 
 2026-11-21. **UI6_PUB01_CORRECTED_LOCALLY_AWAITING_OWNER_REVIEW**. Local verification only; no commit, push, PR, merge, deployment, UI7, source closure or release acceptance.

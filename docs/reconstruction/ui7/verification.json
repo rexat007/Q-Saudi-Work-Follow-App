@@ -1,0 +1,1262 @@
+{
+  "clientDate": "2026-11-23",
+  "timezone": "Asia/Riyadh",
+  "status": "UI7_IMPLEMENTED_LOCALLY / OWNER_SOURCE_REVIEW_PENDING / PUBLICATION_HOLD",
+  "publicationGate": "NO_COMMIT_PUSH_PR_MERGE_DEPLOYMENT / OWNER_REVIEW_REQUIRED",
+  "source": {
+    "head": "9721022418b58ff917f967519f281e9332e21cc5",
+    "tree": "ba107bf64fb4562eaf04c46638667a6ee27be92e",
+    "branch": "docs/ui6-postmerge-ui7-discovery-20261122",
+    "upstream": "NONE",
+    "checkout": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui6-postmerge-ui7-discovery-20261122",
+    "sourceClosed": "UI1–UI6 MERGED/SOURCE_CLOSED",
+    "UI8": "NOT_STARTED",
+    "newCommitCreated": false
+  },
+  "inheritedTenDocs": [
+    {
+      "path": "docs/reconstruction/00_WORK_START_HERE.md",
+      "initialSha256": "90cdc614ef84a1cf945b0867574157650f8e3fdc01d57949ba645cbd64b7abb7",
+      "currentSha256": "049f4bc26dce03c4489a9a6d22da3deb32d59596b73678314c1e6ecc12a4880c",
+      "preservation": "ADDITIVE_PREFIX_EXACT_INITIAL_BODY_SUFFIX"
+    },
+    {
+      "path": "docs/reconstruction/02_PHASE_LEDGER.md",
+      "initialSha256": "064a2ba1d65d1a9628e45ee85d1ad562cd8cba4d6569bf06fd49d1161f535d29",
+      "currentSha256": "c60526bce17eab9c4396c99ac76eb1b3edbfabc146bd5eb362bdaca10190506c",
+      "preservation": "ADDITIVE_PREFIX_EXACT_INITIAL_BODY_SUFFIX"
+    },
+    {
+      "path": "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "initialSha256": "ab7e5fbf7d1abddab5b66ac6986e00e20ecec646072b4b2b73a21057d2a52d42",
+      "currentSha256": "40a2762539327edb21c6fb57d534176966067c36645242debf39b62e291deb7a",
+      "preservation": "ADDITIVE_PREFIX_EXACT_INITIAL_BODY_SUFFIX"
+    },
+    {
+      "path": "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "initialSha256": "f39cad1463004de71c4b5615715c9a327cc975312ae2b827f67c080729ab1b88",
+      "currentSha256": "023d6e28b6ff3baeda3255dd4b67a67c1990fd45604955f8f8a3de6b4674eacb",
+      "preservation": "ADDITIVE_PREFIX_EXACT_INITIAL_BODY_SUFFIX"
+    },
+    {
+      "path": "docs/reconstruction/UI6_IR01_IR02.md",
+      "initialSha256": "4fffba0e11b0d4e4dd328ecc0e24c49c744ecb4ce56c48d067039a7087e3bff5",
+      "currentSha256": "4fffba0e11b0d4e4dd328ecc0e24c49c744ecb4ce56c48d067039a7087e3bff5",
+      "preservation": "EXACT_INITIAL_BYTES"
+    },
+    {
+      "path": "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+      "initialSha256": "0a7994d3da8d478300e429bcfb753942d77da31affe273b8ef025a40ccb085af",
+      "currentSha256": "0a7994d3da8d478300e429bcfb753942d77da31affe273b8ef025a40ccb085af",
+      "preservation": "EXACT_INITIAL_BYTES"
+    },
+    {
+      "path": "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md",
+      "initialSha256": "2fd2b27ba3328a410912191d01d8b1f3c46296fc4b867ad0acdeef3f29707b2f",
+      "currentSha256": "2fd2b27ba3328a410912191d01d8b1f3c46296fc4b867ad0acdeef3f29707b2f",
+      "preservation": "EXACT_INITIAL_BYTES"
+    },
+    {
+      "path": "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+      "initialSha256": "b9cad155597a321eea76c9313ea23764f6910496b303e9dec949e5cc8c26e88b",
+      "currentSha256": "b9cad155597a321eea76c9313ea23764f6910496b303e9dec949e5cc8c26e88b",
+      "preservation": "EXACT_INITIAL_BYTES"
+    },
+    {
+      "path": "docs/reconstruction/UI7_TARGET_DISCOVERY.md",
+      "initialSha256": "daf024a2fd4743f3330ddf6c8f85b0106c01e3b7c4ff35f22f289e2842c29f14",
+      "currentSha256": "e55b1bf2260104887aad18fd447f5c59faf2843b50b5a07413bd54b0ab43e259",
+      "preservation": "ADDITIVE_PREFIX_EXACT_INITIAL_BODY_SUFFIX"
+    },
+    {
+      "path": "docs/reconstruction/ui6/postmerge-closure.json",
+      "initialSha256": "4282aa2446e32cf9fe46d734179d3dbb8b88d064f4f433c962dc066f21cd4fcb",
+      "currentSha256": "4282aa2446e32cf9fe46d734179d3dbb8b88d064f4f433c962dc066f21cd4fcb",
+      "preservation": "EXACT_INITIAL_BYTES"
+    }
+  ],
+  "scopeReconciliation": "Approved UI7 matches discovery;explicit strengthened profile/hook requirements require only two App presentation props,no navigation/auth contract change",
+  "exactFileInventory": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI6_IR01_IR02.md",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+    "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md",
+    "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+    "docs/reconstruction/UI7_DASHBOARD_SOURCE_CLARITY.md",
+    "docs/reconstruction/UI7_TARGET_DISCOVERY.md",
+    "docs/reconstruction/ui6/postmerge-closure.json",
+    "docs/reconstruction/ui7/verification-raw.zip",
+    "docs/reconstruction/ui7/verification.json",
+    "src/App.tsx",
+    "src/components/dashboard/OperationsDashboardView.tsx",
+    "src/components/dashboard/dashboardPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/tests/helpers/ui7DashboardBrowserEntry.tsx",
+    "src/tests/helpers/ui7DashboardConnectedEntry.tsx",
+    "src/tests/ui7DashboardAvailability.test.tsx",
+    "src/tests/ui7DashboardBrowser.test.ts",
+    "src/tests/ui7DashboardConnected.test.ts",
+    "src/tests/ui7DashboardContractEdges.test.tsx"
+  ],
+  "exactFileCount": 25,
+  "classifications": {
+    "production": 6,
+    "newTestsFixtures": 6,
+    "documentationEvidence": 13,
+    "inheritedDocumentationPathsIncluded": 10,
+    "newDocumentationEvidence": 3
+  },
+  "productionPaths": [
+    "src/App.tsx",
+    "src/components/dashboard/OperationsDashboardView.tsx",
+    "src/components/dashboard/dashboardPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts"
+  ],
+  "testFixturePaths": [
+    "src/tests/ui7DashboardAvailability.test.tsx",
+    "src/tests/ui7DashboardContractEdges.test.tsx",
+    "src/tests/ui7DashboardBrowser.test.ts",
+    "src/tests/helpers/ui7DashboardBrowserEntry.tsx",
+    "src/tests/ui7DashboardConnected.test.ts",
+    "src/tests/helpers/ui7DashboardConnectedEntry.tsx"
+  ],
+  "sourceHashes": {
+    "src/App.tsx": {
+      "rawSha256": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+      "canonicalLfSha256": "c87c38869a468db42625bd46c81ea7617ddcc5b0526b08527f9bcbdbdf972064",
+      "gitBlob": "1d475172fec99e30e9d9052ea78a209b938f640e",
+      "initialRawSha256": "9bb06af7e60fd51f6bb5089253d85ca4e6a60aa2161614ae15d49c92ce8267ed"
+    },
+    "src/components/dashboard/OperationsDashboardView.tsx": {
+      "rawSha256": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+      "canonicalLfSha256": "238fce3ad6386f51d7a3aef8d1eecbae6fffd5bdf8ae0afe8bbbd105058f7972",
+      "gitBlob": "989b260d770ee42e4ce3db743a35e89f0c002499",
+      "initialRawSha256": "ec57930300e178d642d7a4860de37c02bc202d446688980b063e41133c5faa4f"
+    },
+    "src/components/dashboard/dashboardPresentation.ts": {
+      "rawSha256": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+      "canonicalLfSha256": "57543f0ae9f014362544e438b63f59624842212b762afd5d8e634563127650a0",
+      "gitBlob": "17b1391d87a6d0cdd1daeb7203cd3699408bcd44",
+      "initialRawSha256": null
+    },
+    "src/locales/ar/index.ts": {
+      "rawSha256": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+      "canonicalLfSha256": "758bbaf0c7bb5b9748d6452987107830134b95fe5d897f7073f587a5043af676",
+      "gitBlob": "968b56ccaf6826d0938e8992bba995e0987a2aab",
+      "initialRawSha256": "dc93baa2440f4d333595062e84c83359a2ed9a026e7eccbfb265d8de0e2bc570"
+    },
+    "src/locales/en/index.ts": {
+      "rawSha256": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+      "canonicalLfSha256": "d62a4cf6c55100ad09a4421228f96a51e8831eec73b5f98277a19d0b34ca1cf0",
+      "gitBlob": "de59d58022563771cd0ca17ed901f2ac54ab3bfe",
+      "initialRawSha256": "55a7d0dd51afa9cbfab01d1c587b344e4ab8612947f13b31c13345982ab9fe45"
+    },
+    "src/locales/ur/index.ts": {
+      "rawSha256": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7",
+      "canonicalLfSha256": "e96e414255004867ad9c9e72e73c57ace4a3f365162d8c2da5cdf7f2aaed3ba4",
+      "gitBlob": "13d91788796aabd2b2b26b03eecc96657505af92",
+      "initialRawSha256": "20fd14c1479470d13582096d34416d12f834046939c092878bc6524d357b5d78"
+    },
+    "src/tests/ui7DashboardAvailability.test.tsx": {
+      "rawSha256": "94d65d4297cccf4b534826214214c2bcbc99e9f97a7aabb6c2136e413f74b53b",
+      "canonicalLfSha256": "4ddc7d9b27f91c3eed9981ed1a25461329352381b5998fa64ca0147429bcfae7",
+      "gitBlob": "0ed7765a44b3d7f85b7c432c4d06e035bfafd972",
+      "initialRawSha256": null
+    },
+    "src/tests/ui7DashboardContractEdges.test.tsx": {
+      "rawSha256": "d7270d1aae45e2a022b8d2fa9c62d71feea39f7deda084d2d0baa781a6e4c6c3",
+      "canonicalLfSha256": "d9532d1108b96e10f2ab899aef9f9158565fd872f28d77fdceb580db4073ead4",
+      "gitBlob": "d6803a7dc5c015d2479d8edadf587c36980b7bc6",
+      "initialRawSha256": null
+    },
+    "src/tests/ui7DashboardBrowser.test.ts": {
+      "rawSha256": "fd869a03f25e1aa57c17def8b22094531b78e8d18f3816688de023a3e9fb773a",
+      "canonicalLfSha256": "63bd3a56ed7640e457f56d600ce24bb5e6f6fb6be846f37d33b7da8305eb926c",
+      "gitBlob": "cef642745bffa416f74e0b9dfee4cc34c6ce02a1",
+      "initialRawSha256": null
+    },
+    "src/tests/helpers/ui7DashboardBrowserEntry.tsx": {
+      "rawSha256": "883b4e207f566f5e4a690bffaca67fa878a755c7d2b369f15bf6516858346cb1",
+      "canonicalLfSha256": "2bcb61df2e5d97aa18857c49519e87aa5b213ad8aafaabcb690b6e4f195c8641",
+      "gitBlob": "269131269fdccb38d6fef163b1439989ee3cde8d",
+      "initialRawSha256": null
+    },
+    "src/tests/ui7DashboardConnected.test.ts": {
+      "rawSha256": "02d7f457f7c96dac24fdd4fd88d26a7e347b992bdc490c31418e4abde3c700b9",
+      "canonicalLfSha256": "6d64b7f010a8cf54019ec9a3c0f60c39f1c3c0b60af377364e8084fbb81dca59",
+      "gitBlob": "b24f95c2cc9572220cc00b8a41e4226051f8e247",
+      "initialRawSha256": null
+    },
+    "src/tests/helpers/ui7DashboardConnectedEntry.tsx": {
+      "rawSha256": "7788a7a05ee5962f3cb7960113933a7675f757851cd80336e541a1caf9a59685",
+      "canonicalLfSha256": "f09d087aa456af7acc3ac83cc8117068aa7b177ae6765d63661e5ee6a8eb62b9",
+      "gitBlob": "c7f4c5ab36e6c2bdf3234534e6ce2b3fbd604649",
+      "initialRawSha256": null
+    }
+  },
+  "sourceContractMatrix": [
+    {
+      "source": "PROJECTS",
+      "provider": "projectRepository.listAll(assignedIds,isSuperAdmin);Firestore SDK",
+      "kind": "repository result,SDK may satisfy from cache without exposing snapshot metadata",
+      "failure": "observable repository rejection independently;opaque cache profile failures can become[]",
+      "empty": "successful repository[] is empty within that read contract;failed repository +empty/unusable cache is UNAVAILABLE",
+      "fallback": "existing getProjects when repository empty/error;positive scoped cache explicitly LOCAL_CACHE",
+      "widgets": "project selector/security labels;terminal project names;not trip-total arithmetic",
+      "scope": "current UID;existing supported dashboard role;assigned IDs unless SUPER_ADMIN;cache results re-filtered",
+      "timestamps": "local completion observation only;no server synchronization timestamp exposed"
+    },
+    {
+      "source": "CARRIERS",
+      "provider": "projectProvisioningService.listProjectCarriers per available scoped project;existing canonicalProjectRead GET",
+      "kind": "derived canonical membership/global-identity read-model",
+      "failure": "per-project independent settled outcomes;partial successes kept",
+      "empty": "successful[] valid at requested project scope;all rejections UNAVAILABLE,not empty",
+      "fallback": "existing master-cache fallback only if aggregation malformed;not automatically invoked for each rejected project",
+      "widgets": "carrier labels/performance;terminal names;carrier filters;trip aggregates retain existing ID fallbacks",
+      "scope": "current actor/profile generation;only scoped project IDs requested;cached fallback rows must have current project scope",
+      "timestamps": "local observation,not server freshness"
+    },
+    {
+      "source": "MATERIALS",
+      "provider": "projectProvisioningService.listProjectMaterials per scoped project;existing canonical GET",
+      "kind": "derived canonical membership/global identity",
+      "failure": "independent per-project;partial successes kept",
+      "empty": "successful[] distinct from rejected queries",
+      "fallback": "same existing malformed-aggregation master-cache branch",
+      "widgets": "material distribution names/codes;terminal labels;material filters",
+      "scope": "same captured actor and scoped project IDs",
+      "timestamps": "local observation only"
+    },
+    {
+      "source": "TRUCKS",
+      "provider": "projectFleetReadModelService.getProjectFleetReadModel per scoped project;existing canonical GET",
+      "kind": "derived fleet rows,projected to original truck shape",
+      "failure": "shared fleet outcome with DRIVERS;independent by project",
+      "empty": "successful fleet rows[] can be empty;all failures unavailable",
+      "fallback": "same existing master-cache branch;original mapping retained",
+      "widgets": "terminal truck plate/type labels;trip numeric math does not depend on those labels",
+      "scope": "captured principal/scope;no fleet command or relationship changes",
+      "timestamps": "local read observation only"
+    },
+    {
+      "source": "DRIVERS",
+      "provider": "same project fleet read-model rows",
+      "kind": "derived driver projection using original filter(r.driverId)",
+      "failure": "shared fleet outcome with TRUCKS;partial project coverage disclosed",
+      "empty": "successful no driver rows differs from failed fleet read",
+      "fallback": "same existing malformed-aggregation cache branch",
+      "widgets": "terminal driver labels",
+      "scope": "same principal and scoped projects;no driver commands",
+      "timestamps": "local observation only"
+    },
+    {
+      "source": "TRIPS",
+      "provider": "indexedDBService.getAll('trips');existing principal-partitioned legacyScopedTrips plus filterProjectScope",
+      "kind": "locally stored trip snapshot,not continuously live or server-current",
+      "failure": "independent of project/master reads;failed initial read hides all numeric payloads",
+      "empty": "successful local[] READY_EMPTY;no claim of canonical server inventory completeness",
+      "fallback": "no new server fallback;on read-again failure only same-context retained data may remain explicitly unavailable/stale",
+      "widgets": "primary numeric input to all seven widgets;terminal extra search/status filtering preserved",
+      "scope": "current UID and immutable context/lease/request identity;strict current project filter;VIEWER and unsupported roles blocked",
+      "timestamps": "actual local completion observedAt;last server synchronization unknown"
+    }
+  ],
+  "sourceStateModel": {
+    "states": [
+      "LOADING",
+      "READY_WITH_DATA",
+      "READY_EMPTY",
+      "PARTIAL",
+      "UNAVAILABLE",
+      "RETAINED_LOCAL_SNAPSHOT"
+    ],
+    "widgetOnly": "FILTER_EMPTY",
+    "persistedCanonicalStatusesChanged": false,
+    "opaqueProviderLimit": "No cache result can reconstruct swallowed profile errors;failed canonical+empty/unusable cache stays unavailable;repository SDK server/cache snapshot metadata is not exposed",
+    "timestamps": "actual local read completion only;not last server sync"
+  },
+  "widgetDependencies": {
+    "tripsCard": {
+      "primary": "TRIPS",
+      "auxiliary": []
+    },
+    "tonnageCard": {
+      "primary": "TRIPS",
+      "auxiliary": []
+    },
+    "settlementCard": {
+      "primary": "TRIPS",
+      "auxiliary": []
+    },
+    "carrierPerf": {
+      "primary": "TRIPS",
+      "auxiliary": [
+        "CARRIERS"
+      ]
+    },
+    "materialDist": {
+      "primary": "TRIPS",
+      "auxiliary": [
+        "MATERIALS"
+      ]
+    },
+    "pricingDist": {
+      "primary": "TRIPS",
+      "auxiliary": []
+    },
+    "terminalBoard": {
+      "primary": "TRIPS",
+      "auxiliary": [
+        "PROJECTS",
+        "CARRIERS",
+        "MATERIALS",
+        "TRUCKS",
+        "DRIVERS"
+      ]
+    }
+  },
+  "partialEmptyErrorDistinctions": "Successful empty is not failure;local source-empty differs from filter-empty;partial auxiliary names do not hide safely usable trip metrics;initial failed trips suppress all seven numeric payloads;retained same-context snapshots disclose unavailable source",
+  "localSnapshotTruth": {
+    "LIVEBadgeAndRealtimeDescriptionRemoved": true,
+    "allTripMetricsExplicitlyLocal": true,
+    "serverFreshnessInvented": false,
+    "newMetadataSchema": false
+  },
+  "authorization": {
+    "VIEWER": "Fail closed;no extra queries/totals;allowedRoles and UserSecurityProfile unchanged",
+    "supportedExistingDataRoles": [
+      "SUPER_ADMIN",
+      "PROJECT_ADMIN",
+      "SITE_SUPERVISOR",
+      "FINANCE_AUDITOR",
+      "pre-existing AUDITOR compatibility"
+    ],
+    "requiredScope": "assigned IDs unless SUPER_ADMIN",
+    "unavailableContexts": "missing auth,unsupported role,empty scoped assignments,loading/retired/unavailable/inactive profile mount no data workspace",
+    "AppWiring": "already-known profile availability and inventoryScope only",
+    "readContractsServerRulesStorageUnchanged": true,
+    "immutableContext": "owner identity+permanently retired captured lease+request sequence+current UID checked before publish/dependent reads",
+    "testedTransitions": [
+      "A→B",
+      "A→B→A",
+      "scope",
+      "role",
+      "profile availability",
+      "authority generation",
+      "unmount/remount",
+      "StrictMode out-of-order",
+      "late failure",
+      "retired cached fallback"
+    ]
+  },
+  "metricInvariance": {
+    "allSevenMetricComputationBlocksByteIdentical": true,
+    "readonlyDependenciesByteIdentical": [
+      "src/services/dashboard.service.ts",
+      "src/types/dashboard.ts",
+      "src/components/dashboard/WidgetFilterBar.tsx",
+      "src/services/navigation.service.ts",
+      "src/services/offline/offlineCache.service.ts",
+      "src/services/offline/indexedDB.service.ts",
+      "src/repositories/project.repository.ts",
+      "src/services/projectProvisioning.service.ts",
+      "src/services/projectFleetReadModel.service.ts",
+      "src/utils/projectScope.ts"
+    ],
+    "sameRedGreenTestBytes": true
+  },
+  "redToGreen": {
+    "original37": {
+      "redPassed": 5,
+      "redFailed": 32,
+      "greenPassed": 37,
+      "sameTestBytes": true,
+      "seal": {
+        "clientDate": "2026-11-23",
+        "red": {
+          "passed": 5,
+          "failed": 32,
+          "total": 37
+        },
+        "testPath": "src\\tests\\ui7DashboardAvailability.test.tsx",
+        "sha256": "94d65d4297cccf4b534826214214c2bcbc99e9f97a7aabb6c2136e413f74b53b",
+        "productionModifiedBeforeRed": false
+      }
+    },
+    "additional4ContractEdges": {
+      "redPassed": 2,
+      "redFailed": 2,
+      "greenPassed": 4,
+      "sameTestBytes": true,
+      "seal": {
+        "clientDate": "2026-11-23",
+        "testPath": "src\\tests\\ui7DashboardContractEdges.test.tsx",
+        "sha256": "d7270d1aae45e2a022b8d2fa9c62d71feea39f7deda084d2d0baa781a6e4c6c3",
+        "red": {
+          "numPassedTests": 2,
+          "numFailedTests": 2,
+          "numTotalTests": 4
+        }
+      }
+    },
+    "finalComponentCases": "41/41 PASS",
+    "fixtureTypecheckAttempt": "Three diagnostics in newly added browser-fixture typing were corrected without changing assertions or compiler settings;failed log retained;stable final lint PASS"
+  },
+  "baselineCandidateIdentityReconciliation": {
+    "clientDate": "2026-11-23",
+    "identityBoundary": "filename+fullName+occurrence;inherited duplicate titles preserved",
+    "historical703": {
+      "passed": 678,
+      "total": 703,
+      "aggregate": "NOT PASS",
+      "allDispositionsPreserved": true
+    },
+    "frozenBaseline": {
+      "passed": 723,
+      "total": 748,
+      "failed": 3,
+      "setupUnexecuted": 22,
+      "aggregate": "NOT PASS",
+      "all1895TrackedBytesUnchangedDuringRun": true
+    },
+    "finalCandidate": {
+      "passed": 764,
+      "total": 789,
+      "failed": 3,
+      "setupUnexecuted": 22,
+      "aggregate": "NOT PASS",
+      "all748BaselineDispositionsPreserved": true
+    },
+    "historicalFailures": [
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService",
+        1
+      ]
+    ],
+    "historicalSetupUnexecuted": [
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-01",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-02",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-03",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-04",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-05",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-06",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-07",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-08",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-09",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-10",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 1. Verifies ConflictResolutionService runs fully on canonical local cache without legacy tripEngineService",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 2. Verifies legacy fallback mutation path in OutboxService is strictly prohibited",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 3. Verifies OutboxService network failure marks operation as FAILED without reporting false success",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 4. Verifies OutboxService detects state conflict against canonical local cache",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 5. Positive Canonical Replay Proof: Outbox PENDING -> syncAll() -> HTTP replay -> authoritative server response -> authoritative Trip cached -> Outbox SYNCED",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 6. A local ledger cannot bypass server reauthorization before idempotent acknowledgement",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 7. Conflict False-Success Remediation Proof: Mutating Resolution (OVERRIDE_TO_NEW_PRICING) re-queues Outbox as PENDING with sanitized payload and does not write local Trip",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 1. UPDATE_TRIP_STATUS Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 2. RECORD_RECEIPT Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 3. REPORT_EXCEPTION Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 4. Negative Replay: Server returns 500 error, marks Outbox FAILED and increments retryCount",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 5. Revoked server authority wins over a cached processed ledger record",
+        1
+      ]
+    ],
+    "new41Cases": [
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "successful canonical empty projects is READY_EMPTY, not a failure",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "canonical failure plus opaque empty cache never becomes successful empty",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "successful cache fallback has local provenance and actual local observation time",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "cache unavailable remains unavailable without fabricated zero proof",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "a pending project source cannot erase a completed trip snapshot",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "partial carriers project reads preserve available subset and qualify widgets",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "partial materials project reads preserve available subset and qualify widgets",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "partial fleet project reads preserve available subset and qualify widgets",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "trip failure makes all seven metric payloads unavailable instead of measured zero",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "trips are explicitly a local snapshot with no invented server timestamp",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "missing auxiliary carrier labels qualifies but does not hide safe trip-derived counts",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "source-empty and filter-empty are different; existing filter controls remain usable",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "SUPER_ADMIN: preserves existing scoped reader and formulas",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "PROJECT_ADMIN: preserves existing scoped reader and formulas",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "SITE_SUPERVISOR: preserves existing scoped reader and formulas",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "FINANCE_AUDITOR: preserves existing scoped reader and formulas",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "VIEWER: no authorized-source queries or confirmed metric zeros",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "unsupported: no authorized-source queries or confirmed metric zeros",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "missing scope: no authorized-source queries or confirmed metric zeros",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "no context: no authorized-source queries or confirmed metric zeros",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "profile unavailable: no authorized-source queries or confirmed metric zeros",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "auth context transitions keep React hook ordering and retire cached labels",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "actor A to B never revives an old pending read",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "actor A to B to A never revives an old pending read",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "scope change retires the old scope immediately",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "role change to VIEWER retires old data and stays fail closed",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "unavailable then available same actor never revives an old profile read",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "pending read after unmount cannot query later dependencies or publish on remount",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "StrictMode old read completing after newer read cannot replace current data",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "failed source after actor transition cannot start stale cache fallback",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "cached fallback completion under retired actor cannot publish or query masters",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "ar: translated snapshot and source text, matching direction",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "en: translated snapshot and source text, matching direction",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "ur: translated snapshot and source text, matching direction",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "read retry retains only same-context local snapshot and records failure honestly",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "metric computations receive unchanged scoped trip records and never mutate inputs",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardAvailability.test.tsx",
+          "no extra business command, unscoped repository request, or cache seeding",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardContractEdges.test.tsx",
+          "failed canonical projects plus cache rows outside current scope stays unavailable",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardContractEdges.test.tsx",
+          "malformed master-cache fallback cannot invalidate a successful projects read",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardContractEdges.test.tsx",
+          "confirmed empty project result survives unavailable optional cache fallback",
+          1
+        ],
+        "status": "passed"
+      },
+      {
+        "identity": [
+          "ui7DashboardContractEdges.test.tsx",
+          "authority generation changes retire an otherwise identical actor profile",
+          1
+        ],
+        "status": "passed"
+      }
+    ],
+    "redToGreenSeals": [
+      {
+        "clientDate": "2026-11-23",
+        "red": {
+          "passed": 5,
+          "failed": 32,
+          "total": 37
+        },
+        "testPath": "src\\tests\\ui7DashboardAvailability.test.tsx",
+        "sha256": "94d65d4297cccf4b534826214214c2bcbc99e9f97a7aabb6c2136e413f74b53b",
+        "productionModifiedBeforeRed": false
+      },
+      {
+        "clientDate": "2026-11-23",
+        "testPath": "src\\tests\\ui7DashboardContractEdges.test.tsx",
+        "sha256": "d7270d1aae45e2a022b8d2fa9c62d71feea39f7deda084d2d0baa781a6e4c6c3",
+        "red": {
+          "numPassedTests": 2,
+          "numFailedTests": 2,
+          "numTotalTests": 4
+        }
+      }
+    ],
+    "finalSourceSameAcrossCandidateBrowserAuthenticated": true,
+    "finalSourceRawHashes": {
+      "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+      "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+      "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+      "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+      "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+      "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+    },
+    "freshBrowser": "9/9 PASS",
+    "freshAuthenticated": "1/1 PASS;owned emulators stopped;no remaining listeners",
+    "oldUI6Authenticated": "Historical1/1 NOT_RERUN;fresh UI7 read-isolation verification is separate",
+    "finalCompilerRuntimeBuild": "PASS",
+    "newConfirmedFailures": []
+  },
+  "authoritativeMatchedBaseline": {
+    "checkout": "C:\\Users\\Hp\\Documents\\ChatGPT\\Work Follow\\ui7-baseline-20261123",
+    "head": "9721022418b58ff917f967519f281e9332e21cc5",
+    "result": "723/748 NOT PASS",
+    "all1895RawTrackedFilesUnchangedDuringExecution": true,
+    "initialPreliminaryBaseline": "Preserved separately;not used as source-sealed control"
+  },
+  "focusedPreservation": {
+    "UI6Original": "33/33 PASS",
+    "UI6PUB01": "26/26 PASS",
+    "UI6IR01IR02": "65/65 PASS",
+    "UI5": "76/76 PASS,includesPUB01 27/27",
+    "UI5IR01": "10/10 PASS",
+    "newUI7": "41/41 PASS",
+    "dashboardReportsI18n": "9/9 PASS",
+    "Block80": "19/19 PASS",
+    "projectFleetReadModelAdminContext": "11/11 PASS",
+    "runtimeDefaultDataElimination": "6/6 PASS",
+    "historicalOfflineContinuity": "53/53 historical preserved,NOT_RERUN here;no SQL integration change"
+  },
+  "runtime": {
+    "i18n": {
+      "command": "npm run test:i18n-runtime",
+      "node": "v22.22.0",
+      "status": 0,
+      "finished": "2026-11-22T21:18:24.578Z"
+    },
+    "typecheckLint": {
+      "command": "npm run lint",
+      "node": "v22.22.0",
+      "status": 0,
+      "finished": "2026-11-22T21:20:01.264Z"
+    },
+    "clientPwaServerBuild": {
+      "command": "npm run build",
+      "node": "v22.22.0",
+      "status": 0,
+      "finished": "2026-11-22T21:20:30.443Z"
+    },
+    "retainedBuildWarnings": "chunk size/dynamic import;not silently removed",
+    "finalNode": "22.22.0",
+    "freshGitHubCI": "NOT_RUN;local uncommitted work,no new CI claim"
+  },
+  "browser": {
+    "final": "9/9 PASS",
+    "locales": [
+      "ar",
+      "en",
+      "ur"
+    ],
+    "widths": [
+      320,
+      768,
+      1440
+    ],
+    "browser": "Edge157.0.4341.60",
+    "executionClientDate": "2026-11-23",
+    "mode": "Actual component/IndexedDB/canonical HTTP read transport,controlled identity and read-provider boundaries;not authenticated E2E",
+    "assertions": [
+      "partial-source status",
+      "partial widgets retain safe values",
+      "initial failed trip read no numeric payload",
+      "cache provenance",
+      "source-empty/filter-empty",
+      "filter persistence",
+      "keyboard details/button interaction",
+      "no document-width overflow",
+      "no LIVE badge",
+      "GET reads only,no business commands"
+    ],
+    "screenshots": "AR/EN/UR narrow views inspected;original and final runs retained",
+    "testedSource": {
+      "before": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "after": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "unchanged": true
+    }
+  },
+  "authenticatedEmulator": {
+    "freshUI7": "1/1 PASS",
+    "executionClientDate": "2026-11-23",
+    "mode": "Actual Firebase Auth/Firestore emulators,production scoped read routes,actual component/Edge/principal-partitioned IndexedDB",
+    "verified": [
+      "current-role VIEWER retirement",
+      "actor-separated local trips",
+      "foreign scoped-cache trip excluded",
+      "other-project read denied403",
+      "canonical project unchanged",
+      "no business commands"
+    ],
+    "ownershipCleanup": {
+      "status": 0,
+      "cleanupErrors": [],
+      "remainingListeners": [],
+      "node": "v22.22.0",
+      "emulatorProject": "demo-convergence2"
+    },
+    "testedSource": {
+      "before": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "after": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "unchanged": true
+    },
+    "UI6Historical": "1/1 NOT_RERUN as UI6 evidence;fresh UI7 journey separate"
+  },
+  "finalTestedSource": {
+    "affected": {
+      "before": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "after": {
+        "src/App.tsx": "eec3e1965aa2e53930f4cd3297227daac47aa436f348d8e0ce606935430eb5f2",
+        "src/components/dashboard/OperationsDashboardView.tsx": "ed42aadcdfde00be44238bc13a2f32f4ff711adc7814c978584402607b8b76a5",
+        "src/components/dashboard/dashboardPresentation.ts": "f2f5af7f165d1e6752cd88248ab4de635d00e4eeebe3ad9649211b50aa474e75",
+        "src/locales/ar/index.ts": "46ed0f0f867c0c27bb1ca95175d4b03b112f8ccdb325bb82765550b3f63b7ebc",
+        "src/locales/en/index.ts": "d99bf148b91c3cb371f2a65fac4c68d3623e32126b4b1336c062b47cfdfb1eec",
+        "src/locales/ur/index.ts": "40b56a7df32e601e763149dfea2b2781d8c904c5ade057447714212231bd82d7"
+      },
+      "unchanged": true
+    },
+    "sameAcrossAffectedBrowserAuthenticated": true,
+    "noProductionSourceChangesAfterFreeze": true,
+    "supersededUnsealedRuns": "Earlier preliminary/before-final-refinement runs retained and not used as final source seal"
+  },
+  "documentation": {
+    "implementationRecord": "docs/reconstruction/UI7_DASHBOARD_SOURCE_CLARITY.md",
+    "currentStateAdditions": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI7_TARGET_DISCOVERY.md"
+    ],
+    "historicalBodies": "Five additive prefixes preserve entire initial ten-doc bodies;other five exact initial bytes",
+    "currentTextHashes": {
+      "docs/reconstruction/00_WORK_START_HERE.md": "049f4bc26dce03c4489a9a6d22da3deb32d59596b73678314c1e6ecc12a4880c",
+      "docs/reconstruction/02_PHASE_LEDGER.md": "c60526bce17eab9c4396c99ac76eb1b3edbfabc146bd5eb362bdaca10190506c",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "40a2762539327edb21c6fb57d534176966067c36645242debf39b62e291deb7a",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "023d6e28b6ff3baeda3255dd4b67a67c1990fd45604955f8f8a3de6b4674eacb",
+      "docs/reconstruction/UI6_IR01_IR02.md": "4fffba0e11b0d4e4dd328ecc0e24c49c744ecb4ce56c48d067039a7087e3bff5",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "0a7994d3da8d478300e429bcfb753942d77da31affe273b8ef025a40ccb085af",
+      "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md": "2fd2b27ba3328a410912191d01d8b1f3c46296fc4b867ad0acdeef3f29707b2f",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md": "b9cad155597a321eea76c9313ea23764f6910496b303e9dec949e5cc8c26e88b",
+      "docs/reconstruction/UI7_TARGET_DISCOVERY.md": "e55b1bf2260104887aad18fd447f5c59faf2843b50b5a07413bd54b0ab43e259",
+      "docs/reconstruction/ui6/postmerge-closure.json": "4282aa2446e32cf9fe46d734179d3dbb8b88d064f4f433c962dc066f21cd4fcb",
+      "docs/reconstruction/UI7_DASHBOARD_SOURCE_CLARITY.md": "f802e61a10ab2dcdefc9358e2fee8456dd294e0652391dc6bbe6c52ee75911f5"
+    },
+    "hashBoundary": "This verification JSON excludes its own recursive hash;archive entry manifest excludes its own recursive hash;external final receipt seals finished files"
+  },
+  "preservation": {
+    "protected22": [
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+        "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+        "head": "365134064ad790377cd0bc2c2b58c0044ce7952a",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+        "head": "a5cc9f552d71317cc0db20b367d7612b10075132",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+        "head": "bd390ad4fd31076e53bddfc154b22b338e4a8aff",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+        "head": "c36c3854ab45ca375ebb4ba2ab688d8aacbfa463",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+        "head": "e9f3cc63406523c44db9eb42965b01a258312fa2",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+        "head": "7ce8f7827e6e9a037a8010791c4ee69170d868ff",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+        "head": "bb468587c90c9a76956579057cb68de1fc5bd0be",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+        "head": "311794c8b5c168ca34249855a5c7be8347350f7d",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+        "head": "1db763ca6a5423f3855c1be251f4270a7e12048e",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+        "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+        "head": "545507c70c7e4861e9f732b7f9cdce613d1b3e58",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+        "head": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+        "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+        "head": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+        "head": "419459d870294f41a0948de15a576db9ddd2249e",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+        "head": "018a593e2d027dddc860799b996ffb2f323abeb8",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+        "head": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+        "head": "f6a4cded84651c8a904da640886ff02b9746c0f9",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+        "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+        "head": "39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1",
+        "statusAndDirtyHashes": "PRESERVED"
+      },
+      {
+        "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+        "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+        "statusAndDirtyHashes": "PRESERVED"
+      }
+    ],
+    "RB4Original9And013": "UNCHANGED",
+    "allOtherInitialTrackedBytesUnchanged": true,
+    "oldUI6EvidenceHashes": {
+      "docs/reconstruction/ui6/ir01-ir02-raw.zip": "3867d3213ac5455f760e80225e8ab57163eed35c43d79da05ec4bebb91f8780b",
+      "docs/reconstruction/ui6/ir01-ir02-verification.json": "337366fe14295b8606638d2be00398d6562413106c534f27a5cf6eb41251a768",
+      "docs/reconstruction/ui6/pub01-raw.zip": "b47f7e0e4760fe87224cbbaa3f094fe47211ef54da7e2a9b314f65a432346192",
+      "docs/reconstruction/ui6/pub01-verification.json": "931b31766806eee630cc3d5d4e5cdbf34b5c54bf6493c45601cd0dafea139707",
+      "docs/reconstruction/ui6/verification-raw.zip": "c23cb53d05fda3981c1f647596f8c27feec9ee70ad33bbcf077f02caa5a7f44f",
+      "docs/reconstruction/ui6/verification.json": "d9bdfa54919bc338839dbee4ba28b457d7a5731f0318320713d249df28b95769"
+    },
+    "oldTestsServicesRulesSqlUnchanged": true,
+    "UI1_UI6SourceClosure": "PRESERVED",
+    "Firestore": "OPERATIONAL_AUTHORITY",
+    "SQLCutoverDualWritesRB4ActivationMigration013Publication": "NOT_AUTHORIZED_NOT_PERFORMED"
+  },
+  "rawArchive": {
+    "path": "docs/reconstruction/ui7/verification-raw.zip",
+    "sha256": "6aeadf2accc4fde987a4aa65b20c62cd4080e9c6ca5dcde9e91d1ed3689175e5",
+    "entries": 209,
+    "bytes": 11268443,
+    "integrity": "PASS;all entry hashes verified",
+    "excluded": "node_modules,dist,server-dist,emulator database/binaries,private operational data,old historical ZIP duplicates",
+    "secretScan": "No known private-key/GitHub-token/real-Google-key patterns"
+  },
+  "acceptanceNotGranted": [
+    "physical-device",
+    "screen-reader",
+    "live operations",
+    "real Google Workspace",
+    "product/Beta2"
+  ],
+  "ownerNextDecision": "Review local source,evidence and inherited non-green debt;publication remains unauthorized",
+  "stagedPaths": [],
+  "commitPushPrMergeDeployment": false
+}

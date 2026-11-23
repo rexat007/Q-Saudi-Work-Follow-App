@@ -1,7 +1,9 @@
+import {auth} from '../../firebase/config';
+import {dashboardSourceIds,dashboardSourceNames,dashboardStateLabels,emptyDashboardSources,completedDashboardSource,failedDashboardSource,dashboardWidgetState,hasDashboardDataAccess,type DashboardSources,type DashboardSourceId} from './dashboardPresentation';
 import {ProjectOperationalReadiness} from '../wizard/ProjectOperationalReadiness';
 import { filterProjectScope } from '../../utils/projectScope';
 import { presentAnalyticsText } from '../../i18n/analyticsPresentation';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback, useLayoutEffect } from 'react';
 import { 
   LayoutDashboard, 
   ShieldCheck, 
@@ -49,15 +51,20 @@ import { ProjectEntity, CarrierEntity, MaterialEntity, TruckEntity, DriverEntity
 
 export interface OperationsDashboardViewProps {
   authContext?: AuthUserContext;
+  profileAvailable?: boolean;
+  authorityKey?: string;
 }
 
-export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({ authContext }) => {
-  const { t: translate, isRTL } = useI18n();
-
-  // Fail-closed guard: missing or unauthenticated context must never manufacture an operational security profile
-  if (!authContext) {
+export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = ({authContext,profileAvailable=true,authorityKey=''}) => {
+  const {t:translate,isRTL}=useI18n();
+  const key=JSON.stringify([authContext?.userId,authContext?.role,[...(authContext?.assignedProjectIds||[])].sort(),profileAvailable,authorityKey]);
+  const owner=useRef({key,generation:0});
+  if(owner.current.key!==key)owner.current={key,generation:owner.current.generation+1};
+  const captured=owner.current;
+  const contextCurrent=useCallback(()=>owner.current===captured,[captured]);
+  if(!authContext){
     return (
-      <div className="border border-stone-800 bg-[#0f1115] rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl my-12" dir={isRTL ? 'rtl' : 'ltr'}>
+      <div data-ui7-access="unavailable" className="border border-stone-800 bg-[#0f1115] rounded-2xl p-12 text-center max-w-xl mx-auto space-y-6 shadow-xl my-12" dir={isRTL ? 'rtl' : 'ltr'}>
         <div className="w-16 h-16 bg-stone-900 border border-stone-800 text-stone-500 rounded-full flex items-center justify-center mx-auto">
           <ShieldAlert className="w-8 h-8 text-rose-500" />
         </div>
@@ -69,7 +76,11 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
       </div>
     );
   }
-
+  if(!profileAvailable||auth.currentUser?.uid!==authContext.userId||!hasDashboardDataAccess(authContext.role,authContext.assignedProjectIds))return <section data-ui7-access="unavailable" dir={isRTL?'rtl':'ltr'} role="status" className="rounded-xl border p-5">{translate('ui7.access_unavailable')}</section>;
+  return <DashboardWorkspace key={captured.generation} authContext={authContext} contextCurrent={contextCurrent}/>;
+};
+const DashboardWorkspace:React.FC<{authContext:AuthUserContext;contextCurrent:()=>boolean}>=({authContext,contextCurrent})=>{
+  const {t:translate,isRTL,locale}=useI18n();
   // 1. Canonical User Security Profile & Project Authorization derived from real session
   const activeProfile: UserSecurityProfile = useMemo(() => {
     const isSuperAdmin = authContext.role === 'SUPER_ADMIN';
@@ -111,70 +122,51 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
     };
   }, [authContext]);
   
-  // Canonical State from Repositories / IndexedDB
-  const [canonicalProjects, setCanonicalProjects] = useState<ProjectEntity[]>([]);
-  const [canonicalCarriers, setCanonicalCarriers] = useState<CarrierEntity[]>([]);
-  const [canonicalMaterials, setCanonicalMaterials] = useState<MaterialEntity[]>([]);
-  const [canonicalTrucks, setCanonicalTrucks] = useState<TruckEntity[]>([]);
-  const [canonicalDrivers, setCanonicalDrivers] = useState<DriverEntity[]>([]);
-  const [canonicalTrips, setCanonicalTrips] = useState<TripRecord[]>([]);
-
-  const assignedProjectScopeKey = JSON.stringify([...new Set(authContext.assignedProjectIds || [])].sort());
-
-  useEffect(() => {
-    let isMounted = true;
-    setCanonicalProjects([]); setCanonicalCarriers([]); setCanonicalMaterials([]);
-    setCanonicalTrucks([]); setCanonicalDrivers([]); setCanonicalTrips([]);
-    const loadCanonicalData = async () => {
-      try {
-        // 1. Projects
-        const assignedProjectIds: string[] = JSON.parse(assignedProjectScopeKey);
-        const isSuperAdmin = authContext.role === 'SUPER_ADMIN';
-        let prjs = await projectRepository.listAll(assignedProjectIds, isSuperAdmin).catch(() => []);
-        if (!prjs || prjs.length === 0) {
-          prjs = await offlineCacheService.getProjects().catch(() => []);
-        }
-
-        prjs = prjs.filter(p => isSuperAdmin || assignedProjectIds.includes(p.projectId));
-        const targetProjects = prjs.map(p => p.projectId);
-        let crs: CarrierEntity[] = [];
-        let mats: MaterialEntity[] = [];
-        let trks: TruckEntity[] = [];
-        let drvs: DriverEntity[] = [];
-
-        try {
-          // ONLINE: Canonical Authority
-          const [carrierLists, materialLists, fleetModels] = await Promise.all([
-            Promise.all(targetProjects.map(pId => projectProvisioningService.listProjectCarriers(pId).catch(() => []))),
-            Promise.all(targetProjects.map(pId => projectProvisioningService.listProjectMaterials(pId).catch(() => []))),
-            Promise.all(targetProjects.map(pId => projectFleetReadModelService.getProjectFleetReadModel(pId).catch(() => null))),
-          ]);
-          crs = carrierLists.flat() as any;
-          mats = materialLists.flat() as any;
-
-          const fleetRows = fleetModels.filter(Boolean).flatMap(f => f!.rows);
-          trks = fleetRows.map(r => ({
-            truckId: r.truckId,
-            plate: r.plateNumber,
-            carrierId: r.carrierId,
-            status: 'ACTIVE',
-            isActive: true,
-          })) as any;
-          drvs = fleetRows.filter(r => r.driverId).map(r => ({
-            driverId: r.driverId!,
-            name: r.driverName || r.driverId!,
-            carrierId: r.carrierId,
-            status: 'ACTIVE',
-            isActive: true,
-          })) as any;
-        } catch {
-          // OFFLINE FALLBACK: Last known canonical IndexedDB snapshot
-          const [cachedCrs, cachedMats, cachedTrks, cachedDrvs] = await Promise.all([
-            offlineCacheService.getCarriers().catch(() => []),
-            offlineCacheService.getMaterials().catch(() => []),
-            offlineCacheService.getTrucks().catch(() => []),
-            offlineCacheService.getDrivers().catch(() => []),
-          ]);
+  const [sources,setSources]=useState<DashboardSources>(emptyDashboardSources);
+  const canonicalProjects=sources.PROJECTS.data as ProjectEntity[],canonicalCarriers=sources.CARRIERS.data as CarrierEntity[],canonicalMaterials=sources.MATERIALS.data as MaterialEntity[],canonicalTrucks=sources.TRUCKS.data as TruckEntity[],canonicalDrivers=sources.DRIVERS.data as DriverEntity[],canonicalTrips=sources.TRIPS.data as TripRecord[];
+  const assignedProjectScopeKey=JSON.stringify([...new Set(authContext.assignedProjectIds||[])].sort());
+  const lifetime=useRef({retired:false}),sequence=useRef(0);
+  useLayoutEffect(()=>{const lease={retired:false};lifetime.current=lease;return()=>{lease.retired=true;};},[]);
+  const loadCanonicalData=useCallback(async()=>{
+    const lease=lifetime.current,request=++sequence.current;
+    const current=()=>!lease.retired&&lifetime.current===lease&&contextCurrent()&&auth.currentUser?.uid===authContext.userId&&sequence.current===request;
+    if(!current())return;
+    setSources(old=>current()?Object.fromEntries(dashboardSourceIds.map(id=>[id,{...old[id],state:'LOADING',availability:'LOADING'}])) as DashboardSources:old);
+    const publish=(id:DashboardSourceId,value:DashboardSources[DashboardSourceId]|((old:DashboardSources[DashboardSourceId])=>DashboardSources[DashboardSourceId]))=>{if(current())setSources(old=>current()?{...old,[id]:typeof value==='function'?value(old[id]):value}:old);};
+    const fail=(id:DashboardSourceId,reason?:DashboardSources[DashboardSourceId]['reason'])=>publish(id,old=>failedDashboardSource(old,reason));
+    const scoped=(rows:any[])=>filterProjectScope(rows,authContext);
+    const readTrips=async()=>{try{const rows=await indexedDBService.getAll<TripRecord>('trips');if(current())publish('TRIPS',completedDashboardSource(scoped(rows),'LOCAL_CACHE'));}catch{fail('TRIPS');}};
+    let projectReadCompleted=false;
+    const readProjects=async()=>{
+      let projects:ProjectEntity[]=[],canonicalFailed=false,local=false;
+      try{projects=await projectRepository.listAll(JSON.parse(assignedProjectScopeKey),authContext.role==='SUPER_ADMIN');}catch{canonicalFailed=true;}
+      if(!current())return;
+      if(!projects?.length){
+        try{const cached=await offlineCacheService.getProjects();if(!current())return;
+          if(cached?.length){projects=cached as any;local=true;}
+          else if(canonicalFailed){fail('PROJECTS','CACHE_EMPTY_UNKNOWN');for(const id of ['CARRIERS','MATERIALS','TRUCKS','DRIVERS'] as DashboardSourceId[])fail(id);return;}
+        }catch{if(!current())return;if(canonicalFailed){fail('PROJECTS','CACHE_FAILED');for(const id of ['CARRIERS','MATERIALS','TRUCKS','DRIVERS'] as DashboardSourceId[])fail(id);return;}publish('PROJECTS',completedDashboardSource([], 'CANONICAL_READ'));}
+      }
+      if(!current())return;
+      projects=scoped(projects||[]);
+      if(local&&!projects.length&&canonicalFailed){fail('PROJECTS','CACHE_EMPTY_UNKNOWN');for(const id of ['CARRIERS','MATERIALS','TRUCKS','DRIVERS'] as DashboardSourceId[])fail(id);return;}
+      publish('PROJECTS',completedDashboardSource(projects,local?'LOCAL_CACHE':'CANONICAL_READ'));projectReadCompleted=true;
+      const ids=projects.map(p=>p.projectId);
+      const results=await Promise.all([
+        Promise.allSettled(ids.map(id=>projectProvisioningService.listProjectCarriers(id))),
+        Promise.allSettled(ids.map(id=>projectProvisioningService.listProjectMaterials(id))),
+        Promise.allSettled(ids.map(id=>projectFleetReadModelService.getProjectFleetReadModel(id))),
+      ]);
+      if(!current())return;
+      const record=(id:DashboardSourceId,group:PromiseSettledResult<any>[],rows:any[])=>{const failed=group.filter(x=>x.status==='rejected').length;if(group.length&&failed===group.length)fail(id);else publish(id,completedDashboardSource(rows,'CANONICAL_READ',Boolean(failed)||local,failed));};
+      try{
+        const carriers=results[0].flatMap(x=>x.status==='fulfilled'?x.value:[]),materials=results[1].flatMap(x=>x.status==='fulfilled'?x.value:[]),fleetRows=results[2].flatMap(x=>x.status==='fulfilled'?x.value.rows:[]);
+        const trucks=fleetRows.map(r=>({truckId:r.truckId,plate:r.plateNumber,carrierId:r.carrierId,status:'ACTIVE',isActive:true})),drivers=fleetRows.filter(r=>r.driverId).map(r=>({driverId:r.driverId!,name:r.driverName||r.driverId!,carrierId:r.carrierId,status:'ACTIVE',isActive:true}));
+        record('CARRIERS',results[0],carriers);record('MATERIALS',results[1],materials);record('TRUCKS',results[2],trucks);record('DRIVERS',results[2],drivers);
+      }catch{
+        // Preserve the existing master-cache fallback for malformed aggregation.
+        const cached=await Promise.allSettled([offlineCacheService.getCarriers(),offlineCacheService.getMaterials(),offlineCacheService.getTrucks(),offlineCacheService.getDrivers()]);if(!current())return;
+        const [cachedCrs,cachedMats,cachedTrks,cachedDrvs]=cached.map(x=>x.status==='fulfilled'?x.value:[]);let crs:any[]=[],mats:any[]=[],trks:any[]=[],drvs:any[]=[];
           crs = cachedCrs.map(c => ({
             carrierId: c.carrierId,
             projectId: c.projectId,
@@ -235,27 +227,12 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             updatedAt: new Date(),
             updatedBy: 'SYSTEM',
           })) as any;
-        }
-
-        // 3. Trips
-        const dbTrips = await indexedDBService.getAll<TripRecord>('trips').catch(() => []);
-
-        if (isMounted) {
-          setCanonicalProjects(prjs || []);
-          setCanonicalCarriers(crs || []);
-          setCanonicalMaterials(mats || []);
-          setCanonicalTrucks(trks || []);
-          setCanonicalDrivers(drvs || []);
-          setCanonicalTrips(filterProjectScope(dbTrips || [], authContext));
-        }
-      } catch (err) {
-        console.warn('OperationsDashboardView: Error loading canonical data:', err);
+        const arrays=[crs,mats,trks,drvs];(['CARRIERS','MATERIALS','TRUCKS','DRIVERS'] as DashboardSourceId[]).forEach((id,i)=>{const rows=scoped(arrays[i]);if(cached[i].status==='rejected'||!rows.length)fail(id);else publish(id,completedDashboardSource(rows,'LOCAL_CACHE',true));});
       }
     };
-
-    loadCanonicalData();
-    return () => { isMounted = false; };
-  }, [authContext.userId, authContext.role, assignedProjectScopeKey]);
+    await Promise.allSettled([readProjects().catch(()=>{for(const id of ['PROJECTS','CARRIERS','MATERIALS','TRUCKS','DRIVERS'] as DashboardSourceId[])if(id!=='PROJECTS'||!projectReadCompleted)fail(id);}),readTrips()]);
+  },[authContext.userId,authContext.role,assignedProjectScopeKey,contextCurrent]);
+  useEffect(()=>{void loadCanonicalData();},[loadCanonicalData]);
 
   // 2. Global Dashboard Filters
   const [globalFilters, setGlobalFilters] = useState<DashboardFilterParams>({
@@ -444,10 +421,23 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
     };
   }, [terminalFilters, activeProfile, canonicalTrips, masterDataContext, terminalStatusFilter, terminalSearch]);
 
+  const widgetProps=(id:string,filters:DashboardFilterParams,auxiliary:DashboardSourceId[]=[],count?:number)=>({id,sources,state:dashboardWidgetState(sources,auxiliary,count??dashboardService.getFilteredTrips(filters,activeProfile,canonicalTrips).trips.length)});
   return (
-    <div className="space-y-6" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div data-ui7-dashboard className="space-y-6 min-w-0" dir={isRTL ? 'rtl' : 'ltr'}>
       
       <ProjectOperationalReadiness projectId={globalFilters.projectId} status={canonicalProjects.find(p=>p.projectId===globalFilters.projectId)?.status} scopeKey={JSON.stringify([authContext.userId,authContext.role,authContext.assignedProjectIds])}/>
+      <section aria-label={translate('ui7.sources')} className="rounded-xl border border-stone-300 bg-white p-3 space-y-2 min-w-0">
+        <p role="status" className="text-sm">{translate('ui7.snapshot')}</p>
+        <button type="button" data-ui7-refresh disabled={dashboardSourceIds.some(id=>sources[id].availability==='LOADING')} onClick={()=>void loadCanonicalData()} className="rounded border px-3 py-2 disabled:opacity-50">{translate('ui7.read_again')}</button>
+        <details><summary className="cursor-pointer py-2">{translate('ui7.sources')}</summary><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{dashboardSourceIds.map(id=><section key={id} data-ui7-source={id} data-state={sources[id].state} data-availability={sources[id].availability} data-provenance={sources[id].provenance} className="rounded border p-2 text-xs min-w-0" aria-busy={sources[id].availability==='LOADING'}>
+          <strong>{translate(dashboardSourceNames[id])}</strong><p role="status">{translate(dashboardStateLabels[sources[id].state])}</p>
+          <p>{translate(sources[id].provenance==='CANONICAL_READ'?'ui7.canonical_read':'ui7.local_read')}</p>
+          {sources[id].availability==='UNAVAILABLE'&&sources[id].data.length>0&&<p>{translate('ui7.retained')}</p>}
+          {sources[id].reason&&<p>{translate(sources[id].reason==='CACHE_EMPTY_UNKNOWN'?'ui7.cache_empty_unknown':'ui7.cache_failed')}</p>}
+          {sources[id].observedAt&&<p>{translate('ui7.observed')} <time dateTime={sources[id].observedAt}>{new Date(sources[id].observedAt!).toLocaleString(locale)}</time></p>}
+        </section>)}</div></details>
+      </section>
+
       {/* 1. Header & Security Role Switcher (Project Authorization Enforcement) */}
       <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -460,10 +450,10 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                 <h1 className="text-xl font-bold text-stone-900 flex items-center gap-2">
                   <span>{translate("dashboard.labels.txt_7d6fcd")}</span>
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">
-                    {translate("dashboard.labels.txt_6c69a9")}</span>
+                    {translate("ui7.local_badge")}</span>
                 </h1>
                 <p className="text-xs text-stone-500 mt-0.5">
-                  {translate("dashboard.labels.continue")}</p>
+                  {translate("ui7.snapshot")}</p>
               </div>
             </div>
           </div>
@@ -661,6 +651,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           />
         )}
 
+<DashboardValues {...widgetProps('tripsCard',tripsFilters)}>
         {/* 5 Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Total Trips */}
@@ -744,6 +735,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               {translate("dashboard.labels.txt_5ac4f2")}</div>
           </div>
         </div>
+</DashboardValues>
       </div>
 
       {/* 4. SECTION TWO: Tonnage & Weighbridge Variance Cards */}
@@ -783,6 +775,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         )}
 
         {/* 3 Cards */}
+<DashboardValues {...widgetProps('tonnageCard',tonnageFilters)}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Total Loaded Tons */}
           <div className="bg-stone-50 border border-stone-200/80 rounded-xl p-4">
@@ -843,6 +836,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               {translate("dashboard.labels.variance_diff_desc")}</div>
           </div>
         </div>
+</DashboardValues>
       </div>
 
       {/* 5. SECTION THREE: Financial Settlement Cards */}
@@ -882,6 +876,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
         )}
 
         {/* 3 Cards */}
+<DashboardValues {...widgetProps('settlementCard',settlementFilters)}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {/* Total Settlement */}
           <div className="bg-stone-900 text-white rounded-xl p-4 shadow-sm flex flex-col justify-between">
@@ -936,6 +931,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             </div>
           </div>
         </div>
+</DashboardValues>
       </div>
 
       {/* 6. SECTION FOUR & FIVE: Carrier Performance & Material Distribution */}
@@ -978,6 +974,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </div>
             )}
 
+<DashboardValues {...widgetProps('carrierPerf',carrierFilters,['CARRIERS'])}>
             {/* Carrier Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-right text-xs">
@@ -1024,6 +1021,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                 </tbody>
               </table>
             </div>
+</DashboardValues>
           </div>
         </div>
 
@@ -1064,6 +1062,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
               </div>
             )}
 
+<DashboardValues {...widgetProps('materialDist',materialFilters,['MATERIALS'])}>
             {/* Material Items List */}
             <div className="space-y-3">
               {materialData.items.length === 0 ? (
@@ -1098,6 +1097,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
                 ))
               )}
             </div>
+</DashboardValues>
           </div>
         </div>
 
@@ -1137,6 +1137,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           />
         )}
 
+<DashboardValues {...widgetProps('pricingDist',pricingFilters)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pricingData.items.map((p) => (
             <div 
@@ -1178,34 +1179,35 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             </div>
           ))}
         </div>
+</DashboardValues>
       </div>
 
       {/* 8. SECTION SEVEN: Live Terminal Board */}
       <div className="bg-white rounded-2xl border border-stone-200 p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></div>
+            <div className="w-2.5 h-2.5 rounded-full bg-stone-400"></div>
             <div>
               <h3 className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                <span>{translate("dashboard.labels.txt_2530ed")}</span>
+                <span>{translate("ui7.terminal_title")}</span>
                 <span className="text-[10px] bg-stone-100 text-stone-700 px-2 py-0.5 rounded-full font-mono font-bold border border-stone-200">
-                  {terminalData.items.length} {" "}{translate("analytics.ui.active_movements")}</span>
+                  {sources.TRIPS.availability!=='AVAILABLE'&&!canonicalTrips.length?'—':terminalData.items.length} {" "}{translate("analytics.ui.active_movements")}</span>
               </h3>
               <p className="text-[11px] text-stone-500">
-                {translate("dashboard.labels.continue_2")}</p>
+                {translate("ui7.snapshot")}</p>
             </div>
           </div>
 
           {/* Search and Quick Filters */}
-          <div className="flex items-center gap-2">
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
+            <div className="relative min-w-0">
               <Search className="w-3.5 h-3.5 absolute right-3 top-2.5 text-stone-400" />
               <input
                 type="text"
                 placeholder={translate("dashboard.labels.search_placeholder")}
                 value={terminalSearch}
                 onChange={(e) => setTerminalSearch(e.target.value)}
-                className="pr-8 pl-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:border-amber-500 outline-none w-48 sm:w-60"
+                className="pr-8 pl-3 py-1.5 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:bg-white focus:border-amber-500 outline-none w-full sm:w-60"
               />
             </div>
 
@@ -1245,6 +1247,7 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
           />
         )}
 
+<DashboardValues {...widgetProps('terminalBoard',terminalFilters,['PROJECTS','CARRIERS','MATERIALS','TRUCKS','DRIVERS'],terminalData.items.length)}>
         {/* Terminal Table */}
         <div className="overflow-x-auto border border-stone-100 rounded-xl">
           <table className="w-full text-right text-xs">
@@ -1352,8 +1355,14 @@ export const OperationsDashboardView: React.FC<OperationsDashboardViewProps> = (
             </tbody>
           </table>
         </div>
+</DashboardValues>
       </div>
 
     </div>
   );
 };
+
+function DashboardValues({id,sources,state,children}:{id:string;sources:DashboardSources;state:ReturnType<typeof dashboardWidgetState>;children:React.ReactNode}){
+ const {t}=useI18n();const visible=state!=='LOADING'&&state!=='UNAVAILABLE';
+ return <section data-ui7-widget={id} data-state={state} className="min-w-0 space-y-2" aria-busy={state==='LOADING'}><p role="status" className="text-xs text-stone-600">{t(state==='RETAINED_LOCAL_SNAPSHOT'?'ui7.local_badge':dashboardStateLabels[state])}{visible&&state!=='RETAINED_LOCAL_SNAPSHOT'?' '+t('ui7.local_badge'):''}</p>{sources.TRIPS.availability==='UNAVAILABLE'&&sources.TRIPS.data.length>0&&<p role="status" className="text-xs">{t('ui7.retained')}</p>}{visible&&<div data-ui7-values>{children}</div>}</section>;
+}
