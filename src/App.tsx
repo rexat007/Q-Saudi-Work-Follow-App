@@ -558,6 +558,8 @@ export default function App() {
                 {activeTab === 'OPERATIONS_DASHBOARD' && (
                   operationalProject?.operationalConfiguration ? <AdaptiveOperationalReports key={selectedProjectId} projectId={selectedProjectId} configuration={operationalProject?.operationalConfiguration}/> : <OperationsDashboardView
                     authContext={activeAuthContext}
+                    profileAvailable={!profileUnavailable && !isProfileLoading && userProfile?.status==='ACTIVE' && userProfile?.isActive!==false}
+                    authorityKey={inventoryScope}
                   />
                 )}
 

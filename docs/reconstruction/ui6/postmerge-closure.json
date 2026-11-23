@@ -1,0 +1,1108 @@
+{
+  "clientDate": "2026-11-22",
+  "disposition": "UI6_SOURCE_CLOSED_POSTMERGE / UI7_DISCOVERY_ONLY / OWNER_REVIEW_PENDING",
+  "sourceClosureGate": "PASS",
+  "repository": "rexat007/Q-Saudi-Work-Follow-App",
+  "verifiedMerge": {
+    "sha": "9721022418b58ff917f967519f281e9332e21cc5",
+    "parents": [
+      "9fda05f22888e97cd9538c7c32cb8c225c893376",
+      "ea96d895960b0ef93397f363cbf650756e2ed9ae"
+    ],
+    "tree": "ba107bf64fb4562eaf04c46638667a6ee27be92e",
+    "candidate": "ea96d895960b0ef93397f363cbf650756e2ed9ae",
+    "candidateTree": "ba107bf64fb4562eaf04c46638667a6ee27be92e",
+    "treeAnd38PathBlobEquivalence": true,
+    "candidateAncestor": true,
+    "originMainVerified": "9721022418b58ff917f967519f281e9332e21cc5",
+    "localInitialStatus": "CLEAN",
+    "branch": "docs/ui6-postmerge-ui7-discovery-20261122",
+    "upstream": "NONE"
+  },
+  "mergedPR": {
+    "number": 107,
+    "merged": true,
+    "mergeSha": "9721022418b58ff917f967519f281e9332e21cc5",
+    "head": "ea96d895960b0ef93397f363cbf650756e2ed9ae",
+    "base": "9fda05f22888e97cd9538c7c32cb8c225c893376",
+    "mergedAt": "2026-11-22T05:49:27Z",
+    "changedFiles": 38
+  },
+  "merged38Paths": [
+    "docs/reconstruction/00_WORK_START_HERE.md",
+    "docs/reconstruction/02_PHASE_LEDGER.md",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+    "docs/reconstruction/UI5_ACCOUNT_REVIEW.md",
+    "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md",
+    "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md",
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md",
+    "docs/reconstruction/UI6_IR01_IR02.md",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+    "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+    "docs/reconstruction/UI6_TARGET_DISCOVERY.md",
+    "docs/reconstruction/ui5/postmerge-closure.json",
+    "docs/reconstruction/ui6/ir01-ir02-raw.zip",
+    "docs/reconstruction/ui6/ir01-ir02-verification.json",
+    "docs/reconstruction/ui6/pub01-raw.zip",
+    "docs/reconstruction/ui6/pub01-verification.json",
+    "docs/reconstruction/ui6/verification-raw.zip",
+    "docs/reconstruction/ui6/verification.json",
+    "src/App.tsx",
+    "src/components/offline/OfflineIndicator.tsx",
+    "src/components/offline/OutboxDrawer.tsx",
+    "src/components/offline/outboxPresentation.ts",
+    "src/locales/ar/index.ts",
+    "src/locales/en/index.ts",
+    "src/locales/ur/index.ts",
+    "src/tests/helpers/ui6IrBrowserEntry.tsx",
+    "src/tests/helpers/ui6OutboxBrowserEntry.tsx",
+    "src/tests/helpers/ui6OutboxConnectedEntry.tsx",
+    "src/tests/ui6Ir01AckRecognition.test.tsx",
+    "src/tests/ui6Ir01Ir02Transport.test.tsx",
+    "src/tests/ui6Ir02BatchTruth.test.tsx",
+    "src/tests/ui6IrBrowser.test.ts",
+    "src/tests/ui6OutboxBrowser.test.ts",
+    "src/tests/ui6OutboxConnectedJourney.test.ts",
+    "src/tests/ui6OutboxPresentation.test.tsx",
+    "src/tests/ui6OutboxTransport.test.tsx",
+    "src/tests/ui6Pub01ReceiptTruth.test.tsx"
+  ],
+  "mergedPathBlobs": {
+    "docs/reconstruction/00_WORK_START_HERE.md": "7a2105c226baf6c353b8740619bcad4e6776b286",
+    "docs/reconstruction/02_PHASE_LEDGER.md": "31c677f84417595794b8d4f3b78531d5f4705e30",
+    "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "e5c8c0ce67cfa8c3b41530480dc2aa2a4794ee2b",
+    "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "066163306cc635045d9c9069617c59084cba9e6f",
+    "docs/reconstruction/UI5_ACCOUNT_REVIEW.md": "1d7e79943342cb0fc74e458d3288e296ced6191e",
+    "docs/reconstruction/UI5_IR01_DECISION_ADMISSION.md": "092de88583318ea36e391ed260e898f70754f220",
+    "docs/reconstruction/UI5_POSTMERGE_CLOSURE.md": "c149417cbc3d80a0c4aabcb13775adf18c37f292",
+    "docs/reconstruction/UI5_PUB01_RETIREMENT.md": "f6eec05b182dce1d320d808f74a16ed2ae80f705",
+    "docs/reconstruction/UI6_IR01_IR02.md": "027626d0a9713f47a0a426ca394d1df78bc093b3",
+    "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "a09cb888823073761a4872ab9c61ca45e79c8107",
+    "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md": "79d746aa5df46a4ca8ddd274cdfd4a0e0bec11bd",
+    "docs/reconstruction/UI6_TARGET_DISCOVERY.md": "7c3948068ff192096c528d5719952dac7c847e67",
+    "docs/reconstruction/ui5/postmerge-closure.json": "01ab621c20bc2d9db71ed7e8ea416a9567fe2cb5",
+    "docs/reconstruction/ui6/ir01-ir02-raw.zip": "6390c8c4c94420a62c68e3bbad0dee1acbdd9418",
+    "docs/reconstruction/ui6/ir01-ir02-verification.json": "28b4efc5193f2ef0b38b61ee3920cdb34bd429c2",
+    "docs/reconstruction/ui6/pub01-raw.zip": "f34789b099e7a10e9552a94be862cf270e4fcff4",
+    "docs/reconstruction/ui6/pub01-verification.json": "85bdcfd4f48c760ef8ff61ca34da5cc64ca04ed5",
+    "docs/reconstruction/ui6/verification-raw.zip": "a85eba6dad078de067cd5a1d74ec2fc1618f898b",
+    "docs/reconstruction/ui6/verification.json": "52f1571023c764e1dfabe3aea01b482cead6b333",
+    "src/App.tsx": "59509ad0abd06139bebe19d6b425d4f1136e8784",
+    "src/components/offline/OfflineIndicator.tsx": "3b4d677d7acdefdbdebd8fa16c345d88b5301414",
+    "src/components/offline/OutboxDrawer.tsx": "34079bfadb25c32fc1c26908ff01469b32ca970e",
+    "src/components/offline/outboxPresentation.ts": "d06cbb5f9308f9391e6cec3ad7576d2468fe6834",
+    "src/locales/ar/index.ts": "0ed0d69ab9d333f21cdd5820c8b6a07d7ef17c66",
+    "src/locales/en/index.ts": "e5bd83ee2ae4fb6f23a1cc3a9822146a37bd69cc",
+    "src/locales/ur/index.ts": "385a9e2ba34073e8c67bcb9a58a1c41723723f40",
+    "src/tests/helpers/ui6IrBrowserEntry.tsx": "3e2232ceebd131cc64e4b499a0412b7d27746a7a",
+    "src/tests/helpers/ui6OutboxBrowserEntry.tsx": "c19871d66a8498a5796c8c9f723f952b9ca78bd4",
+    "src/tests/helpers/ui6OutboxConnectedEntry.tsx": "0ae0b658b4f4196e430348792a5b7d92d01a5d99",
+    "src/tests/ui6Ir01AckRecognition.test.tsx": "de8592f2dad063b9c586c3355596ae4a957cdd79",
+    "src/tests/ui6Ir01Ir02Transport.test.tsx": "252766ba7b77d01a402bd1c5712166745c00e8b4",
+    "src/tests/ui6Ir02BatchTruth.test.tsx": "d1166ec8308ec7edd90ae2955ac7db45327d3f8d",
+    "src/tests/ui6IrBrowser.test.ts": "f26c51200de2bf5d3ce847100d081242ed1ac3de",
+    "src/tests/ui6OutboxBrowser.test.ts": "d711be79181f5a719047e95a11f9abdc240dd70e",
+    "src/tests/ui6OutboxConnectedJourney.test.ts": "9cf470498b59f0935f79f66235eac83f2d36e48b",
+    "src/tests/ui6OutboxPresentation.test.tsx": "2f303890846a49f36d2220aa4012d3053273ff1b",
+    "src/tests/ui6OutboxTransport.test.tsx": "3588ad8b116efd7edd76f7ffea88a7f987056c5c",
+    "src/tests/ui6Pub01ReceiptTruth.test.tsx": "44c3f83bde0fc2cc038821e0f88ed6cd675d4140"
+  },
+  "mergedScope": {
+    "production": 7,
+    "testsFixtures": 12,
+    "documentationEvidence": 19,
+    "total": 38
+  },
+  "postmergeCI": [
+    {
+      "id": 44991047286,
+      "sha": "9721022418b58ff917f967519f281e9332e21cc5",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-11-22T05:49:29Z",
+      "updatedAt": "2026-11-22T05:51:00Z",
+      "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44991047286",
+      "jobs": [
+        {
+          "id": 137111957855,
+          "name": "Required foundation",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44991047286,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Confirm Node and npm authority",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Build",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify runtime translation keys",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify authentication trust boundary",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Verify repository cleanliness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 18
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 19
+            }
+          ]
+        },
+        {
+          "id": 137111958007,
+          "name": "PostgreSQL 17 authority regressions",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44991047286,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Provision separated isolated database owner",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Verify native SQL authorities without skipped cases",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify explicit 148 authority bundle",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 14
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        },
+        {
+          "id": 137111958012,
+          "name": "Typecheck debt observability",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44991047286,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Confirm Node and npm authority",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Clean install",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Full-repository typecheck (non-blocking debt observation)",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 6
+            },
+            {
+              "name": "Report typecheck outcome",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Verify repository cleanliness",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Set up project Node",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 15
+            },
+            {
+              "name": "Post Check out repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 16
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 17
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 44991047322,
+      "sha": "9721022418b58ff917f967519f281e9332e21cc5",
+      "event": "dynamic",
+      "status": "completed",
+      "conclusion": "success",
+      "createdAt": "2026-11-22T05:49:29Z",
+      "updatedAt": "2026-11-22T05:50:33Z",
+      "url": "https://github.com/rexat007/Q-Saudi-Work-Follow-App/actions/runs/44991047322",
+      "jobs": [
+        {
+          "id": 137111960265,
+          "name": "Analyze (python)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44991047322,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        },
+        {
+          "id": 137111960383,
+          "name": "Analyze (actions)",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 44991047322,
+          "logs_url": null,
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 1
+            },
+            {
+              "name": "Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 2
+            },
+            {
+              "name": "Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 3
+            },
+            {
+              "name": "Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 4
+            },
+            {
+              "name": "Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 5
+            },
+            {
+              "name": "Post Perform CodeQL Analysis",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 7
+            },
+            {
+              "name": "Post Initialize CodeQL",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 8
+            },
+            {
+              "name": "Post Setup proxy for registries",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 9
+            },
+            {
+              "name": "Post Checkout repository",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 10
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success",
+              "number": 11
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "typecheckEvidence": {
+    "jobId": 137111958012,
+    "runId": 44991047286,
+    "head": "9721022418b58ff917f967519f281e9332e21cc5",
+    "command": "npm run lint (tsc --noEmit)",
+    "workflowStepConfiguredNonBlocking": true,
+    "reportedOutcome": "success",
+    "relevantLogLines": [
+      "2026-11-22T05:49:58.4606059Z ##[group]Run npm run lint",
+      "2026-11-22T05:49:58.5340777Z > tsc --noEmit",
+      "2026-11-22T05:50:21.1390328Z   TYPECHECK_OUTCOME: success"
+    ]
+  },
+  "typecheckBoundary": "Observability job non-blocking by workflow design;job success alone insufficient. Actual underlying full compiler command reported success on merge SHA;no fresh local compiler execution in this documentation-only task.",
+  "sourceUnits": {
+    "UI1_UI6": "MERGED / MAIN_SOURCE_VERIFIED / SOURCE_CLOSED",
+    "UI6_PUB01": "MERGED / RECEIPT_TRUTH_VERIFIED / SOURCE_CLOSED",
+    "UI6_IR01": "MERGED / OPERATION_TYPE_ACK_VERIFIED / SOURCE_CLOSED",
+    "UI6_IR02": "MERGED / BATCH_OUTCOME_TRUTH_VERIFIED / SOURCE_CLOSED",
+    "UI7": "NOT_STARTED / TARGET_DISCOVERY_ONLY / OWNER_REVIEW_PENDING",
+    "UI8": "NOT_STARTED"
+  },
+  "retainedPremergeEvidence": {
+    "UI6": "33/33 PASS",
+    "UI6_PUB01": "26/26 PASS",
+    "IR01_IR02": "65/65 PASS",
+    "IR01Presentation": "29/40 ->40/40",
+    "IR01RealHTTP": "0/2 ->2/2",
+    "IR02Presentation": "5/20 ->20/20",
+    "IR02RealHTTP": "0/3 ->3/3",
+    "UI5": "76/76 includesPUB01 27/27;IR01 10/10 separate",
+    "offlineContinuity": "53/53 isolated inactive backend",
+    "runtimeI18n": "16/16 PASS historical local;postmerge unchanged runtime command succeeded",
+    "localTypecheckLintBuild": "PASS premerge,not rerun here",
+    "Edge": {
+      "result": "9/9 PASS",
+      "locales": [
+        "ar",
+        "en",
+        "ur"
+      ],
+      "widths": [
+        320,
+        768,
+        1440
+      ],
+      "browser": "Edge157.0.4341.60",
+      "correctionExecutionClientDate": "2026-11-22",
+      "freshPostmerge": false
+    },
+    "authenticatedEmulator": {
+      "historical": "1/1",
+      "clientDate": "2026-11-21",
+      "status": "NOT_RERUN after correction or merge",
+      "freshPostmerge": false
+    }
+  },
+  "historicalFailurePreservation": {
+    "aggregate": "678/703 NOT PASS",
+    "passed": 678,
+    "historicalFailed": 3,
+    "historicalSetupUnexecuted": 22,
+    "failedIdentities": [
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 4. AdminConsoleView subscribes to projectRepository with assignedProjectIds & isSuperAdmin",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 5. AdminConsoleView subscribes to canonical userRepository",
+        1
+      ],
+      [
+        "adminConsoleConvergence.test.ts",
+        "Phase 6 — AdminConsole Canonical Authority Convergence Verification 6. AdminConsoleView subscribes to canonical auditLogService",
+        1
+      ]
+    ],
+    "setupUnexecutedIdentities": [
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-01",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-02",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-03",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-04",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-05",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-06",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-07",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-08",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-09",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "CONF-TEST-10",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 1. Verifies ConflictResolutionService runs fully on canonical local cache without legacy tripEngineService",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 2. Verifies legacy fallback mutation path in OutboxService is strictly prohibited",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 3. Verifies OutboxService network failure marks operation as FAILED without reporting false success",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 4. Verifies OutboxService detects state conflict against canonical local cache",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 5. Positive Canonical Replay Proof: Outbox PENDING -> syncAll() -> HTTP replay -> authoritative server response -> authoritative Trip cached -> Outbox SYNCED",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 6. A local ledger cannot bypass server reauthorization before idempotent acknowledgement",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization 7. Conflict False-Success Remediation Proof: Mutating Resolution (OVERRIDE_TO_NEW_PRICING) re-queues Outbox as PENDING with sanitized payload and does not write local Trip",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 1. UPDATE_TRIP_STATUS Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 2. RECORD_RECEIPT Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 3. REPORT_EXCEPTION Positive Replay and Local Cache Convergence",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 4. Negative Replay: Server returns 500 error, marks Outbox FAILED and increments retryCount",
+        1
+      ],
+      [
+        "canonicalReplayHarmonizationBlock132.test.ts",
+        "BLOCK 132 — LU-P5-02 Canonical Replay & Outbox Harmonization GAP-P5-04 — Focused Tests (Positive, Failure, and Durable Idempotency) 5. Revoked server authority wins over a cached processed ledger record",
+        1
+      ]
+    ],
+    "unchangedOriginal638Dispositions": true,
+    "additional65Passing": true,
+    "setupCause": "Inherited canonicalReplayHarmonizationBlock132/imported conflictResolution beforeAll AUTH_CONTEXT_CHANGED mismatch TESTER-01 vsactor",
+    "broadSuiteFreshlyRerun": false,
+    "earlierRecords": "613/638,587/612,554/579 andUI5 326/329,316/319 remain separate NOT PASS;UI4 separate14 historical identities retained",
+    "originalRedGreenFailedInterruptedBrowserFixtureAttempts": "PRESERVED_UNCHANGED"
+  },
+  "documentation": {
+    "modified7": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+      "docs/reconstruction/UI6_IR01_IR02.md"
+    ],
+    "new3": [
+      "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md",
+      "docs/reconstruction/UI7_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui6/postmerge-closure.json"
+    ],
+    "exactChanged10": [
+      "docs/reconstruction/00_WORK_START_HERE.md",
+      "docs/reconstruction/02_PHASE_LEDGER.md",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md",
+      "docs/reconstruction/UI6_IR01_IR02.md",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md",
+      "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md",
+      "docs/reconstruction/UI7_TARGET_DISCOVERY.md",
+      "docs/reconstruction/ui6/postmerge-closure.json"
+    ],
+    "mergedHistoricalBodyRawHashes": {
+      "docs/reconstruction/00_WORK_START_HERE.md": "6745929249243ceb7201b59e2301525089b8a3d85e98f70b454971e521753b7e",
+      "docs/reconstruction/02_PHASE_LEDGER.md": "ed55f50697f6585dd8363f83f467dac95bf57e3840e3febcd525f82333c972ec",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "f23e6a2a986b541303594d64a3519d67392097b26b90f157b9fb883e3a10280b",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "eaa4442ec74cc91044aff2db707d6d141eaf932a6ce10c167602ceca502d72d0",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "71d6a26e8ee9fd0dca19a404774ed9e817073e1092b1f6e25e5164fb0db500c3",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md": "b671946096c965fe46e08268c457f74eedaf97ef6401e85977157fe0e07adcfa",
+      "docs/reconstruction/UI6_IR01_IR02.md": "d2163b50f1ca35d54ac299a469e2fca871daa09131f1346a0a2cc4531d144e8c"
+    },
+    "currentTextHashes": {
+      "docs/reconstruction/00_WORK_START_HERE.md": "90cdc614ef84a1cf945b0867574157650f8e3fdc01d57949ba645cbd64b7abb7",
+      "docs/reconstruction/02_PHASE_LEDGER.md": "064a2ba1d65d1a9628e45ee85d1ad562cd8cba4d6569bf06fd49d1161f535d29",
+      "docs/reconstruction/05_DECISION_AND_DEBT_LOG.md": "ab7e5fbf7d1abddab5b66ac6986e00e20ecec646072b4b2b73a21057d2a52d42",
+      "docs/reconstruction/MASTER_PROJECT_HANDOFF.md": "f39cad1463004de71c4b5615715c9a327cc975312ae2b827f67c080729ab1b88",
+      "docs/reconstruction/UI6_OUTBOX_STATUS_RECOVERY.md": "0a7994d3da8d478300e429bcfb753942d77da31affe273b8ef025a40ccb085af",
+      "docs/reconstruction/UI6_PUB01_RECEIPT_TRUTH.md": "b9cad155597a321eea76c9313ea23764f6910496b303e9dec949e5cc8c26e88b",
+      "docs/reconstruction/UI6_IR01_IR02.md": "4fffba0e11b0d4e4dd328ecc0e24c49c744ecb4ce56c48d067039a7087e3bff5",
+      "docs/reconstruction/UI6_POSTMERGE_CLOSURE.md": "2fd2b27ba3328a410912191d01d8b1f3c46296fc4b867ad0acdeef3f29707b2f",
+      "docs/reconstruction/UI7_TARGET_DISCOVERY.md": "daf024a2fd4743f3330ddf6c8f85b0106c01e3b7c4ff35f22f289e2842c29f14"
+    },
+    "originalBodyBoundary": "Every complete merged document is preserved as an exact raw-byte suffix below additive current-state section",
+    "hashBoundary": "This JSON excludes its own recursive hash;external final receipt seals the finished record."
+  },
+  "historicalUI6ArchivesAndManifestsRawHashes": {
+    "docs/reconstruction/ui6/ir01-ir02-raw.zip": "3867d3213ac5455f760e80225e8ab57163eed35c43d79da05ec4bebb91f8780b",
+    "docs/reconstruction/ui6/ir01-ir02-verification.json": "337366fe14295b8606638d2be00398d6562413106c534f27a5cf6eb41251a768",
+    "docs/reconstruction/ui6/pub01-raw.zip": "b47f7e0e4760fe87224cbbaa3f094fe47211ef54da7e2a9b314f65a432346192",
+    "docs/reconstruction/ui6/pub01-verification.json": "931b31766806eee630cc3d5d4e5cdbf34b5c54bf6493c45601cd0dafea139707",
+    "docs/reconstruction/ui6/verification-raw.zip": "c23cb53d05fda3981c1f647596f8c27feec9ee70ad33bbcf077f02caa5a7f44f",
+    "docs/reconstruction/ui6/verification.json": "d9bdfa54919bc338839dbee4ba28b457d7a5731f0318320713d249df28b95769"
+  },
+  "allOther1888TrackedFilesByteIdentical": true,
+  "productionTestsRulesSQLChanged": false,
+  "worktreePreservation": {
+    "before": {
+      "count": 22,
+      "rows": [
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+          "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+          "head": "365134064ad790377cd0bc2c2b58c0044ce7952a",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+          "head": "a5cc9f552d71317cc0db20b367d7612b10075132",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+          "head": "bd390ad4fd31076e53bddfc154b22b338e4a8aff",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+          "head": "c36c3854ab45ca375ebb4ba2ab688d8aacbfa463",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+          "head": "e9f3cc63406523c44db9eb42965b01a258312fa2",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+          "head": "7ce8f7827e6e9a037a8010791c4ee69170d868ff",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+          "head": "bb468587c90c9a76956579057cb68de1fc5bd0be",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+          "head": "311794c8b5c168ca34249855a5c7be8347350f7d",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+          "head": "1db763ca6a5423f3855c1be251f4270a7e12048e",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+          "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+          "head": "545507c70c7e4861e9f732b7f9cdce613d1b3e58",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+          "head": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+          "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+          "head": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+          "head": "419459d870294f41a0948de15a576db9ddd2249e",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+          "head": "018a593e2d027dddc860799b996ffb2f323abeb8",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+          "head": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+          "head": "f6a4cded84651c8a904da640886ff02b9746c0f9",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+          "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+          "head": "39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+          "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+          "headStatusAndDirtyHashesMatch": true
+        }
+      ],
+      "RB4Original9And013": "UNCHANGED"
+    },
+    "RB4Original9DirtyFilesAnd013": "UNCHANGED",
+    "after": {
+      "count": 22,
+      "rows": [
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/Q-Saudi-Work-Follow-App",
+          "head": "11326e277939fe3a1d839d723085797d3d6a691f",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.sg1-baseline",
+          "head": "365134064ad790377cd0bc2c2b58c0044ce7952a",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-baseline",
+          "head": "a5cc9f552d71317cc0db20b367d7612b10075132",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-ci1-verify",
+          "head": "bd390ad4fd31076e53bddfc154b22b338e4a8aff",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-baseline",
+          "head": "c36c3854ab45ca375ebb4ba2ab688d8aacbfa463",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u06-rb1-verify",
+          "head": "e9f3cc63406523c44db9eb42965b01a258312fa2",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-baseline",
+          "head": "7ce8f7827e6e9a037a8010791c4ee69170d868ff",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-rb1-final",
+          "head": "bb468587c90c9a76956579057cb68de1fc5bd0be",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u07-verify",
+          "head": "311794c8b5c168ca34249855a5c7be8347350f7d",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u08-baseline",
+          "head": "1db763ca6a5423f3855c1be251f4270a7e12048e",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-baseline",
+          "head": "030e9027685033c674cf2021499db7bfb675cbfd",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Promise of Planet — وعد الكوكب/.u09-rb1-baseline",
+          "head": "545507c70c7e4861e9f732b7f9cdce613d1b3e58",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence-1",
+          "head": "0057dbed509f15f107bd17345de9e0a98bd8de75",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/convergence2-baseline",
+          "head": "b52e0167e3f60c59af3ad843a618ba2e95cef246",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/firestore-main-rehearsal-20261113",
+          "head": "00c9c87f09d9df1aae8fe3fdac50751169eaca37",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/u03-concurrency-20261114",
+          "head": "419459d870294f41a0948de15a576db9ddd2249e",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui1-trip-entry-20261113",
+          "head": "018a593e2d027dddc860799b996ffb2f323abeb8",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui2-trip-timeline-20261114",
+          "head": "e3b1b7686a4c5b7ba3b371d212eb16c31d108998",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-postmerge-ui4-entry-20261115",
+          "head": "f6a4cded84651c8a904da640886ff02b9746c0f9",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-rb1-main-20261115",
+          "head": "7be559e06025d44341aac242fe4df488d2cc899a",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui3-setup-import-20261114",
+          "head": "39433a83094a4cc46bb6b5c8267f5e4f6d22b8d1",
+          "headStatusAndDirtyHashesMatch": true
+        },
+        {
+          "folder": "C:/Users/Hp/Documents/ChatGPT/Work Follow/ui4-main-baseline-20261115",
+          "head": "800434f634fb7ea5099fc12e4ec064dfb05d6df2",
+          "headStatusAndDirtyHashesMatch": true
+        }
+      ],
+      "RB4Original9AndUnpublished013": "UNCHANGED",
+      "publishedUI6AndCorrectionCheckouts": "CLEAN at original heads"
+    }
+  },
+  "UI7Discovery": {
+    "authoritativeAssignedScopeFound": false,
+    "roadmapBoundary": "Foundational Phase0–18 purposes distinct fromUI phase IDs;existing UI7 reservations retained",
+    "matrix": [
+      {
+        "rank": 1,
+        "target": "Legacy dashboard source/cache provenance",
+        "impact": "medium-high daily read truth",
+        "dependencies": "ready readers/cache;new component fixtures needed",
+        "security": "safe if scoped read-only;VIEWER discrepancy and opaque empty cache limits explicit",
+        "risk": "medium;seven widgets/mixed provenance",
+        "testability": "strong service baseline;new actual-component asynchronous coverage required"
+      },
+      {
+        "rank": 2,
+        "target": "Security diagnostic evidence labeling",
+        "impact": "medium governance clarity",
+        "dependencies": "existing diagnostic helpers",
+        "security": "privileged route unchanged;no live certification",
+        "risk": "low-medium",
+        "testability": "deterministic fixtures"
+      },
+      {
+        "rank": 3,
+        "target": "Workspace recovery/action hierarchy",
+        "impact": "high when provider used",
+        "dependencies": "partial;live Google/quiescence acceptance unresolved",
+        "security": "high credential/resource risk",
+        "risk": "high",
+        "testability": "provider fixtures strong;live acceptance separate"
+      }
+    ],
+    "recommended": "Legacy Dashboard Source Availability & Cache Provenance",
+    "contract": "docs/reconstruction/UI7_TARGET_DISCOVERY.md",
+    "sourceTargetsAfterSeparateApproval": [
+      "src/components/dashboard/OperationsDashboardView.tsx",
+      "optional src/components/dashboard/dashboardPresentation.ts",
+      "src/locales/ar/index.ts",
+      "src/locales/en/index.ts",
+      "src/locales/ur/index.ts"
+    ],
+    "readOnlyAuthorities": [
+      "src/App.tsx",
+      "src/services/navigation.service.ts",
+      "src/services/dashboard.service.ts",
+      "src/utils/projectScope.ts",
+      "src/repositories/project.repository.ts",
+      "src/services/projectProvisioning.service.ts",
+      "src/services/projectFleetReadModel.service.ts",
+      "src/services/offline/offlineCache.service.ts",
+      "src/services/offline/indexedDB.service.ts"
+    ],
+    "ownerPrerequisites": [
+      "Approve one contract/exclusions",
+      "Preserve fail-closed VIEWER behavior or separately authorize role-policy correction",
+      "Accept opaque cache-empty display limits without service/authority redesign"
+    ],
+    "implementation": "NOT_STARTED;no source/test changes;noUI8",
+    "readOnlyEvidenceInputHashes": {
+      "docs/reconstruction/FOUNDATIONAL_PLAN_PHASE_0_TO_18.md": "915a53bcadbfb234733bf08cd396f5d0953a0fb01e4bd11875b7433771329d36",
+      "docs/reconstruction/RECONSTRUCTION_PLAN.md": "8324eb64b0714d216bec0581d25d1dd2aae0ea68b3e29e5f6ef9b6ae45366302",
+      "docs/reconstruction/STREAMLINED_RECONSTRUCTION_EXECUTION_METHOD.md": "cde5a808d4f911ad1a1a1fa7679c7066ebf16b6da38d71b94003bae1df4ebc41",
+      "docs/reconstruction/UI5_TARGET_DISCOVERY.md": "183b2f962a635e2efb32086952afbca91a35ee60b646fd751fd2c4b37f19ca79",
+      "docs/reconstruction/UI6_TARGET_DISCOVERY.md": "eb93b8bc85f941cef055d4a072f4eb4f251e273cb2706e8e36b2d221d65223cf",
+      "src/App.tsx": "9bb06af7e60fd51f6bb5089253d85ca4e6a60aa2161614ae15d49c92ce8267ed",
+      "src/components/dashboard/OperationsDashboardView.tsx": "ec57930300e178d642d7a4860de37c02bc202d446688980b063e41133c5faa4f",
+      "src/components/dashboard/WidgetFilterBar.tsx": "ac100182a6b46bb232938eacad755bdd2e55e7d0dc0b56c5a4780c54191a5b31",
+      "src/components/security/SecurityAuditView.tsx": "b15b5529303fad406e86dd455d84c37e442f91bbf37a001fb946b81689510192",
+      "src/components/wizard/WorkspaceEnsurePanel.tsx": "27488975cc32f2e85706a57d1c04627d893676e2627a860456c33fce74ba5188",
+      "src/components/wizard/WorkspaceAutomationRecovery.tsx": "dad563faf57263bc4afdc5a3ebd0c79a77d282b26eee48a5345317548eb247aa",
+      "src/components/wizard/FleetSetupWorkspace.tsx": "efdf6de65a26b44b4f8443589d71906619667e08bf4dddedcb4d74b313693d59",
+      "src/services/navigation.service.ts": "046fe811005104a14db2afc616a528ee800468882132cb83503913ce3567cee6",
+      "src/services/dashboard.service.ts": "a27d05a9abd0432e8cb7fd6fb9f6bd910df8fb812d9b6b9e2c209d0e24239270",
+      "src/repositories/project.repository.ts": "0544fb97d068098afa7b43417f42334c88c01522eabf62abbc35d6d51c24b4c9",
+      "src/services/offline/offlineCache.service.ts": "670bfd17ca00419c845c81fcdbe920e91b3a555b4b944490fcb9b3c5af5e2db3",
+      "src/utils/projectScope.ts": "3daf8cd99e240fd7fb4564ab9b77ba24976493628199853b6cfb8e7141bd212f",
+      "src/tests/dashboardReportsI18n.test.ts": "1f6b61ff0f78033572e8cc68c8ca5c9b147b6fa576681d9c9120250b68cd559f",
+      "src/tests/fieldReportsCentralDashboardBlock80.test.ts": "f510fce6a50caed64feb9a6fd49e121c095be46e3ce67f909ab1d8f0ca08ff5d",
+      "src/tests/dashboard.test.ts": "8a5f6c8c719a8afb0ff5281e5be4a472c3485697299661c494c22acb33a5113d"
+    }
+  },
+  "authority": "Firestore operational authority;no SQL cutover/dual writes/RB4 activation/migration013 publication/deployment",
+  "acceptanceNotGranted": [
+    "physical-device",
+    "screen-reader",
+    "live operational",
+    "real Google Workspace",
+    "product",
+    "Beta2"
+  ],
+  "publicationGate": "LOCAL_DOCUMENTATION_ONLY / NO_COMMIT_PUSH_PR_MERGE_DEPLOYMENT / OWNER_REVIEW_PENDING"
+}
